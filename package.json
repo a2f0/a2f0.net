@@ -48,7 +48,7 @@
     "@a2f0/check-for-unpinned-dependencies": "1.0.4",
     "@puppeteer/browsers": "2.4.0",
     "@testing-library/react": "16.0.1",
-    "@types/color": "3.0.6",
+    "@types/color": "4.2.0",
     "@types/invariant": "2.2.37",
     "@types/mocha": "10.0.9",
     "@types/node": "22.7.7",
