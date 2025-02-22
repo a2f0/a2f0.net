@@ -22,9 +22,9 @@
     "ci-headless": "start-server-and-test start-server-test http-get://localhost:4001 test-headless",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint .",
+    "lint": "biome lint",
     "compile": "tsc",
-    "fix": "eslint . --fix",
+    "fix": "biome . --fix",
     "prepare": "pnpm compile",
     "unit": "vitest --no-watch --environment jsdom"
   },
