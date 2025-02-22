@@ -35,13 +35,13 @@ export const config: WebdriverIO.Config = {
     ui: 'bdd',
     timeout: 60000,
   },
-  onPrepare: async function () {
+  onPrepare: async () => {
     if (!fs.existsSync(testDownloadDir)) {
       console.info('Creating download directory: ' + testDownloadDir);
       fs.mkdirSync(testDownloadDir);
     }
   },
-  onComplete: async function () {
+  onComplete: async () => {
     fs.rm(testDownloadDir, {recursive: true}, err => {
       if (err) {
         throw err;

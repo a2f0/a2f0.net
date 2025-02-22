@@ -82,15 +82,6 @@
 	},
 	"overrides": [
 		{
-			"include": ["**/*.js", "**/*.jsx", "eslint.config.js"],
-			"linter": {
-				"rules": {
-					"style": { "noVar": "error", "useConst": "error" },
-					"suspicious": { "noDoubleEquals": "error" }
-				}
-			}
-		},
-		{
 			"include": ["**/*.ts", "**/*.tsx"],
 			"javascript": { "globals": [] },
 			"linter": {
@@ -184,7 +175,10 @@
 				"**/__tests__/**/*",
 				"**/test/**/*.ts",
 				"**/test/**/*.tsx",
-				"test/**/*.ts"
+				"test/**/*.ts",
+        "**/wdio.*.conf.ts",
+				"**/test/pageobjects/**/*.ts",
+				"**/test/specs/**/*.ts"
 			],
 			"javascript": {
 				"globals": [
@@ -196,17 +190,10 @@
 					"describe",
 					"afterEach",
 					"test",
-					"afterAll"
+					"afterAll",
+          "browser", "$$", "WebdriverIO", "$"
 				]
 			}
-		},
-		{
-			"include": [
-				"**/wdio.*.conf.ts",
-				"**/test/pageobjects/**/*.ts",
-				"**/test/specs/**/*.ts"
-			],
-			"javascript": { "globals": ["browser", "$$", "WebdriverIO", "$"] }
 		}
 	]
 }
