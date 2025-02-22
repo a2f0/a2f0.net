@@ -82,29 +82,6 @@
   },
   "overrides": [
     {
-      "include": ["**/*.ts", "**/*.tsx"],
-      "javascript": { "globals": [] },
-      "linter": {
-        "rules": {
-          "complexity": { "noBannedTypes": "off" },
-          "correctness": {
-            "noInvalidUseBeforeDeclaration": "off",
-            "noUnusedVariables": "error"
-          },
-          "style": {
-            "noNonNullAssertion": "off",
-            "noVar": "error",
-            "useConst": "error"
-          },
-          "suspicious": {
-            "noDoubleEquals": "error",
-            "noDuplicateClassMembers": "off",
-            "noEmptyBlockStatements": "off"
-          }
-        }
-      }
-    },
-    {
       "include": [
         "**/*.test.ts",
         "**/*.test.tsx",
