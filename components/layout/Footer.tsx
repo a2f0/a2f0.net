@@ -52,10 +52,10 @@ const Footer = () => (
         </FlexContainerLeftAlign>
       </FlexColumn>
       <FlexColumn>
-        <FlexContainerCenterAlign></FlexContainerCenterAlign>
+        <FlexContainerCenterAlign />
       </FlexColumn>
       <FlexColumn>
-        <FlexContainerRightAlign></FlexContainerRightAlign>
+        <FlexContainerRightAlign />
       </FlexColumn>
     </FlexContainerColumnPageWidth>
   </StyledFooter>

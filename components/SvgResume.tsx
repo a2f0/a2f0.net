@@ -1,11 +1,11 @@
 import Color from 'color';
-import React, {CSSProperties, useEffect, useState} from 'react';
+import React, {type CSSProperties, useEffect, useState} from 'react';
 import styled from 'styled-components';
 
 import {resumeConfiguration} from '../configuration';
 import {useAppSelector} from '../lib/hooks';
 import {resume} from '../lib/resume';
-import {ResumeConfig} from '../lib/resumeConfig';
+import type {ResumeConfig} from '../lib/resumeConfig';
 import {
   selectBackgroundColor,
   selectForegroundColor,
@@ -68,6 +68,6 @@ export default function SvgResume() {
       className="svg"
       id="svgContainer"
       style={positionSvg}
-    ></SvgContainer>
+    />
   );
 }

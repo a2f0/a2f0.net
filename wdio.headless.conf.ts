@@ -7,10 +7,10 @@ const headlessChromeCapabilities = {
   'goog:chromeOptions': {
     ...chromeCapabilities['goog:chromeOptions'],
     prefs: {
-      ...chromeCapabilities['goog:chromeOptions']['prefs'],
+      ...chromeCapabilities['goog:chromeOptions'].prefs,
     },
     args: [
-      ...chromeCapabilities['goog:chromeOptions']['args'],
+      ...chromeCapabilities['goog:chromeOptions'].args,
       '--headless',
       '--disable-gpu',
       '--disable-features=NetworkService',

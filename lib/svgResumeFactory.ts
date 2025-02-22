@@ -1,8 +1,8 @@
-import Color from 'color';
+import type Color from 'color';
 
 import {resumeConfiguration} from '../configuration';
-import {Resume} from './resume';
-import {ResumeConfig} from './resumeConfig';
+import type {Resume} from './resume';
+import type {ResumeConfig} from './resumeConfig';
 import ResumeFactory from './resumeFactory';
 const {units} = resumeConfiguration;
 
@@ -134,7 +134,7 @@ export default class SvgResumeFactory extends ResumeFactory {
     lineToAdd.setAttribute('x2', x2 + units);
     lineToAdd.setAttribute('y1', y1 + units);
     lineToAdd.setAttribute('y2', y2 + units);
-    lineToAdd.setAttribute('stroke-width', '.75' + units);
+    lineToAdd.setAttribute('stroke-width', `.75${units}`);
     lineToAdd.setAttribute('stroke', color.hex());
     lineToAdd.setAttribute('id', id);
     this.encodedResume.appendChild(lineToAdd);

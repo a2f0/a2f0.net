@@ -4,10 +4,10 @@ import {describe, expect, test} from 'vitest';
 import {resumeConfiguration} from '../../configuration';
 import {
   breakLinesIntoChunks,
-  ChunkedLine,
+  type ChunkedLine,
   extractLinks,
   getFontString,
-  Match,
+  type Match,
   wrapLabel,
 } from '../../lib/textUtils';
 const {

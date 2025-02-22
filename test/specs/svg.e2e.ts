@@ -1,5 +1,5 @@
-import assert from 'assert';
-import path from 'path';
+import assert from 'node:assert';
+import path from 'node:path';
 
 import {resumeConfiguration} from '../../configuration';
 import waitForFileExists from '../lib/fs';

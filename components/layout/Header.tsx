@@ -55,7 +55,7 @@ const Header = () => {
             <FlexContainerCenterAlign />
           </FlexColumn>
           <FlexColumn>
-            <FlexContainerRightAlign></FlexContainerRightAlign>
+            <FlexContainerRightAlign />
           </FlexColumn>
         </FlexContainerColumnPageWidth>
       </StyledHeader>

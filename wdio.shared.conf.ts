@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 
 import {testDownloadDir} from './test/testDownloadDir';
 
@@ -37,7 +37,7 @@ export const config: WebdriverIO.Config = {
   },
   onPrepare: async () => {
     if (!fs.existsSync(testDownloadDir)) {
-      console.info('Creating download directory: ' + testDownloadDir);
+      console.info(`Creating download directory: ${testDownloadDir}`);
       fs.mkdirSync(testDownloadDir);
     }
   },

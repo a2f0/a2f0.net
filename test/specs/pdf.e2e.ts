@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 
 import waitForFileExists from '../lib/fs';
 import PdfPage from '../pageobjects/pdf.page';
