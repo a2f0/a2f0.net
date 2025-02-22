@@ -1,4 +1,5 @@
-import React, {SetStateAction, useEffect, useState} from 'react';
+import type React from 'react';
+import {type SetStateAction, useEffect, useState} from 'react'
 
 import {useMenuParent} from '../components/menu/MenuParentContext';
 export const useDetectOutsideClick = (
@@ -25,7 +26,7 @@ export const useDetectOutsideClick = (
     return () => {
       window.removeEventListener('click', onClick);
     };
-  }, [isActive, el]);
+  }, [isActive, el, parentContext.setIsActive, parentContext.setActiveDropdown]);
 
   return [isActive, setIsActive];
 };

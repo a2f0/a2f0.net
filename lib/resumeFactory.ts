@@ -2,9 +2,9 @@ import Color from 'color';
 import invariant from 'invariant';
 
 import {resumeConfiguration as config} from '../configuration';
-import {Resume} from './resume';
-import {ResumeConfig} from './resumeConfig';
-import {breakLinesIntoChunks, ChunkedLine, extractLinks} from './textUtils';
+import type {Resume} from './resume';
+import type {ResumeConfig} from './resumeConfig';
+import {breakLinesIntoChunks, type ChunkedLine, extractLinks} from './textUtils';
 import {getFontString, getTextWidthInPoints, wrapLabel} from './textUtils';
 
 export default abstract class ResumeFactory {
@@ -191,7 +191,7 @@ export default abstract class ResumeFactory {
         currentPositionYPos,
         config.positionBulletRadius,
         this.highlightColor,
-        'positionBulletPoint-' + i
+        `positionBulletPoint-${i}`
       );
 
       this.addText(
@@ -201,7 +201,7 @@ export default abstract class ResumeFactory {
         config.fontFamily,
         this.foregroundColor,
         position.title,
-        'positionTitle-' + i
+        `positionTitle-${i}`
       );
       const titleWidth = getTextWidthInPoints(
         position.title,
@@ -234,7 +234,7 @@ export default abstract class ResumeFactory {
         config.fontFamily,
         this.foregroundColor,
         position.date_range,
-        'positionDateRange-' + i
+        `positionDateRange-${i}`
       );
 
       // Hyphen After Title
@@ -247,7 +247,7 @@ export default abstract class ResumeFactory {
         config.fontFamily,
         this.foregroundColor,
         '-',
-        'hyphenAfterTitle-' + i
+        `hyphenAfterTitle-${i}`
       );
 
       const companyNameXPos = hyphen1XPos + hyphenWidth + config.hyphenSpacing;
@@ -267,7 +267,7 @@ export default abstract class ResumeFactory {
             this.foregroundColor,
             chunk.text,
             chunk.url,
-            'positionCompanyName-' + i
+            `positionCompanyName-${i}`
           );
         } else {
           this.addText(
@@ -277,7 +277,7 @@ export default abstract class ResumeFactory {
             config.fontFamily,
             this.foregroundColor,
             chunk.text,
-            'positionCompanyName-' + i
+            `positionCompanyName-${i}`
           );
         }
         currentXPos += getTextWidthInPoints(
@@ -300,7 +300,7 @@ export default abstract class ResumeFactory {
         config.fontFamily,
         this.foregroundColor,
         '-',
-        'hyphenAfterCompanyName-' + i
+        `hyphenAfterCompanyName-${i}`
       );
 
       // Company Location

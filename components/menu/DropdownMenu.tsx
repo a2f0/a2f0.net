@@ -1,4 +1,4 @@
-import React, {ReactNode, useEffect, useRef} from 'react';
+import React, {type ReactNode, useEffect, useRef} from 'react';
 
 import {useAppSelector} from '../../lib/hooks';
 import {selectScale} from '../../lib/resumeConfigSlice';
@@ -37,20 +37,20 @@ export default function DropdownMenu({children, label}: MenuProps) {
     if (parentContext.activeDropdown !== label) {
       setIsActive(false);
     }
-  }, [parentContext.activeDropdown]);
+  }, [parentContext.activeDropdown, label, setIsActive]);
 
   return (
     <DropdownMenuProvider setIsActive={setIsActive}>
       <MenuContainer ref={dropdownRef}>
         <MenuButton
           scale={scale}
-          id={'menuButton' + label}
+          id={`menuButton${label}`}
           onClick={onClick}
           onMouseEnter={onMouseEnter}
         >
           {label}
         </MenuButton>
-        <MenuItems id={'menuItems' + label} $isActive={isActive} scale={scale}>
+        <MenuItems id={`menuItems${label}`} $isActive={isActive} scale={scale}>
           {children}
         </MenuItems>
       </MenuContainer>

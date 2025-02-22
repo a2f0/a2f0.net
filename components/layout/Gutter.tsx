@@ -15,7 +15,7 @@ const StyledDiv = styled.div<IProps>`
 
 const Layout = () => {
   const scale = useAppSelector(selectScale);
-  return <StyledDiv scale={scale}></StyledDiv>;
+  return <StyledDiv scale={scale} />;
 };
 
 export default Layout;

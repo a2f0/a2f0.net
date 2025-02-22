@@ -1,5 +1,5 @@
 #!/usr/bin/env -S npx tsx
-import Ajv, {JSONSchemaType} from 'ajv';
+import Ajv, {type JSONSchemaType} from 'ajv';
 
 import resume from '../../resume.json';
 import type {ResumeData} from '../resume';

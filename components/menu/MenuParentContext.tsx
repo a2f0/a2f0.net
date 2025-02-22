@@ -1,4 +1,4 @@
-import React, {ReactNode} from 'react';
+import React, {type ReactNode} from 'react';
 
 const MenuParentContext = React.createContext<ParentContextProps | undefined>(
   undefined

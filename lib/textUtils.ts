@@ -9,9 +9,8 @@ export function getTextWidthInPoints(
     const widthInPixels = context.measureText(text).width;
     const widthInPoints = widthInPixels * 0.75;
     return widthInPoints;
-  } else {
-    return 0;
   }
+    return 0;
 }
 
 function breakString(
@@ -87,9 +86,9 @@ export function getFontString(
   units: string,
   fontFamily: string
 ): string {
-  let fontString = weight + ' ';
+  let fontString = `${weight} `;
   fontString += size;
-  fontString += units + ' ';
+  fontString += `${units} `;
   fontString += fontFamily;
   return fontString;
 }

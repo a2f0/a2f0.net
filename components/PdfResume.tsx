@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import {useAppSelector} from '../lib/hooks';
 import PdfResumeFactory from '../lib/pdfResumeFactory';
 import {resume} from '../lib/resume';
-import {ResumeConfig} from '../lib/resumeConfig';
+import type {ResumeConfig} from '../lib/resumeConfig';
 import {
   selectBackgroundColor,
   selectForegroundColor,
