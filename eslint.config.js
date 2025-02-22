@@ -1,60 +1,104 @@
 import eslint from '@eslint/js';
+import nextPlugin from '@next/eslint-plugin-next';
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsparser from '@typescript-eslint/parser';
-import nextPlugin from '@next/eslint-plugin-next';
-import prettierPlugin from 'eslint-plugin-prettier';
-import nodePlugin from 'eslint-plugin-node';
 import importPlugin from 'eslint-plugin-import';
+import nodePlugin from 'eslint-plugin-node';
+import prettierPlugin from 'eslint-plugin-prettier';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 
 export default [
-  eslint.configs.recommended,
-  // Configuration for TypeScript files
   {
-    files: ['**/*.ts', '**/*.tsx'],
-    ignores: ['.next/**/*', '.next/*'],
+    // Global ignores at root level
+    ignores: ['.next/**/*', 'dist/**/*'],
+  },
+  eslint.configs.recommended,
+  // Base configuration for all files
+  {
     languageOptions: {
       ecmaVersion: 2024,
       sourceType: 'module',
-      parser: tsparser,
-      parserOptions: {
-        project: './tsconfig.json'
-      }
+      globals: {
+        // Browser globals
+        window: 'readonly',
+        document: 'readonly',
+        console: 'readonly',
+        global: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        JSX: 'readonly',
+      },
     },
+  },
+  // Configuration for JavaScript files
+  {
+    files: ['**/*.js', '**/*.jsx', 'eslint.config.js'],
     plugins: {
-      '@typescript-eslint': tseslint,
-      '@next/next': nextPlugin,
-      'prettier': prettierPlugin,
-      'node': nodePlugin,
-      'import': importPlugin,
-      'simple-import-sort': simpleImportSort
+      prettier: prettierPlugin,
+      node: nodePlugin,
+      import: importPlugin,
+      'simple-import-sort': simpleImportSort,
     },
     rules: {
-      'indent': ['error', 2],
+      indent: ['error', 2],
       'import/no-commonjs': 'error',
       'node/no-unpublished-import': 'off',
       'prettier/prettier': 'error',
       'block-scoped-var': 'error',
-      'eqeqeq': 'error',
+      eqeqeq: 'error',
       'no-var': 'error',
       'prefer-const': 'error',
       'eol-last': 'error',
       'prefer-arrow-callback': 'error',
       'no-trailing-spaces': 'error',
-      'quotes': ['warn', 'single', { 'avoidEscape': true }],
+      quotes: ['warn', 'single', {avoidEscape: true}],
+      'simple-import-sort/imports': 'error',
+      'simple-import-sort/exports': 'error',
+    },
+  },
+  // Configuration for TypeScript files
+  {
+    files: ['**/*.ts', '**/*.tsx'],
+    languageOptions: {
+      parser: tsparser,
+      parserOptions: {
+        project: './tsconfig.json',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tseslint,
+      '@next/next': nextPlugin,
+      prettier: prettierPlugin,
+      node: nodePlugin,
+      import: importPlugin,
+      'simple-import-sort': simpleImportSort,
+    },
+    rules: {
+      indent: ['error', 2],
+      'import/no-commonjs': 'error',
+      'node/no-unpublished-import': 'off',
+      'prettier/prettier': 'error',
+      'block-scoped-var': 'error',
+      eqeqeq: 'error',
+      'no-var': 'error',
+      'prefer-const': 'error',
+      'eol-last': 'error',
+      'prefer-arrow-callback': 'error',
+      'no-trailing-spaces': 'error',
+      quotes: ['warn', 'single', {avoidEscape: true}],
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
       '@typescript-eslint/await-thenable': 'error',
       'no-restricted-properties': [
         'error',
         {
-          'object': 'describe',
-          'property': 'only'
+          object: 'describe',
+          property: 'only',
         },
         {
-          'object': 'it',
-          'property': 'only'
-        }
+          object: 'it',
+          property: 'only',
+        },
       ],
       // TypeScript specific rules
       '@typescript-eslint/ban-ts-comment': 'warn',
@@ -75,44 +119,58 @@ export default [
       'no-dupe-class-members': 'off',
       'require-atomic-updates': 'off',
       'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': ['error', {
-        'argsIgnorePattern': '^_',
-        'varsIgnorePattern': '^_|^abstract',
-        'ignoreRestSiblings': true,
-        'args': 'all',
-        'destructuredArrayIgnorePattern': '^_'
-      }]
-    }
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_|^abstract',
+          ignoreRestSiblings: true,
+          args: 'all',
+          destructuredArrayIgnorePattern: '^_',
+        },
+      ],
+    },
   },
-  // Configuration for JavaScript files
+  // Configuration for test files
   {
-    files: ['**/*.js', '**/*.jsx', 'eslint.config.js'],
-    ignores: ['.next/**/*', '.next/*'],
+    files: [
+      '**/*.test.ts',
+      '**/*.test.tsx',
+      '**/__tests__/**/*',
+      '**/test/**/*.ts',
+      '**/test/**/*.tsx',
+      'test/**/*.ts',
+    ],
     languageOptions: {
-      ecmaVersion: 2024,
-      sourceType: 'module'
+      globals: {
+        // Test globals
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        jest: 'readonly',
+      },
     },
-    plugins: {
-      'prettier': prettierPlugin,
-      'node': nodePlugin,
-      'import': importPlugin,
-      'simple-import-sort': simpleImportSort
+  },
+  // WebdriverIO specific files
+  {
+    files: [
+      '**/wdio.*.conf.ts',
+      '**/test/pageobjects/**/*.ts',
+      '**/test/specs/**/*.ts',
+    ],
+    languageOptions: {
+      globals: {
+        // WebdriverIO globals
+        browser: 'readonly',
+        $: 'readonly',
+        $$: 'readonly',
+        WebdriverIO: 'readonly',
+      },
     },
-    rules: {
-      'indent': ['error', 2],
-      'import/no-commonjs': 'error',
-      'node/no-unpublished-import': 'off',
-      'prettier/prettier': 'error',
-      'block-scoped-var': 'error',
-      'eqeqeq': 'error',
-      'no-var': 'error',
-      'prefer-const': 'error',
-      'eol-last': 'error',
-      'prefer-arrow-callback': 'error',
-      'no-trailing-spaces': 'error',
-      'quotes': ['warn', 'single', { 'avoidEscape': true }],
-      'simple-import-sort/imports': 'error',
-      'simple-import-sort/exports': 'error'
-    }
-  }
+  },
 ];
