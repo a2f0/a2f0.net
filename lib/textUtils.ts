@@ -114,9 +114,8 @@ export function extractLinks(markdownString: string): ExtractLinksResult {
   let plainString = markdownString;
   let offset = 0;
 
-  let match: RegExpExecArray | null;
-
-  while ((match = linkRegex.exec(markdownString)) !== null) {
+  let match = linkRegex.exec(markdownString);
+  while (match !== null) {
     const [fullMatch, text, url] = match;
     const index = match.index - offset;
     matches.push({text, url, index, length: text.length});
@@ -129,6 +128,8 @@ export function extractLinks(markdownString: string): ExtractLinksResult {
 
     // Update offset
     offset += fullMatch.length - text.length;
+
+    match = linkRegex.exec(markdownString);
   }
 
   return {matches, plainString};
