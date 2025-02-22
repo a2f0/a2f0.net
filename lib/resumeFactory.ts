@@ -8,22 +8,22 @@ import {breakLinesIntoChunks, ChunkedLine, extractLinks} from './textUtils';
 import {getFontString, getTextWidthInPoints, wrapLabel} from './textUtils';
 
 export default abstract class ResumeFactory {
-  foregroundColor: typeof Color;
-  backgroundColor: typeof Color;
-  highlightColor: typeof Color;
+  foregroundColor: ReturnType<typeof Color>;
+  backgroundColor: ReturnType<typeof Color>;
+  highlightColor: ReturnType<typeof Color>;
   resume: Resume;
 
   constructor(config: ResumeConfig, resume: Resume) {
-    this.foregroundColor = config.foregroundColor;
-    this.backgroundColor = config.backgroundColor;
-    this.highlightColor = config.highlightColor;
+    this.foregroundColor = new Color(config.foregroundColor);
+    this.backgroundColor = new Color(config.backgroundColor);
+    this.highlightColor = new Color(config.highlightColor);
     this.resume = resume;
   }
   protected abstract addCircle(
     x: number,
     y: number,
     radius: number,
-    color: typeof Color,
+    color: ReturnType<typeof Color>,
     id: string
   ): void;
   protected abstract addRect(
@@ -31,7 +31,7 @@ export default abstract class ResumeFactory {
     y: number,
     width: number,
     height: number,
-    color: typeof Color,
+    color: ReturnType<typeof Color>,
     id: string
   ): void;
   protected abstract addText(
@@ -39,7 +39,7 @@ export default abstract class ResumeFactory {
     y: number,
     fontSize: number,
     fontFamily: string,
-    color: typeof Color,
+    color: ReturnType<typeof Color>,
     text: string,
     id: string
   ): void;
@@ -48,7 +48,7 @@ export default abstract class ResumeFactory {
     y: number,
     fontSize: number,
     fontFamily: string,
-    color: typeof Color,
+    color: ReturnType<typeof Color>,
     text: string,
     url: string,
     id: string
@@ -58,7 +58,7 @@ export default abstract class ResumeFactory {
     x2: number,
     y1: number,
     y2: number,
-    color: typeof Color,
+    color: ReturnType<typeof Color>,
     id: string
   ): void;
 

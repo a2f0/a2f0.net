@@ -29,9 +29,9 @@ const FileMenu = () => {
 
   const downloadPDF = () => {
     const config: ResumeConfig = {
-      foregroundColor: Color(foregroundColor),
-      backgroundColor: Color(backgroundColor),
-      highlightColor: Color(highlightColor),
+      foregroundColor: new Color(foregroundColor),
+      backgroundColor: new Color(backgroundColor),
+      highlightColor: new Color(highlightColor),
     };
     const resumeFactory = new PdfResumeFactory(config, resume);
     const pdfResume = resumeFactory.getResume();
