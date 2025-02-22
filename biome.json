@@ -67,5 +67,146 @@
 			}
 		},
 		"ignore": [".next/**/*", "dist/**/*"]
-	}
+	},
+	"javascript": {
+		"formatter": { "quoteStyle": "double" },
+		"globals": [
+			"JSX",
+			"setTimeout",
+			"clearTimeout",
+			"global",
+			"document",
+			"window",
+			"console"
+		]
+	},
+	"overrides": [
+		{
+			"include": ["**/*.js", "**/*.jsx", "eslint.config.js"],
+			"linter": {
+				"rules": {
+					"style": { "noVar": "error", "useConst": "error" },
+					"suspicious": { "noDoubleEquals": "error" }
+				}
+			}
+		},
+		{
+			"include": ["**/*.ts", "**/*.tsx"],
+			"javascript": { "globals": [] },
+			"linter": {
+				"rules": {
+					"complexity": { "noBannedTypes": "off" },
+					"correctness": {
+						"noInvalidUseBeforeDeclaration": "off",
+						"noUnusedVariables": "error"
+					},
+					"style": {
+						"noNonNullAssertion": "off",
+						"noVar": "error",
+						"useConst": "error"
+					},
+					"suspicious": {
+						"noDoubleEquals": "error",
+						"noDuplicateClassMembers": "off",
+						"noEmptyBlockStatements": "off"
+					}
+				}
+			}
+		},
+		{
+			"include": [
+				"**/*.test.ts",
+				"**/*.test.tsx",
+				"**/__tests__/**/*",
+				"**/test/**/*.ts",
+				"**/test/**/*.tsx",
+				"test/**/*.ts"
+			],
+			"javascript": {
+				"globals": [
+					"jest",
+					"beforeAll",
+					"expect",
+					"it",
+					"beforeEach",
+					"describe",
+					"afterEach",
+					"test",
+					"afterAll"
+				]
+			}
+		},
+		{
+			"include": [
+				"**/wdio.*.conf.ts",
+				"**/test/pageobjects/**/*.ts",
+				"**/test/specs/**/*.ts"
+			],
+			"javascript": { "globals": ["browser", "$$", "WebdriverIO", "$"] }
+		},
+		{
+			"include": ["**/*.js", "**/*.jsx", "eslint.config.js"],
+			"linter": {
+				"rules": {
+					"complexity": { "useArrowFunction": "error" },
+					"style": { "noVar": "error", "useConst": "error" },
+					"suspicious": { "noDoubleEquals": "error" }
+				}
+			}
+		},
+		{
+			"include": ["**/*.ts", "**/*.tsx"],
+			"javascript": { "globals": [] },
+			"linter": {
+				"rules": {
+					"complexity": { "noBannedTypes": "off", "useArrowFunction": "error" },
+					"correctness": {
+						"noInvalidUseBeforeDeclaration": "off",
+						"noUnusedVariables": "error"
+					},
+					"style": {
+						"noNonNullAssertion": "off",
+						"noVar": "error",
+						"useConst": "error"
+					},
+					"suspicious": {
+						"noDoubleEquals": "error",
+						"noDuplicateClassMembers": "off",
+						"noEmptyBlockStatements": "off"
+					}
+				}
+			}
+		},
+		{
+			"include": [
+				"**/*.test.ts",
+				"**/*.test.tsx",
+				"**/__tests__/**/*",
+				"**/test/**/*.ts",
+				"**/test/**/*.tsx",
+				"test/**/*.ts"
+			],
+			"javascript": {
+				"globals": [
+					"jest",
+					"beforeAll",
+					"expect",
+					"it",
+					"beforeEach",
+					"describe",
+					"afterEach",
+					"test",
+					"afterAll"
+				]
+			}
+		},
+		{
+			"include": [
+				"**/wdio.*.conf.ts",
+				"**/test/pageobjects/**/*.ts",
+				"**/test/specs/**/*.ts"
+			],
+			"javascript": { "globals": ["browser", "$$", "WebdriverIO", "$"] }
+		}
+	]
 }
