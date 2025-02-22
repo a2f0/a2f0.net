@@ -13,9 +13,9 @@ repos:
       - id: shellcheck
   - repo: local
     hooks:
-      - id: eslint
-        name: eslint
-        entry: pnpm eslint .
+      - id: biome
+        name: biome
+        entry: pnpm biome lint
         pass_filenames: false
         language: node
       - id: ajv
