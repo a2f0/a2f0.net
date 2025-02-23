@@ -41,7 +41,6 @@
     "react-redux": "9.2.0",
     "redux": "5.0.1",
     "styled-components": "6.1.15",
-    "ts-node": "10.9.2",
     "wdio-video-reporter": "6.1.1"
   },
   "devDependencies": {
@@ -67,7 +66,7 @@
     "jsdom": "26.0.0",
     "prettier": "3.5.2",
     "start-server-and-test": "2.0.10",
-    "tsx": "^4.19.3",
+    "tsx": "4.19.3",
     "typescript": "5.7.3",
     "vercel": "41.2.0",
     "vitest": "3.0.6"
