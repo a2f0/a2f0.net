@@ -41,11 +41,8 @@ export const config: WebdriverIO.Config = {
     }
   },
   onComplete: async () => {
-    fs.rm(testDownloadDir, {recursive: true}, err => {
-      if (err) {
-        throw err;
-      }
-      console.log(`Download directory ${testDownloadDir} was deleted.`);
-    });
+    if (fs.existsSync(testDownloadDir)) {
+      fs.rmSync(testDownloadDir, {recursive: true});
+    }
   }
 };
