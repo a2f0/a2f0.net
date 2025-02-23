@@ -1,4 +1,5 @@
 import assert from 'node:assert';
+import fs from 'node:fs';
 import path from 'node:path';
 
 import {resumeConfiguration} from '../../configuration';
@@ -71,10 +72,13 @@ describe('SVG Resume', () => {
     await SvgPage.fileMenuButton.click();
     await expect(SvgPage.fileMenuItems).toBeDisplayed();
     await expect(SvgPage.downloadSvgMenuOption).toBeDisplayed();
-    await SvgPage.downloadSvgMenuOption.click();
+    await expect(SvgPage.downloadSvgMenuOption).toBeClickable();
     const filePath = path.join(testDownloadDir, 'dan.sullivan.resume.svg');
+    await expect(fs.existsSync(filePath)).toBe(false);
+    await SvgPage.downloadSvgMenuOption.click();
     await browser.call(async () => {
       return await waitForFileExists(filePath, 3000);
     });
+    await expect(SvgPage.downloadSvgMenuOption).not.toBeDisplayed();
   });
 });

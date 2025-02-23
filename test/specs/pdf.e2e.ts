@@ -1,4 +1,5 @@
 import path from 'node:path';
+import fs from 'node:fs';
 
 import waitForFileExists from '../lib/fs';
 import PdfPage from '../pageobjects/pdf.page';
@@ -20,8 +21,9 @@ describe('PDF Resume', () => {
     await expect(PdfPage.fileMenuItems).toBeDisplayed();
     await expect(PdfPage.downloadPdfMenuOption).toBeDisplayed();
     await expect(PdfPage.downloadPdfMenuOption).toBeClickable();
-    await PdfPage.downloadPdfMenuOption.click();
     const filePath = path.join(testDownloadDir, 'dan.sullivan.resume.pdf');
+    await expect(fs.existsSync(filePath)).toBe(false);
+    await PdfPage.downloadPdfMenuOption.click();
     await browser.call(async () => {
       return await waitForFileExists(filePath, 3000);
     });
