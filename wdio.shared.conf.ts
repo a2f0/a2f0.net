@@ -1,5 +1,4 @@
 import fs from 'node:fs';
-
 import {testDownloadDir} from './test/testDownloadDir';
 
 export const chromeCapabilities = {
@@ -19,11 +18,12 @@ export const chromeCapabilities = {
 
 export const config: WebdriverIO.Config = {
   runner: 'local',
+
   specs: ['./test/specs/**/*.ts'],
   exclude: [],
   maxInstances: 1,
   capabilities: [chromeCapabilities],
-  logLevel: 'silent',
+  logLevel: 'error',
   bail: 0,
   baseUrl: 'http://localhost:4001',
   waitforTimeout: 10000,
@@ -33,12 +33,12 @@ export const config: WebdriverIO.Config = {
   reporters: ['spec'],
   mochaOpts: {
     ui: 'bdd',
-    timeout: 60000,
+    timeout: 60000
   },
   onPrepare: async () => {
     if (!fs.existsSync(testDownloadDir)) {
       console.info(`Creating download directory: ${testDownloadDir}`);
-      fs.mkdirSync(testDownloadDir);
+      fs.mkdirSync(testDownloadDir, {recursive: true});
     }
   },
   onComplete: async () => {
@@ -48,5 +48,5 @@ export const config: WebdriverIO.Config = {
       }
       console.log(`Download directory ${testDownloadDir} was deleted.`);
     });
-  },
+  }
 };

@@ -19,6 +19,7 @@ describe('PDF Resume', () => {
     await PdfPage.fileMenuButton.click();
     await expect(PdfPage.fileMenuItems).toBeDisplayed();
     await expect(PdfPage.downloadPdfMenuOption).toBeDisplayed();
+    await expect(PdfPage.downloadPdfMenuOption).toBeClickable();
     PdfPage.downloadPdfMenuOption.click();
     const filePath = path.join(testDownloadDir, 'dan.sullivan.resume.pdf');
     await browser.call(async () => {
