@@ -1,5 +1,4 @@
 import video from 'wdio-video-reporter';
-
 import {chromeCapabilities, config as sharedConfig} from './wdio.shared.conf';
 
 const headlessChromeCapabilities = {
@@ -27,12 +26,14 @@ export const config: WebdriverIO.Config = {
     capabilities: [headlessChromeCapabilities],
   },
   reporters: [
+    'spec',
     [
       video,
       {
         saveAllVideos: true,
         videoSlowdownMultiplier: 3,
-      },
-    ],
-  ],
+        outputDir: '_results_'
+      }
+    ]
+  ]
 };
