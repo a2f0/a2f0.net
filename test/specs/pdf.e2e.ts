@@ -20,10 +20,11 @@ describe('PDF Resume', () => {
     await expect(PdfPage.fileMenuItems).toBeDisplayed();
     await expect(PdfPage.downloadPdfMenuOption).toBeDisplayed();
     await expect(PdfPage.downloadPdfMenuOption).toBeClickable();
-    PdfPage.downloadPdfMenuOption.click();
+    await PdfPage.downloadPdfMenuOption.click();
     const filePath = path.join(testDownloadDir, 'dan.sullivan.resume.pdf');
     await browser.call(async () => {
       return await waitForFileExists(filePath, 3000);
     });
+    await expect(PdfPage.downloadPdfMenuOption).not.toBeDisplayed();
   });
 });
