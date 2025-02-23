@@ -4,16 +4,15 @@ import {testDownloadDir} from './test/testDownloadDir';
 export const chromeCapabilities = {
   maxInstances: 5,
   browserName: 'chrome',
-  'wdio:chromedriverOptions': {},
+  acceptInsecureCerts: true,
   'goog:chromeOptions': {
     prefs: {
       directory_upgrade: true,
       prompt_for_download: false,
       'download.default_directory': testDownloadDir,
     },
-    args: ['--window-size=1366,2160'],
-  },
-  acceptInsecureCerts: true,
+    args: ['--window-size=1366,2160']
+  }
 };
 
 export const config: WebdriverIO.Config = {

@@ -5,19 +5,13 @@ const headlessChromeCapabilities = {
   ...chromeCapabilities,
   'goog:chromeOptions': {
     ...chromeCapabilities['goog:chromeOptions'],
-    prefs: {
-      ...chromeCapabilities['goog:chromeOptions'].prefs,
-    },
     args: [
       ...chromeCapabilities['goog:chromeOptions'].args,
       '--headless',
-      '--disable-gpu',
-      '--disable-features=NetworkService',
       '--no-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-software-rasterizer',
-    ],
-  },
+      '--disable-dev-shm-usage'
+    ]
+  }
 };
 
 export const config: WebdriverIO.Config = {
