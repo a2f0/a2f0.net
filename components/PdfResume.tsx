@@ -20,6 +20,7 @@ const PdfObjectContainer = styled.div`
         --footer-height
       )
   );
+  width: 100%;
 `;
 
 export default function PdfResume() {
