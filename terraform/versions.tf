@@ -6,7 +6,7 @@ terraform {
     }
     googleworkspace = {
       source  = "hashicorp/googleworkspace"
-      version = "~> 0.7"
+      version = ">= 0.7"
     }
     vercel = {
       source  = "vercel/vercel"
