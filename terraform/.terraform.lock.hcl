@@ -6,6 +6,7 @@ provider "registry.terraform.io/hashicorp/aws" {
   constraints = "~> 5.0"
   hashes = [
     "h1:Ccpjmuu4G6k6ET0yf9lfhRywN7GBAAxR4rfTl5aY5+U=",
+    "h1:unGIj/eLOrl42LQm7u0fjtjQHp+FHKinpSxR1ZuWsfI=",
     "zh:123af8815a80abfd62eab5f9fc3d9226735cfea3627e834a1b48321cd8d391a6",
     "zh:1298f312e239768c1846541e89b4fbec7eb21769c4a488c87181909049219fbe",
     "zh:4edc950b39f3653beb8cd3e0b86a7dc9b6a77e90e543ed7be72639107bbc48a9",
@@ -28,6 +29,7 @@ provider "registry.terraform.io/hashicorp/googleworkspace" {
   version     = "0.7.0"
   constraints = "~> 0.7"
   hashes = [
+    "h1:CCBixim5kETOkLHmJKC2dmqAsF2Z7aNFff2waQ83uC4=",
     "h1:QsmqFq5tTfweczBUaQpQpqzVq0d8bYJM9K23r9bIFGc=",
     "zh:0fef459a2ac51ad30fb5b31ca8b39f3004fe7ae58d03ec1910d83fe8d98e077e",
     "zh:119ee8d39af1d2e08a15cd2c5e3f74b4e365ecf728ed2995820fd94140cfd02f",
@@ -45,8 +47,10 @@ provider "registry.terraform.io/hashicorp/googleworkspace" {
 }
 
 provider "registry.terraform.io/integrations/github" {
-  version = "6.3.0"
+  version     = "6.3.0"
+  constraints = "~> 6.3"
   hashes = [
+    "h1:AG//wDT67eInhTk+SQdDz5o8R8YIIBrZGz7C9TXKDOw=",
     "h1:LEs8NwSWwYGHxmbJvGT1w3XeAM6pogAmskY8XavuWDs=",
     "zh:04fe3b820fe8c247b98b9d6810b8bb84d3e8ac08054faf450c42489815ef4bfa",
     "zh:24096b2d16208d1411a58bdb8df8cd9f0558fb9054ffeb95c4e7e90a9a34f976",
@@ -71,6 +75,7 @@ provider "registry.terraform.io/vercel/vercel" {
   constraints = "~> 1.0"
   hashes = [
     "h1:43vitO4WJfkNTIU99Xc4l5zsJAvTN6FyZvtexRRT/no=",
+    "h1:GJ69VcBi/sVATHRqItMyerhViOZosE/W5zREtZFwtIE=",
     "zh:0505d26b060c88f430a5d23d9a8a066e02280f0c4d0d025fb08c6e0651465107",
     "zh:262370b01d6a522ba6e64e0751bad5df666144df27dfe388d8a3598a0fe8ef9e",
     "zh:3a5d11f0a64f9a739acfd3c937d7bf7866160dc852a4ab76fc68b25898625e13",
