@@ -48,7 +48,6 @@ override.tf.json
 terraform.rc
 /terraform/main.tfvars
 
-google-credentials.json
 tempDownload
 
 chrome
@@ -56,3 +55,4 @@ chromedriver
 
 # wdio videos
 _results_
+/terraform/google-credentials.json
