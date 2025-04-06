@@ -46,7 +46,6 @@
   "devDependencies": {
     "@a2f0/check-for-unpinned-dependencies": "1.0.4",
     "@biomejs/biome": "1.9.4",
-    "@puppeteer/browsers": "2.9.0",
     "@testing-library/react": "16.2.0",
     "@types/color": "4.2.0",
     "@types/invariant": "2.2.37",
