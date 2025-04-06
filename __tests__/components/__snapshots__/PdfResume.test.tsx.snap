@@ -2,7 +2,7 @@
 
 exports[`PdfResume > renders with correct width styling 1`] = `
 <div
-  class="sc-FEMpB kYcBda"
+  class="sc-Qotzb bLvkiG"
   id="pdfObjectContainer"
 />
 `;
