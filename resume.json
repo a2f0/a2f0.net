@@ -24,10 +24,9 @@
       "title": "COO",
       "date_range": "Feb 2022 - Current",
       "accomplishments": [
-        "Promoted from a senior engineer to VP of Engineering in under a year.",
-        "Moved into the COO role after another year.",
-        "Built a zero-knowledge CRDT for a proprietary distributed graph database.",
-        "Wrote a session-based differential cache synchronization protocol."
+        "Building an end-to-end encrypted everything app with private AI.",
+        "Wrote a zero-knowledge CRDT for a proprietary distributed graph database.",
+        "Engineered and implemented a session-based differential cache synchronization protocol."
       ],
       "location": "Remote",
       "technologies": [
