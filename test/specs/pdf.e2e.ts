@@ -29,4 +29,19 @@ describe('PDF Resume', () => {
     });
     await expect(PdfPage.downloadPdfMenuOption).not.toBeDisplayed();
   });
+  it('should have correct width styling for PDF container', async () => {
+    await PdfPage.open();
+    await PdfPage.pdfResume.waitForDisplayed();
+
+    const containerWidth = await PdfPage.pdfResume.getCSSProperty('width');
+
+    await expect(containerWidth.value).toBe('1275px');
+
+    const viewportWidth = await browser.execute(() => window.innerWidth);
+
+    const containerPixelWidth = await PdfPage.pdfResume.getSize('width');
+
+    const widthDifference = Math.abs(containerPixelWidth - viewportWidth);
+    await expect(widthDifference).toBe(91);
+  });
 });
