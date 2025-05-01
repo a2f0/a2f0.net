@@ -50,7 +50,7 @@
     "@types/color": "4.2.0",
     "@types/invariant": "2.2.37",
     "@types/mocha": "10.0.10",
-    "@types/node": "22.14.0",
+    "@types/node": "22.15.3",
     "@types/pdfobject": "2.2.5",
     "@types/react": "19.1.0",
     "@types/react-redux": "7.1.34",
