@@ -95,8 +95,8 @@ importers:
         specifier: 9.12.4
         version: 9.12.4
       '@wdio/mocha-framework':
-        specifier: 9.12.3
-        version: 9.12.3
+        specifier: 9.15.0
+        version: 9.15.0
       '@wdio/spec-reporter':
         specifier: 9.12.3
         version: 9.12.3
@@ -976,9 +976,6 @@ packages:
   '@promptbook/utils@0.69.5':
     resolution: {integrity: sha512-xm5Ti/Hp3o4xHrsK9Yy3MS6KbDxYbq485hDsFvxqaNA7equHLPdo8H8faTitTeb14QCDfLW4iwCxdVYu5sn6YQ==}
 
-  '@promptbook/utils@0.70.0-1':
-    resolution: {integrity: sha512-qd2lLRRN+sE6UuNMi2tEeUUeb4zmXnxY5EMdfHVXNE+bqBDpUC7/aEfXgA3jnUXEr+xFjQ8PTFQgWvBMaKvw0g==}
-
   '@puppeteer/browsers@2.10.2':
     resolution: {integrity: sha512-i4Ez+s9oRWQbNjtI/3+jxr7OH508mjAKvza0ekPJem0ZtmsYHP3B5dq62+IaBHKaGCOuqJxXzvFLUhJvQ6jtsQ==}
     engines: {node: '>=18'}
@@ -986,11 +983,6 @@ packages:
 
   '@puppeteer/browsers@2.10.5':
     resolution: {integrity: sha512-eifa0o+i8dERnngJwKrfp3dEq7ia5XFyoqB17S4gK8GhsQE4/P8nxOfQSE0zQHxzzLo/cmF+7+ywEQ7wK7Fb+w==}
-    engines: {node: '>=18'}
-    hasBin: true
-
-  '@puppeteer/browsers@2.9.0':
-    resolution: {integrity: sha512-8+xM+cFydYET4X/5/3yZMHs7sjS6c9I6H5I3xJdb6cinzxWUT/I2QVw4avxCQ8QDndwdHkG/FiSZIrCjAbaKvQ==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -1582,8 +1574,8 @@ packages:
     resolution: {integrity: sha512-BXx8RXFUW2M4dcO6t5Le95Hi2ZkTQBRsvBQqLekT2rZ6Xmw8ZKZBPf0FptnoftFGg6dYmwnDidYv/0+4PiHjpQ==}
     engines: {node: '>=18.20.0'}
 
-  '@wdio/mocha-framework@9.12.3':
-    resolution: {integrity: sha512-nx7FZYmnT4sQP5n93BPiJGc8Ez5nUnIDj1xr3NCk03yoUvYtM/6ifLgFl/ACKVLSwN+YhCgjfjb8KecpebeVfA==}
+  '@wdio/mocha-framework@9.15.0':
+    resolution: {integrity: sha512-sM9NK3vQA+gITS8OlBB14F85xg4gPD4oBM4kLhgvbFqyCNGMe8yy9P5c9D8Ti0ISUDkkfgAcN2EwMqBp/Ot2Lg==}
     engines: {node: '>=18.20.0'}
 
   '@wdio/protocols@9.12.3':
@@ -1651,8 +1643,8 @@ packages:
     resolution: {integrity: sha512-XuT1PE1nh4wwJfQW6IN4UT6+iv0+Yf4zhgMh5et04OX6tfrIXkWdx2SDimghDtRukp9i85DvIGWjdPEoQFQdaA==}
     engines: {node: '>=18.20.0'}
 
-  '@zip.js/zip.js@2.7.60':
-    resolution: {integrity: sha512-vA3rLyqdxBrVo1FWSsbyoecaqWTV+vgPRf0QKeM7kVDG0r+lHUqd7zQDv1TO9k4BcAoNzNDSNrrel24Mk6addA==}
+  '@zip.js/zip.js@2.7.62':
+    resolution: {integrity: sha512-OaLvZ8j4gCkLn048ypkZu29KX30r8/OfFF2w4Jo5WXFr+J04J+lzJ5TKZBVgFXhlvSkqNFQdfnY1Q8TMTCyBVA==}
     engines: {bun: '>=0.7.0', deno: '>=1.0.0', node: '>=16.5.0'}
 
   abbrev@3.0.0:
@@ -3482,9 +3474,6 @@ packages:
     resolution: {integrity: sha512-wM1+Z03eypVAVUCE7QdSqpVIvelbOakn1M0bPDoA4SGWPx3sNDVUiMo3L6To6WWGClB7VyXnhQ4Sn7gxiJbE6A==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
-  locate-app@2.4.41:
-    resolution: {integrity: sha512-viAOUsdA8QNM+p823ymlxPGXo+ePPZ8r9yhFoyFGUN6/ORE6uMZrKN8hPSKiPZMhFCeoZ5nfp4qEQvaMyPY46A==}
-
   locate-app@2.5.0:
     resolution: {integrity: sha512-xIqbzPMBYArJRmPGUZD9CzV9wOqmVtQnaAn3wrj3s6WYW0bQvPI7x+sPYUGmDTYMHefVK//zc6HEYZ1qnxIK+Q==}
 
@@ -3657,8 +3646,8 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  mocha@10.7.3:
-    resolution: {integrity: sha512-uQWxAu44wwiACGqjbPYmjo7Lg8sFrS3dQe7PP2FQI+woptP4vZXSMcfMyFL/e1yFEeEpV4RtyTpZROOKmxis+A==}
+  mocha@10.8.2:
+    resolution: {integrity: sha512-VZlYo/WE8t1tstuRmqgeyBgCbJc/lEdopaa+axcKzTBJ+UIdlAB9XnmvTCAH4pwR4ElNInaedhEBmZD8iCSVEg==}
     engines: {node: '>= 14.0.0'}
     hasBin: true
 
@@ -4424,9 +4413,6 @@ packages:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
     engines: {node: '>=0.10.0'}
 
-  spacetrim@0.11.39:
-    resolution: {integrity: sha512-S/baW29azJ7py5ausQRE2S6uEDQnlxgMHOEEq4V770ooBDD1/9kZnxRcco/tjZYuDuqYXblCk/r3N13ZmvHZ2g==}
-
   spacetrim@0.11.59:
     resolution: {integrity: sha512-lLYsktklSRKprreOm7NXReW8YiX2VBjbgmXYEziOoGf/qsJqAEACaDvoTtUOycwjpaSh+bT8eu0KrJn7UNxiCg==}
 
@@ -4763,10 +4749,6 @@ packages:
     resolution: {integrity: sha512-t0rzBq87m3fVcduHDUFhKmyyX+9eo6WQjZvf51Ea/M0Q7+T374Jp1aUiyUl0GKxp8M/OETVHSDvmkyPgvX+X2w==}
     engines: {node: '>=10'}
 
-  type-fest@2.13.0:
-    resolution: {integrity: sha512-lPfAm42MxE4/456+QyIaaVBAwgpJb6xZ8PRu09utnhPdWwcyj9vgy6Sq0Z5yNbJ21EdxB5dRU/Qg8bsyAMtlcw==}
-    engines: {node: '>=12.20'}
-
   type-fest@2.19.0:
     resolution: {integrity: sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA==}
     engines: {node: '>=12.20'}
@@ -4866,10 +4848,6 @@ packages:
     resolution: {integrity: sha512-9WXSPC5fMv61vaupRkCKCxsPxBocVnwakBEkMIHHpkTTg6icbJtg6jzgtLDm4bl3cSHAca52rYWih0k4K3PfHw==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-
-  userhome@1.0.0:
-    resolution: {integrity: sha512-ayFKY3H+Pwfy4W98yPdtH1VqH4psDeyW8lYYFzfecR9d6hqLpqhecktvYR3SEEXt7vG0S1JEpciI3g94pMErig==}
-    engines: {node: '>= 0.8.0'}
 
   userhome@1.0.1:
     resolution: {integrity: sha512-5cnLm4gseXjAclKowC4IjByaGsjtAoV6PrOQOljplNB54ReUYJP8HdAFq2muHinSDAh09PPX/uXDPfdxRHvuSA==}
@@ -5820,7 +5798,7 @@ snapshots:
       https-proxy-agent: 7.0.6
       node-fetch: 2.7.0
       nopt: 8.1.0
-      semver: 7.7.1
+      semver: 7.7.2
       tar: 7.4.3
     transitivePeerDependencies:
       - encoding
@@ -5884,10 +5862,6 @@ snapshots:
     dependencies:
       spacetrim: 0.11.59
 
-  '@promptbook/utils@0.70.0-1':
-    dependencies:
-      spacetrim: 0.11.39
-
   '@puppeteer/browsers@2.10.2':
     dependencies:
       debug: 4.4.1(supports-color@8.1.1)
@@ -5909,20 +5883,6 @@ snapshots:
       proxy-agent: 6.5.0
       semver: 7.7.2
       tar-fs: 3.0.9
-      yargs: 17.7.2
-    transitivePeerDependencies:
-      - bare-buffer
-      - supports-color
-    optional: true
-
-  '@puppeteer/browsers@2.9.0':
-    dependencies:
-      debug: 4.4.1(supports-color@8.1.1)
-      extract-zip: 2.0.1
-      progress: 2.0.3
-      proxy-agent: 6.5.0
-      semver: 7.7.1
-      tar-fs: 3.0.8
       yargs: 17.7.2
     transitivePeerDependencies:
       - bare-buffer
@@ -6253,7 +6213,7 @@ snapshots:
       fast-glob: 3.3.3
       is-glob: 4.0.3
       minimatch: 9.0.5
-      semver: 7.7.1
+      semver: 7.7.2
       ts-api-utils: 2.1.0(typescript@5.8.3)
       typescript: 5.8.3
     transitivePeerDependencies:
@@ -6526,7 +6486,7 @@ snapshots:
 
   '@wdio/allure-reporter@9.1.3':
     dependencies:
-      '@types/node': 20.17.32
+      '@types/node': 20.17.57
       '@wdio/reporter': 9.1.3
       '@wdio/types': 9.1.3
       allure-js-commons: 2.15.1
@@ -6675,7 +6635,6 @@ snapshots:
       loglevel: 1.9.2
       loglevel-plugin-prefix: 0.8.4
       strip-ansi: 7.1.0
-    optional: true
 
   '@wdio/logger@9.4.4':
     dependencies:
@@ -6684,14 +6643,14 @@ snapshots:
       loglevel-plugin-prefix: 0.8.4
       strip-ansi: 7.1.0
 
-  '@wdio/mocha-framework@9.12.3':
+  '@wdio/mocha-framework@9.15.0':
     dependencies:
       '@types/mocha': 10.0.10
-      '@types/node': 20.17.32
-      '@wdio/logger': 9.4.4
-      '@wdio/types': 9.12.3
-      '@wdio/utils': 9.12.3
-      mocha: 10.7.3
+      '@types/node': 20.17.57
+      '@wdio/logger': 9.15.0
+      '@wdio/types': 9.15.0
+      '@wdio/utils': 9.15.0
+      mocha: 10.8.2
     transitivePeerDependencies:
       - bare-buffer
       - supports-color
@@ -6717,7 +6676,7 @@ snapshots:
 
   '@wdio/reporter@9.12.3':
     dependencies:
-      '@types/node': 20.17.32
+      '@types/node': 20.17.57
       '@wdio/logger': 9.4.4
       '@wdio/types': 9.12.3
       diff: 7.0.0
@@ -6725,7 +6684,7 @@ snapshots:
 
   '@wdio/reporter@9.9.0':
     dependencies:
-      '@types/node': 20.17.32
+      '@types/node': 20.17.57
       '@wdio/logger': 9.4.4
       '@wdio/types': 9.9.0
       diff: 7.0.0
@@ -6774,15 +6733,14 @@ snapshots:
   '@wdio/types@9.15.0':
     dependencies:
       '@types/node': 20.17.57
-    optional: true
 
   '@wdio/types@9.9.0':
     dependencies:
-      '@types/node': 20.17.32
+      '@types/node': 20.17.57
 
   '@wdio/utils@9.12.3':
     dependencies:
-      '@puppeteer/browsers': 2.9.0
+      '@puppeteer/browsers': 2.10.5
       '@wdio/logger': 9.4.4
       '@wdio/types': 9.12.3
       decamelize: 6.0.0
@@ -6791,7 +6749,7 @@ snapshots:
       geckodriver: 5.0.0
       get-port: 7.1.0
       import-meta-resolve: 4.1.0
-      locate-app: 2.4.41
+      locate-app: 2.5.0
       safaridriver: 1.0.0
       split2: 4.2.0
       wait-port: 1.1.0
@@ -6836,9 +6794,8 @@ snapshots:
     transitivePeerDependencies:
       - bare-buffer
       - supports-color
-    optional: true
 
-  '@zip.js/zip.js@2.7.60': {}
+  '@zip.js/zip.js@2.7.62': {}
 
   abbrev@3.0.0: {}
 
@@ -7581,8 +7538,8 @@ snapshots:
 
   edgedriver@6.1.1:
     dependencies:
-      '@wdio/logger': 9.4.4
-      '@zip.js/zip.js': 2.7.60
+      '@wdio/logger': 9.15.0
+      '@zip.js/zip.js': 2.7.62
       decamelize: 6.0.0
       edge-paths: 3.0.5
       fast-xml-parser: 4.5.3
@@ -8335,13 +8292,13 @@ snapshots:
 
   geckodriver@5.0.0:
     dependencies:
-      '@wdio/logger': 9.4.4
-      '@zip.js/zip.js': 2.7.60
+      '@wdio/logger': 9.15.0
+      '@zip.js/zip.js': 2.7.62
       decamelize: 6.0.0
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
       node-fetch: 3.3.2
-      tar-fs: 3.0.8
+      tar-fs: 3.0.9
       which: 5.0.0
     transitivePeerDependencies:
       - bare-buffer
@@ -8957,12 +8914,6 @@ snapshots:
 
   lines-and-columns@2.0.4: {}
 
-  locate-app@2.4.41:
-    dependencies:
-      '@promptbook/utils': 0.70.0-1
-      type-fest: 2.13.0
-      userhome: 1.0.0
-
   locate-app@2.5.0:
     dependencies:
       '@promptbook/utils': 0.69.5
@@ -9103,7 +9054,7 @@ snapshots:
 
   mkdirp@3.0.1: {}
 
-  mocha@10.7.3:
+  mocha@10.8.2:
     dependencies:
       ansi-colors: 4.1.3
       browser-stdout: 1.3.1
@@ -9206,7 +9157,7 @@ snapshots:
   normalize-package-data@6.0.2:
     dependencies:
       hosted-git-info: 7.0.2
-      semver: 7.7.1
+      semver: 7.7.2
       validate-npm-package-license: 3.0.4
 
   normalize-path@3.0.0: {}
@@ -9794,8 +9745,7 @@ snapshots:
 
   semver@7.7.1: {}
 
-  semver@7.7.2:
-    optional: true
+  semver@7.7.2: {}
 
   serialize-error@11.0.3:
     dependencies:
@@ -9936,8 +9886,6 @@ snapshots:
 
   source-map@0.6.1:
     optional: true
-
-  spacetrim@0.11.39: {}
 
   spacetrim@0.11.59: {}
 
@@ -10174,7 +10122,6 @@ snapshots:
       bare-path: 3.0.0
     transitivePeerDependencies:
       - bare-buffer
-    optional: true
 
   tar-stream@2.2.0:
     dependencies:
@@ -10325,8 +10272,6 @@ snapshots:
 
   type-fest@0.21.3: {}
 
-  type-fest@2.13.0: {}
-
   type-fest@2.19.0: {}
 
   type-fest@3.13.1: {}
@@ -10434,8 +10379,6 @@ snapshots:
   use-sync-external-store@1.4.0(react@19.1.0):
     dependencies:
       react: 19.1.0
-
-  userhome@1.0.0: {}
 
   userhome@1.0.1: {}
 
@@ -10619,7 +10562,7 @@ snapshots:
 
   webdriver@9.12.6:
     dependencies:
-      '@types/node': 20.17.32
+      '@types/node': 20.17.57
       '@types/ws': 8.18.1
       '@wdio/config': 9.12.6
       '@wdio/logger': 9.4.4
