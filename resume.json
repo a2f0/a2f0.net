@@ -24,7 +24,7 @@
       "title": "COO",
       "date_range": "Feb 2022 - Current",
       "accomplishments": [
-        "Building an end-to-end encrypted everything app with private AI.",
+        "Building a configuration driven end-to-end encrypted everything app with private AI.",
         "Wrote a zero-knowledge CRDT for a proprietary distributed graph database.",
         "Engineered and implemented a session-based differential cache synchronization protocol."
       ],
@@ -150,6 +150,15 @@
         "Performed Expect.pm automation against an IP network comprised of 2000+ programmable assets.",
         "Implemented cross-platform PKI authenticated IPsec. Achieved proficiency in IKE debugging.",
         "Deployed a vendor-neutral network ACL management and provisioning platform."
+      ],
+      "location": "Chicago, USA"
+    },
+    {
+      "company": "Telephone Dictation Services",
+      "title": "IT Manager",
+      "date_range": "Adolescence - April 2006",
+      "accomplishments": [
+        "Managed ~50 remote DOS sites via modems using PCAnywhere."
       ],
       "location": "Chicago, USA"
     }
