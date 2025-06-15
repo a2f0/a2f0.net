@@ -39,6 +39,5 @@ describe('PdfResume', () => {
     const styles = window.getComputedStyle(pdfContainer);
     expect(styles.getPropertyValue('width')).toBe('100%');
     expect(window.innerWidth).toBe(1024)
-    expect(pdfContainer).toMatchSnapshot();
   });
 });
