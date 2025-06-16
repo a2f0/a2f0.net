@@ -1,11 +1,11 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 interface IProps {
   scale: number;
 }
 
 export const MenuButton = styled.button<IProps>`
-  --height: calc(${props => props.scale} * 25px);
+  --height: calc(${(props) => props.scale} * 25px);
   align-items: center;
   background: #ffffff;
   border: none;
@@ -13,16 +13,16 @@ export const MenuButton = styled.button<IProps>`
   border: 1px solid gray;
   cursor: pointer;
   display: flex;
-  font-size: calc(${props => props.scale} * 14px);
+  font-size: calc(${(props) => props.scale} * 14px);
   justify-content: space-between;
-  padding: calc(${props => props.scale} * 4px)
-    calc(${props => props.scale} * 6px);
+  padding: calc(${(props) => props.scale} * 4px)
+    calc(${(props) => props.scale} * 6px);
   transition: box-shadow 0.4s ease;
   vertical-align: middle;
   margin-left: 0;
   margin-right: 0;
   margin-top: calc(
-    (${props => props.scale} * var(--header-height)) - var(--height)
+    (${(props) => props.scale} * var(--header-height)) - var(--height)
   );
   height: var(--height);
   &:hover {

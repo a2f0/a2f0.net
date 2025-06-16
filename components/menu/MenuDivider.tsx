@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 const MenuDivider = styled.hr`
   height: 1px;

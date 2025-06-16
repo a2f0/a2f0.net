@@ -1,17 +1,17 @@
-import video from 'wdio-video-reporter';
-import {chromeCapabilities, config as sharedConfig} from './wdio.shared.conf';
+import video from "wdio-video-reporter";
+import { chromeCapabilities, config as sharedConfig } from "./wdio.shared.conf";
 
 const headlessChromeCapabilities = {
   ...chromeCapabilities,
-  'goog:chromeOptions': {
-    ...chromeCapabilities['goog:chromeOptions'],
+  "goog:chromeOptions": {
+    ...chromeCapabilities["goog:chromeOptions"],
     args: [
-      ...chromeCapabilities['goog:chromeOptions'].args,
-      '--headless',
-      '--no-sandbox',
-      '--disable-dev-shm-usage'
-    ]
-  }
+      ...chromeCapabilities["goog:chromeOptions"].args,
+      "--headless",
+      "--no-sandbox",
+      "--disable-dev-shm-usage",
+    ],
+  },
 };
 
 export const config: WebdriverIO.Config = {
@@ -20,14 +20,14 @@ export const config: WebdriverIO.Config = {
     capabilities: [headlessChromeCapabilities],
   },
   reporters: [
-    'spec',
+    "spec",
     [
       video,
       {
         saveAllVideos: true,
         videoSlowdownMultiplier: 3,
-        outputDir: '_results_'
-      }
-    ]
-  ]
+        outputDir: "_results_",
+      },
+    ],
+  ],
 };

@@ -1,6 +1,10 @@
-import {type Action, configureStore, type ThunkAction} from '@reduxjs/toolkit';
+import {
+  type Action,
+  configureStore,
+  type ThunkAction,
+} from "@reduxjs/toolkit";
 
-import resumeReducer from './resumeConfigSlice';
+import resumeReducer from "./resumeConfigSlice";
 
 export const store = configureStore({
   reducer: {
