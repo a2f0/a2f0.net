@@ -1,7 +1,7 @@
-import React, {type ReactNode} from 'react';
+import React, { type ReactNode } from "react";
 
 const MenuParentContext = React.createContext<ParentContextProps | undefined>(
-  undefined
+  undefined,
 );
 
 interface ParentContextProps {
@@ -43,9 +43,9 @@ function MenuParentProvider({
 function useMenuParent() {
   const context = React.useContext(MenuParentContext);
   if (context === undefined) {
-    throw new Error('useMenuParent must be used within a MenuParentProvider');
+    throw new Error("useMenuParent must be used within a MenuParentProvider");
   }
   return context;
 }
 
-export {MenuParentProvider, useMenuParent};
+export { MenuParentProvider, useMenuParent };

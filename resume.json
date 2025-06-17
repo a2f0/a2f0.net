@@ -47,7 +47,7 @@
     {
       "company": "[Tearleads](https://tearleads.com/)",
       "title": "Product Builder",
-      "date_range": "April 2021 - Jan 2022",
+      "date_range": "Apr 2021 - Jan 2022",
       "accomplishments": [
         "Created a note-taking system for computer programmers and system administrators."
       ],
@@ -70,18 +70,14 @@
     {
       "company": "[Real Time Risk Solutions](https://rtrs.co)",
       "title": "VP of Engineering",
-      "date_range": "Aug 2017 - April 2021",
+      "date_range": "Aug 2017 - Apr 2021",
       "accomplishments": [
         "Advanced from a part-time contractor to leading an engineering team building a risk management product being used by Fortune 500 companies.",
         "Addressed attribute-level merge collisions for a distributed asynchronous write cache.",
         "Coded abstract constructs to enforce a flexible multidimensional REST security model."
       ],
       "location": "Chicago, USA",
-      "technologies": [
-        "Azure",
-        "Django",
-        "PostgreSQL"
-      ]
+      "technologies": ["Azure", "Django", "PostgreSQL"]
     },
     {
       "company": "[Ball Horticultural Company](https://www.ballhort.com/)",
@@ -92,12 +88,7 @@
         "Automated code signing and release automation of iOS, Android, and Rails applications."
       ],
       "location": "Chicago, USA",
-      "technologies": [
-        "AWS",
-        "Athena",
-        "fastlane",
-        "Linode"
-      ]
+      "technologies": ["AWS", "Athena", "fastlane", "Linode"]
     },
     {
       "company": "Aker (acquired by [IntelinAir](https://www.intelinair.com/))",
@@ -105,7 +96,7 @@
       "date_range": "Aug 2017 - Aug 2019",
       "accomplishments": [
         "Engineered a sensor polling subsystem and cluster manager for data aggregation through a hybrid microcontroller SBC fabric. Completed extensive TX/RX serial, I2C, and GPIO programming.",
-        "Built an LTE cellular connection manager and IP route governor for redundant network uplinks." ,
+        "Built an LTE cellular connection manager and IP route governor for redundant network uplinks.",
         "Created a web-based wpa_supplicant wrapper to facilitate user-configurable 802.11 parameters.",
         "Identified unusable imaging captures by building a serverless blur detection workflow.",
         "Wrote a hardware driver for a CDM7160 CO2 module.",
@@ -135,10 +126,7 @@
         "Wrote a provisioning tool for synchronizing IAM objects between Internet2 Grouper, Centrify DirectControl, and Isilon OneFS. Achieved global UID/GID to SID coherency."
       ],
       "location": "Chicago, USA",
-      "technologies": [
-        "SaltStack",
-        "IIS"
-      ]
+      "technologies": ["SaltStack", "IIS"]
     },
     {
       "company": "[The University of Chicago](https://www.uchicago.edu/)",
@@ -156,7 +144,7 @@
     {
       "company": "Telephone Dictation Services",
       "title": "IT Manager",
-      "date_range": "Adolescence - April 2006",
+      "date_range": "Aug 1996 - Apr 2006",
       "accomplishments": [
         "Managed ~50 remote DOS sites via modems using PCAnywhere."
       ],

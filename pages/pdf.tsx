@@ -1,7 +1,7 @@
-import React from 'react';
+import React from "react";
 
-import Main from '../components/layout/Main';
-import PdfResume from '../components/PdfResume';
+import Main from "../components/layout/Main";
+import PdfResume from "../components/PdfResume";
 
 export default function Pdf() {
   return (

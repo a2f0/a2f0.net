@@ -1,8 +1,8 @@
-import {useRouter} from 'next/router';
-import {useDispatch} from 'react-redux';
+import { useRouter } from "next/router";
+import { useDispatch } from "react-redux";
 
-import {resumeConfiguration} from '../../configuration';
-import {useAppSelector} from '../../lib/hooks';
+import { resumeConfiguration } from "../../configuration";
+import { useAppSelector } from "../../lib/hooks";
 import {
   selectForegroundColor,
   selectScale,
@@ -10,14 +10,14 @@ import {
   setForegroundColor,
   setHighlightColor,
   setScale,
-} from '../../lib/resumeConfigSlice';
-import resume from '../../resume.json';
-import CheckMark from './CheckMark';
-import {useDropdownMenu} from './DropdownMenuContext';
-import MenuDivider from './MenuDivider';
-import MenuLink from './MenuLink';
-import MenuListItem from './MenuListItem';
-import {useMenuParent} from './MenuParentContext';
+} from "../../lib/resumeConfigSlice";
+import resume from "../../resume.json";
+import CheckMark from "./CheckMark";
+import { useDropdownMenu } from "./DropdownMenuContext";
+import MenuDivider from "./MenuDivider";
+import MenuLink from "./MenuLink";
+import MenuListItem from "./MenuListItem";
+import { useMenuParent } from "./MenuParentContext";
 
 const {
   darkForegroundColor,
@@ -32,7 +32,7 @@ const ViewMenu = () => {
   const context = useDropdownMenu();
   const parentContext = useMenuParent();
   const dispatch = useDispatch();
-  const {asPath} = useRouter();
+  const { asPath } = useRouter();
   const router = useRouter();
   const foregroundColor = useAppSelector(selectForegroundColor);
   const scale = useAppSelector(selectScale);
@@ -42,7 +42,7 @@ const ViewMenu = () => {
     dispatch(setBackgroundColor(darkBackgroundColor));
     dispatch(setHighlightColor(darkHighlightColor));
     context.setIsActive(false);
-    parentContext.setActiveDropdown('');
+    parentContext.setActiveDropdown("");
     parentContext.setIsActive(false);
   };
 
@@ -51,26 +51,26 @@ const ViewMenu = () => {
     dispatch(setBackgroundColor(lightBackgroundColor));
     dispatch(setHighlightColor(lightHighlightColor));
     context.setIsActive(false);
-    parentContext.setActiveDropdown('');
+    parentContext.setActiveDropdown("");
     parentContext.setIsActive(false);
   };
 
   const setScaleFactor = (scale: number) => {
     dispatch(setScale(scale));
     context.setIsActive(false);
-    parentContext.setActiveDropdown('');
+    parentContext.setActiveDropdown("");
     parentContext.setIsActive(false);
   };
 
   const dismissMenu = () => {
     context.setIsActive(false);
-    parentContext.setActiveDropdown('');
+    parentContext.setActiveDropdown("");
     parentContext.setIsActive(false);
   };
 
   const sourceCode = () => {
     context.setIsActive(false);
-    parentContext.setActiveDropdown('');
+    parentContext.setActiveDropdown("");
     parentContext.setIsActive(false);
     window.open(resume.url);
   };
@@ -110,21 +110,21 @@ const ViewMenu = () => {
       <MenuListItem
         onClick={() => {
           dismissMenu();
-          router.push('/');
+          router.push("/");
         }}
         scale={scale}
       >
-        <CheckMark $isActive={asPath === '/'} />
+        <CheckMark $isActive={asPath === "/"} />
         <MenuLink>SVG</MenuLink>
       </MenuListItem>
       <MenuListItem
         onClick={() => {
           dismissMenu();
-          router.push('/pdf');
+          router.push("/pdf");
         }}
         scale={scale}
       >
-        <CheckMark $isActive={asPath === '/pdf'} />
+        <CheckMark $isActive={asPath === "/pdf"} />
         <MenuLink>PDF Preview</MenuLink>
       </MenuListItem>
       <MenuDivider />

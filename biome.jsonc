@@ -82,10 +82,7 @@
   },
   "overrides": [
     {
-      "include": [
-        "**/*.ts",
-        "**/*.tsx"
-      ],
+      "include": ["**/*.ts", "**/*.tsx"],
       "linter": {
         "rules": {
           "complexity": {

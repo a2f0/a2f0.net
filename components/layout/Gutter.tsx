@@ -1,7 +1,7 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
-import {useAppSelector} from '../../lib/hooks';
-import {selectScale} from '../../lib/resumeConfigSlice';
+import { useAppSelector } from "../../lib/hooks";
+import { selectScale } from "../../lib/resumeConfigSlice";
 
 interface IProps {
   scale: number;
@@ -9,7 +9,7 @@ interface IProps {
 
 const StyledDiv = styled.div<IProps>`
   position: sticky;
-  top: calc(var(--header-height) * ${props => props.scale});
+  top: calc(var(--header-height) * ${(props) => props.scale});
   flex-grow: 1;
 `;
 
