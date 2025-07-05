@@ -8,6 +8,18 @@
   },
   "formatter": { "enabled": true, "indentStyle": "space" },
   "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "javascript": {
+    "formatter": { "quoteStyle": "double" },
+    "globals": [
+      "JSX",
+      "setTimeout",
+      "clearTimeout",
+      "global",
+      "document",
+      "window",
+      "console"
+    ]
+  },
   "linter": {
     "enabled": true,
     "rules": {
@@ -15,7 +27,9 @@
       "complexity": {
         "noExtraBooleanCast": "error",
         "noUselessCatch": "error",
-        "noAdjacentSpacesInRegex": "error"
+        "noAdjacentSpacesInRegex": "error",
+        "useArrowFunction": "error",
+        "noBannedTypes": "error"
       },
       "correctness": {
         "noConstAssign": "error",
@@ -41,7 +55,8 @@
         "useIsNan": "error",
         "useValidForDirection": "error",
         "useYield": "error",
-        "useValidTypeof": "error"
+        "useValidTypeof": "error",
+        "noInvalidUseBeforeDeclaration": "error"
       },
       "suspicious": {
         "noAssignInExpressions": "error",
@@ -67,7 +82,9 @@
         "noSparseArray": "error",
         "noUnsafeNegation": "error",
         "useGetterReturn": "error",
-        "noWith": "error"
+        "noWith": "error",
+        "noDoubleEquals": "error",
+        "noVar": "error"
       },
       "style": {
         "noParameterAssign": "error",
@@ -79,7 +96,9 @@
         "noUnusedTemplateLiteral": "error",
         "useNumberNamespace": "error",
         "noInferrableTypes": "error",
-        "noUselessElse": "error"
+        "noUselessElse": "error",
+        "useConst": "error",
+        "noNonNullAssertion": "error"
       },
       "nursery": {
         "useUniqueElementIds": "off"
@@ -87,44 +106,7 @@
     },
     "includes": ["**"]
   },
-  "javascript": {
-    "formatter": { "quoteStyle": "double" },
-    "globals": [
-      "JSX",
-      "setTimeout",
-      "clearTimeout",
-      "global",
-      "document",
-      "window",
-      "console"
-    ]
-  },
   "overrides": [
-    {
-      "includes": ["**/*.ts", "**/*.tsx"],
-      "linter": {
-        "rules": {
-          "complexity": {
-            "useArrowFunction": "error",
-            "noBannedTypes": "off"
-          },
-          "correctness": {
-            "noInvalidUseBeforeDeclaration": "off",
-            "noUnusedVariables": "error"
-          },
-          "style": {
-            "useConst": "error",
-            "noNonNullAssertion": "off"
-          },
-          "suspicious": {
-            "noDoubleEquals": "error",
-            "noDuplicateClassMembers": "off",
-            "noEmptyBlockStatements": "off",
-            "noVar": "error"
-          }
-        }
-      }
-    },
     {
       "includes": [
         "**/*.test.ts",
