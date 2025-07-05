@@ -1,18 +1,21 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
+
   "vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
-  "files": { "ignoreUnknown": false, "ignore": [".next/**/*", "dist/**/*"] },
+  "files": {
+    "ignoreUnknown": false,
+    "includes": ["**", "!**/.next/**/*", "!**/dist/**/*"]
+  },
   "formatter": { "enabled": true, "indentStyle": "space" },
-  "organizeImports": { "enabled": true },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
     "rules": {
       "recommended": true,
       "complexity": {
         "noExtraBooleanCast": "error",
-        "noMultipleSpacesInRegularExpressionLiterals": "error",
         "noUselessCatch": "error",
-        "noWith": "error"
+        "noAdjacentSpacesInRegex": "error"
       },
       "correctness": {
         "noConstAssign": "error",
@@ -37,7 +40,8 @@
         "noUnusedVariables": "error",
         "useIsNan": "error",
         "useValidForDirection": "error",
-        "useYield": "error"
+        "useYield": "error",
+        "useValidTypeof": "error"
       },
       "suspicious": {
         "noAssignInExpressions": "error",
@@ -63,10 +67,25 @@
         "noSparseArray": "error",
         "noUnsafeNegation": "error",
         "useGetterReturn": "error",
-        "useValidTypeof": "error"
+        "noWith": "error"
+      },
+      "style": {
+        "noParameterAssign": "error",
+        "useAsConstAssertion": "error",
+        "useDefaultParameterLast": "error",
+        "useEnumInitializers": "error",
+        "useSelfClosingElements": "error",
+        "useSingleVarDeclarator": "error",
+        "noUnusedTemplateLiteral": "error",
+        "useNumberNamespace": "error",
+        "noInferrableTypes": "error",
+        "noUselessElse": "error"
+      },
+      "nursery": {
+        "useUniqueElementIds": "off"
       }
     },
-    "ignore": []
+    "includes": ["**"]
   },
   "javascript": {
     "formatter": { "quoteStyle": "double" },
@@ -82,7 +101,7 @@
   },
   "overrides": [
     {
-      "include": ["**/*.ts", "**/*.tsx"],
+      "includes": ["**/*.ts", "**/*.tsx"],
       "linter": {
         "rules": {
           "complexity": {
@@ -94,26 +113,26 @@
             "noUnusedVariables": "error"
           },
           "style": {
-            "noVar": "error",
             "useConst": "error",
             "noNonNullAssertion": "off"
           },
           "suspicious": {
             "noDoubleEquals": "error",
             "noDuplicateClassMembers": "off",
-            "noEmptyBlockStatements": "off"
+            "noEmptyBlockStatements": "off",
+            "noVar": "error"
           }
         }
       }
     },
     {
-      "include": [
+      "includes": [
         "**/*.test.ts",
         "**/*.test.tsx",
         "**/__tests__/**/*",
         "**/test/**/*.ts",
         "**/test/**/*.tsx",
-        "test/**/*.ts",
+        "**/test/**/*.ts",
         "**/wdio.*.conf.ts",
         "**/test/pageobjects/**/*.ts",
         "**/test/specs/**/*.ts"

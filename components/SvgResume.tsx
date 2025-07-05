@@ -1,5 +1,5 @@
 import Color from "color";
-import React, { type CSSProperties, useEffect, useState } from "react";
+import { type CSSProperties, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import { resumeConfiguration } from "../configuration";

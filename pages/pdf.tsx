@@ -1,5 +1,3 @@
-import React from "react";
-
 import Main from "../components/layout/Main";
 import PdfResume from "../components/PdfResume";
 

@@ -1,5 +1,5 @@
 import Color from "color";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 
 import { useAppSelector } from "../../lib/hooks";
 import PdfResumeFactory from "../../lib/pdfResumeFactory";
