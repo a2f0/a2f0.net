@@ -1,5 +1,4 @@
 import Color from "color";
-import { useEffect } from "react";
 
 import { useAppSelector } from "../../lib/hooks";
 import PdfResumeFactory from "../../lib/pdfResumeFactory";
@@ -25,7 +24,6 @@ const FileMenu = () => {
   const backgroundColor = useAppSelector(selectBackgroundColor);
   const highlightColor = useAppSelector(selectHighlightColor);
   const scale = useAppSelector(selectScale);
-  useEffect(() => {});
 
   const downloadPDF = () => {
     const config: ResumeConfig = {
