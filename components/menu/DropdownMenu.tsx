@@ -1,4 +1,4 @@
-import React, { type ReactNode, useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 
 import { useAppSelector } from "../../lib/hooks";
 import { selectScale } from "../../lib/resumeConfigSlice";

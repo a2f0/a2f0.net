@@ -1,6 +1,6 @@
 import Color from "color";
 import PDFObject from "pdfobject";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import styled from "styled-components";
 
 import { useAppSelector } from "../lib/hooks";
