@@ -8,6 +8,18 @@
   },
   "formatter": { "enabled": true, "indentStyle": "space" },
   "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "javascript": {
+    "formatter": { "quoteStyle": "double" },
+    "globals": [
+      "JSX",
+      "setTimeout",
+      "clearTimeout",
+      "global",
+      "document",
+      "window",
+      "console"
+    ]
+  },
   "linter": {
     "enabled": true,
     "rules": {
@@ -86,18 +98,6 @@
       }
     },
     "includes": ["**"]
-  },
-  "javascript": {
-    "formatter": { "quoteStyle": "double" },
-    "globals": [
-      "JSX",
-      "setTimeout",
-      "clearTimeout",
-      "global",
-      "document",
-      "window",
-      "console"
-    ]
   },
   "overrides": [
     {
