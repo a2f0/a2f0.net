@@ -14,7 +14,21 @@ pnpm run ci
 
 ## Testing
 
-Test Locally
+### Run tests
+
+Unit
+
+```sh
+pnpm run unit
+```
+
+Integration
+
+```sh
+pnpm run ci-headless
+```
+
+### Develop Tests
 
 ```sh
 # start the dev server
