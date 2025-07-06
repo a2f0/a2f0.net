@@ -34,6 +34,7 @@ jobs:
           CHROME_VERSION: ${{ matrix.chrome-version }}
       # production deploy
       - uses: amondnet/vercel-action@v25
+        # yamllint disable-line rule:line-length
         if: ${{ github.event.ref == 'refs/heads/production' && github.event_name == 'push' }}
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
@@ -42,6 +43,7 @@ jobs:
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
       # staging-deploy
       - uses: amondnet/vercel-action@v25
+        # yamllint disable-line rule:line-length
         if: ${{ github.event.ref == 'refs/heads/staging' && github.event_name == 'push' }}
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
@@ -53,6 +55,7 @@ jobs:
         if: ${{ failure() }}
         with:
           status: ${{ job.status }}
+          # yamllint disable-line rule:line-length
           fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
         env:
           GITHUB_TOKEN: ${{ github.token }}
