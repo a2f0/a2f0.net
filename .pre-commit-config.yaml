@@ -2,7 +2,6 @@ repos:
   - repo: 'https://github.com/pre-commit/pre-commit-hooks'
     rev: v5.0.0
     hooks:
-      - id: check-yaml
       - id: end-of-file-fixer
       - id: trailing-whitespace
   - repo: 'https://github.com/gruntwork-io/pre-commit'
@@ -28,3 +27,8 @@ repos:
         entry: lib/scripts/ajv.ts
         pass_filenames: false
         language: node
+      - id: yamllint
+        name: yamllint
+        entry: yamllint .
+        pass_filenames: false
+        language: system
