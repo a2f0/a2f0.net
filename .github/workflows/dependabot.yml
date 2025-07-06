@@ -1,7 +1,10 @@
+---
 name: Dependabot auto-merge
+# yamllint disable-line rule:truthy
 on: pull_request
 
-# This enables the pull request to be merged when all required tests and approvals are successfully met.
+# Enables the pull request to be merged after required checks.
+# yamllint disable-line rule:line-length
 # https://docs.github.com/en/code-security/dependabot/working-with-dependabot/automating-dependabot-with-github-actions#approve-a-pull-request
 
 permissions:
