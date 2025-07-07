@@ -1,4 +1,4 @@
-provider "googleworkspace" {
+provider "googleworkspace1" {
   customer_id             = var.gsuite_customer_id
   credentials             = "google-credentials.json"
   impersonated_user_email = var.gsuite_impersonated_user_email

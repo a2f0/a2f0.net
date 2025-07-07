@@ -24,7 +24,7 @@ fix_file() {
     if [ "$last_char" != "" ] && [ "$last_char" != "$(printf '\n')" ] && [ "$last_char" != "$(printf '\r')" ]; then
         printf '\n' >> "$file"
         printf 'Fixing %s\n' "$file"
-        return 1
+        return 0
     fi
 
     # Count trailing newlines (LF, CR, or CRLF)
@@ -44,22 +44,19 @@ fix_file() {
             mv "$file.tmp" "$file"
         fi
         printf 'Fixing %s\n' "$file"
-        return 1
+        return 0
     fi
 
     return 0
 }
 
 main() {
-    retv=0
-
     # Process each file argument
     for file in "$@"; do
         fix_file "$file"
-        retv=$((retv | $?))
     done
 
-    return $retv
+    return 0
 }
 
 # Check if script is being run directly

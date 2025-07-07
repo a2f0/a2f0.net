@@ -1,1 +1,4 @@
 pnpm lint-staged
+
+terraform fmt terraform
+tflint terraform
