@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# This is the python version of the script from here
+# Adapted from:
 # https://github.com/pre-commit/pre-commit-hooks/blob/main/pre_commit_hooks/end_of_file_fixer.py
 
 fix_file() {
