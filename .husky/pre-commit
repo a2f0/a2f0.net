@@ -5,8 +5,8 @@ tflint terraform
 
 shellcheck ~/scripts/*.sh
 
-biome lint
-biome format
+npx biome lint
+npx biome format
 lib/scripts/ajv.ts
 
 yamllint .
