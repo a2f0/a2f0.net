@@ -6,8 +6,6 @@
 nvm use
 npm i -g pnpm
 pnpm install
-pre-commit install
-pre-commit run --all-files
 pnpm run start-server
 pnpm run ci
 ```
