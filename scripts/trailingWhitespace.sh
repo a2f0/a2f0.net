@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# Adapted from:
 # https://github.com/pre-commit/pre-commit-hooks/blob/main/pre_commit_hooks/trailing_whitespace_fixer.py
 
 # Remove trailing whitespace from every line in each file, in-place
