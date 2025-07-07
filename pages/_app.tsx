@@ -1,7 +1,7 @@
 import type { AppProps } from "next/app";
 import type React from "react";
 import { Provider } from "react-redux";
-
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { store } from "../lib/store";
 import StyledComponentsRegistry from "../lib/registry";
 
@@ -17,6 +17,7 @@ export default function MyApp({
         <GlobalStyle />
         <Component {...pageProps} />
       </Provider>
+      <GoogleAnalytics gaId="G-88VBS999NQ" />
     </StyledComponentsRegistry>
   );
 }
