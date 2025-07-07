@@ -1,6 +1,6 @@
 {
   "name": "resume",
-  "version": "0.1.149",
+  "version": "0.1.150",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@9.11.0",
@@ -29,6 +29,7 @@
     "unit": "vitest --no-watch --environment jsdom"
   },
   "dependencies": {
+    "@next/third-parties": "15.3.5",
     "@reduxjs/toolkit": "2.8.2",
     "color": "5.0.0",
     "eslint-config-next": "15.3.5",
@@ -64,6 +65,7 @@
     "ajv": "8.17.1",
     "canvas": "3.1.2",
     "jsdom": "26.1.0",
+    "lint-staged": "16.1.2",
     "prettier": "3.6.2",
     "start-server-and-test": "2.0.12",
     "tsx": "4.20.3",
