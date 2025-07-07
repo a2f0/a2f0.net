@@ -27,7 +27,7 @@ jobs:
         name: Setup TFLint
         with:
           tflint_version: v0.55.0
-      - run: ./.husky/_/pre-commit
+      - run: ./.husky/pre-commit
       - run: npm run unit
       - run: npm run ci-headless
         env:
