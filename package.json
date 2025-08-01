@@ -29,7 +29,7 @@
     "unit": "vitest --no-watch --environment jsdom"
   },
   "dependencies": {
-    "@next/third-parties": "15.3.5",
+    "@next/third-parties": "15.4.5",
     "@reduxjs/toolkit": "2.8.2",
     "color": "5.0.0",
     "eslint-config-next": "15.3.5",
