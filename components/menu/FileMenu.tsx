@@ -1,22 +1,21 @@
-import Color from 'color';
-import React, {useEffect} from 'react';
+import Color from "color";
 
-import {useAppSelector} from '../../lib/hooks';
-import PdfResumeFactory from '../../lib/pdfResumeFactory';
-import {resume} from '../../lib/resume';
-import {ResumeConfig} from '../../lib/resumeConfig';
+import { useAppSelector } from "../../lib/hooks";
+import PdfResumeFactory from "../../lib/pdfResumeFactory";
+import { resume } from "../../lib/resume";
+import type { ResumeConfig } from "../../lib/resumeConfig";
 import {
   selectBackgroundColor,
   selectForegroundColor,
   selectHighlightColor,
-} from '../../lib/resumeConfigSlice';
-import {selectScale} from '../../lib/resumeConfigSlice';
-import SvgResumeFactory from '../../lib/svgResumeFactory';
-import CheckMark from './CheckMark';
-import {useDropdownMenu} from './DropdownMenuContext';
-import MenuLink from './MenuLink';
-import MenuListItem from './MenuListItem';
-import {useMenuParent} from './MenuParentContext';
+} from "../../lib/resumeConfigSlice";
+import { selectScale } from "../../lib/resumeConfigSlice";
+import SvgResumeFactory from "../../lib/svgResumeFactory";
+import CheckMark from "./CheckMark";
+import { useDropdownMenu } from "./DropdownMenuContext";
+import MenuLink from "./MenuLink";
+import MenuListItem from "./MenuListItem";
+import { useMenuParent } from "./MenuParentContext";
 
 const FileMenu = () => {
   const context = useDropdownMenu();
@@ -25,18 +24,17 @@ const FileMenu = () => {
   const backgroundColor = useAppSelector(selectBackgroundColor);
   const highlightColor = useAppSelector(selectHighlightColor);
   const scale = useAppSelector(selectScale);
-  useEffect(() => {});
 
   const downloadPDF = () => {
     const config: ResumeConfig = {
-      foregroundColor: Color(foregroundColor),
-      backgroundColor: Color(backgroundColor),
-      highlightColor: Color(highlightColor),
+      foregroundColor: new Color(foregroundColor),
+      backgroundColor: new Color(backgroundColor),
+      highlightColor: new Color(highlightColor),
     };
     const resumeFactory = new PdfResumeFactory(config, resume);
     const pdfResume = resumeFactory.getResume();
-    pdfResume.save('dan.sullivan.resume.pdf');
-    parentContext.setActiveDropdown('');
+    pdfResume.save("dan.sullivan.resume.pdf");
+    parentContext.setActiveDropdown("");
     parentContext.setIsActive(false);
   };
 
@@ -48,15 +46,15 @@ const FileMenu = () => {
     };
     const resumeFactory = new SvgResumeFactory(config, resume);
     const blob = new Blob([resumeFactory.getResume().outerHTML.toString()], {
-      type: 'image/svg+xml',
+      type: "image/svg+xml",
     });
-    const element = document.createElement('a');
-    element.download = 'dan.sullivan.resume.svg';
+    const element = document.createElement("a");
+    element.download = "dan.sullivan.resume.svg";
     element.href = window.URL.createObjectURL(blob);
     element.click();
     element.remove();
     context.setIsActive(false);
-    parentContext.setActiveDropdown('');
+    parentContext.setActiveDropdown("");
     parentContext.setIsActive(false);
   };
 

@@ -2,16 +2,20 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.0"
+      version = ">= 5.0"
     }
-    gsuite = {
-      source  = "DeviaVir/gsuite"
-      version = "~> 0.1"
+    googleworkspace = {
+      source  = "hashicorp/googleworkspace"
+      version = ">= 0.7"
     }
     vercel = {
       source  = "vercel/vercel"
-      version = "~> 0.1"
+      version = ">= 1.0"
+    }
+    github = {
+      source  = "integrations/github"
+      version = ">= 6.3"
     }
   }
-  required_version = ">= 1.1.9"
+  required_version = ">= 1.9.6"
 }

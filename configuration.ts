@@ -104,39 +104,39 @@ interface IResumeConfiguration {
 class ResumeConfiguration implements IResumeConfiguration {
   documentWidth = 612;
   documentHeight = 792;
-  darkForegroundColor = '#DCDCDC';
-  darkBackgroundColor = '#0F0F0F';
-  darkHighlightColor = '#909090';
-  lightForegroundColor = '#000000';
-  lightBackgroundColor = '#FFFFFF';
-  lightHighlightColor = '#707070';
+  darkForegroundColor = "#DCDCDC";
+  darkBackgroundColor = "#0F0F0F";
+  darkHighlightColor = "#909090";
+  lightForegroundColor = "#000000";
+  lightBackgroundColor = "#FFFFFF";
+  lightHighlightColor = "#707070";
   standardFontSize = 9.75;
   pixelsPerPoint = 0.75;
   startX = 18; // .25 inches from edge of page
   startY = 18; // .25 inches from edge of page
   rightPanelStartY = 77;
-  units = 'pt' as const;
-  fontFamily = 'Helvetica';
+  units = "pt" as const;
+  fontFamily = "Helvetica";
   headerSize = 12;
   headerSpacing = 4;
   hyphenSpacing = 4;
   centerBulletMargin = 8;
-  namePos = {x: this.startX, y: this.startY};
+  namePos = { x: this.startX, y: this.startY };
   nameWeight = 400;
   nameSize = 15;
   nameYPosMiddle = this.namePos.y + this.nameSize / 2;
-  leftPanelPos = {x: 0, y: 0};
+  leftPanelPos = { x: 0, y: 0 };
   leftPanelPercentage = 0.23;
   leftPanelWidth = this.leftPanelPercentage * this.documentWidth;
   leftPanelMargin = 18;
-  rightPanelPos = {x: this.leftPanelWidth, y: 0};
+  rightPanelPos = { x: this.leftPanelWidth, y: 0 };
   rightPanelPercentage = 1 - this.leftPanelPercentage;
   rightPanelWidth = this.rightPanelPercentage * this.documentWidth;
-  addressPos = {x: this.startX, y: this.startY + this.nameSize};
+  addressPos = { x: this.startX, y: this.startY + this.nameSize };
   addressSize = this.standardFontSize;
   addressYPosMiddle = this.addressPos.y + this.addressSize / 2;
   addressWeight = 400;
-  verticalDividerPos = {x: this.leftPanelWidth, y: 20};
+  verticalDividerPos = { x: this.leftPanelWidth, y: 20 };
   verticalDividerHeight = this.documentHeight - 60;
   rightPanelMargin = this.leftPanelMargin;
   rightPanelStartX = this.verticalDividerPos.x + this.centerBulletMargin;
@@ -159,22 +159,22 @@ class ResumeConfiguration implements IResumeConfiguration {
     y: this.phoneNumberYPosMiddle + this.emailSize / 2,
   };
   experienceHeaderSize = 12;
-  experienceHeader = 'EXPERIENCE';
+  experienceHeader = "EXPERIENCE";
   experienceHeaderXPos = this.rightPanelStartX;
   experienceHeaderYPos = this.rightPanelStartY;
   positionVerticalSpacing = 12;
   positionTitleWeight = 400;
   positionTitleSize = this.standardFontSize;
-  positionTitleColor = 'white';
+  positionTitleColor = "white";
   positionTitleXPos = this.rightPanelStartX;
   positionTitleYPosStart =
     this.experienceHeaderYPos + this.positionTitleSize + this.headerSpacing;
   positionDateRangeWeight = 400;
   positionDateRangeSize = this.standardFontSize;
-  positionDateRangeColor = 'white';
+  positionDateRangeColor = "white";
   positionCompanyWeight = 400;
   positionCompanySize = this.positionTitleSize;
-  positionCompanyColor = 'white';
+  positionCompanyColor = "white";
   positionCompanyXPos = this.rightPanelStartX;
   positionCompanyYPosStart = this.positionTitleYPosStart;
   positionAccomplishmentHeaderSpacing = 1;
@@ -182,7 +182,7 @@ class ResumeConfiguration implements IResumeConfiguration {
   positionAccomplishmentLineSpacing = 1;
   positionAccomplishmentWeight = 400;
   positionAccomplishmentSize = this.positionTitleSize;
-  positionAccomplishmentColor = 'white';
+  positionAccomplishmentColor = "white";
   positionAccomplishmentBulletRadius = 1;
   positionAccomplishmentBulletXPos =
     this.rightPanelStartX + this.positionAccomplishmentBulletRadius * 2;
@@ -199,10 +199,10 @@ class ResumeConfiguration implements IResumeConfiguration {
   educationHeaderWeight = 400;
   educationHeaderSize = this.headerSize;
   educationHeaderXPos = this.rightPanelStartX;
-  educationHeader = 'EDUCATION';
+  educationHeader = "EDUCATION";
   educationWeight = 400;
   educationSize = this.addressSize;
-  educationColor = 'white';
+  educationColor = "white";
   educationXPos = this.rightPanelStartX;
   educationBulletRadius = this.positionBulletRadius;
   educationVerticalSpacing = this.positionVerticalSpacing;
@@ -221,4 +221,4 @@ class ResumeConfiguration implements IResumeConfiguration {
 
 const resumeConfiguration = new ResumeConfiguration();
 
-export {resumeConfiguration};
+export { resumeConfiguration };

@@ -1,24 +1,24 @@
-import Head from 'next/head';
-import styled from 'styled-components';
+import Head from "next/head";
+import styled from "styled-components";
 
-import {useAppSelector} from '../../lib/hooks';
-import {selectScale} from '../../lib/resumeConfigSlice';
-import DropdownMenu from '../menu/DropdownMenu';
-import FileMenu from '../menu/FileMenu';
-import MenuParent from '../menu/MenuParent';
-import ViewMenu from '../menu/ViewMenu';
-import FlexColumn from './FlexColumn';
-import FlexContainerCenterAlign from './FlexContainerCenterAlign';
-import FlexContainerColumnPageWidth from './FlexContainerColumnPageWidth';
-import FlexContainerLeftAlign from './FlexContainerLeftAlign';
-import FlexContainerRightAlign from './FlexContainerRightAlign';
+import { useAppSelector } from "../../lib/hooks";
+import { selectScale } from "../../lib/resumeConfigSlice";
+import DropdownMenu from "../menu/DropdownMenu";
+import FileMenu from "../menu/FileMenu";
+import MenuParent from "../menu/MenuParent";
+import ViewMenu from "../menu/ViewMenu";
+import FlexColumn from "./FlexColumn";
+import FlexContainerCenterAlign from "./FlexContainerCenterAlign";
+import FlexContainerColumnPageWidth from "./FlexContainerColumnPageWidth";
+import FlexContainerLeftAlign from "./FlexContainerLeftAlign";
+import FlexContainerRightAlign from "./FlexContainerRightAlign";
 
 interface IProps {
   scale: number;
 }
 
 const StyledHeader = styled.header<IProps>`
-  height: calc(var(--header-height) * ${props => props.scale});
+  height: calc(var(--header-height) * ${(props) => props.scale});
   background-color: #404040;
   color: white;
   justify-content: center;
@@ -55,7 +55,7 @@ const Header = () => {
             <FlexContainerCenterAlign />
           </FlexColumn>
           <FlexColumn>
-            <FlexContainerRightAlign></FlexContainerRightAlign>
+            <FlexContainerRightAlign />
           </FlexColumn>
         </FlexContainerColumnPageWidth>
       </StyledHeader>

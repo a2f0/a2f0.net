@@ -1,15 +1,7 @@
 {
   "compilerOptions": {
-    "types": [
-      "node",
-      "@wdio/mocha-framework",
-      "@wdio/globals/types"
-    ],
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "types": ["node", "@wdio/mocha-framework", "@wdio/globals/types"],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "target": "esnext",
     "module": "esnext",
     "rootDir": ".",
@@ -21,7 +13,7 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
     "esModuleInterop": true,
 
@@ -35,14 +27,8 @@
     "noImplicitReturns": true,
     "pretty": true,
     "sourceMap": true,
-    "strict": true,
+    "strict": true
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["./eslint.config.js", "next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
 }

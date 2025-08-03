@@ -22,6 +22,10 @@ variable "github_token" {
   type = string
 }
 
+variable "gsuite_customer_id" {
+  type = string
+}
+
 variable "gsuite_impersonated_user_email" {
   type = string
 }

@@ -1,4 +1,4 @@
-import resumeData from '../resume.json';
+import resumeData from "../resume.json";
 
 interface PhoneNumber {
   number: string;
@@ -37,45 +37,69 @@ export interface ResumeData {
   education: Education[];
 }
 
-function isResumeData(obj: unknown): obj is ResumeData {
+export function isResumeData(obj: unknown): obj is ResumeData {
+  if (typeof obj !== "object" || obj === null) {
+    return false;
+  }
+
+  const expectedKeys = [
+    "first_name",
+    "last_name",
+    "phone_number",
+    "email",
+    "city_state",
+    "url",
+    "internet_presences",
+    "experience",
+    "education",
+  ];
+
+  const actualKeys = Object.keys(obj);
+  if (
+    actualKeys.length !== expectedKeys.length ||
+    !expectedKeys.every((key) => actualKeys.includes(key))
+  ) {
+    return false;
+  }
+
   return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    typeof (obj as ResumeData).first_name === 'string' &&
-    typeof (obj as ResumeData).last_name === 'string' &&
-    typeof (obj as ResumeData).phone_number === 'object' &&
-    typeof (obj as ResumeData).phone_number?.number === 'string' &&
-    typeof (obj as ResumeData).phone_number?.uri === 'string' &&
-    typeof (obj as ResumeData).email === 'object' &&
-    typeof (obj as ResumeData).email?.email === 'string' &&
-    typeof (obj as ResumeData).email?.uri === 'string' &&
-    typeof (obj as ResumeData).city_state === 'string' &&
-    typeof (obj as ResumeData).url === 'string' &&
+    typeof (obj as ResumeData).first_name === "string" &&
+    typeof (obj as ResumeData).last_name === "string" &&
+    typeof (obj as ResumeData).phone_number === "object" &&
+    typeof (obj as ResumeData).phone_number?.number === "string" &&
+    typeof (obj as ResumeData).phone_number?.uri === "string" &&
+    typeof (obj as ResumeData).email === "object" &&
+    typeof (obj as ResumeData).email?.email === "string" &&
+    typeof (obj as ResumeData).email?.uri === "string" &&
+    typeof (obj as ResumeData).city_state === "string" &&
+    typeof (obj as ResumeData).url === "string" &&
     Array.isArray((obj as ResumeData).internet_presences) &&
     (obj as ResumeData).internet_presences.every(
-      url => typeof url === 'string'
+      (url) => typeof url === "string",
     ) &&
     Array.isArray((obj as ResumeData).experience) &&
     (obj as ResumeData).experience.every(
       (exp): exp is Experience =>
-        typeof exp === 'object' &&
+        typeof exp === "object" &&
         exp !== null &&
-        typeof exp.company === 'string' &&
-        typeof exp.title === 'string' &&
-        typeof exp.date_range === 'string' &&
+        Object.keys(exp).length === (exp.technologies ? 6 : 5) &&
+        typeof exp.company === "string" &&
+        typeof exp.title === "string" &&
+        typeof exp.date_range === "string" &&
         Array.isArray(exp.accomplishments) &&
-        exp.accomplishments.every(acc => typeof acc === 'string') &&
-        typeof exp.location === 'string' &&
-        (!exp.technologies || Array.isArray(exp.technologies))
+        exp.accomplishments.every((acc) => typeof acc === "string") &&
+        typeof exp.location === "string" &&
+        (!exp.technologies || Array.isArray(exp.technologies)),
     ) &&
     Array.isArray((obj as ResumeData).education) &&
     (obj as ResumeData).education.every(
       (edu): edu is Education =>
-        typeof edu === 'object' &&
+        typeof edu === "object" &&
         edu !== null &&
-        typeof edu.institution === 'string' &&
-        typeof edu.credential === 'string' &&
-        typeof edu.url === 'string'
+        Object.keys(edu).length === 3 &&
+        typeof edu.institution === "string" &&
+        typeof edu.credential === "string" &&
+        typeof edu.url === "string",
     )
   );
 }
@@ -85,7 +109,7 @@ class Resume {
 
   constructor(jsonData: unknown) {
     if (!isResumeData(jsonData)) {
-      throw new Error('Invalid resume data');
+      throw new Error("Invalid resume data");
     }
     this.data = jsonData;
   }
@@ -125,25 +149,8 @@ class Resume {
   get education(): Education[] {
     return this.data.education;
   }
-
-  getFullName(): string {
-    return `${this.data.first_name} ${this.data.last_name}`;
-  }
-
-  getTotalYearsOfExperience(): number {
-    const currentYear = new Date().getFullYear();
-    const earliestExperience = Math.min(
-      ...this.data.experience.map(exp => {
-        const startYear = parseInt(
-          exp.date_range.split(' - ')[0].split(' ')[1]
-        );
-        return isNaN(startYear) ? currentYear : startYear;
-      })
-    );
-    return currentYear - earliestExperience;
-  }
 }
 
 const resume = new Resume(resumeData);
 
-export {Resume, resume};
+export { Resume, resume };
