@@ -1,4 +1,4 @@
-import {createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {createSlice, PayloadAction, Slice} from '@reduxjs/toolkit';
 import Color from 'color';
 
 import {resumeConfiguration} from '../configuration';
@@ -21,7 +21,7 @@ const initialState: ResumeConfigState = {
   scale: 1.5,
 };
 
-export const resumeConfigSlice = createSlice({
+export const resumeConfigSlice: Slice<ResumeConfigState> = createSlice({
   name: 'resume',
   initialState,
   reducers: {

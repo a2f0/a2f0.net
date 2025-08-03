@@ -14,20 +14,23 @@ jobs:
         node-version: [20]
     steps:
     - uses: actions/checkout@v4
-    - run: npm audit --audit-level=critical
+    - run: pnpm audit --audit-level=critical
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm ci
+    - uses: pnpm/action-setup@v4
+      with:
+        version: latest
+    - run: pnpm install
     - uses: actions/setup-python@v5
     - uses: terraform-linters/setup-tflint@v4
       name: Setup TFLint
       with:
         tflint_version: v0.28.1
     - uses: pre-commit/action@v3.0.1
-    - run: npm run unit
-    - run: npm run ci-headless
+    - run: pnpm run unit
+    - run: pnpm run ci-headless
       env:
         CHROME_VERSION: ${{ matrix.chrome-version }}
     # production deploy
