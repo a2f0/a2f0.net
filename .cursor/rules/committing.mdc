@@ -5,3 +5,4 @@ alwaysApply: true
 ---
 - Use conventional commit syntax when committing files.
 - Always make sure commits are signed (never use `--no-gpg-sign`, for example).
+- If you get prompted with a GPG password, make the session interactive.
