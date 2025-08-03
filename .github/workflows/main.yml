@@ -1,11 +1,9 @@
+---
 name: CI
+# yamllint disable-line rule:truthy
 on:
   push:
     branches: '**'
-  pull_request:
-    branches: '**'
-  schedule:
-  - cron: "0 0 * * *"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -13,48 +11,52 @@ jobs:
       matrix:
         node-version: [20]
     steps:
-    - uses: actions/checkout@v4
-    - run: pnpm audit --audit-level=critical
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-    - uses: pnpm/action-setup@v4
-      with:
-        version: latest
-    - run: pnpm install
-    - uses: actions/setup-python@v5
-    - uses: terraform-linters/setup-tflint@v4
-      name: Setup TFLint
-      with:
-        tflint_version: v0.28.1
-    - uses: pre-commit/action@v3.0.1
-    - run: pnpm run unit
-    - run: pnpm run ci-headless
-      env:
-        CHROME_VERSION: ${{ matrix.chrome-version }}
-    # production deploy
-    - uses: amondnet/vercel-action@v25
-      if: ${{ github.event.ref == 'refs/heads/production' && github.event_name == 'push' }}
-      with:
-        vercel-token: ${{ secrets.VERCEL_TOKEN }}
-        vercel-args: '--prod'
-        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-    # staging-deploy
-    - uses: amondnet/vercel-action@v25
-      if: ${{ github.event.ref == 'refs/heads/staging' && github.event_name == 'push' }}
-      with:
-        vercel-token: ${{ secrets.VERCEL_TOKEN }}
-        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-        alias-domains: ${{ secrets.STAGING_DOMAIN }}
-    - name: Post to slack
-      uses: 8398a7/action-slack@v3
-      if: ${{ failure() }}
-      with:
-        status: ${{ job.status }}
-        fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - run: pnpm audit --audit-level=critical
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: pnpm install
+      - uses: actions/setup-python@v5
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.10.5"
+      - uses: terraform-linters/setup-tflint@v4
+        name: Setup TFLint
+        with:
+          tflint_version: v0.55.0
+      - run: sh ./.husky/pre-commit
+      - run: npm run unit
+      - run: npm run ci-headless
+        env:
+          CHROME_VERSION: ${{ matrix.chrome-version }}
+      # production deploy
+      - uses: amondnet/vercel-action@v25
+        # yamllint disable-line rule:line-length
+        if: ${{ github.event.ref == 'refs/heads/production' && github.event_name == 'push' }}
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-args: '--prod'
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+      # staging-deploy
+      - uses: amondnet/vercel-action@v25
+        # yamllint disable-line rule:line-length
+        if: ${{ github.event.ref == 'refs/heads/staging' && github.event_name == 'push' }}
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          alias-domains: ${{ secrets.STAGING_DOMAIN }}
+      - name: Post to slack
+        uses: 8398a7/action-slack@v3
+        if: ${{ failure() }}
+        with:
+          status: ${{ job.status }}
+          # yamllint disable-line rule:line-length
+          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

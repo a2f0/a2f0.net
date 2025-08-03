@@ -1,10 +1,10 @@
-import {createSlice, PayloadAction, Slice} from '@reduxjs/toolkit';
-import Color from 'color';
+import { createSlice, type PayloadAction, type Slice } from "@reduxjs/toolkit";
+import Color from "color";
 
-import {resumeConfiguration} from '../configuration';
-import {RootState} from './store';
+import { resumeConfiguration } from "../configuration";
+import type { RootState } from "./store";
 
-const {darkForegroundColor, darkBackgroundColor, darkHighlightColor} =
+const { darkForegroundColor, darkBackgroundColor, darkHighlightColor } =
   resumeConfiguration;
 
 export interface ResumeConfigState {
@@ -22,7 +22,7 @@ const initialState: ResumeConfigState = {
 };
 
 export const resumeConfigSlice: Slice<ResumeConfigState> = createSlice({
-  name: 'resume',
+  name: "resume",
   initialState,
   reducers: {
     setForegroundColor: (state, action: PayloadAction<string>) => {
