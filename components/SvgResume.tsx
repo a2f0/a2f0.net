@@ -1,18 +1,12 @@
-import Color from "color";
 import { type CSSProperties, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import { resumeConfiguration } from "../configuration";
 import { useAppSelector } from "../lib/hooks";
 import { resume } from "../lib/resume";
-import type { ResumeConfig } from "../lib/resumeConfig";
-import {
-  selectBackgroundColor,
-  selectForegroundColor,
-  selectHighlightColor,
-} from "../lib/resumeConfigSlice";
 import { selectScale } from "../lib/resumeConfigSlice";
 import SvgResumeFactory from "../lib/svgResumeFactory";
+import { useResume } from "../lib/useResume";
 
 const SvgContainer = styled.div`
   .hoverable:hover {
@@ -24,9 +18,7 @@ const { pixelsPerPoint, units, documentWidth, documentHeight } =
   resumeConfiguration;
 
 export default function SvgResume() {
-  const foregroundColor = useAppSelector(selectForegroundColor);
-  const backgroundColor = useAppSelector(selectBackgroundColor);
-  const highlightColor = useAppSelector(selectHighlightColor);
+  const config = useResume();
   const positionSvg: CSSProperties = {
     textAlign: "center",
     marginTop: "25px",
@@ -40,11 +32,6 @@ export default function SvgResume() {
   const ORIGINAL_VIEWBOX_HEIGHT = documentHeight / pixelsPerPoint;
 
   useEffect(() => {
-    const config: ResumeConfig = {
-      foregroundColor: Color(foregroundColor),
-      backgroundColor: Color(backgroundColor),
-      highlightColor: Color(highlightColor),
-    };
     const resumeFactory = new SvgResumeFactory(config, resume);
     const svgResume = resumeFactory.getResume();
     // SVG Document Dimensions (SVG viewport dimensions are in pixels)
