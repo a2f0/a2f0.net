@@ -1,5 +1,5 @@
 import PDFObject from "pdfobject";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import styled from "styled-components";
 
 import { useAppSelector } from "../lib/hooks";
@@ -21,10 +21,14 @@ export default function PdfResume() {
   const scale = useAppSelector(selectScale);
   const config = useResume();
 
-  useEffect(() => {
+  const pdfDataUri = useMemo(() => {
     const resumeFactory = new PdfResumeFactory(config, resume);
     const pdfResume = resumeFactory.getResume();
-    PDFObject.embed(pdfResume.output("datauristring"), "#pdfObjectContainer", {
+    return pdfResume.output("datauristring");
+  }, [config]);
+
+  useEffect(() => {
+    PDFObject.embed(pdfDataUri, "#pdfObjectContainer", {
       id: "pdfObject",
       pdfOpenParams: {
         scrollbars: "0",
@@ -35,7 +39,7 @@ export default function PdfResume() {
         pagemode: "none",
       },
     });
-  });
+  }, [pdfDataUri, scale]);
 
   return <PdfObjectContainer id="pdfObjectContainer" />;
 }
