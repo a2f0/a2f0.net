@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: pnpm install
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.10.5"
