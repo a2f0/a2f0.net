@@ -53,6 +53,10 @@ importers:
       wdio-video-reporter:
         specifier: 6.2.0
         version: 6.2.0(expect-webdriverio@5.3.4)(webdriverio@9.20.0)
+    optionalDependencies:
+      '@rollup/rollup-linux-x64-gnu':
+        specifier: 4.53.1
+        version: 4.53.1
     devDependencies:
       '@a2f0/check-for-unpinned-dependencies':
         specifier: 1.0.4
@@ -144,10 +148,6 @@ importers:
       wdio-chromedriver-service:
         specifier: 8.1.1
         version: 8.1.1(chromedriver@142.0.1)(webdriverio@9.20.0)
-    optionalDependencies:
-      '@rollup/rollup-linux-x64-gnu':
-        specifier: 4.53.1
-        version: 4.53.1
 
 packages:
 
