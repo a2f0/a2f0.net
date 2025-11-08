@@ -1,4 +1,4 @@
-import Color from 'color';
+import Color, {type ColorInstance} from 'color';
 import invariant from 'invariant';
 
 import {resumeConfiguration as config} from '../configuration';
@@ -8,9 +8,9 @@ import {breakLinesIntoChunks, ChunkedLine, extractLinks} from './textUtils';
 import {getFontString, getTextWidthInPoints, wrapLabel} from './textUtils';
 
 export default abstract class ResumeFactory {
-  foregroundColor: Color;
-  backgroundColor: Color;
-  highlightColor: Color;
+  foregroundColor: ColorInstance;
+  backgroundColor: ColorInstance;
+  highlightColor: ColorInstance;
   resume: Resume;
 
   constructor(config: ResumeConfig, resume: Resume) {
@@ -23,7 +23,7 @@ export default abstract class ResumeFactory {
     x: number,
     y: number,
     radius: number,
-    color: Color,
+    color: ColorInstance,
     id: string
   ): void;
   protected abstract addRect(
@@ -31,7 +31,7 @@ export default abstract class ResumeFactory {
     y: number,
     width: number,
     height: number,
-    color: Color,
+    color: ColorInstance,
     id: string
   ): void;
   protected abstract addText(
@@ -39,7 +39,7 @@ export default abstract class ResumeFactory {
     y: number,
     fontSize: number,
     fontFamily: string,
-    color: Color,
+    color: ColorInstance,
     text: string,
     id: string
   ): void;
@@ -48,7 +48,7 @@ export default abstract class ResumeFactory {
     y: number,
     fontSize: number,
     fontFamily: string,
-    color: Color,
+    color: ColorInstance,
     text: string,
     url: string,
     id: string
@@ -58,7 +58,7 @@ export default abstract class ResumeFactory {
     x2: number,
     y1: number,
     y2: number,
-    color: Color,
+    color: ColorInstance,
     id: string
   ): void;
 

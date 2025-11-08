@@ -1,4 +1,4 @@
-import Color from 'color';
+import {type ColorInstance} from 'color';
 import {jsPDF, jsPDFOptions, TextOptionsLight} from 'jspdf';
 
 import {resumeConfiguration} from '../configuration';
@@ -27,7 +27,7 @@ export default class PdfResumeFactory extends ResumeFactory {
     y: number,
     width: number,
     height: number,
-    color: Color
+    color: ColorInstance
   ) {
     this.encodedResume.setFillColor(color.hex());
     this.encodedResume.setDrawColor(color.hex());
@@ -39,7 +39,7 @@ export default class PdfResumeFactory extends ResumeFactory {
     y: number,
     fontSize: number,
     fontFamily: string,
-    color: Color,
+    color: ColorInstance,
     text: string
   ) {
     this.encodedResume.setFont(fontFamily);
@@ -54,7 +54,7 @@ export default class PdfResumeFactory extends ResumeFactory {
     y: number,
     fontSize: number,
     fontFamily: string,
-    color: Color,
+    color: ColorInstance,
     text: string,
     url: string
   ) {
@@ -75,14 +75,14 @@ export default class PdfResumeFactory extends ResumeFactory {
     x2: number,
     y1: number,
     y2: number,
-    color: Color
+    color: ColorInstance
   ) {
     this.encodedResume.setLineWidth(0.75);
     this.encodedResume.setDrawColor(color.hex());
     this.encodedResume.line(x1, y1, x2, y2);
   }
 
-  protected addCircle(x: number, y: number, radius: number, color: Color) {
+  protected addCircle(x: number, y: number, radius: number, color: ColorInstance) {
     this.encodedResume.setFillColor(color.hex());
     this.encodedResume.circle(x, y, radius, 'F');
   }

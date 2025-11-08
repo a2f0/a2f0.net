@@ -1,4 +1,3 @@
-import {fireEvent} from '@testing-library/react';
 import {describe, expect, test} from 'vitest';
 
 import {resumeConfiguration} from '../../configuration';
@@ -83,7 +82,7 @@ describe('textUtils', () => {
       expect(window.innerHeight).toBe(768);
       window.innerWidth = 640;
       window.innerHeight = 480;
-      fireEvent(window, new Event('resize'));
+      window.dispatchEvent(new Event('resize'));
       expect(window.innerWidth).toBe(640);
       expect(window.innerHeight).toBe(480);
       const chunkedLines = wrapLabel(

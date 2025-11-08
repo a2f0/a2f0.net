@@ -18,7 +18,7 @@ export const VersionContainer = styled.div`
   justify-content: flex-end;
 `;
 
-export const VersionLink = styled.a`
+const StyledLink = styled(Link)`
   color: #202020;
   font-size: 12px;
   font-family: Helvetica;
@@ -45,9 +45,9 @@ const Footer = () => (
       <FlexColumn>
         <FlexContainerLeftAlign>
           <VersionContainer>
-            <Link href={resume.url} passHref legacyBehavior>
-              <VersionLink>v{packageJson.version}</VersionLink>
-            </Link>
+            <StyledLink href={resume.url}>
+              v{packageJson.version}
+            </StyledLink>
           </VersionContainer>
         </FlexContainerLeftAlign>
       </FlexColumn>

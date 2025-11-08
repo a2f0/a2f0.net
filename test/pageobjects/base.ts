@@ -1,4 +1,4 @@
-export default class Base {
+class Base {
   get fileMenuButton(): ReturnType<WebdriverIO.Browser['$']> {
     return $('#menuButtonFile');
   }
@@ -22,5 +22,36 @@ export default class Base {
   }
 }
 
-const BasePage = new Base();
-export {BasePage};
+export default Base;
+
+let baseInstance: Base | undefined;
+export const BasePage = {
+  get fileMenuButton() {
+    if (!baseInstance) baseInstance = new Base();
+    return baseInstance.fileMenuButton;
+  },
+  get fileMenuItems() {
+    if (!baseInstance) baseInstance = new Base();
+    return baseInstance.fileMenuItems;
+  },
+  get viewMenuButton() {
+    if (!baseInstance) baseInstance = new Base();
+    return baseInstance.viewMenuButton;
+  },
+  get viewMenuItems() {
+    if (!baseInstance) baseInstance = new Base();
+    return baseInstance.viewMenuItems;
+  },
+  get downloadSvgMenuOption() {
+    if (!baseInstance) baseInstance = new Base();
+    return baseInstance.downloadSvgMenuOption;
+  },
+  get downloadPdfMenuOption() {
+    if (!baseInstance) baseInstance = new Base();
+    return baseInstance.downloadPdfMenuOption;
+  },
+  open(path: string) {
+    if (!baseInstance) baseInstance = new Base();
+    return baseInstance.open(path);
+  },
+};

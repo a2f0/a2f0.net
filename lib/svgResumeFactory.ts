@@ -1,4 +1,4 @@
-import Color from 'color';
+import {type ColorInstance} from 'color';
 
 import {resumeConfiguration} from '../configuration';
 import {Resume} from './resume';
@@ -25,7 +25,7 @@ export default class SvgResumeFactory extends ResumeFactory {
     y: number,
     width: number,
     height: number,
-    color: Color,
+    color: ColorInstance,
     id: string
   ) {
     const rectToAdd = document.createElementNS(
@@ -47,7 +47,7 @@ export default class SvgResumeFactory extends ResumeFactory {
     y: number,
     fontSize: number,
     fontFamily: string,
-    color: Color,
+    color: ColorInstance,
     text: string,
     id: string
   ) {
@@ -71,7 +71,7 @@ export default class SvgResumeFactory extends ResumeFactory {
     y: number,
     fontSize: number,
     fontFamily: string,
-    color: Color,
+    color: ColorInstance,
     text: string,
     url: string,
     id: string
@@ -103,7 +103,7 @@ export default class SvgResumeFactory extends ResumeFactory {
     x: number,
     y: number,
     radius: number,
-    color: Color,
+    color: ColorInstance,
     id: string
   ) {
     const circleToAdd = document.createElementNS(
@@ -123,7 +123,7 @@ export default class SvgResumeFactory extends ResumeFactory {
     x2: number,
     y1: number,
     y2: number,
-    color: Color,
+    color: ColorInstance,
     id: string
   ) {
     const lineToAdd = document.createElementNS(
