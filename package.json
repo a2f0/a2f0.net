@@ -36,7 +36,6 @@
     "react-redux": "9.2.0",
     "redux": "5.0.1",
     "styled-components": "6.1.19",
-    "ts-node": "10.9.2",
     "wdio-video-reporter": "6.2.0"
   },
   "devDependencies": {
