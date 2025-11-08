@@ -15,14 +15,15 @@ vi.mock("pdfobject", () => {
 });
 
 vi.mock("../../lib/pdfResumeFactory", () => {
-  const mockFactory = vi.fn().mockImplementation(() => {
-    return {
-      getResume: vi.fn().mockReturnValue({
-        output: vi.fn().mockReturnValue("mock-pdf-data-uri"),
-      }),
-    };
-  });
-  return { default: mockFactory };
+  return {
+    default: class PdfResumeFactory {
+      getResume() {
+        return {
+          output: vi.fn().mockReturnValue("mock-pdf-data-uri"),
+        };
+      }
+    },
+  };
 });
 
 describe("PdfResume", () => {
