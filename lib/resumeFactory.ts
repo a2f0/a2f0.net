@@ -87,9 +87,15 @@ export default abstract class ResumeFactory {
       "rightPartition",
     );
 
+    // Name - position changes on mobile (above Experience on mobile)
+    const nameXPos = this.isMobile ? config.rightPanelStartX : config.namePos.x;
+    const nameYPos = this.isMobile
+      ? config.experienceHeaderYPos - config.nameSize - config.headerSpacing - config.addressSize - 4
+      : config.nameYPosMiddle;
+
     this.addText(
-      config.namePos.x,
-      config.nameYPosMiddle,
+      nameXPos,
+      nameYPos,
       config.nameSize,
       config.fontFamily,
       this.foregroundColor,
@@ -107,8 +113,8 @@ export default abstract class ResumeFactory {
       ),
     );
     this.addText(
-      config.namePos.x + firstNameWidthInPoints,
-      config.nameYPosMiddle,
+      nameXPos + firstNameWidthInPoints,
+      nameYPos,
       config.nameSize,
       config.fontFamily,
       this.highlightColor,
@@ -116,9 +122,15 @@ export default abstract class ResumeFactory {
       "lastName",
     );
 
+    // Address - position changes on mobile (above Experience, below Name on mobile)
+    const addressXPos = this.isMobile ? config.rightPanelStartX : config.addressPos.x;
+    const addressYPos = this.isMobile
+      ? nameYPos + config.nameSize / 2 + config.addressSize / 2
+      : config.addressYPosMiddle;
+
     this.addText(
-      config.addressPos.x,
-      config.addressYPosMiddle,
+      addressXPos,
+      addressYPos,
       config.addressSize,
       config.fontFamily,
       this.foregroundColor,
@@ -135,18 +147,34 @@ export default abstract class ResumeFactory {
       "verticalDivider",
     );
 
+    // Horizontal line - position under address on mobile
+    const lineYPos = this.isMobile
+      ? addressYPos + config.addressSize / 2 + config.addressLineSpacing
+      : config.addressLineYPos;
+    // On mobile, extend line from vertical divider to the right
+    const lineX1 = this.isMobile ? config.verticalDividerPos.x : config.addressLineX1;
+    const lineX2 = this.isMobile
+      ? config.verticalDividerPos.x + config.addressLineWidth
+      : config.addressLineX1 + config.addressLineWidth;
+
     this.addLine(
-      config.addressLineX1,
-      config.addressLineX1 + config.addressLineWidth,
-      config.addressLineYPos,
-      config.addressLineYPos,
+      lineX1,
+      lineX2,
+      lineYPos,
+      lineYPos,
       this.highlightColor,
       "addressSeparator",
     );
 
+    // Phone number - position on right panel on mobile (with extra spacing after line)
+    const phoneXPos = this.isMobile ? config.rightPanelStartX : config.phoneNumberPos.x;
+    const phoneYPos = this.isMobile
+      ? lineYPos + config.addressLineSpacing * 2
+      : config.phoneNumberPos.y;
+
     this.addTextWithLink(
-      config.phoneNumberPos.x,
-      config.phoneNumberPos.y,
+      phoneXPos,
+      phoneYPos,
       config.phoneNumberSize,
       config.fontFamily,
       this.foregroundColor,
@@ -155,9 +183,15 @@ export default abstract class ResumeFactory {
       "phoneNumber",
     );
 
+    // Email - position on right panel on mobile
+    const emailXPos = this.isMobile ? config.rightPanelStartX : config.emailPos.x;
+    const emailYPos = this.isMobile
+      ? phoneYPos + config.phoneNumberSize / 2 + config.emailSize / 2
+      : config.emailPos.y;
+
     this.addTextWithLink(
-      config.emailPos.x,
-      config.emailPos.y,
+      emailXPos,
+      emailYPos,
       config.emailSize,
       config.fontFamily,
       this.foregroundColor,
@@ -166,9 +200,14 @@ export default abstract class ResumeFactory {
       "emailAddress",
     );
 
+    // Experience header - adjust Y position on mobile to make room for contact info above
+    const experienceHeaderYPos = this.isMobile
+      ? emailYPos + config.emailSize + config.headerSpacing * 2
+      : config.experienceHeaderYPos;
+
     this.addText(
       config.experienceHeaderXPos,
-      config.experienceHeaderYPos,
+      experienceHeaderYPos,
       config.experienceHeaderSize,
       config.fontFamily,
       this.highlightColor,
@@ -177,7 +216,9 @@ export default abstract class ResumeFactory {
     );
 
     // Experience
-    let currentPositionYPos = config.positionTitleYPosStart;
+    let currentPositionYPos = this.isMobile
+      ? experienceHeaderYPos + config.positionTitleSize + config.headerSpacing
+      : config.positionTitleYPosStart;
     const hyphenWidth = getTextWidthInPoints(
       "-",
       getFontString(
