@@ -1,2 +1,2 @@
-#!/bin/bash
+#!/bin/sh
 terraform init -backend-config=./terraform.backend

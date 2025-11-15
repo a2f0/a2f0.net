@@ -1,4 +1,4 @@
-import styled, {css} from 'styled-components';
+import styled, { css } from "styled-components";
 
 interface IProps {
   $isActive: boolean;
@@ -11,12 +11,12 @@ const CheckMark = styled.span<IProps>`
   width: 4px;
   border-bottom: 2px solid gray;
   border-right: 2px solid gray;
-  ${({$isActive}) =>
+  ${({ $isActive }) =>
     $isActive &&
     css`
       visibility: visible;
     `}
-  ${({$isActive}) =>
+  ${({ $isActive }) =>
     !$isActive &&
     css`
       visibility: hidden;

@@ -1,13 +1,13 @@
-import {ReactNode} from 'react';
-import styled from 'styled-components';
+import type { ReactNode } from "react";
+import styled from "styled-components";
 
-import {useAppSelector} from '../../lib/hooks';
-import {selectScale} from '../../lib/resumeConfigSlice';
-import Body from './Body';
-import Footer from './Footer';
-import Gutter from './Gutter';
-import Header from './Header';
-import MainColumn from './MainColumn';
+import { useAppSelector } from "../../lib/hooks";
+import { selectScale } from "../../lib/resumeConfigSlice";
+import Body from "./Body";
+import Footer from "./Footer";
+import Gutter from "./Gutter";
+import Header from "./Header";
+import MainColumn from "./MainColumn";
 
 interface IProps {
   children: ReactNode;
@@ -22,7 +22,7 @@ const StyledMain = styled.main`
   align-items: center;
 `;
 
-const Main = ({children}: IProps) => {
+const Main = ({ children }: IProps) => {
   const scale = useAppSelector(selectScale);
   return (
     <StyledMain>

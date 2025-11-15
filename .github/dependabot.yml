@@ -1,11 +1,40 @@
+---
 version: 2
 updates:
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
       interval: 'monthly'
+    groups:
+      github-actions:
+        patterns:
+          - '*'
 
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
       interval: 'monthly'
+    groups:
+      wdio:
+        patterns:
+          - '@wdio/*'
+          - 'wdio-*'
+      types:
+        patterns:
+          - '@types/*'
+      testing:
+        patterns:
+          - '@testing-library/*'
+          - 'vitest'
+          - 'jsdom'
+      react-ecosystem:
+        patterns:
+          - 'react'
+          - 'react-dom'
+          - '@vitejs/plugin-react'
+          - '@types/react*'
+      next-ecosystem:
+        patterns:
+          - 'next'
+          - '@next/*'
+          - 'eslint-config-next'

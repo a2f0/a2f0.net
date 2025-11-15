@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+ - This project is a resume that renders both PDF and SVGs of the data stored in [resume.json](mdc:resume.json). The logic to do this is abstracted via [resumeFactory.ts](mdc:lib/resumeFactory.ts), which is implemented by [pdfResumeFactory.ts](mdc:lib/pdfResumeFactory.ts)and [svgResumeFactory.ts](mdc:lib/svgResumeFactory.ts).

@@ -1,10 +1,15 @@
-import {BasePage} from '../pageobjects/base';
+import { BasePage } from "../pageobjects/base";
 
-describe('Menu Behavior', () => {
-  it('should show/hide based on clicking and hovering', async () => {
-    const {fileMenuButton, fileMenuItems, viewMenuItems, viewMenuButton, open} =
-      BasePage;
-    await open('');
+describe("Menu Behavior", () => {
+  it("should show/hide based on clicking and hovering", async () => {
+    const {
+      fileMenuButton,
+      fileMenuItems,
+      viewMenuItems,
+      viewMenuButton,
+      open,
+    } = BasePage;
+    await open("");
     await expect(fileMenuButton).toBeExisting();
     await expect(fileMenuItems).toBeExisting();
     // Click the File menu to show it, then click it again to hide it.

@@ -1,20 +1,20 @@
-import Base from './base';
+import Base from "./base";
 
 class SvgPage extends Base {
-  get leftPartition(): ReturnType<WebdriverIO.Browser['$']> {
-    return $('#leftPartition');
+  get leftPartition(): ReturnType<WebdriverIO.Browser["$"]> {
+    return $("#leftPartition");
   }
-  get svgResume(): ReturnType<WebdriverIO.Browser['$']> {
-    return $('#svgResume');
+  get svgResume(): ReturnType<WebdriverIO.Browser["$"]> {
+    return $("#svgResume");
   }
-  get darkThemeMenuOption(): ReturnType<WebdriverIO.Browser['$']> {
-    return $('#darkThemeMenuOption');
+  get darkThemeMenuOption(): ReturnType<WebdriverIO.Browser["$"]> {
+    return $("#darkThemeMenuOption");
   }
-  get lightThemeMenuOption(): ReturnType<WebdriverIO.Browser['$']> {
-    return $('#lightThemeMenuOption');
+  get lightThemeMenuOption(): ReturnType<WebdriverIO.Browser["$"]> {
+    return $("#lightThemeMenuOption");
   }
-  open(): ReturnType<WebdriverIO.Browser['url']> {
-    return super.open('');
+  open(): ReturnType<WebdriverIO.Browser["url"]> {
+    return super.open("");
   }
 }
 

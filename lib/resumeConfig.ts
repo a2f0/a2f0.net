@@ -1,7 +1,7 @@
-import Color from 'color';
+import type Color from "color";
 
 export interface ResumeConfig {
-  foregroundColor: Color;
-  backgroundColor: Color;
-  highlightColor: Color;
+  foregroundColor: ReturnType<typeof Color>;
+  backgroundColor: ReturnType<typeof Color>;
+  highlightColor: ReturnType<typeof Color>;
 }

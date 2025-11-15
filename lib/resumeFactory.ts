@@ -1,65 +1,69 @@
-import Color from 'color';
-import invariant from 'invariant';
+import Color from "color";
+import invariant from "invariant";
 
-import {resumeConfiguration as config} from '../configuration';
-import {Resume} from './resume';
-import {ResumeConfig} from './resumeConfig';
-import {breakLinesIntoChunks, ChunkedLine, extractLinks} from './textUtils';
-import {getFontString, getTextWidthInPoints, wrapLabel} from './textUtils';
+import { resumeConfiguration as config } from "../configuration";
+import type { Resume } from "./resume";
+import type { ResumeConfig } from "./resumeConfig";
+import {
+  breakLinesIntoChunks,
+  type ChunkedLine,
+  extractLinks,
+} from "./textUtils";
+import { getFontString, getTextWidthInPoints, wrapLabel } from "./textUtils";
 
 export default abstract class ResumeFactory {
-  foregroundColor: Color;
-  backgroundColor: Color;
-  highlightColor: Color;
+  foregroundColor: ReturnType<typeof Color>;
+  backgroundColor: ReturnType<typeof Color>;
+  highlightColor: ReturnType<typeof Color>;
   resume: Resume;
 
   constructor(config: ResumeConfig, resume: Resume) {
-    this.foregroundColor = config.foregroundColor;
-    this.backgroundColor = config.backgroundColor;
-    this.highlightColor = config.highlightColor;
+    this.foregroundColor = new Color(config.foregroundColor);
+    this.backgroundColor = new Color(config.backgroundColor);
+    this.highlightColor = new Color(config.highlightColor);
     this.resume = resume;
   }
   protected abstract addCircle(
     x: number,
     y: number,
     radius: number,
-    color: Color,
-    id: string
+    color: ReturnType<typeof Color>,
+    id: string,
   ): void;
   protected abstract addRect(
     x: number,
     y: number,
     width: number,
     height: number,
-    color: Color,
-    id: string
+    color: ReturnType<typeof Color>,
+    id: string,
   ): void;
   protected abstract addText(
     x: number,
     y: number,
     fontSize: number,
     fontFamily: string,
-    color: Color,
+    color: ReturnType<typeof Color>,
     text: string,
-    id: string
+    id: string,
   ): void;
   protected abstract addTextWithLink(
     x: number,
     y: number,
     fontSize: number,
     fontFamily: string,
-    color: Color,
+    color: ReturnType<typeof Color>,
     text: string,
     url: string,
-    id: string
+    id: string,
   ): void;
   protected abstract addLine(
     x1: number,
     x2: number,
     y1: number,
     y2: number,
-    color: Color,
-    id: string
+    color: ReturnType<typeof Color>,
+    id: string,
   ): void;
 
   protected populateResume() {
@@ -69,7 +73,7 @@ export default abstract class ResumeFactory {
       config.leftPanelWidth,
       config.documentHeight,
       this.backgroundColor,
-      'leftPartition'
+      "leftPartition",
     );
 
     this.addRect(
@@ -78,7 +82,7 @@ export default abstract class ResumeFactory {
       config.rightPanelWidth,
       config.documentHeight,
       this.backgroundColor,
-      'rightPartition'
+      "rightPartition",
     );
 
     this.addText(
@@ -88,7 +92,7 @@ export default abstract class ResumeFactory {
       config.fontFamily,
       this.foregroundColor,
       this.resume.firstName,
-      'firstName'
+      "firstName",
     );
 
     const firstNameWidthInPoints = getTextWidthInPoints(
@@ -97,8 +101,8 @@ export default abstract class ResumeFactory {
         config.nameWeight,
         config.nameSize,
         config.units,
-        config.fontFamily
-      )
+        config.fontFamily,
+      ),
     );
     this.addText(
       config.namePos.x + firstNameWidthInPoints,
@@ -107,7 +111,7 @@ export default abstract class ResumeFactory {
       config.fontFamily,
       this.highlightColor,
       this.resume.lastName,
-      'lastName'
+      "lastName",
     );
 
     this.addText(
@@ -117,7 +121,7 @@ export default abstract class ResumeFactory {
       config.fontFamily,
       this.foregroundColor,
       this.resume.cityState,
-      'addressLine'
+      "addressLine",
     );
 
     this.addLine(
@@ -126,7 +130,7 @@ export default abstract class ResumeFactory {
       config.verticalDividerPos.y,
       config.verticalDividerPos.y + config.verticalDividerHeight,
       this.highlightColor,
-      'verticalDivider'
+      "verticalDivider",
     );
 
     this.addLine(
@@ -135,7 +139,7 @@ export default abstract class ResumeFactory {
       config.addressLineYPos,
       config.addressLineYPos,
       this.highlightColor,
-      'addressSeparator'
+      "addressSeparator",
     );
 
     this.addTextWithLink(
@@ -146,7 +150,7 @@ export default abstract class ResumeFactory {
       this.foregroundColor,
       this.resume.phoneNumber.number,
       this.resume.phoneNumber.uri,
-      'phoneNumber'
+      "phoneNumber",
     );
 
     this.addTextWithLink(
@@ -157,7 +161,7 @@ export default abstract class ResumeFactory {
       this.foregroundColor,
       this.resume.email.email,
       this.resume.email.uri,
-      'emailAddress'
+      "emailAddress",
     );
 
     this.addText(
@@ -167,19 +171,19 @@ export default abstract class ResumeFactory {
       config.fontFamily,
       this.highlightColor,
       config.experienceHeader,
-      'experienceHeader'
+      "experienceHeader",
     );
 
     // Experience
     let currentPositionYPos = config.positionTitleYPosStart;
     const hyphenWidth = getTextWidthInPoints(
-      '-',
+      "-",
       getFontString(
         config.positionTitleWeight,
         config.positionTitleSize,
         config.units,
-        config.fontFamily
-      )
+        config.fontFamily,
+      ),
     );
 
     // Individual Positions
@@ -191,7 +195,7 @@ export default abstract class ResumeFactory {
         currentPositionYPos,
         config.positionBulletRadius,
         this.highlightColor,
-        'positionBulletPoint-' + i
+        `positionBulletPoint-${i}`,
       );
 
       this.addText(
@@ -201,7 +205,7 @@ export default abstract class ResumeFactory {
         config.fontFamily,
         this.foregroundColor,
         position.title,
-        'positionTitle-' + i
+        `positionTitle-${i}`,
       );
       const titleWidth = getTextWidthInPoints(
         position.title,
@@ -209,8 +213,8 @@ export default abstract class ResumeFactory {
           config.positionTitleWeight,
           config.positionTitleSize,
           config.units,
-          config.fontFamily
-        )
+          config.fontFamily,
+        ),
       );
 
       // Position Date Range
@@ -220,8 +224,8 @@ export default abstract class ResumeFactory {
           config.positionDateRangeWeight,
           config.positionDateRangeSize,
           config.units,
-          config.fontFamily
-        )
+          config.fontFamily,
+        ),
       );
       const positionDateRangeXPos =
         config.verticalDividerPos.x -
@@ -234,7 +238,7 @@ export default abstract class ResumeFactory {
         config.fontFamily,
         this.foregroundColor,
         position.date_range,
-        'positionDateRange-' + i
+        `positionDateRange-${i}`,
       );
 
       // Hyphen After Title
@@ -246,19 +250,19 @@ export default abstract class ResumeFactory {
         config.positionTitleSize,
         config.fontFamily,
         this.foregroundColor,
-        '-',
-        'hyphenAfterTitle-' + i
+        "-",
+        `hyphenAfterTitle-${i}`,
       );
 
       const companyNameXPos = hyphen1XPos + hyphenWidth + config.hyphenSpacing;
-      const {matches, plainString} = extractLinks(position.company);
+      const { matches, plainString } = extractLinks(position.company);
       const lineChunks = breakLinesIntoChunks([plainString], matches);
-      invariant(lineChunks.length === 1, 'Expected 1 line chunk');
+      invariant(lineChunks.length === 1, "Expected 1 line chunk");
       const chunkedLine = lineChunks[0];
       let currentXPos = companyNameXPos;
       for (const chunk of chunkedLine.chunks) {
         if (chunk.isMatch) {
-          invariant(chunk.url, 'Expected a url for a match');
+          invariant(chunk.url, "Expected a url for a match");
           this.addTextWithLink(
             currentXPos,
             currentPositionYPos,
@@ -267,7 +271,7 @@ export default abstract class ResumeFactory {
             this.foregroundColor,
             chunk.text,
             chunk.url,
-            'positionCompanyName-' + i
+            `positionCompanyName-${i}`,
           );
         } else {
           this.addText(
@@ -277,7 +281,7 @@ export default abstract class ResumeFactory {
             config.fontFamily,
             this.foregroundColor,
             chunk.text,
-            'positionCompanyName-' + i
+            `positionCompanyName-${i}`,
           );
         }
         currentXPos += getTextWidthInPoints(
@@ -286,8 +290,8 @@ export default abstract class ResumeFactory {
             config.positionTitleWeight,
             config.positionTitleSize,
             config.units,
-            config.fontFamily
-          )
+            config.fontFamily,
+          ),
         );
       }
 
@@ -299,8 +303,8 @@ export default abstract class ResumeFactory {
         config.positionTitleSize,
         config.fontFamily,
         this.foregroundColor,
-        '-',
-        'hyphenAfterCompanyName-' + i
+        "-",
+        `hyphenAfterCompanyName-${i}`,
       );
 
       // Company Location
@@ -313,7 +317,7 @@ export default abstract class ResumeFactory {
         config.fontFamily,
         this.foregroundColor,
         position.location,
-        'positionCompanyLocation-'
+        "positionCompanyLocation-",
       );
 
       // Accomplishments
@@ -325,7 +329,7 @@ export default abstract class ResumeFactory {
         config.positionAccomplishmentWeight,
         config.positionAccomplishmentSize,
         config.units,
-        config.fontFamily
+        config.fontFamily,
       );
 
       for (let j = 0; j < position.accomplishments.length; j++) {
@@ -335,12 +339,12 @@ export default abstract class ResumeFactory {
           accomplishmentYPos,
           config.positionAccomplishmentBulletRadius,
           this.foregroundColor,
-          `accomplishmentBullet-${i}-${j}`
+          `accomplishmentBullet-${i}-${j}`,
         );
         const accomplishmentLines: ChunkedLine[] = wrapLabel(
           accomplishment,
           config.positionAccomplishmentMaxWidth,
-          accomplishmentFont
+          accomplishmentFont,
         );
         for (let k = 0; k < accomplishmentLines.length; k++) {
           const chunkedLine: ChunkedLine = accomplishmentLines[k];
@@ -352,7 +356,7 @@ export default abstract class ResumeFactory {
               config.fontFamily,
               this.foregroundColor,
               chunk.text,
-              `positionAccomplishmentLine-${i}-${j}-${k}`
+              `positionAccomplishmentLine-${i}-${j}-${k}`,
             );
           }
           accomplishmentYPos += config.positionAccomplishmentSize;
@@ -379,7 +383,7 @@ export default abstract class ResumeFactory {
       config.fontFamily,
       this.highlightColor,
       config.educationHeader,
-      'educationHeader'
+      "educationHeader",
     );
 
     let educationYPos =
@@ -392,7 +396,7 @@ export default abstract class ResumeFactory {
         educationYPos,
         config.positionBulletRadius,
         this.highlightColor,
-        `educationBullet-${m}`
+        `educationBullet-${m}`,
       );
 
       // Education Institution
@@ -404,7 +408,7 @@ export default abstract class ResumeFactory {
         this.foregroundColor,
         education.institution,
         education.url,
-        `educationInstitution-${m}`
+        `educationInstitution-${m}`,
       );
 
       // Education Degree
@@ -416,7 +420,7 @@ export default abstract class ResumeFactory {
         config.fontFamily,
         this.foregroundColor,
         education.credential,
-        `educationDegree-${m}`
+        `educationDegree-${m}`,
       );
 
       educationYPos += config.educationVerticalSpacing + config.addressSize;
@@ -429,19 +433,19 @@ export default abstract class ResumeFactory {
       config.internetPresencesHeaderSize,
       config.fontFamily,
       this.highlightColor,
-      'WEB',
-      'WebLabel'
+      "WEB",
+      "WebLabel",
     );
 
     // Presences
     const interenetWidthInPoints = getTextWidthInPoints(
-      'WEB',
+      "WEB",
       getFontString(
         config.nameWeight,
         config.internetPresencesHeaderSize,
         config.units,
-        config.fontFamily
-      )
+        config.fontFamily,
+      ),
     );
     this.addText(
       config.namePos.x + interenetWidthInPoints,
@@ -449,8 +453,8 @@ export default abstract class ResumeFactory {
       config.internetPresencesHeaderSize,
       config.fontFamily,
       this.foregroundColor,
-      'PRESENCES',
-      'PresencesLabel'
+      "PRESENCES",
+      "PresencesLabel",
     );
 
     // Internet Presences Separator
@@ -460,13 +464,13 @@ export default abstract class ResumeFactory {
       config.internetPresencesLineYPos,
       config.internetPresencesLineYPos,
       this.highlightColor,
-      'internetPresencesSeparator'
+      "internetPresencesSeparator",
     );
 
     let internetPresenceYPos = config.internetPresencesYPos;
     for (let n = 0; n < this.resume.internetPresences.length; n++) {
       const internetPresence = this.resume.internetPresences[n];
-      const wihoutUrlPrefix = internetPresence.split('//')[1];
+      const wihoutUrlPrefix = internetPresence.split("//")[1];
       // URL
       this.addTextWithLink(
         config.namePos.x,
@@ -476,7 +480,7 @@ export default abstract class ResumeFactory {
         this.foregroundColor,
         wihoutUrlPrefix,
         internetPresence,
-        `internetPresences-${n}`
+        `internetPresences-${n}`,
       );
       internetPresenceYPos += config.internetPresencesSize;
     }

@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+ - Use named exports instead of default exports (unless a default export is required).

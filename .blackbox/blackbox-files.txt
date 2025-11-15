@@ -1,1 +1,2 @@
+terraform/google-credentials.json
 terraform/main.tfvars

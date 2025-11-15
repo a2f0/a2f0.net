@@ -1,8 +1,8 @@
-import React, {ReactNode} from 'react';
+import { type ReactNode, createContext, useContext } from "react";
 
-const DropdownMenuContext = React.createContext<
-  DropdownContextProps | undefined
->(undefined);
+const DropdownMenuContext = createContext<DropdownContextProps | undefined>(
+  undefined,
+);
 
 interface DropdownContextProps {
   setIsActive: React.Dispatch<React.SetStateAction<boolean>>;
@@ -13,22 +13,22 @@ interface DropdownMenuProps {
   setIsActive: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-function DropdownMenuProvider({children, setIsActive}: DropdownMenuProps) {
+function DropdownMenuProvider({ children, setIsActive }: DropdownMenuProps) {
   return (
-    <DropdownMenuContext.Provider value={{setIsActive: setIsActive}}>
+    <DropdownMenuContext.Provider value={{ setIsActive: setIsActive }}>
       {children}
     </DropdownMenuContext.Provider>
   );
 }
 
 function useDropdownMenu() {
-  const context = React.useContext(DropdownMenuContext);
+  const context = useContext(DropdownMenuContext);
   if (context === undefined) {
     throw new Error(
-      'useDropdownMenu must be used within a DropdownMenuProvider'
+      "useDropdownMenu must be used within a DropdownMenuProvider",
     );
   }
   return context;
 }
 
-export {DropdownMenuProvider, useDropdownMenu};
+export { DropdownMenuProvider, useDropdownMenu };
