@@ -16,12 +16,14 @@ export default abstract class ResumeFactory {
   backgroundColor: ReturnType<typeof Color>;
   highlightColor: ReturnType<typeof Color>;
   resume: Resume;
+  isMobile: boolean;
 
-  constructor(config: ResumeConfig, resume: Resume) {
+  constructor(config: ResumeConfig, resume: Resume, isMobile: boolean = false) {
     this.foregroundColor = new Color(config.foregroundColor);
     this.backgroundColor = new Color(config.backgroundColor);
     this.highlightColor = new Color(config.highlightColor);
     this.resume = resume;
+    this.isMobile = isMobile;
   }
   protected abstract addCircle(
     x: number,
@@ -227,13 +229,25 @@ export default abstract class ResumeFactory {
           config.fontFamily,
         ),
       );
-      const positionDateRangeXPos =
-        config.verticalDividerPos.x -
-        config.centerBulletMargin -
-        positionDateRangeWidth;
+      let positionDateRangeXPos: number;
+      let positionDateRangeYPos: number;
+
+      if (this.isMobile) {
+        // On mobile, place date below title at left edge
+        positionDateRangeXPos = config.positionTitleXPos;
+        positionDateRangeYPos = currentPositionYPos + config.positionTitleSize;
+      } else {
+        // On desktop, place date on left side at same Y position as title
+        positionDateRangeXPos =
+          config.verticalDividerPos.x -
+          config.centerBulletMargin -
+          positionDateRangeWidth;
+        positionDateRangeYPos = currentPositionYPos;
+      }
+
       this.addText(
         positionDateRangeXPos,
-        currentPositionYPos,
+        positionDateRangeYPos,
         config.positionTitleSize,
         config.fontFamily,
         this.foregroundColor,
@@ -241,20 +255,25 @@ export default abstract class ResumeFactory {
         `positionDateRange-${i}`,
       );
 
-      // Hyphen After Title
-      const hyphen1XPos =
-        config.positionTitleXPos + titleWidth + config.hyphenSpacing;
-      this.addText(
-        hyphen1XPos,
-        currentPositionYPos,
-        config.positionTitleSize,
-        config.fontFamily,
-        this.foregroundColor,
-        "-",
-        `hyphenAfterTitle-${i}`,
-      );
-
-      const companyNameXPos = hyphen1XPos + hyphenWidth + config.hyphenSpacing;
+      // Hyphen After Title (hidden on mobile)
+      let companyNameXPos: number;
+      if (!this.isMobile) {
+        const hyphen1XPos =
+          config.positionTitleXPos + titleWidth + config.hyphenSpacing;
+        this.addText(
+          hyphen1XPos,
+          currentPositionYPos,
+          config.positionTitleSize,
+          config.fontFamily,
+          this.foregroundColor,
+          "-",
+          `hyphenAfterTitle-${i}`,
+        );
+        companyNameXPos = hyphen1XPos + hyphenWidth + config.hyphenSpacing;
+      } else {
+        // On mobile, place company name directly after title with just a space
+        companyNameXPos = config.positionTitleXPos + titleWidth + config.hyphenSpacing;
+      }
       const { matches, plainString } = extractLinks(position.company);
       const lineChunks = breakLinesIntoChunks([plainString], matches);
       invariant(lineChunks.length === 1, "Expected 1 line chunk");
@@ -295,21 +314,26 @@ export default abstract class ResumeFactory {
         );
       }
 
-      // Hyphen After Company Name
-      const hyphen2XPos = currentXPos + config.hyphenSpacing;
-      this.addText(
-        hyphen2XPos,
-        currentPositionYPos,
-        config.positionTitleSize,
-        config.fontFamily,
-        this.foregroundColor,
-        "-",
-        `hyphenAfterCompanyName-${i}`,
-      );
+      // Hyphen After Company Name (hidden on mobile)
+      let companyLocationXPos: number;
+      if (!this.isMobile) {
+        const hyphen2XPos = currentXPos + config.hyphenSpacing;
+        this.addText(
+          hyphen2XPos,
+          currentPositionYPos,
+          config.positionTitleSize,
+          config.fontFamily,
+          this.foregroundColor,
+          "-",
+          `hyphenAfterCompanyName-${i}`,
+        );
+        companyLocationXPos = hyphen2XPos + hyphenWidth + config.hyphenSpacing;
+      } else {
+        // On mobile, place location directly after company with just a space
+        companyLocationXPos = currentXPos + config.hyphenSpacing;
+      }
 
       // Company Location
-      const companyLocationXPos =
-        hyphen2XPos + hyphenWidth + config.hyphenSpacing;
       this.addText(
         companyLocationXPos,
         currentPositionYPos,
@@ -325,6 +349,11 @@ export default abstract class ResumeFactory {
         currentPositionYPos +
         config.positionTitleSize +
         config.positionAccomplishmentHeaderSpacing;
+
+      // On mobile, add extra spacing to account for date being on a separate line
+      if (this.isMobile) {
+        accomplishmentYPos += config.positionTitleSize;
+      }
       const accomplishmentFont = getFontString(
         config.positionAccomplishmentWeight,
         config.positionAccomplishmentSize,

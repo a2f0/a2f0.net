@@ -17,6 +17,8 @@ const SvgContainer = styled.div`
 const { pixelsPerPoint, units, documentWidth, documentHeight } =
   resumeConfiguration;
 
+const MOBILE_BREAKPOINT = 768;
+
 export default function SvgResume() {
   const config = useResume();
   const positionSvg: CSSProperties = {
@@ -27,12 +29,22 @@ export default function SvgResume() {
   const scale = useAppSelector(selectScale);
   const [width] = useState(documentWidth);
   const [height] = useState(documentHeight);
+  const [isMobile, setIsMobile] = useState(false);
 
   const ORIGINAL_VIEWBOX_WIDTH = documentWidth / pixelsPerPoint;
   const ORIGINAL_VIEWBOX_HEIGHT = documentHeight / pixelsPerPoint;
 
   useEffect(() => {
-    const resumeFactory = new SvgResumeFactory(config, resume);
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  useEffect(() => {
+    const resumeFactory = new SvgResumeFactory(config, resume, isMobile);
     const svgResume = resumeFactory.getResume();
     // SVG Document Dimensions (SVG viewport dimensions are in pixels)
     svgResume.setAttribute("class", "svg");
