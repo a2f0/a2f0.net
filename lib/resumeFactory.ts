@@ -69,26 +69,33 @@ export default abstract class ResumeFactory {
   ): void;
 
   protected populateResume() {
-    this.addRect(
-      config.leftPanelPos.x,
-      config.leftPanelPos.y,
-      config.leftPanelWidth,
-      config.documentHeight,
-      this.backgroundColor,
-      "leftPartition",
-    );
+    // Left panel - hide on mobile
+    if (!this.isMobile) {
+      this.addRect(
+        config.leftPanelPos.x,
+        config.leftPanelPos.y,
+        config.leftPanelWidth,
+        config.documentHeight,
+        this.backgroundColor,
+        "leftPartition",
+      );
+    }
+
+    // Right panel - full width on mobile
+    const rightPanelX = this.isMobile ? 0 : config.rightPanelPos.x;
+    const rightPanelWidth = this.isMobile ? config.documentWidth : config.rightPanelWidth;
 
     this.addRect(
-      config.rightPanelPos.x,
+      rightPanelX,
       config.rightPanelPos.y,
-      config.rightPanelWidth,
+      rightPanelWidth,
       config.documentHeight,
       this.backgroundColor,
       "rightPartition",
     );
 
     // Name - position changes on mobile (above Experience on mobile)
-    const nameXPos = this.isMobile ? config.rightPanelStartX : config.namePos.x;
+    const nameXPos = this.isMobile ? config.startX : config.namePos.x;
     const nameYPos = this.isMobile
       ? config.experienceHeaderYPos - config.nameSize - config.headerSpacing - config.addressSize - 4
       : config.nameYPosMiddle;
@@ -123,7 +130,7 @@ export default abstract class ResumeFactory {
     );
 
     // Address - position changes on mobile (above Experience, below Name on mobile)
-    const addressXPos = this.isMobile ? config.rightPanelStartX : config.addressPos.x;
+    const addressXPos = this.isMobile ? config.startX : config.addressPos.x;
     const addressYPos = this.isMobile
       ? nameYPos + config.nameSize / 2 + config.addressSize / 2
       : config.addressYPosMiddle;
@@ -138,23 +145,26 @@ export default abstract class ResumeFactory {
       "addressLine",
     );
 
-    this.addLine(
-      config.verticalDividerPos.x,
-      config.verticalDividerPos.x,
-      config.verticalDividerPos.y,
-      config.verticalDividerPos.y + config.verticalDividerHeight,
-      this.highlightColor,
-      "verticalDivider",
-    );
+    // Vertical divider - hide on mobile
+    if (!this.isMobile) {
+      this.addLine(
+        config.verticalDividerPos.x,
+        config.verticalDividerPos.x,
+        config.verticalDividerPos.y,
+        config.verticalDividerPos.y + config.verticalDividerHeight,
+        this.highlightColor,
+        "verticalDivider",
+      );
+    }
 
     // Horizontal line - position under address on mobile
     const lineYPos = this.isMobile
       ? addressYPos + config.addressSize / 2 + config.addressLineSpacing
       : config.addressLineYPos;
-    // On mobile, extend line from vertical divider to the right
-    const lineX1 = this.isMobile ? config.verticalDividerPos.x : config.addressLineX1;
+    // On mobile, extend line from left edge
+    const lineX1 = this.isMobile ? config.startX : config.addressLineX1;
     const lineX2 = this.isMobile
-      ? config.verticalDividerPos.x + config.addressLineWidth
+      ? config.startX + config.addressLineWidth
       : config.addressLineX1 + config.addressLineWidth;
 
     this.addLine(
@@ -167,7 +177,7 @@ export default abstract class ResumeFactory {
     );
 
     // Phone number - position on right panel on mobile (with extra spacing after line)
-    const phoneXPos = this.isMobile ? config.rightPanelStartX : config.phoneNumberPos.x;
+    const phoneXPos = this.isMobile ? config.startX : config.phoneNumberPos.x;
     const phoneYPos = this.isMobile
       ? lineYPos + config.addressLineSpacing * 2
       : config.phoneNumberPos.y;
@@ -184,7 +194,7 @@ export default abstract class ResumeFactory {
     );
 
     // Email - position on right panel on mobile
-    const emailXPos = this.isMobile ? config.rightPanelStartX : config.emailPos.x;
+    const emailXPos = this.isMobile ? config.startX : config.emailPos.x;
     const emailYPos = this.isMobile
       ? phoneYPos + config.phoneNumberSize / 2 + config.emailSize / 2
       : config.emailPos.y;
@@ -205,8 +215,9 @@ export default abstract class ResumeFactory {
       ? emailYPos + config.emailSize + config.headerSpacing * 2
       : config.experienceHeaderYPos;
 
+    const experienceHeaderXPos = this.isMobile ? config.startX : config.experienceHeaderXPos;
     this.addText(
-      config.experienceHeaderXPos,
+      experienceHeaderXPos,
       experienceHeaderYPos,
       config.experienceHeaderSize,
       config.fontFamily,
@@ -233,16 +244,20 @@ export default abstract class ResumeFactory {
     for (let i = 0; i < this.resume.experience.length; i++) {
       const position = this.resume.experience[i];
 
-      this.addCircle(
-        config.verticalDividerPos.x,
-        currentPositionYPos,
-        config.positionBulletRadius,
-        this.highlightColor,
-        `positionBulletPoint-${i}`,
-      );
+      // Position bullet points - hide on mobile
+      if (!this.isMobile) {
+        this.addCircle(
+          config.verticalDividerPos.x,
+          currentPositionYPos,
+          config.positionBulletRadius,
+          this.highlightColor,
+          `positionBulletPoint-${i}`,
+        );
+      }
 
+      const positionTitleXPos = this.isMobile ? config.startX : config.positionTitleXPos;
       this.addText(
-        config.positionTitleXPos,
+        positionTitleXPos,
         currentPositionYPos,
         config.positionTitleSize,
         config.fontFamily,
@@ -275,7 +290,7 @@ export default abstract class ResumeFactory {
 
       if (this.isMobile) {
         // On mobile, place date below title at left edge
-        positionDateRangeXPos = config.positionTitleXPos;
+        positionDateRangeXPos = positionTitleXPos;
         positionDateRangeYPos = currentPositionYPos + config.positionTitleSize;
       } else {
         // On desktop, place date on left side at same Y position as title
@@ -300,7 +315,7 @@ export default abstract class ResumeFactory {
       let companyNameXPos: number;
       if (!this.isMobile) {
         const hyphen1XPos =
-          config.positionTitleXPos + titleWidth + config.hyphenSpacing;
+          positionTitleXPos + titleWidth + config.hyphenSpacing;
         this.addText(
           hyphen1XPos,
           currentPositionYPos,
@@ -313,7 +328,7 @@ export default abstract class ResumeFactory {
         companyNameXPos = hyphen1XPos + hyphenWidth + config.hyphenSpacing;
       } else {
         // On mobile, place company name directly after title with just a space
-        companyNameXPos = config.positionTitleXPos + titleWidth + config.hyphenSpacing;
+        companyNameXPos = positionTitleXPos + titleWidth + config.hyphenSpacing;
       }
       const { matches, plainString } = extractLinks(position.company);
       const lineChunks = breakLinesIntoChunks([plainString], matches);
@@ -404,13 +419,25 @@ export default abstract class ResumeFactory {
 
       for (let j = 0; j < position.accomplishments.length; j++) {
         const accomplishment = position.accomplishments[j];
+
+        // Accomplishment bullet - position on mobile
+        const accomplishmentBulletXPos = this.isMobile
+          ? config.startX + 5
+          : config.positionAccomplishmentBulletXPos;
+
         this.addCircle(
-          config.positionAccomplishmentBulletXPos,
+          accomplishmentBulletXPos,
           accomplishmentYPos,
           config.positionAccomplishmentBulletRadius,
           this.foregroundColor,
           `accomplishmentBullet-${i}-${j}`,
         );
+
+        // Accomplishment text - adjust position on mobile
+        const accomplishmentXPos = this.isMobile
+          ? config.startX + 12  // Position after bullet on mobile
+          : config.positionAccomplishmentXPos;
+
         const accomplishmentLines: ChunkedLine[] = wrapLabel(
           accomplishment,
           config.positionAccomplishmentMaxWidth,
@@ -420,7 +447,7 @@ export default abstract class ResumeFactory {
           const chunkedLine: ChunkedLine = accomplishmentLines[k];
           for (const chunk of chunkedLine.chunks) {
             this.addText(
-              config.positionAccomplishmentXPos,
+              accomplishmentXPos,
               accomplishmentYPos,
               config.positionAccomplishmentSize,
               config.fontFamily,
@@ -446,8 +473,9 @@ export default abstract class ResumeFactory {
 
     // Education Header
     const educationHeaderYPos = currentPositionYPos + config.positionTitleSize;
+    const educationHeaderXPos = this.isMobile ? config.startX : config.educationHeaderXPos;
     this.addText(
-      config.educationHeaderXPos,
+      educationHeaderXPos,
       educationHeaderYPos,
       config.educationHeaderSize,
       config.fontFamily,
@@ -461,17 +489,21 @@ export default abstract class ResumeFactory {
     for (let m = 0; m < this.resume.education.length; m++) {
       const education = this.resume.education[m];
 
-      this.addCircle(
-        config.verticalDividerPos.x,
-        educationYPos,
-        config.positionBulletRadius,
-        this.highlightColor,
-        `educationBullet-${m}`,
-      );
+      // Education bullet points - hide on mobile
+      if (!this.isMobile) {
+        this.addCircle(
+          config.verticalDividerPos.x,
+          educationYPos,
+          config.positionBulletRadius,
+          this.highlightColor,
+          `educationBullet-${m}`,
+        );
+      }
 
       // Education Institution
+      const educationXPos = this.isMobile ? config.startX : config.educationXPos;
       this.addTextWithLink(
-        config.educationXPos,
+        educationXPos,
         educationYPos,
         config.educationSize,
         config.fontFamily,
@@ -484,7 +516,7 @@ export default abstract class ResumeFactory {
       // Education Degree
       educationYPos += config.educationSize;
       this.addText(
-        config.educationXPos,
+        educationXPos,
         educationYPos,
         config.educationSize,
         config.fontFamily,

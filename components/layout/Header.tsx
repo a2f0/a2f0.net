@@ -26,6 +26,13 @@ const StyledHeader = styled.header<IProps>`
   position: sticky;
   top: 0;
   border-bottom: var(--header-bottom-border) solid #a9a9a9;
+  overflow: visible;
+  display: flex;
+
+  @media (max-width: 768px) {
+    height: var(--header-height);
+    padding: 0 5px;
+  }
 `;
 
 const Header = () => {

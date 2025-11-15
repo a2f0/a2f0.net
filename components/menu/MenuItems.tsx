@@ -30,4 +30,5 @@ export const MenuItems = styled.div<IProps>`
       visibility: visible;
       transform: translateY(0);
     `}
+
 `;

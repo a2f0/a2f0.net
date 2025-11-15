@@ -28,4 +28,8 @@ export const MenuButton = styled.button<IProps>`
   &:hover {
     background: #d3d3d3;
   }
+
+  @media (max-width: 768px) {
+    margin-top: calc(var(--header-height) - var(--height));
+  }
 `;
