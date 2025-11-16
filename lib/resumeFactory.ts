@@ -95,9 +95,9 @@ export default abstract class ResumeFactory {
     );
 
     // Name - position changes on mobile (above Experience on mobile)
-    const nameXPos = this.isMobile ? config.startX : config.namePos.x;
+    const nameXPos = this.isMobile ? 5 : config.namePos.x;
     const nameYPos = this.isMobile
-      ? config.experienceHeaderYPos - config.nameSize - config.headerSpacing - config.addressSize - 4
+      ? 13  // 5px top clearance + half of 15pt font size
       : config.nameYPosMiddle;
 
     this.addText(
@@ -130,7 +130,7 @@ export default abstract class ResumeFactory {
     );
 
     // Address - position changes on mobile (above Experience, below Name on mobile)
-    const addressXPos = this.isMobile ? config.startX : config.addressPos.x;
+    const addressXPos = this.isMobile ? 5 : config.addressPos.x;
     const addressYPos = this.isMobile
       ? nameYPos + config.nameSize / 2 + config.addressSize / 2
       : config.addressYPosMiddle;
@@ -162,9 +162,9 @@ export default abstract class ResumeFactory {
       ? addressYPos + config.addressSize / 2 + config.addressLineSpacing
       : config.addressLineYPos;
     // On mobile, extend line from left edge
-    const lineX1 = this.isMobile ? config.startX : config.addressLineX1;
+    const lineX1 = this.isMobile ? 5 : config.addressLineX1;
     const lineX2 = this.isMobile
-      ? config.startX + config.addressLineWidth
+      ? 5 + config.addressLineWidth
       : config.addressLineX1 + config.addressLineWidth;
 
     this.addLine(
@@ -177,7 +177,7 @@ export default abstract class ResumeFactory {
     );
 
     // Phone number - position on right panel on mobile (with extra spacing after line)
-    const phoneXPos = this.isMobile ? config.startX : config.phoneNumberPos.x;
+    const phoneXPos = this.isMobile ? 5 : config.phoneNumberPos.x;
     const phoneYPos = this.isMobile
       ? lineYPos + config.addressLineSpacing * 2
       : config.phoneNumberPos.y;
@@ -194,7 +194,7 @@ export default abstract class ResumeFactory {
     );
 
     // Email - position on right panel on mobile
-    const emailXPos = this.isMobile ? config.startX : config.emailPos.x;
+    const emailXPos = this.isMobile ? 5 : config.emailPos.x;
     const emailYPos = this.isMobile
       ? phoneYPos + config.phoneNumberSize / 2 + config.emailSize / 2
       : config.emailPos.y;
@@ -215,7 +215,7 @@ export default abstract class ResumeFactory {
       ? emailYPos + config.emailSize + config.headerSpacing * 2
       : config.experienceHeaderYPos;
 
-    const experienceHeaderXPos = this.isMobile ? config.startX : config.experienceHeaderXPos;
+    const experienceHeaderXPos = this.isMobile ? 5 : config.experienceHeaderXPos;
     this.addText(
       experienceHeaderXPos,
       experienceHeaderYPos,
@@ -255,7 +255,7 @@ export default abstract class ResumeFactory {
         );
       }
 
-      const positionTitleXPos = this.isMobile ? config.startX : config.positionTitleXPos;
+      const positionTitleXPos = this.isMobile ? 5 : config.positionTitleXPos;
       this.addText(
         positionTitleXPos,
         currentPositionYPos,
@@ -422,7 +422,7 @@ export default abstract class ResumeFactory {
 
         // Accomplishment bullet - position on mobile
         const accomplishmentBulletXPos = this.isMobile
-          ? config.startX + 5
+          ? 10
           : config.positionAccomplishmentBulletXPos;
 
         this.addCircle(
@@ -435,7 +435,7 @@ export default abstract class ResumeFactory {
 
         // Accomplishment text - adjust position on mobile
         const accomplishmentXPos = this.isMobile
-          ? config.startX + 12  // Position after bullet on mobile
+          ? 17  // Position after bullet on mobile
           : config.positionAccomplishmentXPos;
 
         const accomplishmentLines: ChunkedLine[] = wrapLabel(
@@ -473,7 +473,7 @@ export default abstract class ResumeFactory {
 
     // Education Header
     const educationHeaderYPos = currentPositionYPos + config.positionTitleSize;
-    const educationHeaderXPos = this.isMobile ? config.startX : config.educationHeaderXPos;
+    const educationHeaderXPos = this.isMobile ? 5 : config.educationHeaderXPos;
     this.addText(
       educationHeaderXPos,
       educationHeaderYPos,
@@ -501,7 +501,7 @@ export default abstract class ResumeFactory {
       }
 
       // Education Institution
-      const educationXPos = this.isMobile ? config.startX : config.educationXPos;
+      const educationXPos = this.isMobile ? 5 : config.educationXPos;
       this.addTextWithLink(
         educationXPos,
         educationYPos,
