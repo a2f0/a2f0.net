@@ -29,6 +29,5 @@
     "sourceMap": true,
     "strict": true
   },
-  "include": ["./eslint.config.js", "next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "include": ["**/*.ts", "**/*.tsx"],
 }
