@@ -1,12 +1,14 @@
 import styled from "styled-components";
 
+import { MOBILE_MEDIA_QUERY } from "../../lib/breakpoints";
+
 export const MenuContainer = styled.div`
   position: relative,
   display: flex,
   justify-content: center,
   align-items: center,
 
-  @media (max-width: 768px) {
+  ${MOBILE_MEDIA_QUERY} {
     justify-content: flex-start;
   }
 `;

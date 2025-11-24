@@ -2,6 +2,7 @@ import { type CSSProperties, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import { resumeConfiguration } from "../configuration";
+import { MOBILE_BREAKPOINT } from "../lib/breakpoints";
 import { useAppSelector } from "../lib/hooks";
 import { resume } from "../lib/resume";
 import { selectScale } from "../lib/resumeConfigSlice";
@@ -16,8 +17,6 @@ const SvgContainer = styled.div`
 
 const { pixelsPerPoint, units, documentWidth, documentHeight } =
   resumeConfiguration;
-
-const MOBILE_BREAKPOINT = 768;
 
 export default function SvgResume() {
   const config = useResume();

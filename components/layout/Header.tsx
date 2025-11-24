@@ -1,6 +1,7 @@
 import Head from "next/head";
 import styled from "styled-components";
 
+import { MOBILE_MEDIA_QUERY } from "../../lib/breakpoints";
 import { useAppSelector } from "../../lib/hooks";
 import { selectScale } from "../../lib/resumeConfigSlice";
 import DropdownMenu from "../menu/DropdownMenu";
@@ -29,7 +30,7 @@ const StyledHeader = styled.header<IProps>`
   overflow: visible;
   display: flex;
 
-  @media (max-width: 768px) {
+  ${MOBILE_MEDIA_QUERY} {
     height: var(--header-height);
     padding: 0 5px;
   }
