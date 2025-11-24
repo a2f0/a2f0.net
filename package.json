@@ -1,6 +1,6 @@
 {
   "name": "resume",
-  "version": "0.1.155",
+  "version": "0.1.156",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@9.15.2",
