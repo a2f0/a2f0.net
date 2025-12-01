@@ -23,13 +23,13 @@
     "unit": "vitest --no-watch --environment jsdom"
   },
   "dependencies": {
-    "@next/third-parties": "16.0.1",
+    "@next/third-parties": "16.0.6",
     "@reduxjs/toolkit": "2.10.1",
     "color": "5.0.2",
-    "eslint-config-next": "16.0.1",
+    "eslint-config-next": "16.0.6",
     "invariant": "2.2.4",
     "jspdf": "3.0.4",
-    "next": "16.0.1",
+    "next": "16.0.6",
     "pdfobject": "2.3.1",
     "react": "19.2.0",
     "react-dom": "19.2.0",
