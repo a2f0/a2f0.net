@@ -66,7 +66,7 @@
     "start-server-and-test": "2.1.2",
     "tsx": "4.20.6",
     "typescript": "5.9.3",
-    "vercel": "48.9.0",
+    "vercel": "48.12.0",
     "vitest": "4.0.14",
     "wdio-chromedriver-service": "8.1.1"
   },
