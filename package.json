@@ -17,7 +17,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "biome lint",
-    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#node_modules\" \"#.next\" \"#terraform/.terraform\" \"#.codex\"",
+    "lint:md": "markdownlint-cli2",
     "compile": "tsc",
     "fix": "biome . --fix",
     "prepare": "pnpm compile",
