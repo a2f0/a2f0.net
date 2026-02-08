@@ -1,7 +1,15 @@
 {
   "compilerOptions": {
-    "types": ["node", "@wdio/mocha-framework", "@wdio/globals/types"],
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "types": [
+      "node",
+      "@wdio/mocha-framework",
+      "@wdio/globals/types"
+    ],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "target": "esnext",
     "module": "esnext",
     "rootDir": ".",
@@ -16,11 +24,10 @@
     "jsx": "react-jsx",
     "incremental": true,
     "esModuleInterop": true,
-
     // Everything below here is from GTS
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
-    "declaration": true,
+    "declaration": false,
     "forceConsistentCasingInFileNames": true,
     "noEmitOnError": true,
     "noFallthroughCasesInSwitch": true,
@@ -29,5 +36,11 @@
     "sourceMap": true,
     "strict": true
   },
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
