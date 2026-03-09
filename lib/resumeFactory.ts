@@ -528,10 +528,16 @@ export default abstract class ResumeFactory {
       educationYPos += config.educationVerticalSpacing + config.addressSize;
     }
 
+    // Internet Presences - on mobile, position below Education dynamically
+    const internetPresencesXPos = this.isMobile ? 5 : config.namePos.x;
+    const internetPresencesHeaderYPos = this.isMobile
+      ? educationYPos + config.positionVerticalSpacing
+      : config.internetPresencesHeaderYPos;
+
     // Internet
     this.addText(
-      config.namePos.x,
-      config.internetPresencesHeaderYPos,
+      internetPresencesXPos,
+      internetPresencesHeaderYPos,
       config.internetPresencesHeaderSize,
       config.fontFamily,
       this.highlightColor,
@@ -550,8 +556,8 @@ export default abstract class ResumeFactory {
       ),
     );
     this.addText(
-      config.namePos.x + interenetWidthInPoints,
-      config.internetPresencesHeaderYPos,
+      internetPresencesXPos + interenetWidthInPoints,
+      internetPresencesHeaderYPos,
       config.internetPresencesHeaderSize,
       config.fontFamily,
       this.foregroundColor,
@@ -559,23 +565,32 @@ export default abstract class ResumeFactory {
       "PresencesLabel",
     );
 
-    // Internet Presences Separator
-    this.addLine(
-      config.verticalDividerPos.x,
-      config.verticalDividerPos.x - config.internetPresencesLineWidth,
-      config.internetPresencesLineYPos,
-      config.internetPresencesLineYPos,
-      this.highlightColor,
-      "internetPresencesSeparator",
-    );
+    // Internet Presences Separator - hide on mobile
+    if (!this.isMobile) {
+      this.addLine(
+        config.verticalDividerPos.x,
+        config.verticalDividerPos.x - config.internetPresencesLineWidth,
+        config.internetPresencesLineYPos,
+        config.internetPresencesLineYPos,
+        this.highlightColor,
+        "internetPresencesSeparator",
+      );
+    }
 
-    let internetPresenceYPos = config.internetPresencesYPos;
+    const internetPresencesLineYPos = this.isMobile
+      ? internetPresencesHeaderYPos +
+        config.internetPresencesHeaderSize / 2 +
+        config.internetPresencesLineSpacing
+      : config.internetPresencesLineYPos;
+    let internetPresenceYPos = this.isMobile
+      ? internetPresencesLineYPos + config.internetPresencesLineSpacing
+      : config.internetPresencesYPos;
     for (let n = 0; n < this.resume.internetPresences.length; n++) {
       const internetPresence = this.resume.internetPresences[n];
       const wihoutUrlPrefix = internetPresence.split("//")[1];
       // URL
       this.addTextWithLink(
-        config.namePos.x,
+        internetPresencesXPos,
         internetPresenceYPos,
         config.internetPresencesSize,
         config.fontFamily,
