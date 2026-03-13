@@ -43,17 +43,30 @@ export default function SvgResume() {
   }, []);
 
   useEffect(() => {
-    const resumeFactory = new SvgResumeFactory(config, resume, isMobile);
+    const mobileDocumentWidthPt = isMobile ? window.innerWidth * pixelsPerPoint : 0;
+    const resumeFactory = new SvgResumeFactory(config, resume, isMobile, mobileDocumentWidthPt);
     const svgResume = resumeFactory.getResume();
-    // SVG Document Dimensions (SVG viewport dimensions are in pixels)
     svgResume.setAttribute("class", "svg");
-    svgResume.setAttribute("width", width * scale + units);
-    svgResume.setAttribute("height", height * scale + units);
-    svgResume.setAttribute(
-      "viewBox",
-      `0 0 ${ORIGINAL_VIEWBOX_WIDTH} ${ORIGINAL_VIEWBOX_HEIGHT}`,
-    );
-    svgResume.setAttribute("preserveAspectRatio", "none");
+
+    if (isMobile) {
+      const viewBoxWidth = window.innerWidth;
+      const viewBoxHeight = resumeFactory.getContentHeight() / pixelsPerPoint + 20;
+      svgResume.setAttribute("width", viewBoxWidth + "px");
+      svgResume.setAttribute("height", viewBoxHeight + "px");
+      svgResume.setAttribute(
+        "viewBox",
+        `0 0 ${viewBoxWidth} ${viewBoxHeight}`,
+      );
+    } else {
+      svgResume.setAttribute("width", width * scale + units);
+      svgResume.setAttribute("height", height * scale + units);
+      svgResume.setAttribute(
+        "viewBox",
+        `0 0 ${ORIGINAL_VIEWBOX_WIDTH} ${ORIGINAL_VIEWBOX_HEIGHT}`,
+      );
+      svgResume.setAttribute("preserveAspectRatio", "none");
+    }
+
     const svgContainer = document.getElementById("svgContainer");
     if (svgContainer) {
       svgContainer.innerHTML = "";

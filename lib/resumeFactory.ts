@@ -17,13 +17,16 @@ export default abstract class ResumeFactory {
   highlightColor: ReturnType<typeof Color>;
   resume: Resume;
   isMobile: boolean;
+  mobileDocumentWidthPt: number;
+  contentBottomY: number = 0;
 
-  constructor(config: ResumeConfig, resume: Resume, isMobile: boolean = false) {
+  constructor(config: ResumeConfig, resume: Resume, isMobile: boolean = false, mobileDocumentWidthPt: number = 0) {
     this.foregroundColor = new Color(config.foregroundColor);
     this.backgroundColor = new Color(config.backgroundColor);
     this.highlightColor = new Color(config.highlightColor);
     this.resume = resume;
     this.isMobile = isMobile;
+    this.mobileDocumentWidthPt = mobileDocumentWidthPt;
   }
   protected abstract addCircle(
     x: number,
@@ -83,13 +86,13 @@ export default abstract class ResumeFactory {
 
     // Right panel - full width on mobile
     const rightPanelX = this.isMobile ? 0 : config.rightPanelPos.x;
-    const rightPanelWidth = this.isMobile ? config.documentWidth : config.rightPanelWidth;
+    const rightPanelWidth = this.isMobile ? this.mobileDocumentWidthPt : config.rightPanelWidth;
 
     this.addRect(
       rightPanelX,
       config.rightPanelPos.y,
       rightPanelWidth,
-      config.documentHeight,
+      this.isMobile ? config.documentHeight * 3 : config.documentHeight,
       this.backgroundColor,
       "rightPartition",
     );
@@ -438,9 +441,12 @@ export default abstract class ResumeFactory {
           ? 17  // Position after bullet on mobile
           : config.positionAccomplishmentXPos;
 
+        const accomplishmentMaxWidth = this.isMobile
+          ? this.mobileDocumentWidthPt - 17 - config.rightPanelMargin
+          : config.positionAccomplishmentMaxWidth;
         const accomplishmentLines: ChunkedLine[] = wrapLabel(
           accomplishment,
-          config.positionAccomplishmentMaxWidth,
+          accomplishmentMaxWidth,
           accomplishmentFont,
         );
         for (let k = 0; k < accomplishmentLines.length; k++) {
@@ -601,5 +607,7 @@ export default abstract class ResumeFactory {
       );
       internetPresenceYPos += config.internetPresencesSize;
     }
+
+    this.contentBottomY = internetPresenceYPos;
   }
 }
