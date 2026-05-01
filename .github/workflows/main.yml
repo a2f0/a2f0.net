@@ -12,7 +12,7 @@ jobs:
         node-version: [20]
     steps:
       - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
       - run: pnpm audit --audit-level=critical
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v6
@@ -20,7 +20,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: pnpm install
       - uses: actions/setup-python@v6
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: "1.10.5"
       - uses: terraform-linters/setup-tflint@v6
@@ -34,7 +34,7 @@ jobs:
         env:
           CHROME_VERSION: ${{ matrix.chrome-version }}
       # production deploy
-      - uses: amondnet/vercel-action@v25
+      - uses: amondnet/vercel-action@v42
         # yamllint disable-line rule:line-length
         if: ${{ github.event.ref == 'refs/heads/production' && github.event_name == 'push' }}
         with:
@@ -43,7 +43,7 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
       # staging-deploy
-      - uses: amondnet/vercel-action@v25
+      - uses: amondnet/vercel-action@v42
         # yamllint disable-line rule:line-length
         if: ${{ github.event.ref == 'refs/heads/staging' && github.event_name == 'push' }}
         with:
