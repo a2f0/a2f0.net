@@ -9,8 +9,8 @@ const { units } = resumeConfiguration;
 export default class SvgResumeFactory extends ResumeFactory {
   encodedResume: SVGElement;
 
-  constructor(config: ResumeConfig, resume: Resume) {
-    super(config, resume);
+  constructor(config: ResumeConfig, resume: Resume, isMobile: boolean = false, mobileDocumentWidthPt: number = 0) {
+    super(config, resume, isMobile, mobileDocumentWidthPt);
     this.encodedResume = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "svg",
@@ -61,6 +61,8 @@ export default class SvgResumeFactory extends ResumeFactory {
     textToAdd.setAttribute("font-family", fontFamily);
     textToAdd.setAttribute("fill", color.hex());
     textToAdd.setAttribute("dominant-baseline", "middle");
+    // Keep leading spaces in chunked line fragments from collapsing
+    textToAdd.style.whiteSpace = "pre";
     textToAdd.setAttribute("id", id);
     textToAdd.innerHTML = text;
     this.encodedResume.appendChild(textToAdd);
@@ -92,6 +94,7 @@ export default class SvgResumeFactory extends ResumeFactory {
     textToAdd.setAttribute("font-family", fontFamily);
     textToAdd.setAttribute("fill", color.hex());
     textToAdd.setAttribute("dominant-baseline", "middle");
+    textToAdd.style.whiteSpace = "pre";
     textToAdd.setAttribute("class", "hoverable");
     textToAdd.innerHTML = text;
     textToAdd.setAttribute("id", id);
@@ -142,5 +145,9 @@ export default class SvgResumeFactory extends ResumeFactory {
 
   public getResume(): SVGElement {
     return this.encodedResume;
+  }
+
+  public getContentHeight(): number {
+    return this.contentBottomY;
   }
 }

@@ -1,6 +1,7 @@
 import Head from "next/head";
 import styled from "styled-components";
 
+import { MOBILE_MEDIA_QUERY } from "../../lib/breakpoints";
 import { useAppSelector } from "../../lib/hooks";
 import { selectScale } from "../../lib/resumeConfigSlice";
 import DropdownMenu from "../menu/DropdownMenu";
@@ -26,6 +27,13 @@ const StyledHeader = styled.header<IProps>`
   position: sticky;
   top: 0;
   border-bottom: var(--header-bottom-border) solid #a9a9a9;
+  overflow: visible;
+  display: flex;
+
+  ${MOBILE_MEDIA_QUERY} {
+    height: var(--header-height);
+    padding: 0 5px;
+  }
 `;
 
 const Header = () => {
@@ -34,6 +42,10 @@ const Header = () => {
     <>
       <Head>
         <title>&lrm;</title>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1"
+        />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <StyledHeader scale={scale}>
