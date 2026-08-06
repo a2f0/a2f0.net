@@ -19,7 +19,9 @@ for filename in "$@"; do
     # Create a temp file
     temp_file=$(mktemp)
     # Remove trailing whitespace from every line
-    sed 's/[[:space:]]\+$//' "$filename" > "$temp_file"
+    # [[:space:]]* (not \+) so the expression is portable between GNU and
+    # BSD sed; \+ is a literal plus on BSD and corrupts lines ending in +.
+    sed 's/[[:space:]]*$//' "$filename" > "$temp_file"
     # Only replace if changed
     if ! cmp -s "$filename" "$temp_file"; then
         mv "$temp_file" "$filename"

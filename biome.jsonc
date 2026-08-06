@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.7/schema.json",
 
   "vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
   "files": {
@@ -23,7 +23,7 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
       "complexity": {
         "noExtraBooleanCast": "error",
         "noUselessCatch": "error",
@@ -56,7 +56,8 @@
         "useValidForDirection": "error",
         "useYield": "error",
         "useValidTypeof": "error",
-        "noInvalidUseBeforeDeclaration": "error"
+        "noInvalidUseBeforeDeclaration": "error",
+        "useUniqueElementIds": "off"
       },
       "suspicious": {
         "noAssignInExpressions": "error",
@@ -100,9 +101,7 @@
         "useConst": "error",
         "noNonNullAssertion": "error"
       },
-      "nursery": {
-        "useUniqueElementIds": "off"
-      }
+      "nursery": {}
     },
     "includes": ["**"]
   },
