@@ -63,7 +63,7 @@
     "ajv": "8.20.0",
     "canvas": "3.2.3",
     "chromedriver": "151.0.3",
-    "jsdom": "30.0.1",
+    "jsdom": "29.1.1",
     "lint-staged": "17.3.0",
     "markdownlint-cli2": "^0.23.2",
     "start-server-and-test": "3.0.12",
