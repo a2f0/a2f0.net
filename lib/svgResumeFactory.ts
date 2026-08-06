@@ -61,6 +61,8 @@ export default class SvgResumeFactory extends ResumeFactory {
     textToAdd.setAttribute("font-family", fontFamily);
     textToAdd.setAttribute("fill", color.hex());
     textToAdd.setAttribute("dominant-baseline", "middle");
+    // Keep leading spaces in chunked line fragments from collapsing
+    textToAdd.style.whiteSpace = "pre";
     textToAdd.setAttribute("id", id);
     textToAdd.innerHTML = text;
     this.encodedResume.appendChild(textToAdd);
@@ -92,6 +94,7 @@ export default class SvgResumeFactory extends ResumeFactory {
     textToAdd.setAttribute("font-family", fontFamily);
     textToAdd.setAttribute("fill", color.hex());
     textToAdd.setAttribute("dominant-baseline", "middle");
+    textToAdd.style.whiteSpace = "pre";
     textToAdd.setAttribute("class", "hoverable");
     textToAdd.innerHTML = text;
     textToAdd.setAttribute("id", id);

@@ -1,83 +1,62 @@
+import {
+  layoutWithLines,
+  prepareWithSegments,
+  type PreparedTextWithSegments,
+} from "@chenglou/pretext";
+
+// Canvas measurement is in pixels; the resume document is laid out in points.
+const POINTS_PER_PIXEL = 0.75;
+
+let measurementContext: CanvasRenderingContext2D | null = null;
+
 export function getTextWidthInPoints(
   text: string,
   font = "400 12pt Helvetica",
 ): number {
-  const canvas = document.createElement("canvas");
-  const context = canvas.getContext("2d");
-  if (context) {
-    context.font = font;
-    const widthInPixels = context.measureText(text).width;
-    const widthInPoints = widthInPixels * 0.75;
+  if (!measurementContext) {
+    measurementContext = document.createElement("canvas").getContext("2d");
+  }
+  if (measurementContext) {
+    measurementContext.font = font;
+    const widthInPixels = measurementContext.measureText(text).width;
+    const widthInPoints = widthInPixels * POINTS_PER_PIXEL;
     return widthInPoints;
   }
   return 0;
 }
 
-function breakString(
-  word: string,
-  maxWidth: number,
-  font = "400 14pt Helvetica",
-) {
-  const hyphenCharacter = "-";
-  const characters = word.split("");
-  const lines: string[] = [];
-  let currentLine = "";
-  characters.forEach((character, index) => {
-    const nextLine = `${currentLine}${character}`;
-    const lineWidth = getTextWidthInPoints(nextLine, font);
-    if (lineWidth >= maxWidth) {
-      const currentCharacter = index + 1;
-      const isLastLine = characters.length === currentCharacter;
-      const hyphenatedNextLine = `${nextLine}${hyphenCharacter}`;
-      lines.push(isLastLine ? nextLine : hyphenatedNextLine);
-      currentLine = "";
-    } else {
-      currentLine = nextLine;
-    }
-  });
-  return { hyphenatedStrings: lines, remainingWord: currentLine };
+// prepare() measures every segment with canvas up front; layout afterwards is
+// pure arithmetic. Cache prepared text so re-wrapping on viewport resize only
+// pays the arithmetic cost.
+const preparedTextCache = new Map<string, PreparedTextWithSegments>();
+
+function getPreparedText(
+  text: string,
+  font: string,
+): PreparedTextWithSegments {
+  const key = `${font}|${text}`;
+  let prepared = preparedTextCache.get(key);
+  if (!prepared) {
+    prepared = prepareWithSegments(text, font);
+    preparedTextCache.set(key, prepared);
+  }
+  return prepared;
 }
 
 export function wrapLabel(
   label: string,
-  maxWidth: number,
+  maxWidth: number, // in points
   font: string, // Example: '400 12pt Helvetica'
 ) {
   const { plainString, matches } = extractLinks(label);
-  const words = plainString.split(" ");
-  const lines: string[] = [];
-  let currentLine = "";
-  words.forEach((word, index) => {
-    const wordLength = getTextWidthInPoints(`${word}`, font);
-    const nextLineLength = getTextWidthInPoints(currentLine, font);
-    if (wordLength > maxWidth) {
-      // Then the word does not fit onto a single line.
-      const { hyphenatedStrings, remainingWord } = breakString(
-        word,
-        maxWidth,
-        font,
-      );
-      lines.push(currentLine, ...hyphenatedStrings);
-      currentLine = remainingWord;
-    } else if (nextLineLength + wordLength >= maxWidth) {
-      // Then the line has reached its maximum length.
-      lines.push(currentLine);
-      currentLine = word;
-    } else {
-      // Then the word fits on the line.
-      // .filter(Boolean) removes falsy values.
-      currentLine = [currentLine, word].filter(Boolean).join(" ");
-    }
-    const currentWord = index + 1;
-    const isLastWord = currentWord === words.length;
-    if (isLastWord) {
-      lines.push(currentLine);
-    }
-  });
-
-  const filteredBlankLines = lines.filter((line) => line !== "");
-  const chunkedLines = breakLinesIntoChunks(filteredBlankLines, matches);
-  return chunkedLines;
+  const prepared = getPreparedText(plainString, font);
+  const { lines } = layoutWithLines(prepared, maxWidth / POINTS_PER_PIXEL, 1);
+  // Trailing spaces at soft breaks are kept in line.text; drop them so each
+  // break consumes exactly one character, as breakLinesIntoChunks expects.
+  return breakLinesIntoChunks(
+    lines.map((line) => line.text.trimEnd()),
+    matches,
+  );
 }
 
 export function getFontString(

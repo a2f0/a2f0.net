@@ -26,40 +26,60 @@ export default function SvgResume() {
   };
 
   const scale = useAppSelector(selectScale);
-  const [width] = useState(documentWidth);
-  const [height] = useState(documentHeight);
-  const [isMobile, setIsMobile] = useState(false);
+  const [viewportWidth, setViewportWidth] = useState<number | null>(null);
 
   const ORIGINAL_VIEWBOX_WIDTH = documentWidth / pixelsPerPoint;
   const ORIGINAL_VIEWBOX_HEIGHT = documentHeight / pixelsPerPoint;
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    const handleResize = () => {
+      setViewportWidth(window.innerWidth);
     };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
-    const mobileDocumentWidthPt = isMobile ? window.innerWidth * pixelsPerPoint : 0;
-    const resumeFactory = new SvgResumeFactory(config, resume, isMobile, mobileDocumentWidthPt);
+    if (viewportWidth === null) {
+      // Wait for the first client-side measurement so the initial render is
+      // already laid out for the actual viewport.
+      return;
+    }
+    const isMobile = viewportWidth < MOBILE_BREAKPOINT;
+
+    // On mobile the document is laid out at the viewport width divided by the
+    // zoom scale, then stretched back to the viewport, so text renders at the
+    // same visual size as on desktop.
+    const mobileViewBoxWidth = viewportWidth / scale;
+    const mobileDocumentWidthPt = mobileViewBoxWidth * pixelsPerPoint;
+
+    const resumeFactory = new SvgResumeFactory(
+      config,
+      resume,
+      isMobile,
+      mobileDocumentWidthPt,
+    );
     const svgResume = resumeFactory.getResume();
     svgResume.setAttribute("class", "svg");
 
     if (isMobile) {
-      const viewBoxWidth = window.innerWidth;
-      const viewBoxHeight = resumeFactory.getContentHeight() / pixelsPerPoint + 20;
-      svgResume.setAttribute("width", viewBoxWidth + "px");
-      svgResume.setAttribute("height", viewBoxHeight + "px");
+      const viewBoxHeight =
+        resumeFactory.getContentHeight() / pixelsPerPoint + 20;
+      svgResume.setAttribute("width", `${viewportWidth}px`);
+      svgResume.setAttribute("height", `${viewBoxHeight * scale}px`);
       svgResume.setAttribute(
         "viewBox",
-        `0 0 ${viewBoxWidth} ${viewBoxHeight}`,
+        `0 0 ${mobileViewBoxWidth} ${viewBoxHeight}`,
       );
+      // Never exceed the layout viewport: an SVG wider than the viewport
+      // would expand it, which in turn keeps isMobile detection stuck at the
+      // wider size. Scaling down instead lets the layout self-correct.
+      svgResume.style.maxWidth = "100%";
+      svgResume.style.height = "auto";
     } else {
-      svgResume.setAttribute("width", width * scale + units);
-      svgResume.setAttribute("height", height * scale + units);
+      svgResume.setAttribute("width", documentWidth * scale + units);
+      svgResume.setAttribute("height", documentHeight * scale + units);
       svgResume.setAttribute(
         "viewBox",
         `0 0 ${ORIGINAL_VIEWBOX_WIDTH} ${ORIGINAL_VIEWBOX_HEIGHT}`,

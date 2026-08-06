@@ -13,6 +13,9 @@ export const MenuItems = styled.div<IProps>`
   width: calc(${(props) => props.scale} * 200px);
   box-shadow: 0 calc(${(props) => props.scale} * 1px)
     calc(${(props) => props.scale} * 8px) rgba(0, 0, 0, 0.3);
+  /* display: none rather than visibility: hidden — a hidden menu still
+     occupies layout, which widens the mobile viewport past the screen. */
+  display: none;
   opacity: 0;
   visibility: hidden;
   transform: translateY(calc(${(props) => props.scale} * -20px));
@@ -26,6 +29,7 @@ export const MenuItems = styled.div<IProps>`
   ${({ $isActive }) =>
     $isActive &&
     css`
+      display: block;
       opacity: 1;
       visibility: visible;
       transform: translateY(0);
