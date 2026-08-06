@@ -11,10 +11,14 @@ import {
 } from "./textUtils";
 import { getFontString, getTextWidthInPoints, wrapLabel } from "./textUtils";
 
-// Mobile layout x positions (in points).
+// Mobile layout positions (in points).
+const MOBILE_TOP_MARGIN = 5.5;
 const MOBILE_LEFT_MARGIN = 5;
 const MOBILE_BULLET_X = 10;
 const MOBILE_TEXT_X = 17;
+
+type Position = Resume["experience"][number];
+type Education = Resume["education"][number];
 
 export default abstract class ResumeFactory {
   foregroundColor: ReturnType<typeof Color>;
@@ -137,6 +141,14 @@ export default abstract class ResumeFactory {
   }
 
   protected populateResume() {
+    this.addPanels();
+    const contactBottomYPos = this.addContactInformation();
+    const experienceBottomYPos = this.addExperience(contactBottomYPos);
+    const educationBottomYPos = this.addEducation(experienceBottomYPos);
+    this.contentBottomY = this.addInternetPresences(educationBottomYPos);
+  }
+
+  private addPanels() {
     // Left panel - hide on mobile
     if (!this.isMobile) {
       this.addRect(
@@ -161,11 +173,15 @@ export default abstract class ResumeFactory {
       this.backgroundColor,
       "rightPartition",
     );
+  }
 
+  // Name, address, separator line, phone and email. Returns the y position of
+  // the email line, which the experience section flows below on mobile.
+  private addContactInformation(): number {
     // Name - position changes on mobile (above Experience on mobile)
     const nameXPos = this.isMobile ? MOBILE_LEFT_MARGIN : config.namePos.x;
     const nameYPos = this.isMobile
-      ? 13  // 5px top clearance + half of 15pt font size
+      ? MOBILE_TOP_MARGIN + config.nameSize / 2
       : config.nameYPosMiddle;
 
     this.addText(
@@ -278,9 +294,15 @@ export default abstract class ResumeFactory {
       "emailAddress",
     );
 
+    return emailYPos;
+  }
+
+  // Experience header and every position. Returns the y position following
+  // the last accomplishment, which the education section flows below.
+  private addExperience(contactBottomYPos: number): number {
     // Experience header - adjust Y position on mobile to make room for contact info above
     const experienceHeaderYPos = this.isMobile
-      ? emailYPos + config.emailSize + config.headerSpacing * 2
+      ? contactBottomYPos + config.emailSize + config.headerSpacing * 2
       : config.experienceHeaderYPos;
 
     const experienceHeaderXPos = this.isMobile ? MOBILE_LEFT_MARGIN : config.experienceHeaderXPos;
@@ -294,249 +316,261 @@ export default abstract class ResumeFactory {
       "experienceHeader",
     );
 
-    // Experience
     let currentPositionYPos = this.isMobile
       ? experienceHeaderYPos + config.positionTitleSize + config.headerSpacing
       : config.positionTitleYPosStart;
-    const hyphenWidth = getTextWidthInPoints(
-      "-",
+
+    for (let i = 0; i < this.resume.experience.length; i++) {
+      const position = this.resume.experience[i];
+      const accomplishmentYPos = this.isMobile
+        ? this.addPositionHeaderMobile(position, i, currentPositionYPos)
+        : this.addPositionHeaderDesktop(position, i, currentPositionYPos);
+      currentPositionYPos =
+        this.addAccomplishments(position, i, accomplishmentYPos) +
+        config.positionVerticalSpacing;
+    }
+    return currentPositionYPos;
+  }
+
+  // On mobile, title, company and location flow as one wrapped paragraph,
+  // with the date range on its own line below. Returns the y position for the
+  // first accomplishment.
+  private addPositionHeaderMobile(
+    position: Position,
+    i: number,
+    yPos: number,
+  ): number {
+    const positionHeaderFont = getFontString(
+      config.positionTitleWeight,
+      config.positionTitleSize,
+      config.units,
+      config.fontFamily,
+    );
+    const positionHeaderLines = wrapLabel(
+      `${position.title} - ${position.company} - ${position.location}`,
+      this.mobileContentWidth(MOBILE_LEFT_MARGIN),
+      positionHeaderFont,
+    );
+    const positionDateRangeYPos = this.renderChunkedLines(
+      positionHeaderLines,
+      MOBILE_LEFT_MARGIN,
+      yPos,
+      config.positionTitleSize,
+      config.positionTitleWeight,
+      0,
+      `positionHeader-${i}`,
+    );
+    this.addText(
+      MOBILE_LEFT_MARGIN,
+      positionDateRangeYPos,
+      config.positionTitleSize,
+      config.fontFamily,
+      this.foregroundColor,
+      position.date_range,
+      `positionDateRange-${i}`,
+    );
+    return (
+      positionDateRangeYPos +
+      config.positionTitleSize +
+      config.positionAccomplishmentHeaderSpacing
+    );
+  }
+
+  // On desktop, bullet, title, date range, company and location share one
+  // line. Returns the y position for the first accomplishment.
+  private addPositionHeaderDesktop(
+    position: Position,
+    i: number,
+    yPos: number,
+  ): number {
+    const positionTitleFont = getFontString(
+      config.positionTitleWeight,
+      config.positionTitleSize,
+      config.units,
+      config.fontFamily,
+    );
+    const hyphenWidth = getTextWidthInPoints("-", positionTitleFont);
+
+    this.addCircle(
+      config.verticalDividerPos.x,
+      yPos,
+      config.positionBulletRadius,
+      this.highlightColor,
+      `positionBulletPoint-${i}`,
+    );
+
+    this.addText(
+      config.positionTitleXPos,
+      yPos,
+      config.positionTitleSize,
+      config.fontFamily,
+      this.foregroundColor,
+      position.title,
+      `positionTitle-${i}`,
+    );
+    const titleWidth = getTextWidthInPoints(position.title, positionTitleFont);
+
+    // Position Date Range, on the left side at the same Y as the title
+    const positionDateRangeWidth = getTextWidthInPoints(
+      position.date_range,
       getFontString(
-        config.positionTitleWeight,
-        config.positionTitleSize,
+        config.positionDateRangeWeight,
+        config.positionDateRangeSize,
         config.units,
         config.fontFamily,
       ),
     );
+    this.addText(
+      config.verticalDividerPos.x -
+        config.centerBulletMargin -
+        positionDateRangeWidth,
+      yPos,
+      config.positionTitleSize,
+      config.fontFamily,
+      this.foregroundColor,
+      position.date_range,
+      `positionDateRange-${i}`,
+    );
 
-    // Individual Positions
-    for (let i = 0; i < this.resume.experience.length; i++) {
-      const position = this.resume.experience[i];
-
-      let accomplishmentYPos: number;
-      if (this.isMobile) {
-        // On mobile, title, company and location flow as one wrapped
-        // paragraph, with the date range on its own line below.
-        const positionHeaderFont = getFontString(
-          config.positionTitleWeight,
-          config.positionTitleSize,
-          config.units,
-          config.fontFamily,
-        );
-        const positionHeaderLines = wrapLabel(
-          `${position.title} - ${position.company} - ${position.location}`,
-          this.mobileContentWidth(MOBILE_LEFT_MARGIN),
-          positionHeaderFont,
-        );
-        const positionDateRangeYPos = this.renderChunkedLines(
-          positionHeaderLines,
-          MOBILE_LEFT_MARGIN,
-          currentPositionYPos,
-          config.positionTitleSize,
-          config.positionTitleWeight,
-          0,
-          `positionHeader-${i}`,
-        );
-        this.addText(
-          MOBILE_LEFT_MARGIN,
-          positionDateRangeYPos,
+    // Hyphen After Title
+    const hyphen1XPos =
+      config.positionTitleXPos + titleWidth + config.hyphenSpacing;
+    this.addText(
+      hyphen1XPos,
+      yPos,
+      config.positionTitleSize,
+      config.fontFamily,
+      this.foregroundColor,
+      "-",
+      `hyphenAfterTitle-${i}`,
+    );
+    const companyNameXPos = hyphen1XPos + hyphenWidth + config.hyphenSpacing;
+    const { matches, plainString } = extractLinks(position.company);
+    const lineChunks = breakLinesIntoChunks([plainString], matches);
+    invariant(lineChunks.length === 1, "Expected 1 line chunk");
+    const chunkedLine = lineChunks[0];
+    let currentXPos = companyNameXPos;
+    for (const chunk of chunkedLine.chunks) {
+      if (chunk.isMatch) {
+        invariant(chunk.url, "Expected a url for a match");
+        this.addTextWithLink(
+          currentXPos,
+          yPos,
           config.positionTitleSize,
           config.fontFamily,
           this.foregroundColor,
-          position.date_range,
-          `positionDateRange-${i}`,
+          chunk.text,
+          chunk.url,
+          `positionCompanyName-${i}`,
         );
-        accomplishmentYPos =
-          positionDateRangeYPos +
-          config.positionTitleSize +
-          config.positionAccomplishmentHeaderSpacing;
       } else {
-        this.addCircle(
-          config.verticalDividerPos.x,
-          currentPositionYPos,
-          config.positionBulletRadius,
-          this.highlightColor,
-          `positionBulletPoint-${i}`,
-        );
-
         this.addText(
-          config.positionTitleXPos,
-          currentPositionYPos,
+          currentXPos,
+          yPos,
           config.positionTitleSize,
           config.fontFamily,
           this.foregroundColor,
-          position.title,
-          `positionTitle-${i}`,
+          chunk.text,
+          `positionCompanyName-${i}`,
         );
-        const titleWidth = getTextWidthInPoints(
-          position.title,
-          getFontString(
-            config.positionTitleWeight,
-            config.positionTitleSize,
-            config.units,
-            config.fontFamily,
-          ),
-        );
-
-        // Position Date Range, on the left side at the same Y as the title
-        const positionDateRangeWidth = getTextWidthInPoints(
-          position.date_range,
-          getFontString(
-            config.positionDateRangeWeight,
-            config.positionDateRangeSize,
-            config.units,
-            config.fontFamily,
-          ),
-        );
-        this.addText(
-          config.verticalDividerPos.x -
-            config.centerBulletMargin -
-            positionDateRangeWidth,
-          currentPositionYPos,
-          config.positionTitleSize,
-          config.fontFamily,
-          this.foregroundColor,
-          position.date_range,
-          `positionDateRange-${i}`,
-        );
-
-        // Hyphen After Title
-        const hyphen1XPos =
-          config.positionTitleXPos + titleWidth + config.hyphenSpacing;
-        this.addText(
-          hyphen1XPos,
-          currentPositionYPos,
-          config.positionTitleSize,
-          config.fontFamily,
-          this.foregroundColor,
-          "-",
-          `hyphenAfterTitle-${i}`,
-        );
-        const companyNameXPos = hyphen1XPos + hyphenWidth + config.hyphenSpacing;
-        const { matches, plainString } = extractLinks(position.company);
-        const lineChunks = breakLinesIntoChunks([plainString], matches);
-        invariant(lineChunks.length === 1, "Expected 1 line chunk");
-        const chunkedLine = lineChunks[0];
-        let currentXPos = companyNameXPos;
-        for (const chunk of chunkedLine.chunks) {
-          if (chunk.isMatch) {
-            invariant(chunk.url, "Expected a url for a match");
-            this.addTextWithLink(
-              currentXPos,
-              currentPositionYPos,
-              config.positionTitleSize,
-              config.fontFamily,
-              this.foregroundColor,
-              chunk.text,
-              chunk.url,
-              `positionCompanyName-${i}`,
-            );
-          } else {
-            this.addText(
-              currentXPos,
-              currentPositionYPos,
-              config.positionTitleSize,
-              config.fontFamily,
-              this.foregroundColor,
-              chunk.text,
-              `positionCompanyName-${i}`,
-            );
-          }
-          currentXPos += getTextWidthInPoints(
-            chunk.text,
-            getFontString(
-              config.positionTitleWeight,
-              config.positionTitleSize,
-              config.units,
-              config.fontFamily,
-            ),
-          );
-        }
-
-        // Hyphen After Company Name
-        const hyphen2XPos = currentXPos + config.hyphenSpacing;
-        this.addText(
-          hyphen2XPos,
-          currentPositionYPos,
-          config.positionTitleSize,
-          config.fontFamily,
-          this.foregroundColor,
-          "-",
-          `hyphenAfterCompanyName-${i}`,
-        );
-        const companyLocationXPos =
-          hyphen2XPos + hyphenWidth + config.hyphenSpacing;
-
-        // Company Location
-        this.addText(
-          companyLocationXPos,
-          currentPositionYPos,
-          config.positionTitleSize,
-          config.fontFamily,
-          this.foregroundColor,
-          position.location,
-          `positionCompanyLocation-${i}`,
-        );
-
-        accomplishmentYPos =
-          currentPositionYPos +
-          config.positionTitleSize +
-          config.positionAccomplishmentHeaderSpacing;
       }
-
-      // Accomplishments
-      const accomplishmentFont = getFontString(
-        config.positionAccomplishmentWeight,
-        config.positionAccomplishmentSize,
-        config.units,
-        config.fontFamily,
-      );
-
-      for (let j = 0; j < position.accomplishments.length; j++) {
-        const accomplishment = position.accomplishments[j];
-
-        const accomplishmentBulletXPos = this.isMobile
-          ? MOBILE_BULLET_X
-          : config.positionAccomplishmentBulletXPos;
-
-        this.addCircle(
-          accomplishmentBulletXPos,
-          accomplishmentYPos,
-          config.positionAccomplishmentBulletRadius,
-          this.foregroundColor,
-          `accomplishmentBullet-${i}-${j}`,
-        );
-
-        const accomplishmentXPos = this.isMobile
-          ? MOBILE_TEXT_X
-          : config.positionAccomplishmentXPos;
-
-        const accomplishmentMaxWidth = this.isMobile
-          ? this.mobileContentWidth(MOBILE_TEXT_X)
-          : config.positionAccomplishmentMaxWidth;
-        const accomplishmentLines: ChunkedLine[] = wrapLabel(
-          accomplishment,
-          accomplishmentMaxWidth,
-          accomplishmentFont,
-        );
-        accomplishmentYPos = this.renderChunkedLines(
-          accomplishmentLines,
-          accomplishmentXPos,
-          accomplishmentYPos,
-          config.positionAccomplishmentSize,
-          config.positionAccomplishmentWeight,
-          config.positionAccomplishmentLineSpacing,
-          `positionAccomplishmentLine-${i}-${j}`,
-        );
-        if (j < position.accomplishments.length - 1) {
-          // Then there is another accomplishment
-          accomplishmentYPos += config.positionAccomplishmentSpacing;
-        }
-      }
-      currentPositionYPos = accomplishmentYPos + config.positionVerticalSpacing;
+      currentXPos += getTextWidthInPoints(chunk.text, positionTitleFont);
     }
 
-    // Education Header
-    const educationHeaderYPos = currentPositionYPos + config.positionTitleSize;
+    // Hyphen After Company Name
+    const hyphen2XPos = currentXPos + config.hyphenSpacing;
+    this.addText(
+      hyphen2XPos,
+      yPos,
+      config.positionTitleSize,
+      config.fontFamily,
+      this.foregroundColor,
+      "-",
+      `hyphenAfterCompanyName-${i}`,
+    );
+    const companyLocationXPos = hyphen2XPos + hyphenWidth + config.hyphenSpacing;
+
+    // Company Location
+    this.addText(
+      companyLocationXPos,
+      yPos,
+      config.positionTitleSize,
+      config.fontFamily,
+      this.foregroundColor,
+      position.location,
+      `positionCompanyLocation-${i}`,
+    );
+
+    return (
+      yPos +
+      config.positionTitleSize +
+      config.positionAccomplishmentHeaderSpacing
+    );
+  }
+
+  // Bulleted, wrapped accomplishments for one position. Returns the y
+  // position following the last accomplishment.
+  private addAccomplishments(
+    position: Position,
+    i: number,
+    yPos: number,
+  ): number {
+    const accomplishmentFont = getFontString(
+      config.positionAccomplishmentWeight,
+      config.positionAccomplishmentSize,
+      config.units,
+      config.fontFamily,
+    );
+
+    let accomplishmentYPos = yPos;
+    for (let j = 0; j < position.accomplishments.length; j++) {
+      const accomplishment = position.accomplishments[j];
+
+      const accomplishmentBulletXPos = this.isMobile
+        ? MOBILE_BULLET_X
+        : config.positionAccomplishmentBulletXPos;
+
+      this.addCircle(
+        accomplishmentBulletXPos,
+        accomplishmentYPos,
+        config.positionAccomplishmentBulletRadius,
+        this.foregroundColor,
+        `accomplishmentBullet-${i}-${j}`,
+      );
+
+      const accomplishmentXPos = this.isMobile
+        ? MOBILE_TEXT_X
+        : config.positionAccomplishmentXPos;
+
+      const accomplishmentMaxWidth = this.isMobile
+        ? this.mobileContentWidth(MOBILE_TEXT_X)
+        : config.positionAccomplishmentMaxWidth;
+      const accomplishmentLines: ChunkedLine[] = wrapLabel(
+        accomplishment,
+        accomplishmentMaxWidth,
+        accomplishmentFont,
+      );
+      accomplishmentYPos = this.renderChunkedLines(
+        accomplishmentLines,
+        accomplishmentXPos,
+        accomplishmentYPos,
+        config.positionAccomplishmentSize,
+        config.positionAccomplishmentWeight,
+        config.positionAccomplishmentLineSpacing,
+        `positionAccomplishmentLine-${i}-${j}`,
+      );
+      if (j < position.accomplishments.length - 1) {
+        // Then there is another accomplishment
+        accomplishmentYPos += config.positionAccomplishmentSpacing;
+      }
+    }
+    return accomplishmentYPos;
+  }
+
+  // Education header and entries. Returns the y position following the last
+  // entry, which internet presences flow below on mobile.
+  private addEducation(experienceBottomYPos: number): number {
+    const educationHeaderYPos = experienceBottomYPos + config.positionTitleSize;
     const educationHeaderXPos = this.isMobile ? MOBILE_LEFT_MARGIN : config.educationHeaderXPos;
     this.addText(
       educationHeaderXPos,
@@ -551,75 +585,93 @@ export default abstract class ResumeFactory {
     let educationYPos =
       educationHeaderYPos + config.headerSpacing + config.educationSize;
     for (let m = 0; m < this.resume.education.length; m++) {
-      const education = this.resume.education[m];
+      educationYPos = this.addEducationEntry(
+        this.resume.education[m],
+        m,
+        educationYPos,
+      );
+    }
+    return educationYPos;
+  }
 
-      // Education bullet points - hide on mobile
-      if (!this.isMobile) {
-        this.addCircle(
-          config.verticalDividerPos.x,
-          educationYPos,
-          config.positionBulletRadius,
-          this.highlightColor,
-          `educationBullet-${m}`,
-        );
-      }
+  // One education institution with its credential. Returns the y position
+  // for the next entry.
+  private addEducationEntry(
+    education: Education,
+    m: number,
+    yPos: number,
+  ): number {
+    // Education bullet points - hide on mobile
+    if (!this.isMobile) {
+      this.addCircle(
+        config.verticalDividerPos.x,
+        yPos,
+        config.positionBulletRadius,
+        this.highlightColor,
+        `educationBullet-${m}`,
+      );
+    }
 
-      // Education Institution
-      const educationXPos = this.isMobile ? MOBILE_LEFT_MARGIN : config.educationXPos;
-      this.addTextWithLink(
+    // Education Institution
+    const educationXPos = this.isMobile ? MOBILE_LEFT_MARGIN : config.educationXPos;
+    this.addTextWithLink(
+      educationXPos,
+      yPos,
+      config.educationSize,
+      config.fontFamily,
+      this.foregroundColor,
+      education.institution,
+      education.url,
+      `educationInstitution-${m}`,
+    );
+
+    // Education Degree
+    let educationYPos = yPos + config.educationSize;
+    if (this.isMobile) {
+      // Long credentials wrap on mobile
+      const educationFont = getFontString(
+        config.educationWeight,
+        config.educationSize,
+        config.units,
+        config.fontFamily,
+      );
+      const credentialLines = wrapLabel(
+        education.credential,
+        this.mobileContentWidth(MOBILE_LEFT_MARGIN),
+        educationFont,
+      );
+      educationYPos = this.renderChunkedLines(
+        credentialLines,
+        educationXPos,
+        educationYPos,
+        config.educationSize,
+        config.educationWeight,
+        0,
+        `educationDegree-${m}`,
+      );
+      educationYPos += config.educationVerticalSpacing;
+    } else {
+      this.addText(
         educationXPos,
         educationYPos,
         config.educationSize,
         config.fontFamily,
         this.foregroundColor,
-        education.institution,
-        education.url,
-        `educationInstitution-${m}`,
+        education.credential,
+        `educationDegree-${m}`,
       );
-
-      // Education Degree
-      educationYPos += config.educationSize;
-      if (this.isMobile) {
-        // Long credentials wrap on mobile
-        const educationFont = getFontString(
-          config.educationWeight,
-          config.educationSize,
-          config.units,
-          config.fontFamily,
-        );
-        const credentialLines = wrapLabel(
-          education.credential,
-          this.mobileContentWidth(MOBILE_LEFT_MARGIN),
-          educationFont,
-        );
-        educationYPos = this.renderChunkedLines(
-          credentialLines,
-          educationXPos,
-          educationYPos,
-          config.educationSize,
-          config.educationWeight,
-          0,
-          `educationDegree-${m}`,
-        );
-        educationYPos += config.educationVerticalSpacing;
-      } else {
-        this.addText(
-          educationXPos,
-          educationYPos,
-          config.educationSize,
-          config.fontFamily,
-          this.foregroundColor,
-          education.credential,
-          `educationDegree-${m}`,
-        );
-        educationYPos += config.educationVerticalSpacing + config.addressSize;
-      }
+      educationYPos += config.educationVerticalSpacing + config.addressSize;
     }
+    return educationYPos;
+  }
 
-    // Internet Presences - on mobile, position below Education dynamically
+  // WEB PRESENCES header and links. Returns the y position following the
+  // last link, which is the bottom of the rendered content.
+  private addInternetPresences(educationBottomYPos: number): number {
+    // On mobile, position below Education dynamically
     const internetPresencesXPos = this.isMobile ? MOBILE_LEFT_MARGIN : config.namePos.x;
     const internetPresencesHeaderYPos = this.isMobile
-      ? educationYPos + config.positionVerticalSpacing
+      ? educationBottomYPos + config.positionVerticalSpacing
       : config.internetPresencesHeaderYPos;
 
     // Internet
@@ -690,6 +742,6 @@ export default abstract class ResumeFactory {
       internetPresenceYPos += config.internetPresencesSize;
     }
 
-    this.contentBottomY = internetPresenceYPos;
+    return internetPresenceYPos;
   }
 }
