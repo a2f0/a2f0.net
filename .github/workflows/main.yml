@@ -11,22 +11,22 @@ jobs:
       matrix:
         node-version: [20]
     steps:
-      - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
       - run: pnpm audit --audit-level=critical
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
       - run: pnpm install
-      - uses: actions/setup-python@v6
-      - uses: hashicorp/setup-terraform@v3
+      - uses: actions/setup-python@v7
+      - uses: hashicorp/setup-terraform@v4
         with:
-          terraform_version: "1.10.5"
+          terraform_version: "1.15.8"
       - uses: terraform-linters/setup-tflint@v6
         name: Setup TFLint
         with:
-          tflint_version: v0.55.0
+          tflint_version: v0.64.0
       - run: pnpm run lint:md
       - run: sh ./.husky/pre-commit
       - run: npm run unit
@@ -34,7 +34,7 @@ jobs:
         env:
           CHROME_VERSION: ${{ matrix.chrome-version }}
       # production deploy
-      - uses: amondnet/vercel-action@v25
+      - uses: amondnet/vercel-action@v42
         # yamllint disable-line rule:line-length
         if: ${{ github.event.ref == 'refs/heads/production' && github.event_name == 'push' }}
         with:
@@ -43,7 +43,7 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
       # staging-deploy
-      - uses: amondnet/vercel-action@v25
+      - uses: amondnet/vercel-action@v42
         # yamllint disable-line rule:line-length
         if: ${{ github.event.ref == 'refs/heads/staging' && github.event_name == 'push' }}
         with:
