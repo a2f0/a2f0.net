@@ -80,6 +80,7 @@ terraform apply --var-file=main.tfvars
 ```
 
 Upgrading Terraform
+
 ```sh
 tfenv list-remote
 echo "1.3.10" > terraform/.terraform-version

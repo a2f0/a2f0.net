@@ -1,0 +1,7 @@
+---
+interface:
+  display_name: "Package Update + Verify"
+  short_description: "Update dependencies, compile TypeScript, pass tests."
+  default_prompt: >-
+    Update package.json dependencies, install, compile TypeScript, and ensure
+    unit/integration tests pass with minimal safe fixes.
