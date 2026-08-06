@@ -27,9 +27,14 @@ export default abstract class ResumeFactory {
   resume: Resume;
   isMobile: boolean;
   mobileDocumentWidthPt: number;
-  contentBottomY: number = 0;
+  contentBottomY = 0;
 
-  constructor(config: ResumeConfig, resume: Resume, isMobile: boolean = false, mobileDocumentWidthPt: number = 0) {
+  constructor(
+    config: ResumeConfig,
+    resume: Resume,
+    isMobile = false,
+    mobileDocumentWidthPt = 0,
+  ) {
     this.foregroundColor = new Color(config.foregroundColor);
     this.backgroundColor = new Color(config.backgroundColor);
     this.highlightColor = new Color(config.highlightColor);
@@ -163,7 +168,9 @@ export default abstract class ResumeFactory {
 
     // Right panel - full width on mobile
     const rightPanelX = this.isMobile ? 0 : config.rightPanelPos.x;
-    const rightPanelWidth = this.isMobile ? this.mobileDocumentWidthPt : config.rightPanelWidth;
+    const rightPanelWidth = this.isMobile
+      ? this.mobileDocumentWidthPt
+      : config.rightPanelWidth;
 
     this.addRect(
       rightPanelX,
@@ -214,7 +221,9 @@ export default abstract class ResumeFactory {
     );
 
     // Address - position changes on mobile (above Experience, below Name on mobile)
-    const addressXPos = this.isMobile ? MOBILE_LEFT_MARGIN : config.addressPos.x;
+    const addressXPos = this.isMobile
+      ? MOBILE_LEFT_MARGIN
+      : config.addressPos.x;
     const addressYPos = this.isMobile
       ? nameYPos + config.nameSize / 2 + config.addressSize / 2
       : config.addressYPosMiddle;
@@ -261,7 +270,9 @@ export default abstract class ResumeFactory {
     );
 
     // Phone number - position on right panel on mobile (with extra spacing after line)
-    const phoneXPos = this.isMobile ? MOBILE_LEFT_MARGIN : config.phoneNumberPos.x;
+    const phoneXPos = this.isMobile
+      ? MOBILE_LEFT_MARGIN
+      : config.phoneNumberPos.x;
     const phoneYPos = this.isMobile
       ? lineYPos + config.addressLineSpacing * 2
       : config.phoneNumberPos.y;
@@ -305,7 +316,9 @@ export default abstract class ResumeFactory {
       ? contactBottomYPos + config.emailSize + config.headerSpacing * 2
       : config.experienceHeaderYPos;
 
-    const experienceHeaderXPos = this.isMobile ? MOBILE_LEFT_MARGIN : config.experienceHeaderXPos;
+    const experienceHeaderXPos = this.isMobile
+      ? MOBILE_LEFT_MARGIN
+      : config.experienceHeaderXPos;
     this.addText(
       experienceHeaderXPos,
       experienceHeaderYPos,
@@ -488,7 +501,8 @@ export default abstract class ResumeFactory {
       "-",
       `hyphenAfterCompanyName-${i}`,
     );
-    const companyLocationXPos = hyphen2XPos + hyphenWidth + config.hyphenSpacing;
+    const companyLocationXPos =
+      hyphen2XPos + hyphenWidth + config.hyphenSpacing;
 
     // Company Location
     this.addText(
@@ -571,7 +585,9 @@ export default abstract class ResumeFactory {
   // entry, which internet presences flow below on mobile.
   private addEducation(experienceBottomYPos: number): number {
     const educationHeaderYPos = experienceBottomYPos + config.positionTitleSize;
-    const educationHeaderXPos = this.isMobile ? MOBILE_LEFT_MARGIN : config.educationHeaderXPos;
+    const educationHeaderXPos = this.isMobile
+      ? MOBILE_LEFT_MARGIN
+      : config.educationHeaderXPos;
     this.addText(
       educationHeaderXPos,
       educationHeaderYPos,
@@ -613,7 +629,9 @@ export default abstract class ResumeFactory {
     }
 
     // Education Institution
-    const educationXPos = this.isMobile ? MOBILE_LEFT_MARGIN : config.educationXPos;
+    const educationXPos = this.isMobile
+      ? MOBILE_LEFT_MARGIN
+      : config.educationXPos;
     this.addTextWithLink(
       educationXPos,
       yPos,
@@ -669,7 +687,9 @@ export default abstract class ResumeFactory {
   // last link, which is the bottom of the rendered content.
   private addInternetPresences(educationBottomYPos: number): number {
     // On mobile, position below Education dynamically
-    const internetPresencesXPos = this.isMobile ? MOBILE_LEFT_MARGIN : config.namePos.x;
+    const internetPresencesXPos = this.isMobile
+      ? MOBILE_LEFT_MARGIN
+      : config.namePos.x;
     const internetPresencesHeaderYPos = this.isMobile
       ? educationBottomYPos + config.positionVerticalSpacing
       : config.internetPresencesHeaderYPos;

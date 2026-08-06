@@ -1,9 +1,11 @@
+set -e
+
 pnpm lint-staged
 
 terraform fmt terraform
-tflint terraform
+tflint --chdir terraform
 
-shellcheck ~/scripts/*.sh
+shellcheck scripts/*.sh
 
 npx biome lint
 npx biome format

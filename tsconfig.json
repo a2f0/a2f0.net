@@ -1,15 +1,7 @@
 {
   "compilerOptions": {
-    "types": [
-      "node",
-      "@wdio/mocha-framework",
-      "@wdio/globals/types"
-    ],
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "types": ["node", "@wdio/mocha-framework", "@wdio/globals/types"],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "target": "esnext",
     "module": "esnext",
     "rootDir": ".",
@@ -36,11 +28,6 @@
     "sourceMap": true,
     "strict": true
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
 }

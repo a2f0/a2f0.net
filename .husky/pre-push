@@ -1,0 +1,10 @@
+set -e
+
+pnpm exec knip
+lib/scripts/checkPinnedDependencies.ts
+
+# Lint the commits being pushed. Skipped when origin/production is not
+# available (e.g. shallow CI checkouts).
+if git rev-parse --verify origin/production >/dev/null 2>&1; then
+  pnpm exec commitlint --from "$(git merge-base HEAD origin/production)" --to HEAD
+fi

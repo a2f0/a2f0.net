@@ -30,10 +30,7 @@ export function getTextWidthInPoints(
 // pays the arithmetic cost.
 const preparedTextCache = new Map<string, PreparedTextWithSegments>();
 
-function getPreparedText(
-  text: string,
-  font: string,
-): PreparedTextWithSegments {
+function getPreparedText(text: string, font: string): PreparedTextWithSegments {
   const key = `${font}|${text}`;
   let prepared = preparedTextCache.get(key);
   if (!prepared) {

@@ -9,7 +9,12 @@ const { units } = resumeConfiguration;
 export default class SvgResumeFactory extends ResumeFactory {
   encodedResume: SVGElement;
 
-  constructor(config: ResumeConfig, resume: Resume, isMobile: boolean = false, mobileDocumentWidthPt: number = 0) {
+  constructor(
+    config: ResumeConfig,
+    resume: Resume,
+    isMobile = false,
+    mobileDocumentWidthPt = 0,
+  ) {
     super(config, resume, isMobile, mobileDocumentWidthPt);
     this.encodedResume = document.createElementNS(
       "http://www.w3.org/2000/svg",

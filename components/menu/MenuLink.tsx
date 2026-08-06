@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const MenuLink = styled.a`
+const MenuLink = styled.a`
   text-decoration: none;
   padding-left: 14px;
   text-decoration: none;

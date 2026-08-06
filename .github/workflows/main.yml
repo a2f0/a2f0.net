@@ -29,6 +29,7 @@ jobs:
           tflint_version: v0.64.0
       - run: pnpm run lint:md
       - run: sh ./.husky/pre-commit
+      - run: sh ./.husky/pre-push
       - run: npm run unit
       - run: npm run ci-headless
         env:

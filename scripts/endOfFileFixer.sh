@@ -35,7 +35,7 @@ fix_file() {
     # If file ends with more than one newline sequence
     if [ "$trailing_length" -gt 2 ] || { [ "$trailing_length" -eq 2 ] && [ "$trailing" != "0a" ] && [ "$trailing" != "0d0a" ]; }; then
         # Calculate position to truncate (remove extra newlines)
-        new_size=$(($size - $trailing_length / 2))
+        new_size=$((size - trailing_length / 2))
         if [ "$new_size" -eq 0 ]; then
             : > "$file"  # Empty the file if only newlines
         else
