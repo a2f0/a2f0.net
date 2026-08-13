@@ -172,6 +172,8 @@
     "YAML",
     "JSON",
     "nvm",
-    "Apache Solr"
+    "Apache Solr",
+    "SNMP",
+    "Perl"
   ]
 }
