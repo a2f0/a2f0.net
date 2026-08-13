@@ -171,6 +171,7 @@
     "Ajv",
     "YAML",
     "JSON",
-    "nvm"
+    "nvm",
+    "Apache Solr"
   ]
 }
