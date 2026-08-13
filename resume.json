@@ -162,5 +162,6 @@
       "credential": "Bachelor of Business Administration (Management Information Systems)",
       "url": "https://tippie.uiowa.edu/"
     }
-  ]
+  ],
+  "general_technologies": ["Vercel", "SQLite3"]
 }

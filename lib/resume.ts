@@ -35,6 +35,7 @@ export interface ResumeData {
   internet_presences: string[];
   experience: Experience[];
   education: Education[];
+  general_technologies: string[];
 }
 
 export function isResumeData(obj: unknown): obj is ResumeData {
@@ -52,6 +53,7 @@ export function isResumeData(obj: unknown): obj is ResumeData {
     "internet_presences",
     "experience",
     "education",
+    "general_technologies",
   ];
 
   const actualKeys = Object.keys(obj);
@@ -100,6 +102,10 @@ export function isResumeData(obj: unknown): obj is ResumeData {
         typeof edu.institution === "string" &&
         typeof edu.credential === "string" &&
         typeof edu.url === "string",
+    ) &&
+    Array.isArray((obj as ResumeData).general_technologies) &&
+    (obj as ResumeData).general_technologies.every(
+      (technology) => typeof technology === "string",
     )
   );
 }
@@ -148,6 +154,10 @@ class Resume {
 
   get education(): Education[] {
     return this.data.education;
+  }
+
+  get generalTechnologies(): string[] {
+    return this.data.general_technologies;
   }
 }
 
