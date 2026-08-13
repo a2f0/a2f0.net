@@ -170,6 +170,7 @@
     "CocoaPods",
     "Ajv",
     "YAML",
-    "JSON"
+    "JSON",
+    "nvm"
   ]
 }
