@@ -163,5 +163,13 @@
       "url": "https://tippie.uiowa.edu/"
     }
   ],
-  "general_technologies": ["Vercel", "SQLite3", "mise", "CocoaPods", "Ajv"]
+  "general_technologies": [
+    "Vercel",
+    "SQLite3",
+    "mise",
+    "CocoaPods",
+    "Ajv",
+    "YAML",
+    "JSON"
+  ]
 }
