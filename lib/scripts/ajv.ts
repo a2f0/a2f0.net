@@ -73,6 +73,10 @@ const resumeDataSchema: JSONSchemaType<ResumeData> = {
         required: ["institution", "credential", "url"],
       },
     },
+    general_technologies: {
+      type: "array",
+      items: { type: "string" },
+    },
   },
   required: [
     "first_name",
@@ -84,6 +88,7 @@ const resumeDataSchema: JSONSchemaType<ResumeData> = {
     "internet_presences",
     "experience",
     "education",
+    "general_technologies",
   ],
   additionalProperties: false,
 };
