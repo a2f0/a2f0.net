@@ -177,6 +177,7 @@
     "Perl",
     "Vault",
     "Packer",
-    "npm"
+    "npm",
+    "SOPS"
   ]
 }
