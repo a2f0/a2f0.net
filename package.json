@@ -67,7 +67,7 @@
     "tsx": "4.23.9",
     "typescript": "7.0.2",
     "vercel": "58.7.1",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.62.4"
