@@ -98,10 +98,8 @@ active. Always pass `--env staging` or `--env prod` to Wrangler.
 
 Terraform uses the existing S3 state backend and manages Cloudflare custom
 domains, HTTPS redirects, Google Workspace DNS records, and GitHub secrets.
-Google Workspace account resources remain in the same stack. The retired
-Vercel project and Route 53 hosted zone have been removed. Domain registration
-remains with AWS and delegates to the Cloudflare nameservers; the S3 state
-backend remains active.
+Google Workspace account resources remain in the same stack. Domain
+registration remains with AWS and delegates to the Cloudflare nameservers.
 
 ### Setup
 
