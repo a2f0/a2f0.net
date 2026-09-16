@@ -1,4 +1,7 @@
 ---
+packages:
+  - packages/*
+
 saveExact: true
 
 # Patched releases beyond the ranges used by the browser-test and lint tooling.

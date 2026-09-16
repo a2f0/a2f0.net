@@ -1,6 +1,6 @@
 {
   "globs": ["**/*.md"],
-  "ignores": ["node_modules", ".next", "terraform/.terraform", ".codex"],
+  "ignores": ["**/node_modules", ".next", "terraform/.terraform", ".codex"],
   "config": {
     "MD013": false
   }

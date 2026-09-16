@@ -1,21 +1,27 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "entry": [
-    "pages/**/*.tsx",
-    "wdio.shared.conf.ts",
-    "wdio.headless.conf.ts",
-    "test/specs/*.e2e.ts",
-    "lib/scripts/*.ts"
-  ],
-  "project": "**/*.{ts,tsx,mjs}",
-  "ignoreDependencies": [
-    "@types/mocha",
-    "@wdio/local-runner",
-    "@wdio/spec-reporter",
-    "tsx"
-  ],
   "rules": {
     "exports": "off",
     "types": "off"
+  },
+  "workspaces": {
+    ".": {
+      "entry": [
+        "pages/**/*.tsx",
+        "wdio.shared.conf.ts",
+        "wdio.headless.conf.ts",
+        "test/specs/*.e2e.ts",
+        "lib/scripts/*.ts"
+      ],
+      "project": "**/*.{ts,tsx,mjs}",
+      "ignoreDependencies": [
+        "@types/mocha",
+        "@wdio/local-runner",
+        "@wdio/spec-reporter"
+      ]
+    },
+    "packages/agent-tool": {
+      "project": ["src/**/*.ts"]
+    }
   }
 }

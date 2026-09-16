@@ -27,6 +27,12 @@ pnpm lint:md
 Wrangler on port 4001. It covers the resume views, downloads, menus, direct
 routes, canonical URLs, and 404 responses.
 
+`pnpm unit` runs both the app tests and the Node-based tests in
+[`packages/agent-tool`](packages/agent-tool/README.md). Invoke the repository's
+[`$ship-pr` skill](.codex/skills/ship-pr/SKILL.md) to validate, independently
+review, and squash-merge the current PR. The production branch rule requires
+the stable `build` CI check with the branch up to date before merging.
+
 To develop browser tests, run these in separate terminals:
 
 ```sh

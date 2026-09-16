@@ -1,0 +1,15 @@
+{
+  "name": "@resume/agent-tool",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "agent-tool": "tsx src/index.ts",
+    "test": "vitest run --root ../.. --project agent-tool"
+  },
+  "devDependencies": {
+    "@types/node": "26.1.2",
+    "tsx": "4.23.13",
+    "vitest": "5.0.1"
+  }
+}

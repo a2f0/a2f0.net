@@ -21,9 +21,10 @@
     "compile": "tsc",
     "fix": "biome . --fix",
     "prepare": "husky && pnpm compile",
-    "unit": "vitest --no-watch --environment jsdom",
+    "unit": "vitest run",
     "deploy:staging": "pnpm build && wrangler deploy --env staging",
-    "deploy:prod": "pnpm build && wrangler deploy --env prod"
+    "deploy:prod": "pnpm build && wrangler deploy --env prod",
+    "agent-tool": "tsx packages/agent-tool/src/index.ts"
   },
   "dependencies": {
     "@chenglou/pretext": "0.0.9",
