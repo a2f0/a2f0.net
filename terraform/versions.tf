@@ -1,9 +1,5 @@
 terraform {
   required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 6.64"
-    }
     googleworkspace = {
       source  = "hashicorp/googleworkspace"
       version = "~> 0.7.0"

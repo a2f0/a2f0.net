@@ -20,9 +20,3 @@ resource "github_actions_secret" "slack_webhook_url" {
   secret_name = "SLACK_WEBHOOK_URL"
   value       = var.slack_webhook_url
 }
-
-resource "github_actions_secret" "domain_staging" {
-  repository  = var.github_repository
-  secret_name = "DOMAIN_STAGING"
-  value       = var.domain_staging
-}
