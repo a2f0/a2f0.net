@@ -130,18 +130,21 @@ Terraform creates their custom domains.
 2. Publish both Workers with `pnpm deploy:staging` and `pnpm deploy:prod`.
 3. Import any DNS records already copied by Cloudflare's scan into their
    matching Terraform resources. Do not leave duplicate MX or TXT records.
-4. Plan and apply the Terraform changes. Confirm both custom domains, all five
-   Google MX records, and the Google verification TXT record exist. Custom
-   domains manage the web DNS records; remove conflicting scanned web records
-   if Cloudflare refuses to attach the domains.
+4. Populate all five Google MX records and the Google verification TXT record
+   before changing nameservers. Initially keep the web hostnames as DNS-only A
+   records pointing at Vercel (`76.76.21.21`) while Cloudflare provisions TLS.
 5. Check DNSSEC at the registrar. Remove any old DS record before changing
    DNS providers, then enable Cloudflare DNSSEC and register its new DS after
    the cutover. The initial Route 53 inventory had no DNSSEC keys.
-6. Update the registrar nameservers to `terraform output cloudflare_nameservers`.
-   Verify Cloudflare reports the zone active and certificates ready.
-7. Verify HTTPS, `/pdf`, PDF/SVG downloads, missing-route 404s, HTTP redirects,
+6. Update the registrar nameservers to the Cloudflare zone's assigned servers.
+   Verify the zone is active. Check TLS using a temporary proxied hostname;
+   [Universal SSL issuance starts after activation](https://developers.cloudflare.com/ssl/edge-certificates/universal-ssl/).
+   Keep serving Vercel through DNS-only records until the certificate is ready.
+7. Remove the temporary web A records and apply the Terraform plan to attach
+   both Worker custom domains. Remove the temporary TLS-check hostname.
+8. Verify HTTPS, `/pdf`, PDF/SVG downloads, missing-route 404s, HTTP redirects,
    and the mail records on both authoritative and public DNS resolvers.
-8. Keep Vercel and Route 53 available through DNS propagation and the rollback
+9. Keep Vercel and Route 53 available through DNS propagation and the rollback
    window. Retire them and remove the old `VERCEL_*` GitHub secrets afterward.
 
 `migration.tf` forgets the Vercel resources and old deployment secrets with
