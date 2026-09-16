@@ -2,7 +2,7 @@ provider "cloudflare" {
   api_token = var.cloudflare_api_token
 }
 
-# Create the zone and review its DNS inventory before moving nameservers.
+# Look up the existing zone, already delegated to Cloudflare.
 data "cloudflare_zone" "resume" {
   filter = {
     account = { id = var.cloudflare_account_id }
@@ -31,7 +31,7 @@ resource "cloudflare_zone_setting" "always_use_https" {
   value      = "on"
 }
 
-# Preserve the Google Workspace records currently managed in Route 53.
+# Google Workspace mail and verification records.
 locals {
   google_workspace_mx = {
     aspmx  = { content = "aspmx.l.google.com", priority = 1 }

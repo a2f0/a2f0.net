@@ -98,15 +98,15 @@ active. Always pass `--env staging` or `--env prod` to Wrangler.
 
 Terraform uses the existing S3 state backend and manages Cloudflare custom
 domains, HTTPS redirects, Google Workspace DNS records, and GitHub secrets.
-The existing Route 53 records remain available during DNS propagation and
-rollback. Google Workspace account resources remain in the same stack.
+Google Workspace account resources remain in the same stack. Domain
+registration remains with AWS and delegates to the Cloudflare nameservers.
 
 ### Setup
 
 1. Install Terraform using the version in `terraform/.terraform-version`.
 2. Install [Blackbox](https://github.com/StackExchange/blackbox).
 3. Run `blackbox_decrypt_all_files` with an authorized GPG key.
-4. Configure AWS credentials for the S3 backend and Route 53, plus a GitHub
+4. Configure AWS credentials for the S3 backend, plus a GitHub
    token through `GITHUB_TOKEN` or the sensitive `github_token` variable.
 5. Check `terraform/main.tfvars`: it includes `cloudflare_account_id` and
    `cloudflare_api_token` plus the separate `cloudflare_deploy_api_token`.
@@ -132,52 +132,24 @@ For the real backend:
 ```sh
 cd terraform
 terraform init -backend-config=terraform.backend
-terraform plan -var-file=main.tfvars -out=migration.tfplan
-terraform apply migration.tfplan
+terraform plan -var-file=main.tfvars -out=infrastructure.tfplan
+terraform apply infrastructure.tfplan
 ```
 
 Review the plan before applying. The Worker scripts must already exist before
 Terraform creates their custom domains.
 
-### Vercel Migration Order
+### Hosting Retirement
 
-The cutover completed on 2026-09-16. These steps record the migration sequence
-for reference; they do not need to be rerun on the active Cloudflare zone.
-
-1. Create `a2f0.net` in the same Cloudflare account as the Workers. Compare its
-   DNS inventory with Route 53, including mail and verification records.
-2. Publish both Workers with `pnpm deploy:staging` and `pnpm deploy:prod`.
-3. Import any DNS records already copied by Cloudflare's scan into their
-   matching Terraform resources. Do not leave duplicate MX or TXT records.
-4. Populate all five Google MX records and the Google verification TXT record
-   before changing nameservers. Apply only these resources at this stage with
-   `terraform apply -target=cloudflare_dns_record.mx -target=cloudflare_dns_record.google_verification`.
-   This exceptional targeted apply defers Worker custom domains until step 7;
-   follow it with the full plan/apply there. Keep the web hostnames as DNS-only A
-   records pointing at Vercel (`76.76.21.21`) while Cloudflare provisions TLS.
-5. Check DNSSEC at the registrar. Remove any old DS record before changing
-   DNS providers, then enable Cloudflare DNSSEC and register its new DS after
-   the cutover. The initial Route 53 inventory had no DNSSEC keys.
-6. Update the registrar nameservers to the Cloudflare zone's assigned servers.
-   Verify the zone is active. Check TLS using a temporary proxied hostname;
-   [Universal SSL issuance starts after activation](https://developers.cloudflare.com/ssl/edge-certificates/universal-ssl/).
-   Keep serving Vercel through DNS-only records until the certificate is ready.
-7. Remove the temporary web A records and apply the Terraform plan to attach
-   both Worker custom domains. Remove the temporary TLS-check hostname.
-8. Verify HTTPS, `/pdf`, PDF/SVG downloads, missing-route 404s, HTTP redirects,
-   and the mail records on both authoritative and public DNS resolvers.
-9. Keep Vercel and Route 53 available through DNS propagation and the rollback
-   window. Retire them and remove the old `VERCEL_*` GitHub secrets afterward.
-
-`migration.tf` forgets the Vercel resources and old deployment secrets with
-`destroy = false`, preserving the live site during migration. The removal blocks
-were applied on 2026-09-16 before removing the Vercel provider and token from
-this stack. Vercel and its old GitHub secrets remain available
-for rollback. `vercel.json` keeps Git-triggered Vercel deployments disabled
-while the old GitHub integration is still connected.
-
-To roll back during propagation, restore the original Route 53 nameservers
-at the registrar. The preserved Route 53 web records still point to Vercel.
+The Cloudflare cutover and legacy hosting retirement completed on 2026-09-16.
+Both domains serve Workers, and Cloudflare holds the Google mail and
+verification records. The old Vercel project, Route 53 hosted zone, `VERCEL_*`
+Actions secrets, and unused `DOMAIN_STAGING` Actions secret were removed after
+verifying the production deployment, DNS delegation, HTTPS, and mail records.
+Terraform now manages only the active Cloudflare, GitHub, and Google Workspace
+resources; its S3 backend is independent of the retired Route 53 DNS service.
+The retirement was applied and the legacy state entries removed before dropping
+the AWS provider and the already-applied Vercel migration blocks.
 
 ### Dependency Updates
 
