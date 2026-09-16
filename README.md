@@ -150,7 +150,8 @@ Terraform creates their custom domains.
 `migration.tf` forgets the Vercel resources and old deployment secrets with
 `destroy = false`, preserving the live site during migration. The migration was applied on 2026-09-16 before removing the Vercel provider
 and token from this stack. Vercel and its old GitHub secrets remain available
-for rollback.
+for rollback. `vercel.json` keeps Git-triggered Vercel deployments disabled
+while the old GitHub integration is still connected.
 
 To roll back during propagation, restore the original Route 53 nameservers
 at the registrar. The preserved Route 53 web records still point to Vercel.
