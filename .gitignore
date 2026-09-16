@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+node_modules
 /.pnp
 .pnp.js
 
@@ -28,8 +28,11 @@ npm-debug.log*
 .env.test.local
 .env.production.local
 
-# vercel
+# Cloudflare
+.wrangler
 .vercel
+.dev.vars
+.dev.vars.*
 /.blackbox/pubring.gpg~
 /.blackbox/pubring.kbx~
 /.blackbox/secring.gpg
@@ -39,6 +42,7 @@ npm-debug.log*
 *.tfstate
 *.tfstate.*
 crash.log
+*.tfplan
 *.tfvars
 override.tf
 override.tf.json

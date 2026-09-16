@@ -2,6 +2,8 @@ provider "aws" {
   region = var.aws_region
 }
 
+# Retain Route 53 throughout DNS propagation and the rollback window. These
+# records stop serving traffic when the registrar delegates to Cloudflare.
 data "aws_route53_zone" "zone" {
   name = var.domain
 }

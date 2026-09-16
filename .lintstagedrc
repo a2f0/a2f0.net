@@ -1,4 +1,4 @@
 {
-  "*": [ "scripts/endOfFileFixer.sh", "scripts/trailingWhitespace.sh" ],
+  "!(*.gpg|*.kbx|*.ico)": [ "scripts/endOfFileFixer.sh", "scripts/trailingWhitespace.sh" ],
   "*.md": [ "markdownlint-cli2 --fix" ]
 }

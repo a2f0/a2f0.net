@@ -18,7 +18,7 @@ export default class Base {
     return $("#downloadPdfMenuOption");
   }
   open(path: string): ReturnType<WebdriverIO.Browser["url"]> {
-    return browser.url(`http://localhost:4001/${path}`);
+    return browser.url(`/${path}`);
   }
 }
 

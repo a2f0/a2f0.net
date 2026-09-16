@@ -1,6 +1,6 @@
 provider "googleworkspace" {
   customer_id             = var.gsuite_customer_id
-  credentials             = "google-credentials.json"
+  credentials             = fileexists("${path.module}/google-credentials.json") ? file("${path.module}/google-credentials.json") : null
   impersonated_user_email = var.gsuite_impersonated_user_email
   oauth_scopes = [
     "https://www.googleapis.com/auth/admin.directory.group",

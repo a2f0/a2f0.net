@@ -2,7 +2,7 @@
 // Fails when any dependency in package.json uses a range instead of an
 // exact version. Replaces @a2f0/check-for-unpinned-dependencies, which
 // reads package-lock.json and cannot run against this pnpm workspace.
-import { readFileSync } from "node:fs";
+import { globSync, readFileSync } from "node:fs";
 
 const EXACT_VERSION = /^\d+\.\d+\.\d+(-[\w.]+)?(\+[\w.]+)?$/;
 const GROUPS = [
@@ -11,15 +11,16 @@ const GROUPS = [
   "optionalDependencies",
 ] as const;
 
-const packageJson: Record<string, Record<string, string>> = JSON.parse(
-  readFileSync("package.json", "utf8"),
-);
-
 const unpinned: string[] = [];
-for (const group of GROUPS) {
-  for (const [name, version] of Object.entries(packageJson[group] ?? {})) {
-    if (!EXACT_VERSION.test(version)) {
-      unpinned.push(`${group} > ${name}: ${version}`);
+for (const manifest of globSync(["package.json", "packages/*/package.json"])) {
+  const packageJson: Record<string, Record<string, string>> = JSON.parse(
+    readFileSync(manifest, "utf8"),
+  );
+  for (const group of GROUPS) {
+    for (const [name, version] of Object.entries(packageJson[group] ?? {})) {
+      if (!EXACT_VERSION.test(version)) {
+        unpinned.push(`${manifest} > ${group} > ${name}: ${version}`);
+      }
     }
   }
 }
