@@ -12,7 +12,7 @@ resource "github_actions_secret" "cloudflare_account_id" {
 resource "github_actions_secret" "cloudflare_api_token" {
   repository  = var.github_repository
   secret_name = "CLOUDFLARE_API_TOKEN"
-  value       = var.cloudflare_api_token
+  value       = var.cloudflare_deploy_api_token
 }
 
 resource "github_actions_secret" "slack_webhook_url" {

@@ -45,3 +45,9 @@ variable "cloudflare_api_token" {
   type      = string
   sensitive = true
 }
+
+variable "cloudflare_deploy_api_token" {
+  description = "Workers Scripts Edit token for deployments, without DNS permissions."
+  type        = string
+  sensitive   = true
+}

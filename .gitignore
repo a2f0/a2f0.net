@@ -30,6 +30,7 @@ npm-debug.log*
 
 # Cloudflare
 .wrangler
+.vercel
 .dev.vars
 .dev.vars.*
 /.blackbox/pubring.gpg~

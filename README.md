@@ -82,10 +82,13 @@ local deployments. GitHub Actions uses repository secrets with the same names
 and deploys only after validation succeeds on pushes to those two branches.
 Pull requests and manual workflow runs validate without deploying.
 
-The deployment token needs Workers Scripts Edit on the account. Terraform
-also needs Workers custom-domain access, Zone Read, DNS Edit, and Zone Settings
-Edit for `a2f0.net`. Creating the zone requires additional zone-creation
-permission; the stack looks up a zone created beforehand.
+Use separate tokens: `cloudflare_deploy_api_token` needs only Workers Scripts
+Edit on the account and populates the Actions `CLOUDFLARE_API_TOKEN` secret.
+CI exposes it only to Wrangler, after installation and the build finish.
+The Terraform provider uses `cloudflare_api_token`, which also needs Workers
+custom-domain access, Zone Read, DNS Edit, and Zone Settings Edit for `a2f0.net`.
+Creating the zone requires additional zone-creation permission; the stack looks
+up a zone created beforehand. Both tokens are stored in Blackbox.
 
 Public `workers.dev` and preview URLs are disabled. Each Worker becomes
 publicly reachable when Terraform attaches its custom domain and the zone is
@@ -106,7 +109,8 @@ rollback. Google Workspace account resources remain in the same stack.
 4. Configure AWS credentials for the S3 backend and Route 53, plus a GitHub
    token through `GITHUB_TOKEN` or the sensitive `github_token` variable.
 5. Check `terraform/main.tfvars`: it includes `cloudflare_account_id` and
-   `cloudflare_api_token`. The Google Workspace service-account credentials
+   `cloudflare_api_token` plus the separate `cloudflare_deploy_api_token`.
+   The Google Workspace service-account credentials
    are encrypted separately as `terraform/google-credentials.json.gpg`.
 
 To change encrypted variables, use `blackbox_edit_start terraform/main.tfvars`,
@@ -137,13 +141,19 @@ Terraform creates their custom domains.
 
 ### Vercel Migration Order
 
+The cutover completed on 2026-09-16. These steps record the migration sequence
+for reference; they do not need to be rerun on the active Cloudflare zone.
+
 1. Create `a2f0.net` in the same Cloudflare account as the Workers. Compare its
    DNS inventory with Route 53, including mail and verification records.
 2. Publish both Workers with `pnpm deploy:staging` and `pnpm deploy:prod`.
 3. Import any DNS records already copied by Cloudflare's scan into their
    matching Terraform resources. Do not leave duplicate MX or TXT records.
 4. Populate all five Google MX records and the Google verification TXT record
-   before changing nameservers. Initially keep the web hostnames as DNS-only A
+   before changing nameservers. Apply only these resources at this stage with
+   `terraform apply -target=cloudflare_dns_record.mx -target=cloudflare_dns_record.google_verification`.
+   This exceptional targeted apply defers Worker custom domains until step 7;
+   follow it with the full plan/apply there. Keep the web hostnames as DNS-only A
    records pointing at Vercel (`76.76.21.21`) while Cloudflare provisions TLS.
 5. Check DNSSEC at the registrar. Remove any old DS record before changing
    DNS providers, then enable Cloudflare DNSSEC and register its new DS after
@@ -160,8 +170,9 @@ Terraform creates their custom domains.
    window. Retire them and remove the old `VERCEL_*` GitHub secrets afterward.
 
 `migration.tf` forgets the Vercel resources and old deployment secrets with
-`destroy = false`, preserving the live site during migration. The migration was applied on 2026-09-16 before removing the Vercel provider
-and token from this stack. Vercel and its old GitHub secrets remain available
+`destroy = false`, preserving the live site during migration. The removal blocks
+were applied on 2026-09-16 before removing the Vercel provider and token from
+this stack. Vercel and its old GitHub secrets remain available
 for rollback. `vercel.json` keeps Git-triggered Vercel deployments disabled
 while the old GitHub integration is still connected.
 
