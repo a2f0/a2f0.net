@@ -19,7 +19,9 @@ variable "github_repository" {
 }
 
 variable "github_token" {
-  type = string
+  type      = string
+  sensitive = true
+  default   = null
 }
 
 variable "gsuite_customer_id" {
@@ -31,13 +33,15 @@ variable "gsuite_impersonated_user_email" {
 }
 
 variable "slack_webhook_url" {
+  type      = string
+  sensitive = true
+}
+
+variable "cloudflare_account_id" {
   type = string
 }
 
-variable "vercel_org_id" {
-  type = string
-}
-
-variable "vercel_token" {
-  type = string
+variable "cloudflare_api_token" {
+  type      = string
+  sensitive = true
 }

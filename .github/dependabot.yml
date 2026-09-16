@@ -38,3 +38,12 @@ updates:
           - 'next'
           - '@next/*'
           - 'eslint-config-next'
+
+  - package-ecosystem: 'terraform'
+    directory: '/terraform'
+    schedule:
+      interval: 'monthly'
+    groups:
+      terraform-providers:
+        patterns:
+          - '*'

@@ -12,8 +12,7 @@
     "@types/mocha",
     "@wdio/local-runner",
     "@wdio/spec-reporter",
-    "tsx",
-    "vercel"
+    "tsx"
   ],
   "rules": {
     "exports": "off",

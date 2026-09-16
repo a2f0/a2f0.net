@@ -1,64 +1,91 @@
 ---
+# yamllint disable rule:line-length
 name: CI
 # yamllint disable-line rule:truthy
 on:
   push:
     branches: '**'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20]
     steps:
-      - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7.0.0
+        with:
+          node-version-file: .nvmrc
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413  # v6.1.0
+      - run: pnpm install --frozen-lockfile
       - run: pnpm audit --audit-level=critical
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          node-version: ${{ matrix.node-version }}
-      - run: pnpm install
-      - uses: actions/setup-python@v7
-      - uses: hashicorp/setup-terraform@v4
+          python-version: '3.14'
+      - run: pip install yamllint==1.38.0
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e  # v4.0.1
         with:
-          terraform_version: "1.15.8"
-      - uses: terraform-linters/setup-tflint@v6
-        name: Setup TFLint
+          terraform_version: '1.16.2'
+      - uses: terraform-linters/setup-tflint@1cf010d3c7aef302051ccdb68c14c5dc2efa34ef  # v6.3.1
         with:
           tflint_version: v0.64.0
+      - name: Validate Terraform without backend credentials
+        run: |
+          terraform -chdir=terraform init -backend=false -lockfile=readonly
+          terraform -chdir=terraform validate
+          terraform fmt -check -recursive terraform
       - run: pnpm run lint:md
       - run: sh ./.husky/pre-commit
       - run: sh ./.husky/pre-push
-      - run: npm run unit
-      - run: npm run ci-headless
+      - run: pnpm compile
+      - run: pnpm unit
+      - name: Test exported site with Cloudflare Workers
+        run: pnpm ci-headless
+
+  deploy:
+    needs: build
+    if: >-
+      github.event_name == 'push' &&
+      (github.ref == 'refs/heads/production' ||
+       github.ref == 'refs/heads/staging')
+    runs-on: ubuntu-latest
+    concurrency:
+      group: cloudflare-${{ github.ref_name }}
+      cancel-in-progress: false
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7.0.0
+        with:
+          node-version-file: .nvmrc
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413  # v6.1.0
+      - run: pnpm install --frozen-lockfile
+      - name: Deploy staging
+        if: github.ref == 'refs/heads/staging'
+        run: pnpm deploy:staging
+      - name: Deploy production
+        if: github.ref == 'refs/heads/production'
+        run: pnpm deploy:prod
+
+  notify-failure:
+    needs: [build, deploy]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report failure to Slack
+        if: env.SLACK_WEBHOOK_URL != ''
+        uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d  # v4.0.0
         env:
-          CHROME_VERSION: ${{ matrix.chrome-version }}
-      # production deploy
-      - uses: amondnet/vercel-action@v42
-        # yamllint disable-line rule:line-length
-        if: ${{ github.event.ref == 'refs/heads/production' && github.event_name == 'push' }}
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-args: '--prod'
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-      # staging-deploy
-      - uses: amondnet/vercel-action@v42
-        # yamllint disable-line rule:line-length
-        if: ${{ github.event.ref == 'refs/heads/staging' && github.event_name == 'push' }}
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          alias-domains: ${{ secrets.STAGING_DOMAIN }}
-      - name: Post to slack
-        uses: 8398a7/action-slack@v3
-        if: ${{ failure() }}
-        with:
-          status: ${{ job.status }}
-          # yamllint disable-line rule:line-length
-          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        with:
+          webhook: ${{ env.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: >-
+              CI failed for ${{ github.repository }}.
+              ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

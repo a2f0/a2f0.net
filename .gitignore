@@ -28,8 +28,10 @@ npm-debug.log*
 .env.test.local
 .env.production.local
 
-# vercel
-.vercel
+# Cloudflare
+.wrangler
+.dev.vars
+.dev.vars.*
 /.blackbox/pubring.gpg~
 /.blackbox/pubring.kbx~
 /.blackbox/secring.gpg
@@ -39,6 +41,7 @@ npm-debug.log*
 *.tfstate
 *.tfstate.*
 crash.log
+*.tfplan
 *.tfvars
 override.tf
 override.tf.json
