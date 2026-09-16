@@ -38,6 +38,12 @@ pnpm start-server-test
 pnpm test -- --spec test/specs/svg.e2e.ts
 ```
 
+To run the same browser suite against a deployed site:
+
+```sh
+pnpm exec wdio run wdio.headless.conf.ts --baseUrl https://a2f0.net
+```
+
 To preview the production build locally on port 4000:
 
 ```sh
