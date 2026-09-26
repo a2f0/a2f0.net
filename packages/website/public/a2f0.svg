@@ -272,9 +272,6 @@
     <use href="#word" transform="translate(0.79 1)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
     <g clip-path="url(#side-faces)">
       <path d="M192 438 515 494 790 442 1217 418V622H192Z" fill="url(#hatching)" opacity=".3"/>
-      <g stroke="#d0d0d0" stroke-width="1" opacity=".55">
-        <path d="M201 465 239 513M223 474l38 48M246 484l38 48M273 495l38 48M468 516l38 48M493 514l38 48M518 513l38 48M546 511l38 48M575 511l38 48M601 509l38 48M629 508l38 48M913 469l38 48M940 483l38 48M969 498l38 48M1001 514l38 48"/>
-      </g>
     </g>
     <!-- Light catches selected edges of the dark extrusion. -->
     <g stroke="#858585" stroke-width="2" opacity=".7">
@@ -283,9 +280,9 @@
     <use href="#word" fill="url(#silver)" stroke="#090909" stroke-width="15"/>
     <g clip-path="url(#faces)">
       <!-- Broad planes make the surfaces read as carved metal. -->
-      <path d="m176 330 254-40-23 73-212 59Zm285-30 231-44 24 74-260 30Zm293-43 195-61-30 60-154 37Zm155 75 223-61 34 84-255 29Z" fill="#f0f0f0" opacity=".35"/>
-      <path d="m178 424 236-32 47 97-117 42-146-43Zm251 33 178-30 111 47-19 46-247 19Zm317-72 107-39-40 178-88 37Zm159 30 238-45-30 129-182 32Z" fill="#292929" opacity=".27"/>
-      <path d="m202 465 74 18 96-35 30 51-109 22Zm286 37 193-15 35-21-42 47-210 17Zm264-137 31 18-48 156-23-18Zm230 60 74 20 79-31-28 69-107 26-64-35Z" fill="#252525" opacity=".5"/>
+      <path d="M176 330l254-40-23 73-212 59ZM461 300l231-44 24 74-260 30ZM909 332l223-61 34 84-255 29Z" fill="#f0f0f0" opacity=".35"/>
+      <path d="M178 424l236-32 47 97-117 42-146-43ZM429 457l178-30 111 47-19 46-247 19ZM905 415l238-45-30 129-182 32Z" fill="#292929" opacity=".27"/>
+      <path d="M202 465l74 18 96-35 30 51-109 22ZM488 502l193-15 35-21-42 47-210 17ZM982 425l74 20 79-31-28 69-107 26-64-35Z" fill="#252525" opacity=".5"/>
       <path d="m260 273 13 250m298-296 19 308m228-337 17 356m217-324 21 299" stroke="#fff" stroke-width="24" opacity=".06"/>
       <use href="#word" transform="translate(4 7)" stroke="#fff" stroke-opacity=".5" stroke-width="12"/>
       <use href="#word" transform="translate(-5 -6)" stroke="#252525" stroke-opacity=".65" stroke-width="13"/>
@@ -328,14 +325,14 @@
     <g stroke="#454545" stroke-width="2.2">
       <path d="m253 316 139-27 28 14M219 431l14 26 55 20M400 326l-19 81M502 282l29-21 79-7M472 468l29 30 161-9M836 238C855 218 885 237 914 220M786 396C774 450 768 483 748 510M944 319l32-29 80-15M1115 322l15 62-28 65"/>
     </g>
-    <!-- Black ink scrolls in the counters contrast with the bright letter faces. -->
+    <!-- Fine scrolls sit inside the letters' dark counters. -->
     <g stroke-linecap="round" stroke-linejoin="round">
       <path d="M276 406C282 379 317 365 337 376 351 384 333 404 321 394 315 389 322 382 328 383M281 420C307 429 335 414 340 402M995 392C1005 357 1031 344 1051 355 1065 363 1050 383 1038 375 1031 369 1038 362 1043 366M999 410C1023 419 1055 395 1060 378" stroke="#aaa" stroke-width="1.5" opacity=".55"/>
       <path d="M277 396C296 368 325 368 337 379M997 384C1013 354 1034 350 1045 356" stroke="#e2e2e2" stroke-width=".8" opacity=".6"/>
     </g>
     <!-- Cuts in the paint, rivet-like spots, and crossing ribbons. -->
     <g fill="#161616">
-      <path d="m225 354 44-11-12 8-42 20Zm157-65 15 39-6 13-14-32Zm99 93 21-8-4 8-37 15Zm183 4 14-13 26 8-15 3Zm89-94 9-12 26-4-12 10Zm305-21 20 9 18 43-14-5Zm-116 155 19 8-3 15-14-9Z"/>
+      <path d="M225 354l44-11-12 8-42 20ZM382 289l15 39-6 13-14-32ZM481 382l21-8-4 8-37 15ZM664 386l14-13 26 8-15 3ZM1058 271l20 9 18 43-14-5ZM942 426l19 8-3 15-14-9Z"/>
       <circle cx="317" cy="312" r="3.5"/><circle cx="333" cy="309" r="1.5"/><circle cx="641" cy="460" r="3"/><circle cx="858" cy="244" r="2.5"/><circle cx="1119" cy="369" r="3.5"/>
     </g>
     <path d="m386 455 114-52 23 5-108 60 14 22-47-14Z" fill="#bebebe" stroke="#111" stroke-width="6"/>
@@ -408,9 +405,7 @@
       <ellipse cx="474.6" cy="236.6" rx="1.3" ry="0.8" transform="rotate(-28 474.6 236.6)" fill="#777" opacity="0.60"/>
       <ellipse cx="473.3" cy="193.0" rx="2.7" ry="1.8" transform="rotate(-28 473.3 193.0)" fill="#ddd" opacity="0.63"/>
       <ellipse cx="421.6" cy="251.4" rx="2.3" ry="1.6" transform="rotate(-28 421.6 251.4)" fill="#aaa" opacity="0.30"/>
-      <ellipse cx="685.2" cy="539.1" rx="1.8" ry="1.2" transform="rotate(-28 685.2 539.1)" fill="#aaa" opacity="0.51"/>
       <ellipse cx="653.1" cy="555.2" rx="0.8" ry="0.5" transform="rotate(-28 653.1 555.2)" fill="#ddd" opacity="0.29"/>
-      <ellipse cx="680.4" cy="573.4" rx="0.6" ry="0.4" transform="rotate(-28 680.4 573.4)" fill="#ddd" opacity="0.58"/>
       <ellipse cx="709.1" cy="600.1" rx="1.7" ry="1.1" transform="rotate(-28 709.1 600.1)" fill="#ddd" opacity="0.51"/>
       <ellipse cx="754.9" cy="590.7" rx="0.9" ry="0.6" transform="rotate(-28 754.9 590.7)" fill="#ddd" opacity="0.28"/>
       <ellipse cx="640.3" cy="596.0" rx="2.3" ry="1.5" transform="rotate(-28 640.3 596.0)" fill="#ddd" opacity="0.68"/>
@@ -454,7 +449,6 @@
       <ellipse cx="1221.2" cy="411.1" rx="0.7" ry="0.4" transform="rotate(-28 1221.2 411.1)" fill="#aaa" opacity="0.61"/>
       <ellipse cx="1202.0" cy="403.4" rx="2.0" ry="1.4" transform="rotate(-28 1202.0 403.4)" fill="#aaa" opacity="0.40"/>
       <ellipse cx="1172.0" cy="421.2" rx="2.6" ry="1.7" transform="rotate(-28 1172.0 421.2)" fill="#777" opacity="0.55"/>
-      <ellipse cx="1172.9" cy="422.9" rx="1.0" ry="0.6" transform="rotate(-28 1172.9 422.9)" fill="#ddd" opacity="0.35"/>
       <ellipse cx="1188.0" cy="401.4" rx="2.3" ry="1.5" transform="rotate(-28 1188.0 401.4)" fill="#ddd" opacity="0.62"/>
       <ellipse cx="1181.0" cy="413.1" rx="1.5" ry="1.0" transform="rotate(-28 1181.0 413.1)" fill="#777" opacity="0.55"/>
       <ellipse cx="989.9" cy="238.6" rx="2.4" ry="1.6" transform="rotate(-28 989.9 238.6)" fill="#ddd" opacity="0.37"/>
