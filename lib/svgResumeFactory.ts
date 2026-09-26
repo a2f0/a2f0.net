@@ -14,6 +14,7 @@ export default class SvgResumeFactory extends ResumeFactory {
     resume: Resume,
     isMobile = false,
     mobileDocumentWidthPt = 0,
+    private readonly useColorVariables = false,
   ) {
     super(config, resume, isMobile, mobileDocumentWidthPt);
     this.encodedResume = document.createElementNS(
@@ -23,6 +24,15 @@ export default class SvgResumeFactory extends ResumeFactory {
     this.encodedResume.setAttribute("xmlns", "http://www.w3.org/2000/svg");
     this.encodedResume.setAttribute("id", "svgResume");
     this.populateResume();
+  }
+
+  private colorValue(color: ReturnType<typeof Color>): string {
+    if (this.useColorVariables) {
+      if (color === this.foregroundColor) return "var(--resume-foreground)";
+      if (color === this.backgroundColor) return "var(--resume-background)";
+      if (color === this.highlightColor) return "var(--resume-highlight)";
+    }
+    return color.hex();
   }
 
   protected addRect(
@@ -37,12 +47,12 @@ export default class SvgResumeFactory extends ResumeFactory {
       "http://www.w3.org/2000/svg",
       "rect",
     );
-    rectToAdd.style.fill = color.hex();
+    rectToAdd.style.fill = this.colorValue(color);
     rectToAdd.setAttribute("x", x + units);
     rectToAdd.setAttribute("y", y + units);
     rectToAdd.setAttribute("width", width + units);
     rectToAdd.setAttribute("height", height + units);
-    rectToAdd.setAttribute("stroke", color.hex());
+    rectToAdd.setAttribute("stroke", this.colorValue(color));
     rectToAdd.setAttribute("id", id);
     this.encodedResume.appendChild(rectToAdd);
   }
@@ -64,7 +74,7 @@ export default class SvgResumeFactory extends ResumeFactory {
     textToAdd.setAttribute("y", y + units);
     textToAdd.setAttribute("font-size", fontSize + units);
     textToAdd.setAttribute("font-family", fontFamily);
-    textToAdd.setAttribute("fill", color.hex());
+    textToAdd.setAttribute("fill", this.colorValue(color));
     textToAdd.setAttribute("dominant-baseline", "middle");
     // Keep leading spaces in chunked line fragments from collapsing
     textToAdd.style.whiteSpace = "pre";
@@ -97,7 +107,7 @@ export default class SvgResumeFactory extends ResumeFactory {
     textToAdd.setAttribute("y", y + units);
     textToAdd.setAttribute("font-size", fontSize + units);
     textToAdd.setAttribute("font-family", fontFamily);
-    textToAdd.setAttribute("fill", color.hex());
+    textToAdd.setAttribute("fill", this.colorValue(color));
     textToAdd.setAttribute("dominant-baseline", "middle");
     textToAdd.style.whiteSpace = "pre";
     textToAdd.setAttribute("class", "hoverable");
@@ -121,7 +131,7 @@ export default class SvgResumeFactory extends ResumeFactory {
     circleToAdd.setAttribute("cx", x + units);
     circleToAdd.setAttribute("cy", y + units);
     circleToAdd.setAttribute("r", radius + units);
-    circleToAdd.setAttribute("fill", color.hex());
+    circleToAdd.setAttribute("fill", this.colorValue(color));
     circleToAdd.setAttribute("id", id);
     this.encodedResume.appendChild(circleToAdd);
   }
@@ -143,7 +153,7 @@ export default class SvgResumeFactory extends ResumeFactory {
     lineToAdd.setAttribute("y1", y1 + units);
     lineToAdd.setAttribute("y2", y2 + units);
     lineToAdd.setAttribute("stroke-width", `.75${units}`);
-    lineToAdd.setAttribute("stroke", color.hex());
+    lineToAdd.setAttribute("stroke", this.colorValue(color));
     lineToAdd.setAttribute("id", id);
     this.encodedResume.appendChild(lineToAdd);
   }

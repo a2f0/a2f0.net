@@ -10,6 +10,14 @@ import { testDownloadDir } from "../testDownloadDir";
 const { darkBackgroundColor, lightBackgroundColor } = resumeConfiguration;
 
 describe("SVG Resume", () => {
+  it("includes the desktop resume in the exported HTML", async () => {
+    const response = await fetch(new URL("/", browser.options.baseUrl));
+    const html = await response.text();
+    assert.strictEqual(response.status, 200);
+    assert.match(html, /id="svgResume"/);
+    assert.match(html, /id="firstName"/);
+  });
+
   it("should load", async () => {
     await SvgPage.open();
     await expect(SvgPage.svgResume).toBeExisting();
@@ -80,5 +88,18 @@ describe("SVG Resume", () => {
       return await waitForFileExists(filePath, 3000);
     });
     await expect(SvgPage.downloadSvgMenuOption).not.toBeDisplayed();
+  });
+
+  it("generates the mobile layout after hydration", async () => {
+    await SvgPage.open();
+    await browser.setViewport({ width: 390, height: 844 });
+    await expect(SvgPage.svgResume).toBeExisting();
+    await browser.waitUntil(
+      async () => !(await SvgPage.leftPartition.isExisting()),
+      { timeoutMsg: "expected the hydrated mobile layout" },
+    );
+
+    await browser.setViewport({ width: 1366, height: 900 });
+    await expect(SvgPage.leftPartition).toBeExisting();
   });
 });
