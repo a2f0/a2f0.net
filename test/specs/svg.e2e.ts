@@ -126,26 +126,34 @@ describe("SVG Resume", () => {
   });
 
   it("generates the mobile layout after hydration", async () => {
-    await browser.setViewport({ width: 390, height: 844 });
     await SvgPage.open();
-    await expect(SvgPage.svgResume).toBeDisplayed();
+    await browser.setViewport({ width: 390, height: 844 });
+    await browser.waitUntil(
+      () =>
+        browser.execute(() => window.matchMedia("(max-width: 768px)").matches),
+      { timeoutMsg: "expected a mobile viewport" },
+    );
+    await browser.execute(() => window.dispatchEvent(new Event("resize")));
     await browser.waitUntil(
       async () => !(await SvgPage.leftPartition.isExisting()),
       { timeoutMsg: "expected the hydrated mobile layout" },
     );
+    await expect(SvgPage.svgResume).toBeDisplayed();
     await expect($("#firstName")).toBeDisplayed();
 
     await browser.setViewport({ width: 768, height: 844 });
-    assert.ok(
-      await browser.execute(
-        () => window.matchMedia("(max-width: 768px)").matches,
-      ),
+    await browser.waitUntil(
+      () =>
+        browser.execute(() => window.matchMedia("(max-width: 768px)").matches),
+      { timeoutMsg: "expected the 768px viewport to be mobile" },
     );
+    await browser.execute(() => window.dispatchEvent(new Event("resize")));
     await expect(SvgPage.svgResume).toBeDisplayed();
     await expect(SvgPage.leftPartition).not.toBeExisting();
     await expect(SvgPage.svgResume).toHaveAttribute("class", "svg");
 
     await browser.setViewport({ width: 1366, height: 900 });
+    await browser.execute(() => window.dispatchEvent(new Event("resize")));
     await expect(SvgPage.leftPartition).toBeExisting();
   });
 
