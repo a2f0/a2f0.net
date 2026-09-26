@@ -11,10 +11,22 @@ data "cloudflare_zone" "resume" {
 }
 
 # Publish both Workers with Wrangler before attaching their custom domains.
-resource "cloudflare_workers_custom_domain" "production" {
+moved {
+  from = cloudflare_workers_custom_domain.production
+  to   = cloudflare_workers_custom_domain.apex_redirect
+}
+
+resource "cloudflare_workers_custom_domain" "apex_redirect" {
   account_id = var.cloudflare_account_id
   zone_id    = data.cloudflare_zone.resume.id
   hostname   = var.domain
+  service    = "resume-redirect"
+}
+
+resource "cloudflare_workers_custom_domain" "resume" {
+  account_id = var.cloudflare_account_id
+  zone_id    = data.cloudflare_zone.resume.id
+  hostname   = "resume.${var.domain}"
   service    = "resume-prod"
 }
 

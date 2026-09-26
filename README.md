@@ -47,7 +47,7 @@ pnpm test -- --spec test/specs/svg.e2e.ts
 To run the same browser suite against a deployed site:
 
 ```sh
-pnpm exec wdio run wdio.headless.conf.ts --baseUrl https://a2f0.net
+pnpm exec wdio run wdio.headless.conf.ts --baseUrl https://resume.a2f0.net
 ```
 
 To preview the production build locally on port 4000:
@@ -75,7 +75,11 @@ is served using Cloudflare's
 | Branch | Command | Worker | Domain |
 | --- | --- | --- | --- |
 | `staging` | `pnpm deploy:staging` | `resume-staging` | `staging.a2f0.net` |
-| `production` | `pnpm deploy:prod` | `resume-prod` | `a2f0.net` |
+| `production` | `pnpm deploy:prod` | `resume-prod` | `resume.a2f0.net` |
+| `production` | `pnpm deploy:redirect` | `resume-redirect` | `a2f0.net` |
+
+Requests to `a2f0.net` redirect permanently to `resume.a2f0.net`, preserving
+the path and query string.
 
 Set `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in your environment for
 local deployments. GitHub Actions uses repository secrets with the same names
@@ -137,7 +141,8 @@ terraform apply infrastructure.tfplan
 ```
 
 Review the plan before applying. The Worker scripts must already exist before
-Terraform creates their custom domains.
+Terraform creates their custom domains. Deploy `resume-redirect` before changing
+the apex custom domain from `resume-prod` to `resume-redirect`.
 
 ### Hosting Retirement
 

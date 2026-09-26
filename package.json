@@ -24,6 +24,7 @@
     "unit": "vitest run",
     "deploy:staging": "pnpm build && wrangler deploy --env staging",
     "deploy:prod": "pnpm build && wrangler deploy --env prod",
+    "deploy:redirect": "wrangler deploy --config wrangler.redirect.jsonc",
     "agent-tool": "tsx packages/agent-tool/src/index.ts"
   },
   "dependencies": {

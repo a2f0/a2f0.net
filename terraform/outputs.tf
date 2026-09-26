@@ -1,5 +1,5 @@
 output "production_url" {
-  value = "https://${cloudflare_workers_custom_domain.production.hostname}"
+  value = "https://${cloudflare_workers_custom_domain.resume.hostname}"
 }
 
 output "staging_url" {
