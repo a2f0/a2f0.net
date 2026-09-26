@@ -1,4 +1,4 @@
-#!/usr/bin/env -S npx tsx
+#!/usr/bin/env -S bunx --no-install tsx
 import Ajv, { type JSONSchemaType } from "ajv";
 
 import resume from "../../resume.json";

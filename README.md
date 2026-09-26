@@ -2,16 +2,16 @@
 
 ## Quick Start
 
-Use the Node version in `.nvmrc` and the pnpm version in `package.json`.
+Use the Node version in `.nvmrc` and the Bun version in `package.json`.
+[Install Bun](https://bun.com/docs/installation) before running these commands.
 
 ```sh
 nvm use
-npm install --global pnpm@12.4.2
-pnpm install --frozen-lockfile
-pnpm start-server
+bun ci
+bun run start-server
 ```
 
-`pnpm build` generates the desktop SVG, then Next.js exports the site to `out/`.
+`bun run build` generates the desktop SVG, then Next.js exports the site to `out/`.
 Cloudflare Workers serves those files. The desktop SVG is included in the
 exported HTML; local development and mobile layouts still generate it in the
 browser. The SVG uses the bundled Arimo font for consistent build and browser
@@ -20,17 +20,17 @@ layout. PDF generation remains in the browser.
 ## Testing
 
 ```sh
-pnpm compile
-pnpm unit
-pnpm ci-headless
-pnpm lint:md
+bun run compile
+bun run unit
+bun run ci-headless
+bun run lint:md
 ```
 
 `ci-headless` builds the static export and runs the browser tests against
 Wrangler on port 4001. It covers the resume views, downloads, menus, direct
 routes, canonical URLs, and 404 responses.
 
-`pnpm unit` runs both the app tests and the Node-based tests in
+`bun run unit` runs both the app tests and the Node-based tests in
 [`packages/agent-tool`](packages/agent-tool/README.md). Invoke the repository's
 [`$ship-pr` skill](.codex/skills/ship-pr/SKILL.md) to validate, independently
 review, and squash-merge the current PR. The production branch rule requires
@@ -39,25 +39,25 @@ the stable `build` CI check with the branch up to date before merging.
 To develop browser tests, run these in separate terminals:
 
 ```sh
-pnpm build
-pnpm start-server-test
+bun run build
+bun run start-server-test
 ```
 
 ```sh
-pnpm test -- --spec test/specs/svg.e2e.ts
+bun run test --spec test/specs/svg.e2e.ts
 ```
 
 To run the same browser suite against a deployed site:
 
 ```sh
-pnpm exec wdio run wdio.headless.conf.ts --baseUrl https://resume.a2f0.net
+bunx --no-install wdio run wdio.headless.conf.ts --baseUrl https://resume.a2f0.net
 ```
 
 To preview the production build locally on port 4000:
 
 ```sh
-pnpm build
-pnpm start
+bun run build
+bun run start
 ```
 
 Spell check against the
@@ -77,9 +77,9 @@ is served using Cloudflare's
 
 | Branch | Command | Worker | Domain |
 | --- | --- | --- | --- |
-| `staging` | `pnpm deploy:staging` | `resume-staging` | `staging.a2f0.net` |
-| `production` | `pnpm deploy:prod` | `resume-prod` | `resume.a2f0.net` |
-| `production` | `pnpm deploy:redirect` | `resume-redirect` | `a2f0.net` |
+| `staging` | `bun run deploy:staging` | `resume-staging` | `staging.a2f0.net` |
+| `production` | `bun run deploy:prod` | `resume-prod` | `resume.a2f0.net` |
+| `production` | `bun run deploy:redirect` | `resume-redirect` | `a2f0.net` |
 
 Requests to `a2f0.net` redirect permanently to `resume.a2f0.net`, preserving
 the path and query string.
@@ -162,17 +162,18 @@ the AWS provider and the already-applied Vercel migration blocks.
 ### Dependency Updates
 
 ```sh
-pnpm up --latest
-pnpm install
-pnpm compile
-pnpm unit
-pnpm ci-headless
-pnpm audit
+bun update --recursive --latest
+bun install
+bun run compile
+bun run unit
+bun run ci-headless
+bun audit
 ```
 
-Keep package versions exact. pnpm settings and dependency build permissions
-live in `pnpm-workspace.yaml`. Dependabot groups npm, Actions, and Terraform
-provider updates. Actions are pinned by commit SHA with version comments.
+Keep package versions exact. Bun settings live in `bunfig.toml`, and
+dependency build permissions live in `package.json`. Dependabot groups Bun,
+Actions, and Terraform provider updates. Actions are pinned by commit SHA with
+version comments.
 
 Update `terraform/.terraform-version` and the CI Terraform version together.
 Refresh providers and check the real plan:

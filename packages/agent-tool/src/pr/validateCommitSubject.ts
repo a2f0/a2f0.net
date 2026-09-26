@@ -20,7 +20,7 @@ export function validateCommitSubject(rootDir: string, subject: string): void {
   );
   if (!existsSync(commitlintBin)) {
     throw new Error(
-      `commitlint CLI not found at ${commitlintBin}. Run 'pnpm install' first.`,
+      `commitlint CLI not found at ${commitlintBin}. Run 'bun install' first.`,
     );
   }
 

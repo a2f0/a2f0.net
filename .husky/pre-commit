@@ -1,14 +1,14 @@
 set -e
 
-pnpm lint-staged
+bunx --no-install lint-staged
 
 terraform fmt terraform
 tflint --chdir terraform
 
 shellcheck scripts/*.sh
 
-npx biome lint
-npx biome format
+bunx --no-install biome lint
+bunx --no-install biome format
 lib/scripts/ajv.ts
 
 yamllint .

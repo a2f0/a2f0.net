@@ -3,28 +3,47 @@
   "version": "0.1.156",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@12.4.2",
+  "packageManager": "bun@1.3.11",
+  "workspaces": [
+    "packages/*"
+  ],
+  "overrides": {
+    "basic-ftp": "5.3.1",
+    "serialize-javascript": "7.1.1",
+    "smol-toml": "1.8.0"
+  },
+  "trustedDependencies": [
+    "@ffmpeg-installer/darwin-arm64",
+    "@ffmpeg-installer/darwin-x64",
+    "@ffmpeg-installer/linux-arm64",
+    "@ffmpeg-installer/linux-x64",
+    "@ffmpeg-installer/win32-x64",
+    "canvas",
+    "esbuild",
+    "sharp",
+    "workerd"
+  ],
   "engines": {
     "node": "=24.21.0"
   },
   "scripts": {
     "start-server": "next dev -p 4000",
     "start-server-test": "wrangler dev --env staging --port 4001 --local",
-    "test": "pnpm wdio run wdio.shared.conf.ts",
-    "test-headless": "pnpm wdio run wdio.headless.conf.ts",
-    "ci": "pnpm build && start-server-and-test start-server-test http-get://localhost:4001 test",
-    "ci-headless": "pnpm build && start-server-and-test start-server-test http-get://localhost:4001 test-headless",
-    "build": "pnpm generate:desktop-svg && next build",
+    "test": "wdio run wdio.shared.conf.ts",
+    "test-headless": "wdio run wdio.headless.conf.ts",
+    "ci": "bun run build && start-server-and-test 'bun run start-server-test' http-get://localhost:4001 'bun run test'",
+    "ci-headless": "bun run build && start-server-and-test 'bun run start-server-test' http-get://localhost:4001 'bun run test-headless'",
+    "build": "bun run generate:desktop-svg && next build",
     "generate:desktop-svg": "tsx lib/scripts/generateDesktopSvg.ts",
     "start": "wrangler dev --env staging --port 4000 --local",
     "lint": "biome lint",
     "lint:md": "markdownlint-cli2",
     "compile": "tsc",
     "fix": "biome . --fix",
-    "prepare": "husky && pnpm compile",
+    "prepare": "husky && bun run compile",
     "unit": "vitest run",
-    "deploy:staging": "pnpm build && wrangler deploy --env staging",
-    "deploy:prod": "pnpm build && wrangler deploy --env prod",
+    "deploy:staging": "bun run build && wrangler deploy --env staging",
+    "deploy:prod": "bun run build && wrangler deploy --env prod",
     "deploy:redirect": "wrangler deploy --config wrangler.redirect.jsonc",
     "agent-tool": "tsx packages/agent-tool/src/index.ts"
   },

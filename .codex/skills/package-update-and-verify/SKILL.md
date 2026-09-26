@@ -10,37 +10,44 @@ Execute a full dependency refresh workflow and do not declare success until Type
 ## Workflow
 
 1. Identify package manager and commands.
-- Prefer `pnpm` when `pnpm-lock.yaml` exists.
+
+- Prefer `bun` when `bun.lock` exists.
 - Use `npm` when `package-lock.json` exists.
 - Use `yarn` when `yarn.lock` exists.
 - If none are present, infer from `packageManager` in `package.json`; otherwise use `npm`.
 
-2. Snapshot current state.
+1. Snapshot current state.
+
 - Record `git status --short`.
 - Inspect existing scripts in `package.json` to find compile/typecheck/unit/integration commands.
 
-3. Update dependency versions in `package.json`.
-- `pnpm`: run `pnpm up --latest`.
+1. Update dependency versions in `package.json`.
+
+- `bun`: run `bun update --recursive --latest`.
 - `npm`: run `npx npm-check-updates -u` then `npm install`.
 - `yarn`: run `yarn up '*' --latest`.
 - If the user asks for stricter scope (for example, no major bumps), honor that scope.
 
-4. Install and refresh lockfile.
+1. Install and refresh lockfile.
+
 - Run package-manager install command after version changes.
 - Ensure lockfile changes are included with `package.json` updates.
 
-5. Ensure TypeScript compiles.
+1. Ensure TypeScript compiles.
+
 - Prefer existing script in this order: `typecheck`, `check-types`, `build` (if it runs `tsc`).
-- If no suitable script exists, run `npx tsc --noEmit`.
+- If no suitable script exists, run `bunx --no-install tsc --noEmit`.
 - Fix compile issues introduced by upgrades.
 
-6. Ensure tests pass.
+1. Ensure tests pass.
+
 - Run unit tests first (`test:unit`, `unit`, or equivalent).
 - Run integration tests next (`test:integration`, `integration`, or equivalent).
 - If the project has a single test command, run it and confirm it covers both levels when possible.
 - Fix dependency-related test failures and rerun until green.
 
-7. Report and hand off.
+1. Report and hand off.
+
 - Summarize updated dependency groups and any notable major-version migrations.
 - Report exact verification commands executed and their status.
 - List files changed (at minimum `package.json` and lockfile).
