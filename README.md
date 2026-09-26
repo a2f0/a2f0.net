@@ -22,8 +22,9 @@ exported HTML; local development and mobile layouts still generate it in the
 browser. The SVG uses the bundled Arimo font for consistent build and browser
 layout. PDF generation remains in the browser.
 
-The apex website is a static black page served by Cloudflare Workers. Preview
-it locally with `bun run --cwd packages/website start` on port 4002.
+The apex website displays a grayscale SVG graffiti wordmark on a black canvas,
+served by Cloudflare Workers. Edit `packages/website/public/a2f0.svg` to refine
+the artwork. Preview it with `bun run --cwd packages/website start` on port 4002.
 
 ## Testing
 

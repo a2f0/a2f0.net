@@ -22,7 +22,32 @@
         min-height: 100dvh;
         background: #000;
       }
+
+      main {
+        display: grid;
+        min-height: 100dvh;
+        place-items: center;
+        overflow: hidden;
+      }
+
+      .graffiti {
+        display: block;
+        width: min(100%, 1440px);
+        height: auto;
+        user-select: none;
+      }
     </style>
   </head>
-  <body></body>
+  <body>
+    <main>
+      <img
+        class="graffiti"
+        src="/a2f0.svg"
+        alt="a2f0 in sculpted, grayscale graffiti lettering"
+        width="1300"
+        height="525"
+        draggable="false"
+      />
+    </main>
+  </body>
 </html>
