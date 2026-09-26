@@ -13,6 +13,7 @@ import {
   selectScale,
 } from "../lib/resumeConfigSlice";
 import SvgResumeFactory from "../lib/svgResumeFactory";
+import { SVG_FONT_FAMILY } from "../lib/svgFont";
 
 const SvgContainer = styled.div`
   .desktop-svg {
@@ -94,52 +95,61 @@ export default function SvgResume({ desktopSvg }: SvgResumeProps) {
       // already laid out for the actual viewport.
       return;
     }
-    const isMobile = viewportWidth < MOBILE_BREAKPOINT;
+    let cancelled = false;
+    const renderSvg = async () => {
+      await document.fonts.load(`400 12pt ${SVG_FONT_FAMILY}`);
+      if (cancelled) return;
+      const isMobile = viewportWidth < MOBILE_BREAKPOINT;
 
-    // On mobile the document is laid out at the viewport width divided by the
-    // zoom scale, then stretched back to the viewport, so text renders at the
-    // same visual size as on desktop.
-    const mobileViewBoxWidth = viewportWidth / scale;
-    const mobileDocumentWidthPt = mobileViewBoxWidth * pixelsPerPoint;
+      // On mobile the document is laid out at the viewport width divided by the
+      // zoom scale, then stretched back to the viewport, so text renders at the
+      // same visual size as on desktop.
+      const mobileViewBoxWidth = viewportWidth / scale;
+      const mobileDocumentWidthPt = mobileViewBoxWidth * pixelsPerPoint;
 
-    const resumeFactory = new SvgResumeFactory(
-      {
-        foregroundColor: Color(foregroundColor),
-        backgroundColor: Color(backgroundColor),
-        highlightColor: Color(highlightColor),
-      },
-      resume,
-      isMobile,
-      mobileDocumentWidthPt,
-    );
-    const svgResume = resumeFactory.getResume();
-    svgResume.setAttribute("class", "svg");
-
-    if (isMobile) {
-      const viewBoxHeight =
-        resumeFactory.getContentHeight() / pixelsPerPoint + 20;
-      svgResume.setAttribute("width", `${viewportWidth}px`);
-      svgResume.setAttribute("height", `${viewBoxHeight * scale}px`);
-      svgResume.setAttribute(
-        "viewBox",
-        `0 0 ${mobileViewBoxWidth} ${viewBoxHeight}`,
+      const resumeFactory = new SvgResumeFactory(
+        {
+          foregroundColor: Color(foregroundColor),
+          backgroundColor: Color(backgroundColor),
+          highlightColor: Color(highlightColor),
+        },
+        resume,
+        isMobile,
+        mobileDocumentWidthPt,
       );
-      // Never exceed the layout viewport: an SVG wider than the viewport
-      // would expand it, which in turn keeps isMobile detection stuck at the
-      // wider size. Scaling down instead lets the layout self-correct.
-      svgResume.style.maxWidth = "100%";
-      svgResume.style.height = "auto";
-    } else {
-      svgResume.setAttribute("width", documentWidth * scale + units);
-      svgResume.setAttribute("height", documentHeight * scale + units);
-      svgResume.setAttribute(
-        "viewBox",
-        `0 0 ${ORIGINAL_VIEWBOX_WIDTH} ${ORIGINAL_VIEWBOX_HEIGHT}`,
-      );
-      svgResume.setAttribute("preserveAspectRatio", "none");
-    }
+      const svgResume = resumeFactory.getResume();
+      svgResume.setAttribute("class", "svg");
 
-    containerRef.current?.replaceChildren(svgResume);
+      if (isMobile) {
+        const viewBoxHeight =
+          resumeFactory.getContentHeight() / pixelsPerPoint + 20;
+        svgResume.setAttribute("width", `${viewportWidth}px`);
+        svgResume.setAttribute("height", `${viewBoxHeight * scale}px`);
+        svgResume.setAttribute(
+          "viewBox",
+          `0 0 ${mobileViewBoxWidth} ${viewBoxHeight}`,
+        );
+        // Never exceed the layout viewport: an SVG wider than the viewport
+        // would expand it, which in turn keeps isMobile detection stuck at the
+        // wider size. Scaling down instead lets the layout self-correct.
+        svgResume.style.maxWidth = "100%";
+        svgResume.style.height = "auto";
+      } else {
+        svgResume.setAttribute("width", documentWidth * scale + units);
+        svgResume.setAttribute("height", documentHeight * scale + units);
+        svgResume.setAttribute(
+          "viewBox",
+          `0 0 ${ORIGINAL_VIEWBOX_WIDTH} ${ORIGINAL_VIEWBOX_HEIGHT}`,
+        );
+        svgResume.setAttribute("preserveAspectRatio", "none");
+      }
+
+      containerRef.current?.replaceChildren(svgResume);
+    };
+    void renderSvg();
+    return () => {
+      cancelled = true;
+    };
   }, [
     viewportWidth,
     scale,

@@ -1,12 +1,15 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import Color from "color";
+import { registerFont } from "canvas";
 import { JSDOM } from "jsdom";
 
 import { resumeConfiguration } from "../../configuration";
 import { resume } from "../resume";
+import { SVG_FONT_FAMILY } from "../svgFont";
 import SvgResumeFactory from "../svgResumeFactory";
 
+registerFont(resolve("lib/assets/Arimo.ttf"), { family: SVG_FONT_FAMILY });
 const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
 globalThis.document = dom.window.document;
 

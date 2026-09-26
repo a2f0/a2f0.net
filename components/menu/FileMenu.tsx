@@ -11,6 +11,7 @@ import {
 } from "../../lib/resumeConfigSlice";
 import { selectScale } from "../../lib/resumeConfigSlice";
 import SvgResumeFactory from "../../lib/svgResumeFactory";
+import { SVG_FONT_FAMILY } from "../../lib/svgFont";
 import CheckMark from "./CheckMark";
 import { useDropdownMenu } from "./DropdownMenuContext";
 import MenuLink from "./MenuLink";
@@ -38,14 +39,31 @@ const FileMenu = () => {
     parentContext.setIsActive(false);
   };
 
-  const downloadSVG = () => {
+  const downloadSVG = async () => {
+    await document.fonts.load(`400 12pt ${SVG_FONT_FAMILY}`);
     const config: ResumeConfig = {
       foregroundColor: Color(foregroundColor),
       backgroundColor: Color(backgroundColor),
       highlightColor: Color(highlightColor),
     };
     const resumeFactory = new SvgResumeFactory(config, resume);
-    const blob = new Blob([resumeFactory.getResume().outerHTML.toString()], {
+    const svg = resumeFactory.getResume();
+    const fontResponse = await fetch("/fonts/Arimo.woff2");
+    if (!fontResponse.ok) throw new Error("Could not load SVG font");
+    const fontBlob = await fontResponse.blob();
+    const fontDataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(fontBlob);
+    });
+    const style = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "style",
+    );
+    style.textContent = `@font-face { font-family: ${SVG_FONT_FAMILY}; src: url("${fontDataUrl}") format("woff2"); }`;
+    svg.prepend(style);
+    const blob = new Blob([svg.outerHTML], {
       type: "image/svg+xml",
     });
     const element = document.createElement("a");

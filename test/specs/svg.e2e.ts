@@ -21,6 +21,26 @@ describe("SVG Resume", () => {
   it("should load", async () => {
     await SvgPage.open();
     await expect(SvgPage.svgResume).toBeExisting();
+    const layout = await browser.execute(async () => {
+      await document.fonts.load("400 12pt Arimo");
+      const svg = document.querySelector<SVGSVGElement>("#svgResume");
+      if (!svg) throw new Error("Resume SVG is missing");
+      const lines = svg.querySelectorAll<SVGTextElement>(
+        'text[id^="positionAccomplishmentLine"]',
+      );
+      return {
+        fontLoaded: document.fonts.check("400 12pt Arimo"),
+        maxRight: Math.max(
+          ...Array.from(lines, (line) => {
+            const bounds = line.getBBox();
+            return bounds.x + bounds.width;
+          }),
+        ),
+        viewBoxWidth: svg.viewBox.baseVal.width,
+      };
+    });
+    assert.ok(layout.fontLoaded);
+    assert.ok(layout.maxRight <= layout.viewBoxWidth);
   });
 
   it("should work with the light/dark theme switcher", async () => {

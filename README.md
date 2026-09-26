@@ -14,7 +14,8 @@ pnpm start-server
 `pnpm build` generates the desktop SVG, then Next.js exports the site to `out/`.
 Cloudflare Workers serves those files. The desktop SVG is included in the
 exported HTML; local development and mobile layouts still generate it in the
-browser. PDF generation remains in the browser.
+browser. The SVG uses the bundled Arimo font for consistent build and browser
+layout. PDF generation remains in the browser.
 
 ## Testing
 

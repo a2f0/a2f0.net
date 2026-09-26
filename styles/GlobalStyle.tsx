@@ -3,6 +3,13 @@ import { createGlobalStyle } from "styled-components";
 import { MOBILE_MEDIA_QUERY } from "../lib/breakpoints";
 
 const GlobalStyle = createGlobalStyle`
+  @font-face {
+    font-family: "Arimo";
+    src: url("/fonts/Arimo.woff2") format("woff2");
+    font-weight: 400;
+    font-display: block;
+  }
+
   :root {
     --header-bottom-border: 1px;
     --header-height: 35px;
