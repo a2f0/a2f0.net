@@ -1,8 +1,0 @@
----
-description:
-globs:
-alwaysApply: true
----
-- The resume app lives in `packages/resume`. It renders PDF and SVG views of the data in `packages/resume/resume.json`.
-- The rendering code lives in `packages/resume/lib/resumeFactory.ts`, `packages/resume/lib/pdfResumeFactory.ts`, and `packages/resume/lib/svgResumeFactory.ts`.
-- The repository root contains Bun workspace commands, shared tooling, and infrastructure.

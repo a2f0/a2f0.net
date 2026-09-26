@@ -1,7 +1,0 @@
----
-description:
-globs:
-alwaysApply: true
----
-
-- Use `bun` for the JavaScript package manager.
