@@ -1,8 +1,8 @@
 # Agent tool
 
 PR and independent review helpers adapted from `tearleads/packages/agent-tool`.
-The app stays at the repository root; this package uses the same pinned Node,
-Bun, TypeScript, and Vitest toolchain. Install with `bun install` at the root.
+The resume app lives in `packages/resume`. This package uses the same pinned
+Node, Bun, TypeScript, and Vitest toolchain. Install with `bun install` at the root.
 
 ```sh
 bun run agent-tool solicitClaudeCodeReview
@@ -29,5 +29,6 @@ must check required CI, current base, and review findings first; the helper does
 not replace those gates. See the [ship-pr skill](../../.codex/skills/ship-pr/SKILL.md)
 for the complete workflow, including cleanup after a confirmed merge.
 
-Run `bun run unit --project agent-tool` for the helper tests, or `bun run unit` to
-include the app tests. `bun run compile` checks both packages.
+Run `bun run --cwd packages/agent-tool test` for the helper tests. Run
+`bun run unit` from the root to include the app tests. `bun run compile`
+checks both packages.

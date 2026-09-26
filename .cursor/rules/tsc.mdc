@@ -1,7 +1,7 @@
 ---
-description: 
-globs: 
+description:
+globs:
 alwaysApply: true
 ---
-- Always use `tsc -b` after making changes to make sure TypeScript compiles. 
+- Run `bun run compile` after making TypeScript changes to check both workspaces.
 - Never use `any` as a type, or `as` for type assertion.

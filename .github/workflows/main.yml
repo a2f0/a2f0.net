@@ -67,18 +67,21 @@ jobs:
       - run: bun run build
       - name: Deploy staging
         if: github.ref == 'refs/heads/staging'
+        working-directory: packages/resume
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: bunx --no-install wrangler deploy --env staging
       - name: Deploy production
         if: github.ref == 'refs/heads/production'
+        working-directory: packages/resume
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: bunx --no-install wrangler deploy --env prod
       - name: Deploy apex redirect
         if: github.ref == 'refs/heads/production'
+        working-directory: packages/resume
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

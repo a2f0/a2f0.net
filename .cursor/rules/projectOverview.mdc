@@ -1,6 +1,8 @@
 ---
-description: 
-globs: 
+description:
+globs:
 alwaysApply: true
 ---
- - This project is a resume that renders both PDF and SVGs of the data stored in [resume.json](mdc:resume.json). The logic to do this is abstracted via [resumeFactory.ts](mdc:lib/resumeFactory.ts), which is implemented by [pdfResumeFactory.ts](mdc:lib/pdfResumeFactory.ts)and [svgResumeFactory.ts](mdc:lib/svgResumeFactory.ts).
+- The resume app lives in `packages/resume`. It renders PDF and SVG views of the data in `packages/resume/resume.json`.
+- The rendering code lives in `packages/resume/lib/resumeFactory.ts`, `packages/resume/lib/pdfResumeFactory.ts`, and `packages/resume/lib/svgResumeFactory.ts`.
+- The repository root contains Bun workspace commands, shared tooling, and infrastructure.

@@ -9,12 +9,12 @@ node_modules
 /coverage
 
 # next.js
-/.next/
-/out/
-/.generated/
+.next/
+out/
+.generated/
 
 # production
-/build
+build/
 
 # misc
 .DS_Store

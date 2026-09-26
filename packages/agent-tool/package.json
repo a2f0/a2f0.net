@@ -5,11 +5,13 @@
   "type": "module",
   "scripts": {
     "agent-tool": "tsx src/index.ts",
-    "test": "vitest run --root ../.. --project agent-tool"
+    "test": "vitest run",
+    "compile": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/node": "26.5.1",
     "tsx": "4.23.13",
-    "vitest": "5.0.1"
+    "vitest": "5.0.1",
+    "typescript": "7.0.2"
   }
 }

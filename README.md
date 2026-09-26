@@ -4,6 +4,9 @@
 
 Use the Node version in `.nvmrc` and the Bun version in `package.json`.
 [Install Bun](https://bun.com/docs/installation) before running these commands.
+The Next.js app lives in [`packages/resume`](packages/resume), and PR helpers
+live in [`packages/agent-tool`](packages/agent-tool). Run the commands below
+from the repository root.
 
 ```sh
 nvm use
@@ -11,7 +14,8 @@ bun ci
 bun run start-server
 ```
 
-`bun run build` generates the desktop SVG, then Next.js exports the site to `out/`.
+`bun run build` generates the desktop SVG, then Next.js exports the site to
+`packages/resume/out/`.
 Cloudflare Workers serves those files. The desktop SVG is included in the
 exported HTML; local development and mobile layouts still generate it in the
 browser. The SVG uses the bundled Arimo font for consistent build and browser
@@ -44,13 +48,13 @@ bun run start-server-test
 ```
 
 ```sh
-bun run test --spec test/specs/svg.e2e.ts
+bun run --cwd packages/resume test --spec test/specs/svg.e2e.ts
 ```
 
 To run the same browser suite against a deployed site:
 
 ```sh
-bunx --no-install wdio run wdio.headless.conf.ts --baseUrl https://resume.a2f0.net
+bun run --cwd packages/resume test-headless --baseUrl https://resume.a2f0.net
 ```
 
 To preview the production build locally on port 4000:
@@ -64,7 +68,7 @@ Spell check against the
 [aspell definition in dotfiles](https://github.com/a2f0/dotfiles/blob/main/files/aspell.en.pws):
 
 ```sh
-aspell --master=en_US --lang=en_US -c resume.json
+aspell --master=en_US --lang=en_US -c packages/resume/resume.json
 ```
 
 ## Cloudflare Deployment
