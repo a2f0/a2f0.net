@@ -1,0 +1,290 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="50 125 1300 525" fill="none" role="img" aria-labelledby="title description">
+  <title id="title">a2f0</title>
+  <desc id="description">Custom grayscale graffiti lettering with sculpted silver faces, deep graphite extrusion, sharp arrows, and paint spray on a transparent background.</desc>
+  <defs>
+    <linearGradient id="silver" x1="650" y1="220" x2="680" y2="540" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fafafa"/><stop offset=".22" stop-color="#c8c8c8"/><stop offset=".43" stop-color="#797979"/><stop offset=".46" stop-color="#e8e8e8"/><stop offset=".68" stop-color="#adadad"/><stop offset="1" stop-color="#414141"/>
+    </linearGradient>
+    <linearGradient id="depth" x1="300" y1="310" x2="700" y2="590" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#626262"/><stop offset=".48" stop-color="#292929"/><stop offset="1" stop-color="#0f0f0f"/>
+    </linearGradient>
+    <linearGradient id="blade" x1="440" y1="460" x2="640" y2="620" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#a7a7a7"/><stop offset=".4" stop-color="#474747"/><stop offset=".43" stop-color="#8b8b8b"/><stop offset="1" stop-color="#191919"/>
+    </linearGradient>
+    <radialGradient id="mist"><stop stop-color="#999" stop-opacity=".14"/><stop offset="1" stop-color="#999" stop-opacity="0"/></radialGradient>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <path id="a" fill-rule="evenodd" clip-rule="evenodd" d="M244 291 401 263 452 289 438 427 493 474 402 499 373 470 293 504 201 465 185 396 205 326Z M284 348 264 412 290 438 354 414 367 334Z"/>
+    <path id="two" fill-rule="evenodd" clip-rule="evenodd" d="M469 293 504 243 643 233 708 271 714 337 679 379 563 451 674 438 703 400 740 480 669 507 468 516 442 461 582 356 616 328 603 300 548 307 525 341Z"/>
+    <path id="f" fill-rule="evenodd" clip-rule="evenodd" d="M720 502 751 370 694 381 716 320 761 310 778 254 822 207 939 204 915 277 848 266 832 297 904 290 886 353 818 361 787 503 740 546Z"/>
+    <path id="zero" fill-rule="evenodd" clip-rule="evenodd" d="M968 263 1070 247 1145 290 1162 391 1116 488 1001 514 913 469 900 372 921 300Z M1004 322 978 386 995 440 1054 423 1080 360 1062 309Z"/>
+    <g id="word"><use href="#a"/><use href="#two"/><use href="#f"/><use href="#zero"/></g>
+    <clipPath id="faces"><use href="#a"/><use href="#two"/><use href="#f"/><use href="#zero"/></clipPath>
+  </defs>
+  <!-- A quiet paint cloud and individual specks keep the black canvas open. -->
+  <ellipse cx="685" cy="396" rx="607" ry="238" fill="url(#mist)"/>
+  <g fill="#bdbdbd">
+    <circle cx="164.6" cy="516.0" r="0.65" opacity="0.13"/>
+    <circle cx="169.0" cy="320.0" r="3.2" opacity="0.11"/>
+    <circle cx="1007.0" cy="234.8" r="0.65" opacity="0.25"/>
+    <circle cx="274.2" cy="575.1" r="0.65" opacity="0.15"/>
+    <circle cx="254.8" cy="292.4" r="0.65" opacity="0.33"/>
+    <circle cx="413.3" cy="184.0" r="2.4" opacity="0.37"/>
+    <circle cx="1193.5" cy="402.1" r="1" opacity="0.34"/>
+    <circle cx="1149.3" cy="597.0" r="1" opacity="0.30"/>
+    <circle cx="1039.3" cy="498.2" r="1" opacity="0.11"/>
+    <circle cx="903.5" cy="263.9" r="1.6" opacity="0.16"/>
+    <circle cx="277.5" cy="199.9" r="1" opacity="0.25"/>
+    <circle cx="1256.9" cy="485.5" r="1" opacity="0.10"/>
+    <circle cx="703.5" cy="576.4" r="1.6" opacity="0.37"/>
+    <circle cx="772.7" cy="544.0" r="2.4" opacity="0.43"/>
+    <circle cx="178.0" cy="586.7" r="0.65" opacity="0.33"/>
+    <circle cx="183.7" cy="244.5" r="1" opacity="0.43"/>
+    <circle cx="1233.7" cy="560.2" r="1" opacity="0.39"/>
+    <circle cx="395.6" cy="500.6" r="0.65" opacity="0.31"/>
+    <circle cx="935.6" cy="573.8" r="1" opacity="0.42"/>
+    <circle cx="962.0" cy="518.7" r="1" opacity="0.15"/>
+    <circle cx="899.1" cy="196.4" r="1.6" opacity="0.34"/>
+    <circle cx="1202.6" cy="232.3" r="1" opacity="0.29"/>
+    <circle cx="1014.1" cy="227.8" r="0.65" opacity="0.19"/>
+    <circle cx="961.6" cy="215.8" r="1" opacity="0.42"/>
+    <circle cx="143.3" cy="420.2" r="0.65" opacity="0.34"/>
+    <circle cx="324.4" cy="545.2" r="1.6" opacity="0.22"/>
+    <circle cx="254.3" cy="472.7" r="1" opacity="0.44"/>
+    <circle cx="1210.0" cy="362.3" r="3.2" opacity="0.43"/>
+    <circle cx="811.7" cy="503.4" r="0.65" opacity="0.37"/>
+    <circle cx="416.8" cy="481.8" r="1" opacity="0.22"/>
+    <circle cx="294.0" cy="483.6" r="1" opacity="0.28"/>
+    <circle cx="705.7" cy="529.2" r="1.6" opacity="0.24"/>
+    <circle cx="1006.7" cy="197.8" r="1.6" opacity="0.18"/>
+    <circle cx="1175.5" cy="591.7" r="0.65" opacity="0.11"/>
+    <circle cx="1197.7" cy="554.2" r="1" opacity="0.19"/>
+    <circle cx="307.1" cy="541.2" r="0.65" opacity="0.24"/>
+    <circle cx="1160.6" cy="518.8" r="0.65" opacity="0.33"/>
+    <circle cx="517.7" cy="577.3" r="1" opacity="0.39"/>
+    <circle cx="280.2" cy="471.4" r="1" opacity="0.32"/>
+    <circle cx="960.6" cy="508.3" r="0.65" opacity="0.40"/>
+    <circle cx="148.8" cy="293.8" r="1" opacity="0.10"/>
+    <circle cx="1057.6" cy="252.1" r="1" opacity="0.17"/>
+    <circle cx="527.5" cy="221.6" r="1" opacity="0.13"/>
+    <circle cx="294.8" cy="534.0" r="1" opacity="0.16"/>
+    <circle cx="825.8" cy="502.0" r="1.6" opacity="0.25"/>
+    <circle cx="190.9" cy="570.3" r="1" opacity="0.36"/>
+    <circle cx="254.7" cy="544.8" r="1.6" opacity="0.28"/>
+    <circle cx="409.1" cy="253.0" r="0.65" opacity="0.19"/>
+    <circle cx="1186.9" cy="502.4" r="0.65" opacity="0.23"/>
+    <circle cx="1065.5" cy="471.8" r="1.6" opacity="0.24"/>
+    <circle cx="759.0" cy="543.0" r="0.65" opacity="0.37"/>
+    <circle cx="928.1" cy="222.3" r="1" opacity="0.24"/>
+    <circle cx="1210.1" cy="373.9" r="0.65" opacity="0.41"/>
+    <circle cx="1259.7" cy="605.4" r="1.6" opacity="0.14"/>
+    <circle cx="1142.4" cy="472.1" r="1.6" opacity="0.40"/>
+    <circle cx="543.2" cy="561.5" r="1.6" opacity="0.21"/>
+    <circle cx="250.4" cy="381.1" r="1.6" opacity="0.21"/>
+    <circle cx="138.4" cy="419.9" r="0.65" opacity="0.21"/>
+    <circle cx="237.6" cy="363.8" r="1" opacity="0.25"/>
+    <circle cx="897.0" cy="510.7" r="1.6" opacity="0.36"/>
+    <circle cx="310.4" cy="567.6" r="0.65" opacity="0.10"/>
+    <circle cx="224.3" cy="395.9" r="0.65" opacity="0.16"/>
+    <circle cx="176.4" cy="431.2" r="0.65" opacity="0.19"/>
+    <circle cx="828.6" cy="212.0" r="1" opacity="0.37"/>
+    <circle cx="544.1" cy="594.5" r="0.65" opacity="0.13"/>
+    <circle cx="310.3" cy="535.5" r="1" opacity="0.21"/>
+    <circle cx="415.3" cy="600.5" r="0.65" opacity="0.39"/>
+    <circle cx="393.5" cy="480.4" r="1.6" opacity="0.22"/>
+    <circle cx="671.0" cy="528.9" r="0.65" opacity="0.17"/>
+    <circle cx="566.1" cy="181.4" r="1.6" opacity="0.25"/>
+    <circle cx="880.8" cy="514.2" r="0.65" opacity="0.28"/>
+    <circle cx="1192.9" cy="320.1" r="0.65" opacity="0.35"/>
+    <circle cx="1222.8" cy="508.1" r="1" opacity="0.29"/>
+    <circle cx="1162.9" cy="469.7" r="1.6" opacity="0.34"/>
+    <circle cx="185.4" cy="536.6" r="0.65" opacity="0.42"/>
+    <circle cx="164.9" cy="238.6" r="1" opacity="0.14"/>
+    <circle cx="1090.6" cy="587.4" r="2.4" opacity="0.25"/>
+    <circle cx="524.2" cy="260.9" r="1.6" opacity="0.14"/>
+    <circle cx="569.8" cy="547.5" r="1" opacity="0.27"/>
+    <circle cx="991.3" cy="596.3" r="1.6" opacity="0.20"/>
+    <circle cx="672.6" cy="478.4" r="2.4" opacity="0.41"/>
+    <circle cx="1183.3" cy="326.5" r="1.6" opacity="0.25"/>
+    <circle cx="742.9" cy="500.5" r="1" opacity="0.16"/>
+    <circle cx="1033.5" cy="191.1" r="1" opacity="0.35"/>
+    <circle cx="332.4" cy="240.1" r="3.2" opacity="0.39"/>
+    <circle cx="140.1" cy="215.8" r="1.6" opacity="0.32"/>
+    <circle cx="884.3" cy="470.4" r="0.65" opacity="0.29"/>
+    <circle cx="399.2" cy="583.6" r="1" opacity="0.15"/>
+    <circle cx="1198.1" cy="329.9" r="0.65" opacity="0.29"/>
+    <circle cx="1105.2" cy="581.6" r="2.4" opacity="0.36"/>
+    <circle cx="551.1" cy="250.1" r="1.6" opacity="0.13"/>
+    <circle cx="158.1" cy="261.7" r="1" opacity="0.13"/>
+    <circle cx="1206.5" cy="207.5" r="0.65" opacity="0.28"/>
+    <circle cx="1180.8" cy="322.8" r="1" opacity="0.38"/>
+    <circle cx="637.2" cy="180.6" r="0.65" opacity="0.36"/>
+    <circle cx="195.2" cy="320.6" r="1.6" opacity="0.33"/>
+    <circle cx="224.2" cy="471.5" r="1" opacity="0.21"/>
+    <circle cx="955.2" cy="224.7" r="1.6" opacity="0.16"/>
+    <circle cx="391.1" cy="504.5" r="0.65" opacity="0.39"/>
+    <circle cx="1013.4" cy="211.0" r="2.4" opacity="0.37"/>
+    <circle cx="1188.0" cy="598.9" r="1" opacity="0.44"/>
+    <circle cx="912.8" cy="547.9" r="0.65" opacity="0.39"/>
+    <circle cx="939.9" cy="228.0" r="1.6" opacity="0.36"/>
+    <circle cx="1107.0" cy="243.3" r="1.6" opacity="0.37"/>
+    <circle cx="339.9" cy="477.7" r="1.6" opacity="0.29"/>
+    <circle cx="162.8" cy="417.0" r="0.65" opacity="0.37"/>
+    <circle cx="686.3" cy="484.1" r="1" opacity="0.27"/>
+    <circle cx="941.6" cy="522.0" r="1" opacity="0.24"/>
+    <circle cx="1168.3" cy="309.9" r="1" opacity="0.42"/>
+    <circle cx="1133.2" cy="361.9" r="1.6" opacity="0.18"/>
+    <circle cx="983.9" cy="236.9" r="0.65" opacity="0.41"/>
+    <circle cx="190.3" cy="394.9" r="0.65" opacity="0.19"/>
+    <circle cx="1044.6" cy="577.0" r="2.4" opacity="0.35"/>
+    <circle cx="831.1" cy="201.2" r="1" opacity="0.40"/>
+    <circle cx="249.7" cy="239.9" r="1" opacity="0.17"/>
+    <circle cx="284.9" cy="589.3" r="1.6" opacity="0.12"/>
+    <circle cx="1130.8" cy="377.6" r="0.65" opacity="0.21"/>
+    <circle cx="313.8" cy="236.5" r="1" opacity="0.36"/>
+    <circle cx="1203.1" cy="263.7" r="1" opacity="0.27"/>
+    <circle cx="646.6" cy="248.0" r="0.65" opacity="0.40"/>
+    <circle cx="736.1" cy="597.8" r="1.6" opacity="0.10"/>
+    <circle cx="1014.6" cy="547.5" r="1.6" opacity="0.35"/>
+    <circle cx="194.2" cy="248.5" r="1" opacity="0.11"/>
+    <circle cx="601.5" cy="529.2" r="1" opacity="0.38"/>
+    <circle cx="1060.6" cy="497.1" r="1" opacity="0.18"/>
+    <circle cx="168.5" cy="476.9" r="1.6" opacity="0.15"/>
+    <circle cx="163.4" cy="269.4" r="0.65" opacity="0.32"/>
+    <circle cx="246.3" cy="298.7" r="0.65" opacity="0.27"/>
+    <circle cx="181.3" cy="505.1" r="1.6" opacity="0.31"/>
+    <circle cx="1195.4" cy="493.7" r="0.65" opacity="0.44"/>
+    <circle cx="1245.5" cy="231.8" r="0.65" opacity="0.14"/>
+    <circle cx="172.8" cy="529.8" r="1" opacity="0.23"/>
+    <circle cx="506.7" cy="579.0" r="1" opacity="0.22"/>
+    <circle cx="589.4" cy="242.0" r="1" opacity="0.14"/>
+    <circle cx="786.2" cy="526.3" r="0.65" opacity="0.10"/>
+    <circle cx="336.9" cy="539.3" r="1.6" opacity="0.33"/>
+    <circle cx="1039.7" cy="591.4" r="0.65" opacity="0.30"/>
+    <circle cx="766.9" cy="497.2" r="1" opacity="0.32"/>
+    <circle cx="376.9" cy="478.1" r="1" opacity="0.13"/>
+    <circle cx="825.8" cy="198.9" r="1" opacity="0.38"/>
+    <circle cx="1160.2" cy="401.0" r="1.6" opacity="0.31"/>
+    <circle cx="530.5" cy="201.4" r="2.4" opacity="0.32"/>
+  </g>
+  <g transform="rotate(-6 700 390)" stroke-linejoin="round">
+    <!-- Wildstyle extensions sit behind the readable letter silhouettes. -->
+    <g stroke="#070707" stroke-width="10">
+      <path d="M129 291 296 253 474 262 593 213 564 265 394 302 229 299 152 341 181 301Z" fill="#373737"/>
+      <path d="m165 292 130-24 171 9 91-40-30 27-135 29-162-5-65 22Z" fill="#9a9a9a" stroke="none"/>
+      <path d="m991 269 105-64 146 41-31 31 91 65-113-23-79-67-87 50Z" fill="url(#depth)"/>
+      <path d="m1098 211 131 37-31 19 76 56-94-43-66-44-105 46Z" fill="#767676" stroke="none"/>
+      <path d="m163 441 81 43 203 38 253-1 299-31 222-83-30 56-127 63-337 53-303-26-170-54-107-4 56-19Z" fill="url(#blade)"/>
+      <path d="m164 451 85 42 211 42 270 3 336-38 116-57-99 68-354 50-275-15-224-52-76-7 53-10Z" fill="#727272" stroke="none"/>
+      <path d="m301 528 101 14 66 65-96-24 14-20-69-11-62 9Z" fill="#4a4a4a"/>
+      <path d="m912 530 149-24 182-60-19 49 78 15-105 45 4-26-185 48Z" fill="#505050"/>
+      <path d="m934 538 129-23 165-52-21 31-143 38-96 18Z" fill="#d0d0d0" stroke="none"/>
+      <path d="m585 546 73 14-28 49-22-27-67 6Z" fill="#343434"/>
+    </g>
+    <g stroke="#c3c3c3" stroke-width="1.4" opacity=".65">
+      <path d="m158 350-38 54 45 24M1154 220l57 9 47 40M365 604l55 15 20-2M1079 573l87-25"/>
+    </g>
+    <!-- The repeated silhouette produces a continuous 3D extrusion. -->
+    <use href="#word" transform="translate(38 48)" fill="#0c0c0c" stroke="#9b9b9b" stroke-width="17"/>
+    <use href="#word" transform="translate(38.0 48)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(37.21 47)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(36.42 46)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(35.62 45)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(34.83 44)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(34.04 43)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(33.25 42)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(32.46 41)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(31.67 40)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(30.88 39)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(30.08 38)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(29.29 37)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(28.5 36)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(27.71 35)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(26.92 34)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(26.12 33)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(25.33 32)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(24.54 31)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(23.75 30)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(22.96 29)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(22.17 28)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(21.38 27)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(20.58 26)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(19.79 25)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(19.0 24)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(18.21 23)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(17.42 22)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(16.62 21)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(15.83 20)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(15.04 19)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(14.25 18)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(13.46 17)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(12.67 16)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(11.88 15)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(11.08 14)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(10.29 13)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(9.5 12)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(8.71 11)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(7.92 10)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(7.12 9)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(6.33 8)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(5.54 7)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(4.75 6)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(3.96 5)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(3.17 4)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(2.38 3)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(1.58 2)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <use href="#word" transform="translate(0.79 1)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <!-- Light catches selected edges of the dark extrusion. -->
+    <g stroke="#858585" stroke-width="2" opacity=".7">
+      <path d="m201 465 38 48 92 39M293 504l38 48 70-29M493 474l38 48-91 25M468 516l38 48 201-9 71-27M740 546l38 48 47-43M1001 514l38 48 115-26 46-97M1162 391l38 48"/>
+    </g>
+    <use href="#word" fill="url(#silver)" stroke="#090909" stroke-width="15"/>
+    <g clip-path="url(#faces)">
+      <!-- Broad planes make the surfaces read as carved metal. -->
+      <path d="m176 330 254-40-23 73-212 59Zm285-30 231-44 24 74-260 30Zm293-43 195-61-30 60-154 37Zm155 75 223-61 34 84-255 29Z" fill="#f0f0f0" opacity=".35"/>
+      <path d="m178 424 236-32 47 97-117 42-146-43Zm251 33 178-30 111 47-19 46-247 19Zm317-72 107-39-40 178-88 37Zm159 30 238-45-30 129-182 32Z" fill="#292929" opacity=".27"/>
+      <path d="m202 465 74 18 96-35 30 51-109 22Zm286 37 193-15 35-21-42 47-210 17Zm264-137 31 18-48 156-23-18Zm230 60 74 20 79-31-28 69-107 26-64-35Z" fill="#252525" opacity=".5"/>
+      <path d="m260 273 13 250m298-296 19 308m228-337 17 356m217-324 21 299" stroke="#fff" stroke-width="24" opacity=".06"/>
+      <use href="#word" transform="translate(4 7)" stroke="#fff" stroke-opacity=".5" stroke-width="12"/>
+      <use href="#word" transform="translate(-5 -6)" stroke="#252525" stroke-opacity=".65" stroke-width="13"/>
+      <rect x="170" y="190" width="1030" height="380" filter="url(#grain)" opacity=".065"/>
+    </g>
+    <use href="#word" stroke="#d9d9d9" stroke-width="2"/>
+    <!-- Hand-placed bevels and broken highlights describe each letter. -->
+    <g stroke="#fafafa" stroke-width="3" stroke-linecap="round">
+      <path d="m219 327 31-26 147-27 38 21M197 393l17-57M279 351l-22 63 28 32M380 432l21 48 76-10"/>
+      <path d="m480 291 31-36 129-12 53 30M549 318l-25 35M485 485l99-76M581 462l95-12 18-25"/>
+      <path d="m737 331 32-7 22-66 37-39 92-4M714 367l45-9M838 310l51-8M736 502l17 23 22-22"/>
+      <path d="m936 304 38-30 93-16 62 36M912 370l9 89 27 15M994 331l-29 57 18 54M1010 497l96-21 27-55"/>
+    </g>
+    <g stroke="#454545" stroke-width="2.2">
+      <path d="m253 316 139-27 28 14M219 431l14 26 55 20M400 326l-19 81M502 282l29-21 79-7M472 468l29 30 161-9M792 272l39-39 63-6M774 392l-24 90M944 319l32-29 80-15M1115 322l15 62-28 65"/>
+    </g>
+    <!-- Cuts in the paint, rivet-like spots, and crossing ribbons. -->
+    <g fill="#161616">
+      <path d="m225 354 44-11-12 8-42 20Zm157-65 15 39-6 13-14-32Zm99 93 21-8-4 8-37 15Zm183 4 14-13 26 8-15 3Zm89-94 9-12 26-4-12 10Zm305-21 20 9 18 43-14-5Zm-116 155 19 8-3 15-14-9Z"/>
+      <circle cx="317" cy="312" r="3.5"/><circle cx="333" cy="309" r="1.5"/><circle cx="641" cy="460" r="3"/><circle cx="858" cy="244" r="2.5"/><circle cx="1119" cy="369" r="3.5"/>
+    </g>
+    <path d="m386 455 114-52 23 5-108 60 14 22-47-14Z" fill="#bebebe" stroke="#111" stroke-width="6"/>
+    <path d="m391 458 109-48-98 54" stroke="#f6f6f6" stroke-width="2"/>
+    <path d="m862 434 88-27 29 18-58 10-39 36 2-24-36 10Z" fill="#979797" stroke="#111" stroke-width="6"/>
+    <path d="m871 436 74-23 15 9-44 5" stroke="#ededed" stroke-width="2"/>
+    <!-- Small detached shards extend the motion beyond the word. -->
+    <g fill="#bcbcbc" stroke="#101010" stroke-width="4">
+      <path d="m143 371 28-20-5 36-17 12Z"/>
+      <path d="m1209 377 46-12-31 29-26 2Z"/>
+      <path d="m579 207 34-25 39 11-28 11Z"/>
+      <path d="m865 573 32-6-15 22-28-4Z"/>
+    </g>
+    <g stroke="#ddd" stroke-linecap="round">
+      <path d="m355 227 10-27m-20 17 27-4M1185 435l8-23m-18 16 25-6" stroke-width="2"/>
+      <path d="m813 186 7-13m-12 8 14-2" stroke-width="1.5"/>
+    </g>
+    <g fill="#e7e7e7">
+      <path d="m436 286 3-16 3 16 15 3-15 3-3 16-3-16-15-3Z"/>
+      <path d="m1099 277 2-12 3 12 12 3-12 2-3 13-2-13-13-2Z"/>
+    </g>
+  </g>
+</svg>
