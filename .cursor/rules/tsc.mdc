@@ -1,7 +1,0 @@
----
-description:
-globs:
-alwaysApply: true
----
-- Run `bun run compile` after making TypeScript changes to check both workspaces.
-- Never use `any` as a type, or `as` for type assertion.

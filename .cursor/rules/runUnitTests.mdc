@@ -1,6 +1,0 @@
----
-description:
-globs:
-alwaysApply: true
----
-- When making coding changes, run unit tests with `bun run unit` and make sure they pass.
