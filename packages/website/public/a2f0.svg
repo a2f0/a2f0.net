@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="50 125 1300 525" fill="none" role="img" aria-labelledby="title description">
   <title id="title">a2f0</title>
-  <desc id="description">Grayscale a2f0 graffiti with faceted chrome letters, a sweeping hooked f, interlocking ribbons, cut ink inlays, engraved contours, and loose brushwork over a deep sculpted extrusion.</desc>
+  <desc id="description">Grayscale a2f0 graffiti with faceted chrome letters, a sweeping hooked f, interlocking ribbons, ink inlays, engraved contours, halftone shading, loose brushwork, and paint splatter.</desc>
   <defs>
     <linearGradient id="silver" x1="650" y1="220" x2="680" y2="540" gradientUnits="userSpaceOnUse">
       <stop stop-color="#fafafa"/><stop offset=".22" stop-color="#c8c8c8"/><stop offset=".43" stop-color="#797979"/><stop offset=".46" stop-color="#e8e8e8"/><stop offset=".68" stop-color="#adadad"/><stop offset="1" stop-color="#414141"/>
@@ -384,7 +384,7 @@
     <path d="m391 458 109-48-98 54" stroke="#f6f6f6" stroke-width="2"/>
     <path d="m862 434 88-27 29 18-58 10-39 36 2-24-36 10Z" fill="#979797" stroke="#111" stroke-width="6"/>
     <path d="m871 436 74-23 15 9-44 5" stroke="#ededed" stroke-width="2"/>
-    <!-- A folded ribbon bridges the 2 and f, then tucks under the crossbar. -->
+    <!-- A folded ribbon connects the 2 to the space below the f's crossbar. -->
     <path d="M640 431C675 409 699 382 719 382L750 391 737 418 720 401C703 398 684 424 665 435L682 448 628 451Z" fill="#101010" stroke="#080808" stroke-width="7"/>
     <path d="M640 431C675 409 699 382 719 382L750 391 737 418 728 401 715 394C697 397 681 420 661 433L669 440 636 446Z" fill="url(#polished-edge)"/>
     <path d="M650 428C680 409 701 383 719 387L739 394M642 442 658 438" stroke="#fff" stroke-width="1.5"/>
