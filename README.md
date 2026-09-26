@@ -1,12 +1,13 @@
-# Resume
+# a2f0.net
 
 ## Quick Start
 
 Use the Node version in `.nvmrc` and the Bun version in `package.json`.
 [Install Bun](https://bun.com/docs/installation) before running these commands.
-The Next.js app lives in [`packages/resume`](packages/resume), and PR helpers
-live in [`packages/agent-tool`](packages/agent-tool). Run the commands below
-from the repository root.
+The resume app lives in [`packages/resume`](packages/resume), the apex website
+lives in [`packages/website`](packages/website), and PR helpers live in
+[`packages/agent-tool`](packages/agent-tool). Run the commands below from the
+repository root.
 
 ```sh
 nvm use
@@ -21,18 +22,24 @@ exported HTML; local development and mobile layouts still generate it in the
 browser. The SVG uses the bundled Arimo font for consistent build and browser
 layout. PDF generation remains in the browser.
 
+The apex website is a static black page served by Cloudflare Workers. Preview
+it locally with `bun run --cwd packages/website start` on port 4002.
+
 ## Testing
 
 ```sh
 bun run compile
 bun run unit
 bun run ci-headless
+bun run --cwd packages/website test
 bun run lint:md
 ```
 
 `ci-headless` builds the static export and runs the browser tests against
 Wrangler on port 4001. It covers the resume views, downloads, menus, direct
-routes, canonical URLs, and 404 responses.
+routes, canonical URLs, and 404 responses. The website test serves
+`packages/website/public` through Wrangler and checks that the apex page
+responds without a resume redirect.
 
 `bun run unit` runs both the app tests and the Node-based tests in
 [`packages/agent-tool`](packages/agent-tool/README.md). Invoke the repository's
@@ -83,10 +90,11 @@ is served using Cloudflare's
 | --- | --- | --- | --- |
 | `staging` | `bun run deploy:staging` | `resume-staging` | `staging.a2f0.net` |
 | `production` | `bun run deploy:prod` | `resume-prod` | `resume.a2f0.net` |
-| `production` | `bun run deploy:redirect` | `resume-redirect` | `a2f0.net` |
+| `production` | `bun run deploy:website` | `resume-redirect` | `a2f0.net` |
 
-Requests to `a2f0.net` redirect permanently to `resume.a2f0.net`, preserving
-the path and query string.
+`a2f0.net` serves the website directly. The resume remains at
+`resume.a2f0.net`. The website keeps the existing Worker service name so the
+apex domain stays attached when the redirect code is replaced.
 
 Set `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in your environment for
 local deployments. GitHub Actions uses repository secrets with the same names
@@ -103,7 +111,7 @@ up a zone created beforehand. Both tokens are stored in Blackbox.
 
 Public `workers.dev` and preview URLs are disabled. Each Worker becomes
 publicly reachable when Terraform attaches its custom domain and the zone is
-active. Always pass `--env staging` or `--env prod` to Wrangler.
+active. Pass `--env staging` or `--env prod` when deploying the resume Worker.
 
 ## Infrastructure
 
@@ -148,8 +156,8 @@ terraform apply infrastructure.tfplan
 ```
 
 Review the plan before applying. The Worker scripts must already exist before
-Terraform creates their custom domains. Deploy `resume-redirect` before changing
-the apex custom domain from `resume-prod` to `resume-redirect`.
+Terraform creates their custom domains. The website deploys to the existing
+`resume-redirect` Worker, which already owns the apex custom domain.
 
 ### Hosting Retirement
 

@@ -42,7 +42,7 @@
     "unit": "bun run --cwd packages/resume unit && bun run --cwd packages/agent-tool test",
     "deploy:staging": "bun run --cwd packages/resume deploy:staging",
     "deploy:prod": "bun run --cwd packages/resume deploy:prod",
-    "deploy:redirect": "bun run --cwd packages/resume deploy:redirect",
+    "deploy:website": "bun run --cwd packages/website deploy",
     "agent-tool": "tsx packages/agent-tool/src/index.ts"
   },
   "devDependencies": {
