@@ -148,9 +148,36 @@ describe("SVG Resume", () => {
       { timeoutMsg: "expected the 768px viewport to be mobile" },
     );
     await browser.execute(() => window.dispatchEvent(new Event("resize")));
-    await expect(SvgPage.svgResume).toBeDisplayed();
+    const getMobileLayout = () =>
+      browser.execute(() => {
+        const svg = document.querySelector<SVGSVGElement>("#svgResume");
+        const bounds = svg?.getBoundingClientRect();
+        return {
+          clientWidth: document.documentElement.clientWidth,
+          svgClass: svg?.getAttribute("class"),
+          svgWidth: svg?.getAttribute("width"),
+          display: svg ? window.getComputedStyle(svg).display : null,
+          boundsWidth: bounds?.width ?? 0,
+          boundsHeight: bounds?.height ?? 0,
+        };
+      });
+    try {
+      await browser.waitUntil(async () => {
+        const layout = await getMobileLayout();
+        return (
+          layout.svgClass === "svg" &&
+          layout.svgWidth === `${layout.clientWidth}px` &&
+          layout.display !== "none" &&
+          layout.boundsWidth > 0 &&
+          layout.boundsHeight > 0
+        );
+      });
+    } catch {
+      throw new Error(
+        `Expected a visible mobile SVG at 768px: ${JSON.stringify(await getMobileLayout())}`,
+      );
+    }
     await expect(SvgPage.leftPartition).not.toBeExisting();
-    await expect(SvgPage.svgResume).toHaveAttribute("class", "svg");
 
     await browser.setViewport({ width: 1366, height: 900 });
     await browser.execute(() => window.dispatchEvent(new Event("resize")));
