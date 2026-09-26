@@ -30,14 +30,15 @@ export default abstract class ResumeFactory {
   contentBottomY = 0;
 
   constructor(
-    config: ResumeConfig,
+    resumeConfig: ResumeConfig,
     resume: Resume,
     isMobile = false,
     mobileDocumentWidthPt = 0,
+    protected readonly fontFamily = config.fontFamily,
   ) {
-    this.foregroundColor = new Color(config.foregroundColor);
-    this.backgroundColor = new Color(config.backgroundColor);
-    this.highlightColor = new Color(config.highlightColor);
+    this.foregroundColor = new Color(resumeConfig.foregroundColor);
+    this.backgroundColor = new Color(resumeConfig.backgroundColor);
+    this.highlightColor = new Color(resumeConfig.highlightColor);
     this.resume = resume;
     this.isMobile = isMobile;
     this.mobileDocumentWidthPt = mobileDocumentWidthPt;
@@ -106,7 +107,7 @@ export default abstract class ResumeFactory {
       fontWeight,
       fontSize,
       config.units,
-      config.fontFamily,
+      this.fontFamily,
     );
     let currentYPos = yPos;
     for (let k = 0; k < lines.length; k++) {
@@ -118,7 +119,7 @@ export default abstract class ResumeFactory {
             currentXPos,
             currentYPos,
             fontSize,
-            config.fontFamily,
+            this.fontFamily,
             this.foregroundColor,
             chunk.text,
             chunk.url,
@@ -129,7 +130,7 @@ export default abstract class ResumeFactory {
             currentXPos,
             currentYPos,
             fontSize,
-            config.fontFamily,
+            this.fontFamily,
             this.foregroundColor,
             chunk.text,
             `${idPrefix}-${k}`,
@@ -195,7 +196,7 @@ export default abstract class ResumeFactory {
       nameXPos,
       nameYPos,
       config.nameSize,
-      config.fontFamily,
+      this.fontFamily,
       this.foregroundColor,
       this.resume.firstName,
       "firstName",
@@ -207,14 +208,14 @@ export default abstract class ResumeFactory {
         config.nameWeight,
         config.nameSize,
         config.units,
-        config.fontFamily,
+        this.fontFamily,
       ),
     );
     this.addText(
       nameXPos + firstNameWidthInPoints,
       nameYPos,
       config.nameSize,
-      config.fontFamily,
+      this.fontFamily,
       this.highlightColor,
       this.resume.lastName,
       "lastName",
@@ -232,7 +233,7 @@ export default abstract class ResumeFactory {
       addressXPos,
       addressYPos,
       config.addressSize,
-      config.fontFamily,
+      this.fontFamily,
       this.foregroundColor,
       this.resume.cityState,
       "addressLine",
@@ -281,7 +282,7 @@ export default abstract class ResumeFactory {
       phoneXPos,
       phoneYPos,
       config.phoneNumberSize,
-      config.fontFamily,
+      this.fontFamily,
       this.foregroundColor,
       this.resume.phoneNumber.number,
       this.resume.phoneNumber.uri,
@@ -298,7 +299,7 @@ export default abstract class ResumeFactory {
       emailXPos,
       emailYPos,
       config.emailSize,
-      config.fontFamily,
+      this.fontFamily,
       this.foregroundColor,
       this.resume.email.email,
       this.resume.email.uri,
@@ -323,7 +324,7 @@ export default abstract class ResumeFactory {
       experienceHeaderXPos,
       experienceHeaderYPos,
       config.experienceHeaderSize,
-      config.fontFamily,
+      this.fontFamily,
       this.highlightColor,
       config.experienceHeader,
       "experienceHeader",
@@ -357,7 +358,7 @@ export default abstract class ResumeFactory {
       config.positionTitleWeight,
       config.positionTitleSize,
       config.units,
-      config.fontFamily,
+      this.fontFamily,
     );
     const positionHeaderLines = wrapLabel(
       `${position.title} - ${position.company} - ${position.location}`,
@@ -377,7 +378,7 @@ export default abstract class ResumeFactory {
       MOBILE_LEFT_MARGIN,
       positionDateRangeYPos,
       config.positionTitleSize,
-      config.fontFamily,
+      this.fontFamily,
       this.foregroundColor,
       position.date_range,
       `positionDateRange-${i}`,
@@ -400,7 +401,7 @@ export default abstract class ResumeFactory {
       config.positionTitleWeight,
       config.positionTitleSize,
       config.units,
-      config.fontFamily,
+      this.fontFamily,
     );
     const hyphenWidth = getTextWidthInPoints("-", positionTitleFont);
 
@@ -416,7 +417,7 @@ export default abstract class ResumeFactory {
       config.positionTitleXPos,
       yPos,
       config.positionTitleSize,
-      config.fontFamily,
+      this.fontFamily,
       this.foregroundColor,
       position.title,
       `positionTitle-${i}`,
@@ -430,7 +431,7 @@ export default abstract class ResumeFactory {
         config.positionDateRangeWeight,
         config.positionDateRangeSize,
         config.units,
-        config.fontFamily,
+        this.fontFamily,
       ),
     );
     this.addText(
@@ -439,7 +440,7 @@ export default abstract class ResumeFactory {
         positionDateRangeWidth,
       yPos,
       config.positionTitleSize,
-      config.fontFamily,
+      this.fontFamily,
       this.foregroundColor,
       position.date_range,
       `positionDateRange-${i}`,
@@ -452,7 +453,7 @@ export default abstract class ResumeFactory {
       hyphen1XPos,
       yPos,
       config.positionTitleSize,
-      config.fontFamily,
+      this.fontFamily,
       this.foregroundColor,
       "-",
       `hyphenAfterTitle-${i}`,
@@ -470,7 +471,7 @@ export default abstract class ResumeFactory {
           currentXPos,
           yPos,
           config.positionTitleSize,
-          config.fontFamily,
+          this.fontFamily,
           this.foregroundColor,
           chunk.text,
           chunk.url,
@@ -481,7 +482,7 @@ export default abstract class ResumeFactory {
           currentXPos,
           yPos,
           config.positionTitleSize,
-          config.fontFamily,
+          this.fontFamily,
           this.foregroundColor,
           chunk.text,
           `positionCompanyName-${i}`,
@@ -496,7 +497,7 @@ export default abstract class ResumeFactory {
       hyphen2XPos,
       yPos,
       config.positionTitleSize,
-      config.fontFamily,
+      this.fontFamily,
       this.foregroundColor,
       "-",
       `hyphenAfterCompanyName-${i}`,
@@ -509,7 +510,7 @@ export default abstract class ResumeFactory {
       companyLocationXPos,
       yPos,
       config.positionTitleSize,
-      config.fontFamily,
+      this.fontFamily,
       this.foregroundColor,
       position.location,
       `positionCompanyLocation-${i}`,
@@ -533,7 +534,7 @@ export default abstract class ResumeFactory {
       config.positionAccomplishmentWeight,
       config.positionAccomplishmentSize,
       config.units,
-      config.fontFamily,
+      this.fontFamily,
     );
 
     let accomplishmentYPos = yPos;
@@ -592,7 +593,7 @@ export default abstract class ResumeFactory {
       educationHeaderXPos,
       educationHeaderYPos,
       config.educationHeaderSize,
-      config.fontFamily,
+      this.fontFamily,
       this.highlightColor,
       config.educationHeader,
       "educationHeader",
@@ -636,7 +637,7 @@ export default abstract class ResumeFactory {
       educationXPos,
       yPos,
       config.educationSize,
-      config.fontFamily,
+      this.fontFamily,
       this.foregroundColor,
       education.institution,
       education.url,
@@ -651,7 +652,7 @@ export default abstract class ResumeFactory {
         config.educationWeight,
         config.educationSize,
         config.units,
-        config.fontFamily,
+        this.fontFamily,
       );
       const credentialLines = wrapLabel(
         education.credential,
@@ -673,7 +674,7 @@ export default abstract class ResumeFactory {
         educationXPos,
         educationYPos,
         config.educationSize,
-        config.fontFamily,
+        this.fontFamily,
         this.foregroundColor,
         education.credential,
         `educationDegree-${m}`,
@@ -699,7 +700,7 @@ export default abstract class ResumeFactory {
       internetPresencesXPos,
       internetPresencesHeaderYPos,
       config.internetPresencesHeaderSize,
-      config.fontFamily,
+      this.fontFamily,
       this.highlightColor,
       "WEB",
       "WebLabel",
@@ -712,14 +713,14 @@ export default abstract class ResumeFactory {
         config.nameWeight,
         config.internetPresencesHeaderSize,
         config.units,
-        config.fontFamily,
+        this.fontFamily,
       ),
     );
     this.addText(
       internetPresencesXPos + interenetWidthInPoints,
       internetPresencesHeaderYPos,
       config.internetPresencesHeaderSize,
-      config.fontFamily,
+      this.fontFamily,
       this.foregroundColor,
       "PRESENCES",
       "PresencesLabel",
@@ -753,7 +754,7 @@ export default abstract class ResumeFactory {
         internetPresencesXPos,
         internetPresenceYPos,
         config.internetPresencesSize,
-        config.fontFamily,
+        this.fontFamily,
         this.foregroundColor,
         wihoutUrlPrefix,
         internetPresence,

@@ -1,6 +1,7 @@
 import assert from "node:assert";
 import fs from "node:fs";
 import path from "node:path";
+import { JSDOM } from "jsdom";
 
 import { resumeConfiguration } from "../../configuration";
 import waitForFileExists from "../lib/fs";
@@ -10,9 +11,51 @@ import { testDownloadDir } from "../testDownloadDir";
 const { darkBackgroundColor, lightBackgroundColor } = resumeConfiguration;
 
 describe("SVG Resume", () => {
+  it("includes the desktop resume and its styles without JavaScript", async () => {
+    const response = await fetch(new URL("/", browser.options.baseUrl));
+    const html = await response.text();
+    assert.strictEqual(response.status, 200);
+    const dom = new JSDOM(html);
+    const document: Document = dom.window.document;
+    assert.ok(document.querySelector("#svgResume #firstName"));
+    assert.strictEqual(
+      document.querySelector("#firstName")?.getAttribute("font-family"),
+      "Arimo, Arial, sans-serif",
+    );
+    const styles = Array.from(document.querySelectorAll("style[data-styled]"))
+      .map((style) => style.textContent)
+      .join("\n");
+    assert.match(styles, /Arimo\.woff2/);
+    assert.match(
+      styles,
+      /@media \(max-width: 768px\)\{[^}]*\.desktop-svg\{display:none;/,
+    );
+    dom.window.close();
+  });
+
   it("should load", async () => {
     await SvgPage.open();
     await expect(SvgPage.svgResume).toBeExisting();
+    const layout = await browser.execute(async () => {
+      await document.fonts.load("400 12pt Arimo");
+      const svg = document.querySelector<SVGSVGElement>("#svgResume");
+      if (!svg) throw new Error("Resume SVG is missing");
+      const lines = svg.querySelectorAll<SVGTextElement>(
+        'text[id^="positionAccomplishmentLine"]',
+      );
+      return {
+        fontLoaded: document.fonts.check("400 12pt Arimo"),
+        maxRight: Math.max(
+          ...Array.from(lines, (line) => {
+            const bounds = line.getBBox();
+            return bounds.x + bounds.width;
+          }),
+        ),
+        viewBoxWidth: svg.viewBox.baseVal.width,
+      };
+    });
+    assert.ok(layout.fontLoaded);
+    assert.ok(layout.maxRight <= layout.viewBoxWidth);
   });
 
   it("should work with the light/dark theme switcher", async () => {
@@ -80,5 +123,80 @@ describe("SVG Resume", () => {
       return await waitForFileExists(filePath, 3000);
     });
     await expect(SvgPage.downloadSvgMenuOption).not.toBeDisplayed();
+  });
+
+  it("generates the mobile layout after hydration", async () => {
+    await SvgPage.open();
+    await browser.setViewport({ width: 390, height: 844 });
+    await browser.waitUntil(
+      () =>
+        browser.execute(() => window.matchMedia("(max-width: 768px)").matches),
+      { timeoutMsg: "expected a mobile viewport" },
+    );
+    await browser.execute(() => window.dispatchEvent(new Event("resize")));
+    await browser.waitUntil(
+      async () => !(await SvgPage.leftPartition.isExisting()),
+      { timeoutMsg: "expected the hydrated mobile layout" },
+    );
+    await expect(SvgPage.svgResume).toBeDisplayed();
+    await expect($("#firstName")).toBeDisplayed();
+
+    await browser.setViewport({ width: 768, height: 844 });
+    await browser.waitUntil(
+      () =>
+        browser.execute(() => window.matchMedia("(max-width: 768px)").matches),
+      { timeoutMsg: "expected the 768px viewport to be mobile" },
+    );
+    await browser.execute(() => window.dispatchEvent(new Event("resize")));
+    const getMobileLayout = () =>
+      browser.execute(() => {
+        const svg = document.querySelector<SVGSVGElement>("#svgResume");
+        const bounds = svg?.getBoundingClientRect();
+        return {
+          clientWidth: document.documentElement.clientWidth,
+          svgClass: svg?.getAttribute("class"),
+          svgWidth: svg?.getAttribute("width"),
+          display: svg ? window.getComputedStyle(svg).display : null,
+          boundsWidth: bounds?.width ?? 0,
+          boundsHeight: bounds?.height ?? 0,
+        };
+      });
+    try {
+      await browser.waitUntil(async () => {
+        const layout = await getMobileLayout();
+        return (
+          layout.svgClass === "svg" &&
+          layout.svgWidth === `${layout.clientWidth}px` &&
+          layout.display !== "none" &&
+          layout.boundsWidth > 0 &&
+          layout.boundsHeight > 0
+        );
+      });
+    } catch {
+      throw new Error(
+        `Expected a visible mobile SVG at 768px: ${JSON.stringify(await getMobileLayout())}`,
+      );
+    }
+    await expect(SvgPage.leftPartition).not.toBeExisting();
+
+    await browser.setViewport({ width: 1366, height: 900 });
+    await browser.execute(() => window.dispatchEvent(new Event("resize")));
+    await expect(SvgPage.leftPartition).toBeExisting();
+  });
+
+  it("renders mobile content when the font fails to load", async () => {
+    await SvgPage.open();
+    await browser.execute(() => {
+      document.fonts.load = async () => {
+        throw new Error("Font unavailable");
+      };
+    });
+    await browser.setViewport({ width: 390, height: 844 });
+    await browser.waitUntil(
+      async () => !(await SvgPage.leftPartition.isExisting()),
+      { timeoutMsg: "expected the fallback mobile layout" },
+    );
+    await expect(SvgPage.svgResume).toBeDisplayed();
+    await expect($("#firstName")).toHaveAttribute("font-family", "Helvetica");
   });
 });
