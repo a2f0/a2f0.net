@@ -13,7 +13,7 @@ import {
   selectScale,
 } from "../lib/resumeConfigSlice";
 import SvgResumeFactory from "../lib/svgResumeFactory";
-import { SVG_FONT_FAMILY } from "../lib/svgFont";
+import { SVG_FONT_FAMILY, SVG_FONT_STACK } from "../lib/svgFont";
 
 const SvgContainer = styled.div`
   .desktop-svg {
@@ -97,7 +97,7 @@ export default function SvgResume({ desktopSvg }: SvgResumeProps) {
     }
     let cancelled = false;
     const renderSvg = async () => {
-      let fontFamily = SVG_FONT_FAMILY;
+      let fontFamily = SVG_FONT_STACK;
       try {
         await document.fonts.load(`400 12pt ${SVG_FONT_FAMILY}`);
       } catch {

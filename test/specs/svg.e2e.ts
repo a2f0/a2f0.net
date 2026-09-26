@@ -16,6 +16,7 @@ describe("SVG Resume", () => {
     assert.strictEqual(response.status, 200);
     assert.match(html, /id="svgResume"/);
     assert.match(html, /id="firstName"/);
+    assert.match(html, /font-family="Arimo, Arial, sans-serif"/);
   });
 
   it("should load", async () => {

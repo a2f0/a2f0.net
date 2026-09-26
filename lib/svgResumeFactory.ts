@@ -4,7 +4,7 @@ import { resumeConfiguration } from "../configuration";
 import type { Resume } from "./resume";
 import type { ResumeConfig } from "./resumeConfig";
 import ResumeFactory from "./resumeFactory";
-import { SVG_FONT_FAMILY } from "./svgFont";
+import { SVG_FONT_STACK } from "./svgFont";
 const { units } = resumeConfiguration;
 
 export default class SvgResumeFactory extends ResumeFactory {
@@ -16,7 +16,7 @@ export default class SvgResumeFactory extends ResumeFactory {
     isMobile = false,
     mobileDocumentWidthPt = 0,
     private readonly useColorVariables = false,
-    fontFamily = SVG_FONT_FAMILY,
+    fontFamily = SVG_FONT_STACK,
   ) {
     super(config, resume, isMobile, mobileDocumentWidthPt, fontFamily);
     this.encodedResume = document.createElementNS(

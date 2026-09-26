@@ -12,7 +12,7 @@ import {
 } from "../../lib/resumeConfigSlice";
 import { selectScale } from "../../lib/resumeConfigSlice";
 import SvgResumeFactory from "../../lib/svgResumeFactory";
-import { SVG_FONT_FAMILY } from "../../lib/svgFont";
+import { SVG_FONT_FAMILY, SVG_FONT_STACK } from "../../lib/svgFont";
 import CheckMark from "./CheckMark";
 import { useDropdownMenu } from "./DropdownMenuContext";
 import MenuLink from "./MenuLink";
@@ -67,7 +67,7 @@ const FileMenu = () => {
       false,
       0,
       false,
-      fontDataUrl ? SVG_FONT_FAMILY : resumeConfiguration.fontFamily,
+      fontDataUrl ? SVG_FONT_STACK : resumeConfiguration.fontFamily,
     );
     const svg = resumeFactory.getResume();
     if (fontDataUrl) {
