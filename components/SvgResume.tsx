@@ -22,7 +22,7 @@ const SvgContainer = styled.div`
     max-width: 100%;
   }
 
-  @media (max-width: ${MOBILE_BREAKPOINT - 1}px) {
+  @media (max-width: ${MOBILE_BREAKPOINT}px) {
     .desktop-svg {
       display: none;
     }
@@ -68,7 +68,7 @@ export default function SvgResume({ desktopSvg }: SvgResumeProps) {
   const usePreRenderedDesktop =
     desktopSvg !== null &&
     isKnownTheme &&
-    (viewportWidth === null || viewportWidth >= MOBILE_BREAKPOINT);
+    (viewportWidth === null || viewportWidth > MOBILE_BREAKPOINT);
 
   const positionSvg: CSSProperties = {
     textAlign: "center",
@@ -101,7 +101,7 @@ export default function SvgResume({ desktopSvg }: SvgResumeProps) {
         ? SVG_FONT_STACK
         : resumeConfiguration.fontFamily;
       if (cancelled) return;
-      const isMobile = viewportWidth < MOBILE_BREAKPOINT;
+      const isMobile = viewportWidth <= MOBILE_BREAKPOINT;
 
       // On mobile the document is laid out at the viewport width divided by the
       // zoom scale, then stretched back to the viewport, so text renders at the

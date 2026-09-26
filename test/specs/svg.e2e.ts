@@ -121,6 +121,11 @@ describe("SVG Resume", () => {
     );
     await expect($("#firstName")).toBeDisplayed();
 
+    await browser.setViewport({ width: 768, height: 844 });
+    await expect(SvgPage.svgResume).toBeDisplayed();
+    await expect(SvgPage.leftPartition).not.toBeExisting();
+    await expect(SvgPage.svgResume).toHaveAttribute("width", "768px");
+
     await browser.setViewport({ width: 1366, height: 900 });
     await expect(SvgPage.leftPartition).toBeExisting();
   });
