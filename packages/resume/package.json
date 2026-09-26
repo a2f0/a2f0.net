@@ -16,8 +16,7 @@
     "compile": "tsc",
     "unit": "vitest run",
     "deploy:staging": "bun run build && wrangler deploy --env staging",
-    "deploy:prod": "bun run build && wrangler deploy --env prod",
-    "deploy:redirect": "wrangler deploy --config wrangler.redirect.jsonc"
+    "deploy:prod": "bun run build && wrangler deploy --env prod"
   },
   "dependencies": {
     "@chenglou/pretext": "0.0.9",

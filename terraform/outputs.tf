@@ -2,6 +2,10 @@ output "production_url" {
   value = "https://${cloudflare_workers_custom_domain.resume.hostname}"
 }
 
+output "website_url" {
+  value = "https://${cloudflare_workers_custom_domain.website.hostname}"
+}
+
 output "staging_url" {
   value = "https://${cloudflare_workers_custom_domain.staging.hostname}"
 }

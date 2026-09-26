@@ -46,6 +46,8 @@ jobs:
       - run: bun run unit
       - name: Test exported site with Cloudflare Workers
         run: bun run ci-headless
+      - name: Test apex website with Cloudflare Workers
+        run: bun run --cwd packages/website test
 
   deploy:
     needs: build
@@ -79,13 +81,13 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: bunx --no-install wrangler deploy --env prod
-      - name: Deploy apex redirect
+      - name: Deploy website
         if: github.ref == 'refs/heads/production'
-        working-directory: packages/resume
+        working-directory: packages/website
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: bunx --no-install wrangler deploy --config wrangler.redirect.jsonc
+        run: bunx --no-install wrangler deploy
 
   notify-failure:
     needs: [build, deploy]

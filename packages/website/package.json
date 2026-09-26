@@ -1,0 +1,15 @@
+{
+  "name": "@a2f0/website",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "wrangler dev --port 4002 --local",
+    "test": "start-server-and-test 'bun run start' http://localhost:4002 'bun run test:served'",
+    "test:served": "bun test test/website.test.ts",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "start-server-and-test": "3.0.12",
+    "wrangler": "4.132.0"
+  }
+}

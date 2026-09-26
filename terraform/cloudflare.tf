@@ -10,19 +10,22 @@ data "cloudflare_zone" "resume" {
   }
 }
 
-# Publish both Workers with Wrangler before attaching their custom domains.
+# Publish the Workers with Wrangler before attaching their custom domains.
 moved {
   from = cloudflare_workers_custom_domain.production
   to   = cloudflare_workers_custom_domain.apex_redirect
 }
 
-resource "cloudflare_workers_custom_domain" "apex_redirect" {
+moved {
+  from = cloudflare_workers_custom_domain.apex_redirect
+  to   = cloudflare_workers_custom_domain.website
+}
+
+resource "cloudflare_workers_custom_domain" "website" {
   account_id = var.cloudflare_account_id
   zone_id    = data.cloudflare_zone.resume.id
   hostname   = var.domain
   service    = "resume-redirect"
-
-  depends_on = [cloudflare_workers_custom_domain.resume]
 }
 
 resource "cloudflare_workers_custom_domain" "resume" {

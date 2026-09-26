@@ -11,7 +11,6 @@
     "packages/resume": {
       "entry": [
         "pages/**/*.tsx",
-        "redirect.ts",
         "wdio.shared.conf.ts",
         "wdio.headless.conf.ts",
         "test/specs/*.e2e.ts",
