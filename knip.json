@@ -6,6 +6,9 @@
   },
   "workspaces": {
     ".": {
+      "project": "scripts/**/*.ts"
+    },
+    "packages/resume": {
       "entry": [
         "pages/**/*.tsx",
         "redirect.ts",

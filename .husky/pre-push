@@ -1,7 +1,7 @@
 set -e
 
 bunx --no-install knip
-lib/scripts/checkPinnedDependencies.ts
+scripts/checkPinnedDependencies.ts
 
 # Lint the commits being pushed. Skipped when origin/production is not
 # available (e.g. shallow CI checkouts).

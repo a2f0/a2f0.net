@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description:
+globs:
 alwaysApply: true
 ---
-- Always pin dependencies with `--save-exact` when modifying package.json.
+- Always pin dependencies with `--exact` when adding packages with Bun.

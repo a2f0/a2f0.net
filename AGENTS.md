@@ -43,6 +43,9 @@ When addressing Gemini or reviewer feedback:
 
 ## Repo Validation Commands
 
+The Next.js app is in `packages/resume`; PR helpers are in
+`packages/agent-tool`. Run the root Bun scripts to check both workspaces.
+
 Primary checks in this repo:
 
 - `bun run lint:md`

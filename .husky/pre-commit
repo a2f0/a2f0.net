@@ -9,6 +9,6 @@ shellcheck scripts/*.sh
 
 bunx --no-install biome lint
 bunx --no-install biome format
-lib/scripts/ajv.ts
+packages/resume/lib/scripts/ajv.ts
 
 yamllint .
