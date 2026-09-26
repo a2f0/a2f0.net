@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="50 125 1300 525" fill="none" role="img" aria-labelledby="title description">
   <title id="title">a2f0</title>
-  <desc id="description">Grayscale a2f0 graffiti with sculpted silver letters, a sweeping hooked f, interwoven ink flourishes, engraved contours, halftone shading, and paint splatter.</desc>
+  <desc id="description">Grayscale a2f0 graffiti with faceted chrome letters, a sweeping hooked f, interlocking ribbons, cut ink inlays, engraved contours, and loose brushwork over a deep sculpted extrusion.</desc>
   <defs>
     <linearGradient id="silver" x1="650" y1="220" x2="680" y2="540" gradientUnits="userSpaceOnUse">
       <stop stop-color="#fafafa"/><stop offset=".22" stop-color="#c8c8c8"/><stop offset=".43" stop-color="#797979"/><stop offset=".46" stop-color="#e8e8e8"/><stop offset=".68" stop-color="#adadad"/><stop offset="1" stop-color="#414141"/>
@@ -32,6 +32,12 @@
     </pattern>
     <linearGradient id="ink-ribbon" x1="300" y1="240" x2="360" y2="540" gradientUnits="userSpaceOnUse">
       <stop stop-color="#d5d5d5"/><stop offset=".35" stop-color="#4a4a4a"/><stop offset=".7" stop-color="#aaa"/><stop offset="1" stop-color="#292929"/>
+    </linearGradient>
+    <linearGradient id="cut-metal" x1="0" y1="0" x2=".2" y2="1">
+      <stop stop-color="#c2c2c2"/><stop offset=".19" stop-color="#626262"/><stop offset=".5" stop-color="#292929"/><stop offset=".78" stop-color="#505050"/><stop offset="1" stop-color="#151515"/>
+    </linearGradient>
+    <linearGradient id="polished-edge" x1="0" y1="0" x2="1" y2=".8">
+      <stop stop-color="#fff"/><stop offset=".38" stop-color="#b7b7b7"/><stop offset=".52" stop-color="#333"/><stop offset=".64" stop-color="#e0e0e0"/><stop offset="1" stop-color="#5a5a5a"/>
     </linearGradient>
   </defs>
   <!-- A quiet paint cloud and individual specks keep the black canvas open. -->
@@ -181,6 +187,16 @@
     <circle cx="530.5" cy="201.4" r="2.4" opacity="0.32"/>
   </g>
   <g transform="rotate(-6 700 390)" stroke-linejoin="round">
+    <!-- Tapered brush cuts give the two ends different silhouettes. -->
+    <g fill="#444" opacity=".7">
+      <path d="M190 331C166 292 147 255 151 217 164 251 181 268 217 285L196 269 184 214 225 276 247 287 232 303Z"/>
+      <path d="M174 356C129 336 105 305 98 267 120 303 139 313 171 320L154 302 192 326Z"/>
+      <path d="M1162 480C1212 490 1256 470 1287 433 1278 478 1240 510 1194 517L1243 510 1264 495C1248 531 1207 544 1175 530Z"/>
+    </g>
+    <g stroke="#a2a2a2" stroke-linecap="round">
+      <path d="M165 249C176 273 188 289 203 301M121 306 161 335M1198 510C1231 504 1251 490 1266 471" stroke-width="1.6"/>
+      <path d="M151 235 146 219M129 282 121 272M1223 528 1250 516" stroke-width=".8"/>
+    </g>
     <!-- Loose brush arcs and ink drips follow the motion of the lettering. -->
     <g stroke-linecap="round">
       <path d="M118 391C137 252 410 159 665 190M312 582C585 667 1113 529 1272 382" stroke="#252525" stroke-width="21" opacity=".65"/>
@@ -270,6 +286,21 @@
     <use href="#word" transform="translate(2.38 3)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
     <use href="#word" transform="translate(1.58 2)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
     <use href="#word" transform="translate(0.79 1)" fill="url(#depth)" stroke="#101010" stroke-width="12"/>
+    <!-- Lit side planes connect the front corners to the rear silhouette. -->
+    <g fill="url(#cut-metal)" stroke="#121212" stroke-width="2">
+      <path d="M201 465 293 504 331 552 239 513Z"/>
+      <path d="M293 504 373 470 411 518 331 552Z"/>
+      <path d="M402 499 493 474 531 522 440 547Z"/>
+      <path d="M468 516 669 507 707 555 506 564Z"/>
+      <path d="M669 507 740 480 778 528 707 555Z"/>
+      <path d="M683 554C721 565 753 550 773 518L811 566C791 598 759 613 721 602Z"/>
+      <path d="M913 469 1001 514 1039 562 951 517Z"/>
+      <path d="M1001 514 1116 488 1154 536 1039 562Z"/>
+      <path d="M1116 488 1162 391 1200 439 1154 536Z"/>
+    </g>
+    <g stroke="#b8b8b8" stroke-width="1" opacity=".65">
+      <path d="M216 480 296 513 326 550M414 508 492 487 522 524M480 528 664 520 698 558M691 565C722 575 753 561 773 534L801 569M928 484 1002 522 1031 559M1010 526 1110 503 1144 540M1130 485 1168 407"/>
+    </g>
     <g clip-path="url(#side-faces)">
       <path d="M192 438 515 494 790 442 1217 418V622H192Z" fill="url(#hatching)" opacity=".3"/>
     </g>
@@ -290,6 +321,20 @@
       <path d="M184 395 252 382 246 475 186 466ZM335 447 433 387 451 495 348 515ZM459 269 554 244 526 342 462 346ZM497 454 669 441 700 496 478 525ZM736 440 798 360 824 453 778 548 683 566ZM924 288 1004 264 968 376 902 397ZM1047 403 1165 361 1142 482 1026 519Z" fill="url(#halftone)" opacity=".34"/>
       <path d="M800 311C813 260 825 220 865 215L934 197 917 222C851 212 834 252 818 318ZM800 380C790 443 771 512 728 541L693 541C747 518 773 444 786 386Z" fill="#eee" opacity=".55"/>
       <path d="M817 340 894 322 906 294 913 303 899 331 829 350 785 487 766 520C792 461 800 402 817 340Z" fill="#242424" opacity=".55"/>
+      <!-- Broad ink inlays and folded chrome give each face its own rhythm. -->
+      <path d="M188 395C221 349 240 318 293 304L337 299C273 320 248 353 226 405L204 454 188 442Z" fill="#252525"/>
+      <path d="M205 408C233 351 250 330 292 311 256 338 243 369 224 411L212 450 204 438Z" fill="url(#polished-edge)"/>
+      <path d="M390 281 418 299 400 381 417 412 403 441 380 411 393 348 380 331Z" fill="#202020"/>
+      <path d="M398 294 409 303 392 381 407 413 402 426 386 409 400 344 391 326Z" fill="#d7d7d7"/>
+      <path d="M469 302C531 258 618 249 665 271 692 284 702 307 688 329 688 301 658 279 622 281 563 282 521 307 487 324Z" fill="#1b1b1b"/>
+      <path d="M484 301C535 269 610 261 654 277 595 265 533 291 504 310Z" fill="#fff"/>
+      <path d="M457 483 517 455 540 448 497 485 662 477 694 457 716 480 665 499 477 507Z" fill="#1d1d1d"/>
+      <path d="M480 496 661 489 695 474 689 483 664 495 483 503Z" fill="#e3e3e3"/>
+      <path d="M839 237C864 210 899 235 939 209L926 241 906 259 879 240C861 230 850 246 843 255Z" fill="#202020"/>
+      <path d="M846 236C873 216 894 241 927 221L916 234C890 247 870 224 846 245Z" fill="url(#polished-edge)"/>
+      <path d="M927 402 944 421 950 453 1005 484 1085 467 1068 490 1001 504 925 464Z" fill="#171717"/>
+      <path d="M943 434 960 453 1007 476 1102 451 1087 468 1005 488 950 458Z" fill="url(#polished-edge)"/>
+      <path d="M1098 276 1132 300 1147 389 1113 456 1113 425 1129 379 1114 323 1088 304Z" fill="#fbfbfb" opacity=".75"/>
       <rect x="170" y="170" width="1030" height="410" filter="url(#grain)" opacity=".10"/>
     </g>
     <!-- Engraved contour lines travel around each letter's counter and spine. -->
@@ -297,13 +342,13 @@
       <g stroke="#282828" stroke-width="1.4" opacity=".78">
         <path d="M220 382C225 343 260 312 315 315 366 318 390 344 402 379M225 390C226 345 261 319 314 322 355 324 386 346 394 380M232 397C236 353 265 328 310 330 350 332 372 346 382 373"/>
         <path d="M218 437C225 457 249 473 283 477M221 443C242 465 263 470 279 470M308 465C347 453 364 452 378 478M312 473C346 462 360 460 369 480"/>
-        <path d="M489 295C543 265 610 257 662 276 695 288 692 321 669 346M497 301C548 273 611 269 654 284 680 293 680 313 667 330M507 306C559 280 610 283 640 293"/>
-        <path d="M505 462C535 419 585 394 631 362M516 465C546 425 595 401 640 365M531 466C565 428 606 406 647 373M553 466C600 461 647 469 680 457"/>
+        <path d="M513 311C564 282 610 285 636 301M660 291C680 303 683 321 667 339"/>
+        <path d="M505 462C535 419 585 394 631 362M531 466C565 428 606 406 647 373M553 466C600 461 647 469 680 457"/>
         <path d="M798 297C813 242 826 220 854 211 881 203 908 215 937 199M807 300C821 253 832 233 854 224 876 215 901 226 924 211M812 379C796 438 794 500 745 540M804 379C787 438 783 499 743 528M731 342 803 325 887 306M726 349 801 332 883 314"/>
         <path d="M932 359C942 310 972 287 1023 281 1060 277 1092 291 1102 306M939 365C949 320 976 297 1024 291 1059 287 1080 296 1090 307M950 365C962 326 985 311 1029 300M1106 346C1141 409 1092 466 1041 480M1098 351C1126 407 1083 454 1044 466M1091 358C1111 403 1081 441 1050 452"/>
       </g>
       <g stroke="#f5f5f5" stroke-width=".85" opacity=".85">
-        <path d="M222 384C228 346 261 316 315 319M490 298C546 269 610 263 658 280M515 459C549 417 596 396 635 369M803 296C818 247 830 225 855 219M807 390C790 453 783 500 751 527M935 361C945 315 975 291 1024 285M1102 350C1130 409 1090 457 1044 471"/>
+        <path d="M222 384C228 346 261 316 315 319M504 307C549 277 613 267 658 283M515 459C549 417 596 396 635 369M803 296C818 247 830 225 855 219M807 390C790 453 783 500 751 527M935 361C945 315 975 291 1024 285M1102 350C1130 409 1090 457 1044 471"/>
       </g>
       <!-- Small fracture lines, flecks, and needle-width hatch marks. -->
       <g stroke="#292929" stroke-width="1.3" opacity=".85">
@@ -339,6 +384,11 @@
     <path d="m391 458 109-48-98 54" stroke="#f6f6f6" stroke-width="2"/>
     <path d="m862 434 88-27 29 18-58 10-39 36 2-24-36 10Z" fill="#979797" stroke="#111" stroke-width="6"/>
     <path d="m871 436 74-23 15 9-44 5" stroke="#ededed" stroke-width="2"/>
+    <!-- A folded ribbon bridges the 2 and f, then tucks under the crossbar. -->
+    <path d="M640 431C675 409 699 382 719 382L750 391 737 418 720 401C703 398 684 424 665 435L682 448 628 451Z" fill="#101010" stroke="#080808" stroke-width="7"/>
+    <path d="M640 431C675 409 699 382 719 382L750 391 737 418 728 401 715 394C697 397 681 420 661 433L669 440 636 446Z" fill="url(#polished-edge)"/>
+    <path d="M650 428C680 409 701 383 719 387L739 394M642 442 658 438" stroke="#fff" stroke-width="1.5"/>
+    <path d="M719 382 715 394 728 401 737 418 732 398Z" fill="#353535"/>
     <!-- A thin calligraphic flourish weaves over the block lettering. -->
     <path d="M269 510C365 457 482 472 562 429 622 397 640 362 670 368 689 372 677 394 663 394 657 394 653 390 654 386 649 405 676 408 689 390 703 368 686 347 659 356 622 369 607 399 556 415 464 446 358 448 269 510Z" fill="#bababa" stroke="#101010" stroke-width="4"/>
     <path d="M292 497C384 455 481 467 560 422 614 391 646 355 670 362" stroke="#f5f5f5" stroke-width="1.4"/>
