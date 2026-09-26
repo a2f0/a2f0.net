@@ -28,7 +28,7 @@
       <circle cx="2" cy="2" r="1.15" fill="#111"/>
     </pattern>
     <pattern id="hatching" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)">
-      <path d="M0 0V7" stroke="#bdbdbd" stroke-width=".8"/>
+      <path d="M3.5 0V7" stroke="#bdbdbd" stroke-width=".8"/>
     </pattern>
     <linearGradient id="ink-ribbon" x1="300" y1="240" x2="360" y2="540" gradientUnits="userSpaceOnUse">
       <stop stop-color="#d5d5d5"/><stop offset=".35" stop-color="#4a4a4a"/><stop offset=".7" stop-color="#aaa"/><stop offset="1" stop-color="#292929"/>
