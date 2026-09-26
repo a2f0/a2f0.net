@@ -6,7 +6,6 @@
   },
   "workspaces": {
     ".": {
-      "entry": ["scripts/checkPinnedDependencies.ts"],
       "project": "scripts/**/*.ts"
     },
     "packages/resume": {
