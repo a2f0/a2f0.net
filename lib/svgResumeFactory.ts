@@ -16,8 +16,9 @@ export default class SvgResumeFactory extends ResumeFactory {
     isMobile = false,
     mobileDocumentWidthPt = 0,
     private readonly useColorVariables = false,
+    fontFamily = SVG_FONT_FAMILY,
   ) {
-    super(config, resume, isMobile, mobileDocumentWidthPt, SVG_FONT_FAMILY);
+    super(config, resume, isMobile, mobileDocumentWidthPt, fontFamily);
     this.encodedResume = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "svg",

@@ -97,7 +97,12 @@ export default function SvgResume({ desktopSvg }: SvgResumeProps) {
     }
     let cancelled = false;
     const renderSvg = async () => {
-      await document.fonts.load(`400 12pt ${SVG_FONT_FAMILY}`);
+      let fontFamily = SVG_FONT_FAMILY;
+      try {
+        await document.fonts.load(`400 12pt ${SVG_FONT_FAMILY}`);
+      } catch {
+        fontFamily = resumeConfiguration.fontFamily;
+      }
       if (cancelled) return;
       const isMobile = viewportWidth < MOBILE_BREAKPOINT;
 
@@ -116,6 +121,8 @@ export default function SvgResume({ desktopSvg }: SvgResumeProps) {
         resume,
         isMobile,
         mobileDocumentWidthPt,
+        false,
+        fontFamily,
       );
       const svgResume = resumeFactory.getResume();
       svgResume.setAttribute("class", "svg");

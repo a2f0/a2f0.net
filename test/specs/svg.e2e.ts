@@ -111,15 +111,32 @@ describe("SVG Resume", () => {
   });
 
   it("generates the mobile layout after hydration", async () => {
-    await SvgPage.open();
     await browser.setViewport({ width: 390, height: 844 });
-    await expect(SvgPage.svgResume).toBeExisting();
+    await SvgPage.open();
+    await expect(SvgPage.svgResume).toBeDisplayed();
     await browser.waitUntil(
       async () => !(await SvgPage.leftPartition.isExisting()),
       { timeoutMsg: "expected the hydrated mobile layout" },
     );
+    await expect($("#firstName")).toBeDisplayed();
 
     await browser.setViewport({ width: 1366, height: 900 });
     await expect(SvgPage.leftPartition).toBeExisting();
+  });
+
+  it("renders mobile content when the font fails to load", async () => {
+    await SvgPage.open();
+    await browser.execute(() => {
+      document.fonts.load = async () => {
+        throw new Error("Font unavailable");
+      };
+    });
+    await browser.setViewport({ width: 390, height: 844 });
+    await browser.waitUntil(
+      async () => !(await SvgPage.leftPartition.isExisting()),
+      { timeoutMsg: "expected the fallback mobile layout" },
+    );
+    await expect(SvgPage.svgResume).toBeDisplayed();
+    await expect($("#firstName")).toHaveAttribute("font-family", "Helvetica");
   });
 });
