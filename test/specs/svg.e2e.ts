@@ -1,6 +1,7 @@
 import assert from "node:assert";
 import fs from "node:fs";
 import path from "node:path";
+import { JSDOM } from "jsdom";
 
 import { resumeConfiguration } from "../../configuration";
 import waitForFileExists from "../lib/fs";
@@ -10,13 +11,26 @@ import { testDownloadDir } from "../testDownloadDir";
 const { darkBackgroundColor, lightBackgroundColor } = resumeConfiguration;
 
 describe("SVG Resume", () => {
-  it("includes the desktop resume in the exported HTML", async () => {
+  it("includes the desktop resume and its styles without JavaScript", async () => {
     const response = await fetch(new URL("/", browser.options.baseUrl));
     const html = await response.text();
     assert.strictEqual(response.status, 200);
-    assert.match(html, /id="svgResume"/);
-    assert.match(html, /id="firstName"/);
-    assert.match(html, /font-family="Arimo, Arial, sans-serif"/);
+    const dom = new JSDOM(html);
+    const document: Document = dom.window.document;
+    assert.ok(document.querySelector("#svgResume #firstName"));
+    assert.strictEqual(
+      document.querySelector("#firstName")?.getAttribute("font-family"),
+      "Arimo, Arial, sans-serif",
+    );
+    const styles = Array.from(document.querySelectorAll("style[data-styled]"))
+      .map((style) => style.textContent)
+      .join("\n");
+    assert.match(styles, /Arimo\.woff2/);
+    assert.match(
+      styles,
+      /@media \(max-width: 768px\)\{[^}]*\.desktop-svg\{display:none;/,
+    );
+    dom.window.close();
   });
 
   it("should load", async () => {

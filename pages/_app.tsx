@@ -3,7 +3,6 @@ import type React from "react";
 import { Provider } from "react-redux";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { store } from "../lib/store";
-import StyledComponentsRegistry from "../lib/registry";
 
 import GlobalStyle from "../styles/GlobalStyle";
 
@@ -12,12 +11,10 @@ export default function MyApp({
   pageProps,
 }: AppProps): React.ReactElement {
   return (
-    <StyledComponentsRegistry>
-      <Provider store={store}>
-        <GlobalStyle />
-        <Component {...pageProps} />
-      </Provider>
+    <Provider store={store}>
+      <GlobalStyle />
+      <Component {...pageProps} />
       <GoogleAnalytics gaId="G-88VBS999NQ" />
-    </StyledComponentsRegistry>
+    </Provider>
   );
 }
