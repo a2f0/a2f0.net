@@ -21,7 +21,7 @@
     <path id="f" fill-rule="evenodd" clip-rule="evenodd" d="M720 502 751 370 694 381 716 320 761 310 778 254 822 207 939 204 915 277 848 266 832 297 904 290 886 353 818 361 787 503 740 546Z"/>
     <path id="zero" fill-rule="evenodd" clip-rule="evenodd" d="M968 263 1070 247 1145 290 1162 391 1116 488 1001 514 913 469 900 372 921 300Z M1004 322 978 386 995 440 1054 423 1080 360 1062 309Z"/>
     <g id="word"><use href="#a"/><use href="#two"/><use href="#f"/><use href="#zero"/></g>
-    <clipPath id="faces"><use href="#word"/></clipPath>
+    <clipPath id="faces"><use href="#a"/><use href="#two"/><use href="#f"/><use href="#zero"/></clipPath>
   </defs>
   <!-- A quiet paint cloud and individual specks keep the black canvas open. -->
   <ellipse cx="685" cy="396" rx="607" ry="238" fill="url(#mist)"/>
