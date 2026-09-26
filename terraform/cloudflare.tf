@@ -21,6 +21,8 @@ resource "cloudflare_workers_custom_domain" "apex_redirect" {
   zone_id    = data.cloudflare_zone.resume.id
   hostname   = var.domain
   service    = "resume-redirect"
+
+  depends_on = [cloudflare_workers_custom_domain.resume]
 }
 
 resource "cloudflare_workers_custom_domain" "resume" {
