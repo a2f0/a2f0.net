@@ -2,15 +2,17 @@
 
 PR and independent review helpers adapted from `tearleads/packages/agent-tool`.
 The app stays at the repository root; this package uses the same pinned Node,
-pnpm, TypeScript, and Vitest toolchain. Install with `pnpm install` at the root.
+Bun, TypeScript, and Vitest toolchain. Install with `bun install` at the root.
 
 ```sh
-pnpm agent-tool solicitClaudeCodeReview
-pnpm agent-tool solicitCodexReview
-pnpm agent-tool openPr 'feat: describe the change' < /tmp/pr-body.md
-pnpm agent-tool squashMerge '' "$REVIEWED_SHA" "$REVIEW_BASE_REF"
+bun run agent-tool solicitClaudeCodeReview
+bun run agent-tool solicitCodexReview
+bun run agent-tool openPr 'feat: describe the change' < /tmp/pr-body.md
+bunx --no-install tsx packages/agent-tool/src/index.ts \
+  squashMerge '' "$REVIEWED_SHA" "$REVIEW_BASE_REF"
 ```
 
+Use `bunx` for `squashMerge`: `bun run` drops the empty subject argument.
 Review commands require an authenticated `claude` or `codex` CLI and `gh`.
 They read an immutable snapshot of tracked Git blobs; ignored credentials and
 uncommitted work are excluded. Review policy comes from the base commit.
@@ -27,5 +29,5 @@ must check required CI, current base, and review findings first; the helper does
 not replace those gates. See the [ship-pr skill](../../.codex/skills/ship-pr/SKILL.md)
 for the complete workflow, including cleanup after a confirmed merge.
 
-Run `pnpm unit --project agent-tool` for the helper tests, or `pnpm unit` to
-include the app tests. `pnpm compile` checks both packages.
+Run `bun run unit --project agent-tool` for the helper tests, or `bun run unit` to
+include the app tests. `bun run compile` checks both packages.

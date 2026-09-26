@@ -1,7 +1,7 @@
 /**
  * agent-tool - minimal CLI for cross-agent code review and PR workflows.
  *
- * Usage: pnpm agent-tool <action> [args]
+ * Usage: bun run agent-tool <action> [args]
  *   solicitClaudeCodeReview [effort]
  *                               Review the current branch's diff with the local
  *                               `claude` CLI — against the PR base, or the

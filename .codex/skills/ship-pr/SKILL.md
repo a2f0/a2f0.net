@@ -10,9 +10,9 @@ description: >-
 
 # Ship PR
 
-Adapted from `tearleads` for this repository's pnpm workspace and Husky hooks.
+Adapted from `tearleads` for this repository's Bun workspace and Husky hooks.
 This skill is self-contained; it does not require tearleads' other PR skills.
-Use `pnpm agent-tool` from the repository root for review, creation, and merge.
+Use `bun run agent-tool` from the repository root for review, creation, and merge.
 An invocation authorizes the normal workflow through merge and branch cleanup,
 subject to the user's constraints and GitHub's protections.
 
@@ -22,8 +22,8 @@ subject to the user's constraints and GitHub's protections.
    `gh repo view --json nameWithOwner -q .nameWithOwner`, never the folder name.
    Resolve its default branch too; do not assume `main` (currently `production`).
    Work on a feature branch, preserving unrelated user changes.
-2. Load Node from `.nvmrc` and pnpm from `packageManager` in `package.json`.
-   Run `pnpm install --frozen-lockfile` when needed. `gh` must be authenticated;
+2. Load Node from `.nvmrc` and Bun from `packageManager` in `package.json`.
+   Run `bun ci` when needed. `gh` must be authenticated;
    review also needs an authenticated `claude` or `codex` CLI.
 3. Locate the current branch's PR using `gh pr view --json
    number,url,baseRefName,headRefOid,state`. Omit `-R` for this initial lookup so
@@ -39,10 +39,10 @@ subject to the user's constraints and GitHub's protections.
    do not force-push. Resolve conflicts, then run the repository checks:
 
    ```sh
-   pnpm run lint:md
-   pnpm compile
-   pnpm unit
-   pnpm ci-headless
+   bun run lint:md
+   bun run compile
+   bun run unit
+   bun run ci-headless
    sh ./.husky/pre-commit
    sh ./.husky/pre-push
    ```
@@ -61,7 +61,7 @@ Codex implementer use Claude; for a Claude implementer use Codex:
 ```sh
 AGENT_TOOL_REVIEW_BASE_REF="$REVIEW_BASE_REF" \
 AGENT_TOOL_REVIEW_BASE_OID="$REVIEW_BASE_OID" \
-  pnpm agent-tool solicitClaudeCodeReview
+  bun run agent-tool solicitClaudeCodeReview
 ```
 
 Use `solicitCodexReview` for the other direction or as fallback if Claude cannot
@@ -88,7 +88,7 @@ title/body to describe the final implementation; preserve relevant review
 history. Otherwise write a concrete description to a temporary file and run:
 
 ```sh
-pnpm agent-tool openPr 'feat: describe the change' < /tmp/pr-body.md
+bun run agent-tool openPr 'feat: describe the change' < /tmp/pr-body.md
 ```
 
 Do not pass multiline descriptions through shell interpolation. Capture PR
@@ -120,10 +120,12 @@ Use the helper for a synchronous, exact-head squash with the PR title as its
 subject and an empty body:
 
 ```sh
-pnpm agent-tool squashMerge '' "$REVIEWED_SHA" "$REVIEW_BASE_REF"
+bunx --no-install tsx packages/agent-tool/src/index.ts \
+  squashMerge '' "$REVIEWED_SHA" "$REVIEW_BASE_REF"
 ```
 
 The helper appends the PR number and validates the subject with commitlint.
+Call the CLI through `bunx` here because `bun run` drops the empty subject argument.
 Never substitute `gh pr merge`, auto-merge, or merge queues. The mutation's
 `expectedHeadOid` rejects an unreviewed head. GitHub has no atomic expected-base
 input, so never retarget the PR concurrently with shipping. If a stale base
@@ -142,9 +144,9 @@ After GitHub reports `MERGED`, record its merge commit. Unless `--keep-branch`:
    only after confirming it still equals the merged head; squash merges may
    require `git branch -D` after these checks. Never delete the base/default
    branch or run `git reset --hard`/`git clean`.
-4. Run `pnpm exec husky` to reinstall hooks from the merged checkout. If the
-   base is `production` or `staging`, check the ensuing Cloudflare deployment
-   workflow and smoke-test its live site before reporting completion.
+4. Run `bunx --no-install husky` to reinstall hooks from the merged checkout.
+   If the base is `production` or `staging`, check the ensuing Cloudflare
+   deployment workflow and smoke-test its live site before reporting completion.
 
 Report the PR link and merge commit, independent reviewer and any fallback,
 repairs and checks, deployment result, and final checkout/cleanup state. Distinguish

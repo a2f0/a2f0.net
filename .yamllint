@@ -9,11 +9,3 @@ ignore: |
   .wrangler
   _results_
   terraform/.terraform
-
-rules:
-  line-length:
-    ignore:
-      /pnpm-lock.yaml
-  document-start:
-    ignore:
-      /pnpm-lock.yaml

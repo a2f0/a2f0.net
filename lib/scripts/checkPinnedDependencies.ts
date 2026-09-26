@@ -1,7 +1,7 @@
-#!/usr/bin/env -S npx tsx
+#!/usr/bin/env -S bunx --no-install tsx
 // Fails when any dependency in package.json uses a range instead of an
 // exact version. Replaces @a2f0/check-for-unpinned-dependencies, which
-// reads package-lock.json and cannot run against this pnpm workspace.
+// reads package-lock.json and cannot run against this Bun workspace.
 import { globSync, readFileSync } from "node:fs";
 
 const EXACT_VERSION = /^\d+\.\d+\.\d+(-[\w.]+)?(\+[\w.]+)?$/;

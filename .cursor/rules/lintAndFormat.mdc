@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description:
+globs:
 alwaysApply: true
 ---
-- Always run `pnpm run lint` and `pnpm run format` to test changes.  Never add linting or formatting exceptions in code.
+- Always run `bun run lint` and `bunx --no-install biome format` to test changes.  Never add linting or formatting exceptions in code.
