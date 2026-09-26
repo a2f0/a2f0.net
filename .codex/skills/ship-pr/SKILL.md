@@ -120,10 +120,12 @@ Use the helper for a synchronous, exact-head squash with the PR title as its
 subject and an empty body:
 
 ```sh
-bun run agent-tool squashMerge '' "$REVIEWED_SHA" "$REVIEW_BASE_REF"
+bunx --no-install tsx packages/agent-tool/src/index.ts \
+  squashMerge '' "$REVIEWED_SHA" "$REVIEW_BASE_REF"
 ```
 
 The helper appends the PR number and validates the subject with commitlint.
+Call the CLI through `bunx` here because `bun run` drops the empty subject argument.
 Never substitute `gh pr merge`, auto-merge, or merge queues. The mutation's
 `expectedHeadOid` rejects an unreviewed head. GitHub has no atomic expected-base
 input, so never retarget the PR concurrently with shipping. If a stale base

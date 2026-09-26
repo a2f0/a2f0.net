@@ -8,9 +8,11 @@ Bun, TypeScript, and Vitest toolchain. Install with `bun install` at the root.
 bun run agent-tool solicitClaudeCodeReview
 bun run agent-tool solicitCodexReview
 bun run agent-tool openPr 'feat: describe the change' < /tmp/pr-body.md
-bun run agent-tool squashMerge '' "$REVIEWED_SHA" "$REVIEW_BASE_REF"
+bunx --no-install tsx packages/agent-tool/src/index.ts \
+  squashMerge '' "$REVIEWED_SHA" "$REVIEW_BASE_REF"
 ```
 
+Use `bunx` for `squashMerge`: `bun run` drops the empty subject argument.
 Review commands require an authenticated `claude` or `codex` CLI and `gh`.
 They read an immutable snapshot of tracked Git blobs; ignored credentials and
 uncommitted work are excluded. Review policy comes from the base commit.
