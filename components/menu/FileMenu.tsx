@@ -12,7 +12,11 @@ import {
 } from "../../lib/resumeConfigSlice";
 import { selectScale } from "../../lib/resumeConfigSlice";
 import SvgResumeFactory from "../../lib/svgResumeFactory";
-import { SVG_FONT_FAMILY, SVG_FONT_STACK } from "../../lib/svgFont";
+import {
+  loadSvgFont,
+  SVG_FONT_FAMILY,
+  SVG_FONT_STACK,
+} from "../../lib/svgFont";
 import CheckMark from "./CheckMark";
 import { useDropdownMenu } from "./DropdownMenuContext";
 import MenuLink from "./MenuLink";
@@ -43,8 +47,10 @@ const FileMenu = () => {
   const downloadSVG = async () => {
     let fontDataUrl: string | null = null;
     try {
-      await document.fonts.load(`400 12pt ${SVG_FONT_FAMILY}`);
-      const fontResponse = await fetch("/fonts/Arimo.woff2");
+      if (!(await loadSvgFont())) throw new Error("Could not load SVG font");
+      const fontResponse = await fetch("/fonts/Arimo.woff2", {
+        signal: AbortSignal.timeout(2000),
+      });
       if (!fontResponse.ok) throw new Error("Could not load SVG font");
       const fontBlob = await fontResponse.blob();
       fontDataUrl = await new Promise<string>((resolve, reject) => {
