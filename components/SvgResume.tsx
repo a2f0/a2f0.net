@@ -42,12 +42,17 @@ interface SvgResumeProps {
   desktopSvg: string | null;
 }
 
+interface Viewport {
+  width: number;
+  isMobile: boolean;
+}
+
 export default function SvgResume({ desktopSvg }: SvgResumeProps) {
   const foregroundColor = useAppSelector(selectForegroundColor);
   const backgroundColor = useAppSelector(selectBackgroundColor);
   const highlightColor = useAppSelector(selectHighlightColor);
   const scale = useAppSelector(selectScale);
-  const [viewportWidth, setViewportWidth] = useState<number | null>(null);
+  const [viewport, setViewport] = useState<Viewport | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -68,7 +73,7 @@ export default function SvgResume({ desktopSvg }: SvgResumeProps) {
   const usePreRenderedDesktop =
     desktopSvg !== null &&
     isKnownTheme &&
-    (viewportWidth === null || viewportWidth > MOBILE_BREAKPOINT);
+    (viewport === null || !viewport.isMobile);
 
   const positionSvg: CSSProperties = {
     textAlign: "center",
@@ -82,7 +87,11 @@ export default function SvgResume({ desktopSvg }: SvgResumeProps) {
 
   useEffect(() => {
     const handleResize = () => {
-      setViewportWidth(window.innerWidth);
+      setViewport({
+        width: document.documentElement.clientWidth,
+        isMobile: window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT}px)`)
+          .matches,
+      });
     };
     handleResize();
     window.addEventListener("resize", handleResize);
@@ -90,7 +99,7 @@ export default function SvgResume({ desktopSvg }: SvgResumeProps) {
   }, []);
 
   useEffect(() => {
-    if (viewportWidth === null || usePreRenderedDesktop) {
+    if (viewport === null || usePreRenderedDesktop) {
       // Wait for the first client-side measurement so the initial render is
       // already laid out for the actual viewport.
       return;
@@ -101,7 +110,7 @@ export default function SvgResume({ desktopSvg }: SvgResumeProps) {
         ? SVG_FONT_STACK
         : resumeConfiguration.fontFamily;
       if (cancelled) return;
-      const isMobile = viewportWidth <= MOBILE_BREAKPOINT;
+      const { width: viewportWidth, isMobile } = viewport;
 
       // On mobile the document is laid out at the viewport width divided by the
       // zoom scale, then stretched back to the viewport, so text renders at the
@@ -155,7 +164,7 @@ export default function SvgResume({ desktopSvg }: SvgResumeProps) {
       cancelled = true;
     };
   }, [
-    viewportWidth,
+    viewport,
     scale,
     foregroundColor,
     backgroundColor,
