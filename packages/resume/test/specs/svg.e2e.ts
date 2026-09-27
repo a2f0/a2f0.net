@@ -5,6 +5,7 @@ import { JSDOM } from "jsdom";
 
 import { resumeConfiguration } from "../../configuration";
 import waitForDownload from "../lib/fs";
+import waitForHydration from "../lib/hydration";
 import SvgPage from "../pageobjects/svg.page";
 import { testDownloadDir } from "../testDownloadDir";
 
@@ -135,6 +136,7 @@ describe("SVG Resume", () => {
       { timeoutMsg: "expected a mobile viewport" },
     );
     await browser.execute(() => window.dispatchEvent(new Event("resize")));
+    await waitForHydration("#svgContainer");
     await browser.waitUntil(
       async () => !(await SvgPage.leftPartition.isExisting()),
       { timeoutMsg: "expected the hydrated mobile layout" },
@@ -193,6 +195,7 @@ describe("SVG Resume", () => {
       };
     });
     await browser.setViewport({ width: 390, height: 844 });
+    await waitForHydration("#svgContainer");
     await browser.waitUntil(
       async () => !(await SvgPage.leftPartition.isExisting()),
       { timeoutMsg: "expected the fallback mobile layout" },
