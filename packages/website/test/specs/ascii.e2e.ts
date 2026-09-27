@@ -149,6 +149,27 @@ describe("ASCII graffiti view", () => {
     expect((await lens()).inside).toBe("ascii");
   });
 
+  it("finishes one flip when clicked twice while the ASCII renders", async () => {
+    const slow = await browser.addInitScript(() => {
+      const load = window.fetch.bind(window);
+      window.fetch = (...request: Parameters<typeof fetch>) =>
+        new Promise((resolve) => setTimeout(resolve, 1000)).then(() =>
+          load(...request),
+        );
+    });
+    try {
+      await browser.url("/");
+      await stage().click({ x: -300, y: -40 });
+      await stage().click({ x: 120, y: 30 });
+      await expectView("ascii");
+      await expect(toggle()).toHaveAttribute("aria-pressed", "true");
+      expect(await browser.getUrl()).toMatch(/#ascii$/);
+      await lensSettles(46);
+    } finally {
+      await slow.remove();
+    }
+  });
+
   it("stays on the SVG when the artwork cannot load", async () => {
     const offline = await browser.addInitScript(() => {
       window.fetch = () => Promise.reject(new Error("offline"));

@@ -387,8 +387,10 @@ const show = async (asAscii, origin) => {
     console.error(error);
     return show(false);
   }
-  // A later click wins over a render that was still in flight.
-  if (wanted() !== asAscii || shown() === asAscii) return;
+  // A later click wins over a render that was still in flight. A flood that
+  // is already under way checks which view is wanted once it ends, so it is
+  // left to finish rather than interrupted by a second one.
+  if (wanted() !== asAscii || shown() === asAscii || flooding) return;
   if (origin) {
     flooding = true;
     const flooded = await flood(origin);
