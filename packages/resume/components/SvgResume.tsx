@@ -87,11 +87,18 @@ export default function SvgResume({ desktopSvg }: SvgResumeProps) {
 
   useEffect(() => {
     const handleResize = () => {
-      setViewport({
-        width: document.documentElement.clientWidth,
-        isMobile: window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT}px)`)
-          .matches,
-      });
+      const width = document.documentElement.clientWidth;
+      const isMobile = window.matchMedia(
+        `(max-width: ${MOBILE_BREAKPOINT}px)`,
+      ).matches;
+      // Resize events often repeat the same size (mobile browsers fire them
+      // as their toolbars move); keep the current state so the SVG is not
+      // rebuilt for nothing.
+      setViewport((current) =>
+        current?.width === width && current.isMobile === isMobile
+          ? current
+          : { width, isMobile },
+      );
     };
     handleResize();
     window.addEventListener("resize", handleResize);

@@ -11,6 +11,13 @@ import { testDownloadDir } from "../testDownloadDir";
 
 const { darkBackgroundColor, lightBackgroundColor } = resumeConfiguration;
 
+// The app replaces the SVG while the viewport settles, so look it up afresh
+// on each retry instead of holding an element that may have been detached.
+const waitForDisplayed = (selector: string) =>
+  browser.waitUntil(async () => (await $(selector)).isDisplayed(), {
+    timeoutMsg: `expected ${selector} to be displayed`,
+  });
+
 describe("SVG Resume", () => {
   it("includes the desktop resume and its styles without JavaScript", async () => {
     const response = await fetch(new URL("/", browser.options.baseUrl));
@@ -141,8 +148,8 @@ describe("SVG Resume", () => {
       async () => !(await SvgPage.leftPartition.isExisting()),
       { timeoutMsg: "expected the hydrated mobile layout" },
     );
-    await expect(SvgPage.svgResume).toBeDisplayed();
-    await expect($("#firstName")).toBeDisplayed();
+    await waitForDisplayed("#svgResume");
+    await waitForDisplayed("#firstName");
 
     await browser.setViewport({ width: 768, height: 844 });
     await browser.waitUntil(
@@ -188,6 +195,8 @@ describe("SVG Resume", () => {
   });
 
   it("renders mobile content when the font fails to load", async () => {
+    // Start from the desktop layout even if an earlier test left a mobile one.
+    await browser.setViewport({ width: 1366, height: 900 });
     await SvgPage.open();
     await browser.execute(() => {
       document.fonts.load = async () => {
@@ -200,7 +209,7 @@ describe("SVG Resume", () => {
       async () => !(await SvgPage.leftPartition.isExisting()),
       { timeoutMsg: "expected the fallback mobile layout" },
     );
-    await expect(SvgPage.svgResume).toBeDisplayed();
-    await expect($("#firstName")).toHaveAttribute("font-family", "Helvetica");
+    await waitForDisplayed("#svgResume");
+    expect(await $("#firstName").getAttribute("font-family")).toBe("Helvetica");
   });
 });
