@@ -67,6 +67,22 @@ describe("ASCII graffiti view", () => {
     expect((await renderedArt()).ink).toBeGreaterThan(2000);
   });
 
+  it("follows #ascii navigation within the page", async () => {
+    await browser.url("/");
+    await browser.execute(() => {
+      window.location.hash = "ascii";
+    });
+    await expect(ascii()).toBeDisplayed();
+    await expect(toggle()).toHaveAttribute("aria-pressed", "true");
+
+    await browser.execute(() => {
+      window.location.hash = "";
+    });
+    await expect(graffiti()).toBeDisplayed();
+    await expect(ascii()).not.toBeDisplayed();
+    await expect(toggle()).toHaveAttribute("aria-pressed", "false");
+  });
+
   it("stays on the SVG when the artwork cannot load", async () => {
     await browser.url("/");
     await browser.execute(() => {

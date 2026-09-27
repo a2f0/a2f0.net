@@ -339,5 +339,8 @@ window.addEventListener("resize", () => {
 toggle.addEventListener("click", () =>
   show(toggle.getAttribute("aria-pressed") !== "true"),
 );
+window.addEventListener("hashchange", () =>
+  show(window.location.hash === "#ascii"),
+);
 toggle.hidden = false;
 if (window.location.hash === "#ascii") show(true);
