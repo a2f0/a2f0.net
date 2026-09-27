@@ -26,8 +26,9 @@ commitlint configuration. `squashMerge` performs a synchronous GraphQL squash,
 keeps the commit body empty, appends `(#PR)`, and rejects queued/automatic merges.
 Always supply the reviewed head SHA and base branch when shipping. The caller
 must check required CI, current base, and review findings first; the helper does
-not replace those gates. See the [ship-pr skill](../../.codex/skills/ship-pr/SKILL.md)
-for the complete workflow, including cleanup after a confirmed merge.
+not replace those gates. See the ship-pr skill for [Codex](../../.codex/skills/ship-pr/SKILL.md)
+or [Claude Code](../../.claude/skills/ship-pr/SKILL.md) for the complete workflow,
+including cleanup after a confirmed merge.
 
 Run `bun run --cwd packages/agent-tool test` for the helper tests. Run
 `bun run unit` from the root to include the app tests. `bun run compile`
