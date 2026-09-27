@@ -1,6 +1,8 @@
 // Renders a2f0.svg as ASCII art. The letter faces and their extrusion are
 // isolated from the SVG so each layer can be shaded on its own, then every
 // character cell is matched against the shapes of the page's monospace glyphs.
+// The artwork and its ASCII rendering are stacked, with a lens that follows
+// the pointer to reveal the one underneath; clicking floods the lens to swap.
 
 const SVG_URL = "/a2f0.svg";
 const FACES = 'use[href="#word"]:not([transform])';
@@ -271,13 +273,21 @@ const renderAscii = async (columns) => {
 };
 
 const main = document.querySelector("main");
+const stage = document.querySelector(".stage");
 const graffiti = document.querySelector(".graffiti");
 const ascii = document.querySelector(".ascii");
 const toggle = document.querySelector(".view-toggle");
 
+// A quarter is 24.26 mm across, about 92 CSS pixels.
+const LENS_RADIUS = 46;
+const PEEK = { duration: 180, easing: "ease-out" };
+const FLOOD = { duration: 450, easing: "cubic-bezier(0.65, 0, 0.35, 1)" };
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
 const columnsFor = (width) =>
   Math.round(Math.min(Math.max(width / 7, 96), 200));
 
+let ready = false;
 let columns = 0;
 let drawing = Promise.resolve();
 const draw = () => {
@@ -301,6 +311,8 @@ const draw = () => {
           "\n",
         ]),
       );
+      ready = true;
+      settle();
     },
     (error) => {
       columns = 0;
@@ -310,7 +322,59 @@ const draw = () => {
   return drawing;
 };
 
-const show = async (asAscii) => {
+// The lens is the circle, in stage coordinates, through which the view
+// underneath shows. Its radius animates; its centre tracks the pointer.
+let pointer;
+let flooding = false;
+let lensRadius = 0;
+let lensAnimation;
+
+const aim = ({ x, y }) => {
+  stage.style.setProperty("--x", `${x}px`);
+  stage.style.setProperty("--y", `${y}px`);
+};
+
+const snapLens = (radius) => {
+  lensAnimation?.cancel();
+  lensAnimation = undefined;
+  lensRadius = radius;
+  stage.style.setProperty("--lens", `${radius}px`);
+};
+
+// Resolves false when a later change interrupts the animation.
+const resizeLens = async (radius, timing) => {
+  if (radius === lensRadius) return true;
+  if (reducedMotion.matches) {
+    snapLens(radius);
+    return true;
+  }
+  const from = window.getComputedStyle(stage).getPropertyValue("--lens");
+  snapLens(radius);
+  lensAnimation = stage.animate({ "--lens": [from, `${radius}px`] }, timing);
+  return lensAnimation.finished.then(
+    () => true,
+    () => false,
+  );
+};
+
+const settle = () => {
+  if (!flooding) resizeLens(pointer && ready ? LENS_RADIUS : 0, PEEK);
+};
+
+// Widens the lens from the click until the view underneath fills the stage.
+const flood = ({ x, y }) => {
+  const { width, height } = stage.getBoundingClientRect();
+  aim({ x, y });
+  return resizeLens(
+    Math.hypot(Math.max(x, width - x), Math.max(y, height - y)),
+    FLOOD,
+  );
+};
+
+const shown = () => stage.dataset.view === "ascii";
+const wanted = () => toggle.getAttribute("aria-pressed") === "true";
+
+const show = async (asAscii, origin) => {
   toggle.setAttribute("aria-pressed", String(asAscii));
   window.history.replaceState(
     null,
@@ -324,23 +388,57 @@ const show = async (asAscii) => {
     return show(false);
   }
   // A later click wins over a render that was still in flight.
-  if (toggle.getAttribute("aria-pressed") !== String(asAscii)) return;
-  graffiti.hidden = asAscii;
-  ascii.hidden = !asAscii;
+  if (wanted() !== asAscii || shown() === asAscii) return;
+  if (origin) {
+    flooding = true;
+    const flooded = await flood(origin);
+    flooding = false;
+    if (!flooded || wanted() !== asAscii) return settle();
+  }
+  stage.dataset.view = asAscii ? "ascii" : "svg";
+  graffiti.ariaHidden = asAscii ? "true" : null;
+  ascii.ariaHidden = asAscii ? null : "true";
+  // The view that was on top is underneath now; reopen the lens onto it.
+  snapLens(0);
+  if (pointer) aim(pointer);
+  settle();
 };
+
+const locate = ({ clientX, clientY }) => {
+  const box = stage.getBoundingClientRect();
+  return { x: clientX - box.left, y: clientY - box.top };
+};
+
+stage.addEventListener("pointermove", (event) => {
+  // Touch has no hover, so a tap flips the view without peeking first.
+  if (event.pointerType === "touch") return;
+  pointer = locate(event);
+  if (flooding) return;
+  aim(pointer);
+  settle();
+});
+stage.addEventListener("pointerleave", () => {
+  pointer = undefined;
+  settle();
+});
+stage.addEventListener("click", (event) => {
+  if (!flooding) show(!shown(), locate(event));
+});
 
 let resizeTimer;
 window.addEventListener("resize", () => {
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(() => {
-    if (!ascii.hidden) draw().catch(console.error);
+    if (columns) draw().catch(console.error);
   }, 200);
 });
-toggle.addEventListener("click", () =>
-  show(toggle.getAttribute("aria-pressed") !== "true"),
-);
+toggle.addEventListener("click", () => show(!wanted()));
 window.addEventListener("hashchange", () =>
   show(window.location.hash === "#ascii"),
 );
 toggle.hidden = false;
 if (window.location.hash === "#ascii") show(true);
+else if (window.matchMedia("(hover: hover)").matches) {
+  // Render ahead of the first hover so the lens has something to reveal.
+  (window.requestIdleCallback ?? setTimeout)(() => draw().catch(console.error));
+}

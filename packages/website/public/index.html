@@ -6,6 +6,24 @@
     <meta name="theme-color" content="#000000" />
     <title>a2f0.net</title>
     <style>
+      @property --lens {
+        syntax: "<length>";
+        inherits: false;
+        initial-value: 0px;
+      }
+
+      @property --x {
+        syntax: "<length>";
+        inherits: false;
+        initial-value: 0px;
+      }
+
+      @property --y {
+        syntax: "<length>";
+        inherits: false;
+        initial-value: 0px;
+      }
+
       :root {
         --mono:
           ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
@@ -33,15 +51,29 @@
         container-type: inline-size;
       }
 
-      .graffiti {
-        display: block;
+      /* Both views share one cell. The view not on show sits above the other,
+         clipped to a lens that follows the pointer, so it only shows inside
+         that circle. */
+      .stage {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
         width: min(100%, 1440px);
-        height: auto;
+        overflow: hidden;
+        cursor: pointer;
         user-select: none;
+        -webkit-tap-highlight-color: transparent;
       }
 
-      .graffiti[hidden] {
-        display: none;
+      .stage > * {
+        grid-area: 1 / 1;
+        align-self: center;
+        background: #000;
+      }
+
+      .graffiti {
+        display: block;
+        width: 100%;
+        height: auto;
       }
 
       .ascii {
@@ -61,6 +93,15 @@
 
       .ascii .face {
         color: #f2f2f2;
+      }
+
+      .stage[data-view="svg"] > .ascii,
+      .stage[data-view="ascii"] > .graffiti {
+        --lens: inherit;
+        --x: inherit;
+        --y: inherit;
+        z-index: 1;
+        clip-path: circle(var(--lens) at var(--x) var(--y));
       }
 
       .view-toggle {
@@ -87,20 +128,22 @@
   </head>
   <body>
     <main>
-      <img
-        class="graffiti"
-        src="/a2f0.svg"
-        alt="a2f0 in sculpted, grayscale graffiti lettering"
-        width="1300"
-        height="525"
-        draggable="false"
-      />
-      <pre
-        class="ascii"
-        role="img"
-        aria-label="a2f0 graffiti rendered as ASCII art"
-        hidden
-      ></pre>
+      <div class="stage" data-view="svg">
+        <img
+          class="graffiti"
+          src="/a2f0.svg"
+          alt="a2f0 in sculpted, grayscale graffiti lettering"
+          width="1300"
+          height="525"
+          draggable="false"
+        />
+        <pre
+          class="ascii"
+          role="img"
+          aria-label="a2f0 graffiti rendered as ASCII art"
+          aria-hidden="true"
+        ></pre>
+      </div>
     </main>
     <button class="view-toggle" type="button" aria-pressed="false" hidden>
       ascii
