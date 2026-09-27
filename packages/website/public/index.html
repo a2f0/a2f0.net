@@ -7,6 +7,8 @@
     <title>a2f0.net</title>
     <style>
       :root {
+        --mono:
+          ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
         color-scheme: dark;
         background: #000;
       }
@@ -28,6 +30,7 @@
         min-height: 100dvh;
         place-items: center;
         overflow: hidden;
+        container-type: inline-size;
       }
 
       .graffiti {
@@ -35,6 +38,50 @@
         width: min(100%, 1440px);
         height: auto;
         user-select: none;
+      }
+
+      .graffiti[hidden] {
+        display: none;
+      }
+
+      .ascii {
+        margin: 0;
+        color: #5c5c5c;
+        font-family: var(--mono);
+        font-size: calc(min(100cqw, 1440px) / var(--columns) / var(--ratio));
+        font-variant-ligatures: none;
+        line-height: 1;
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+      }
+
+      .ascii .side {
+        color: #8c8c8c;
+      }
+
+      .ascii .face {
+        color: #f2f2f2;
+      }
+
+      .view-toggle {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        padding: 6px 10px;
+        border: 1px solid #333;
+        border-radius: 4px;
+        background: #0a0a0a;
+        color: #8a8a8a;
+        font: 12px/1 var(--mono);
+        letter-spacing: 0.08em;
+        cursor: pointer;
+      }
+
+      .view-toggle:hover,
+      .view-toggle:focus-visible,
+      .view-toggle[aria-pressed="true"] {
+        border-color: #666;
+        color: #eee;
       }
     </style>
   </head>
@@ -48,6 +95,16 @@
         height="525"
         draggable="false"
       />
+      <pre
+        class="ascii"
+        role="img"
+        aria-label="a2f0 graffiti rendered as ASCII art"
+        hidden
+      ></pre>
     </main>
+    <button class="view-toggle" type="button" aria-pressed="false" hidden>
+      ascii
+    </button>
+    <script type="module" src="/ascii.js"></script>
   </body>
 </html>
