@@ -3,12 +3,11 @@ name: ship-pr
 description: >-
   Ship this repository's current branch end to end: validate, commit, independently
   review and repair, open or resume its PR, wait for required CI, squash merge the
-  exact reviewed commit, and clean up. Invoked explicitly with /ship-pr.
-  Supports --keep-branch to skip checkout/branch cleanup and --report-only to
-  review without repairing, pushing, or merging.
+  exact reviewed commit, and clean up. Use only when the user asks to ship a
+  PR (for example "invoke ship-pr") or types /ship-pr; never on your own
+  initiative. Supports --keep-branch to skip checkout/branch cleanup and
+  --report-only to review without repairing, pushing, or merging.
 argument-hint: "[--keep-branch] [--report-only]"
-# Pushing, merging, and deleting branches need an explicit user invocation.
-disable-model-invocation: true
 ---
 
 # Ship PR
@@ -16,9 +15,11 @@ disable-model-invocation: true
 Claude Code port of `.codex/skills/ship-pr`, adapted from `tearleads` for this
 repository's Bun workspace and Husky hooks. It is self-contained; it does not
 require tearleads' other PR skills. Use `bun run agent-tool` from the
-repository root for review, creation, and merge. The user's `/ship-pr`
-invocation authorizes the normal workflow through merge and branch cleanup,
-subject to the user's constraints and GitHub's protections.
+repository root for review, creation, and merge. Because the workflow pushes,
+merges, and deletes branches, run it only when the user asks to ship (by
+typing `/ship-pr` or asking Claude to invoke it), never on your own
+initiative. That request authorizes the normal workflow through merge and
+branch cleanup, subject to the user's constraints and GitHub's protections.
 
 Arguments: `$ARGUMENTS`
 
