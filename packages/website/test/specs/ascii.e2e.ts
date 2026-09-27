@@ -127,6 +127,25 @@ describe("ASCII graffiti view", () => {
     await expectView("svg");
   });
 
+  it("peeks with a mouse on a touch-first device", async () => {
+    const touchFirst = await browser.addInitScript(() => {
+      const match = window.matchMedia.bind(window);
+      window.matchMedia = (query: string) =>
+        query === "(hover: hover)"
+          ? ({ matches: false } as MediaQueryList)
+          : match(query);
+    });
+    try {
+      await browser.url("/");
+      await stage().moveTo({ xOffset: -300, yOffset: -40 });
+      await stage().moveTo({ xOffset: -290, yOffset: -40 });
+      await lensSettles(46);
+      expect((await lens()).inside).toBe("ascii");
+    } finally {
+      await touchFirst.remove();
+    }
+  });
+
   it("flips the view when the artwork is clicked", async () => {
     await browser.url("/");
     await stage().click({ x: 120, y: 30 });

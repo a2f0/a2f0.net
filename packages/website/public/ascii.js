@@ -406,6 +406,14 @@ const show = async (asAscii, origin) => {
   settle();
 };
 
+// Renders once ahead of the first peek so the lens has something to reveal.
+let warmed = false;
+const warm = () => {
+  if (warmed) return;
+  warmed = true;
+  draw().catch(console.error);
+};
+
 const locate = ({ clientX, clientY }) => {
   const box = stage.getBoundingClientRect();
   return { x: clientX - box.left, y: clientY - box.top };
@@ -414,6 +422,8 @@ const locate = ({ clientX, clientY }) => {
 stage.addEventListener("pointermove", (event) => {
   // Touch has no hover, so a tap flips the view without peeking first.
   if (event.pointerType === "touch") return;
+  // Touch-first devices can still have a mouse or trackpad attached.
+  warm();
   pointer = locate(event);
   if (flooding) return;
   aim(pointer);
@@ -441,6 +451,5 @@ window.addEventListener("hashchange", () =>
 toggle.hidden = false;
 if (window.location.hash === "#ascii") show(true);
 else if (window.matchMedia("(hover: hover)").matches) {
-  // Render ahead of the first hover so the lens has something to reveal.
-  (window.requestIdleCallback ?? setTimeout)(() => draw().catch(console.error));
+  (window.requestIdleCallback ?? setTimeout)(warm);
 }
