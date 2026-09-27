@@ -127,7 +127,10 @@ describes.
 
 Wait for required checks using `gh pr checks "$PR_NUMBER" --required --watch
 --fail-fast -R "$REPO"`. Inspect failures, repair, validate, commit, push, and
-re-review before another attempt. A missing check is not success: compare the
+re-review before another attempt. A job that fails within seconds with no steps
+never started: read its check-run annotations first, and report account or
+runner blockers such as Actions billing instead of changing code. A missing
+check is not success: compare the
 effective required contexts to the actual workflow jobs. Never bypass or weaken
 protections to make a merge pass.
 
