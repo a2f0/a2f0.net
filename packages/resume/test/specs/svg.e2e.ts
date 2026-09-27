@@ -4,7 +4,7 @@ import path from "node:path";
 import { JSDOM } from "jsdom";
 
 import { resumeConfiguration } from "../../configuration";
-import waitForFileExists from "../lib/fs";
+import waitForDownload from "../lib/fs";
 import SvgPage from "../pageobjects/svg.page";
 import { testDownloadDir } from "../testDownloadDir";
 
@@ -119,9 +119,10 @@ describe("SVG Resume", () => {
     const filePath = path.join(testDownloadDir, "dan.sullivan.resume.svg");
     await expect(fs.existsSync(filePath)).toBe(false);
     await SvgPage.downloadSvgMenuOption.click();
-    await browser.call(async () => {
-      return await waitForFileExists(filePath, 3000);
-    });
+    const download = await browser.call(() => waitForDownload(filePath));
+    const svg = download.toString("utf8");
+    expect(svg).toMatch(/^<svg[\s>]/);
+    expect(svg.trimEnd()).toMatch(/<\/svg>$/);
     await expect(SvgPage.downloadSvgMenuOption).not.toBeDisplayed();
   });
 

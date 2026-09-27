@@ -1,7 +1,7 @@
 import path from "node:path";
 import fs from "node:fs";
 
-import waitForFileExists from "../lib/fs";
+import waitForDownload from "../lib/fs";
 import PdfPage from "../pageobjects/pdf.page";
 import { testDownloadDir } from "../testDownloadDir";
 
@@ -24,9 +24,8 @@ describe("PDF Resume", () => {
     const filePath = path.join(testDownloadDir, "dan.sullivan.resume.pdf");
     await expect(fs.existsSync(filePath)).toBe(false);
     await PdfPage.downloadPdfMenuOption.click();
-    await browser.call(async () => {
-      return await waitForFileExists(filePath, 3000);
-    });
+    const pdf = await browser.call(() => waitForDownload(filePath));
+    expect(pdf.subarray(0, 5).toString("latin1")).toBe("%PDF-");
     await expect(PdfPage.downloadPdfMenuOption).not.toBeDisplayed();
   });
   it("should have correct width styling for PDF container", async () => {
