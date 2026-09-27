@@ -25,6 +25,10 @@
     },
     "packages/agent-tool": {
       "project": ["src/**/*.ts"]
+    },
+    "packages/website": {
+      "entry": ["public/ascii.js", "test/**/*.ts"],
+      "ignoreDependencies": ["@wdio/local-runner"]
     }
   }
 }
