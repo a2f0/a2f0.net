@@ -2,8 +2,8 @@
 // first traces each outline at a steady feed rate (the vector pass), then
 // sweeps back and forth down the canvas to fill in the art (the raster pass).
 
-export const VECTOR_MS = 3000;
-export const RASTER_MS = 1500;
+export const VECTOR_MS = 8000;
+export const RASTER_MS = 2000;
 const PASSES = 12;
 
 export interface EtchFrame {
