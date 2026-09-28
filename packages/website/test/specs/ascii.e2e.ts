@@ -1,8 +1,18 @@
 import { $, browser, expect } from "@wdio/globals";
 
 const toggle = () => $(".view-toggle");
+const stage = () => $(".stage");
 const graffiti = () => $(".graffiti");
 const ascii = () => $(".ascii");
+
+// The view on top is the one on show; the other waits underneath the lens.
+const expectView = async (view: "svg" | "ascii") => {
+  const [shown, hidden] =
+    view === "svg" ? [graffiti(), ascii()] : [ascii(), graffiti()];
+  await expect(stage()).toHaveAttribute("data-view", view);
+  await expect(shown).not.toHaveAttribute("aria-hidden");
+  await expect(hidden).toHaveAttribute("aria-hidden", "true");
+};
 
 const renderedArt = () =>
   browser.execute(() => {
@@ -21,6 +31,29 @@ const renderedArt = () =>
     };
   });
 
+// Reports the lens radius and which layer is hit at its centre and just
+// beyond its edge.
+const lens = () =>
+  browser.execute(() => {
+    const stage = document.querySelector<HTMLElement>(".stage");
+    if (!stage) throw new Error("Missing stage");
+    const box = stage.getBoundingClientRect();
+    const style = window.getComputedStyle(stage);
+    const [radius, x, y] = ["--lens", "--x", "--y"].map((name) =>
+      Number.parseFloat(style.getPropertyValue(name)),
+    );
+    const layerAt = (dx: number) =>
+      document
+        .elementFromPoint(box.left + x + dx, box.top + y)
+        ?.closest(".ascii, .graffiti")?.className;
+    return { radius, inside: layerAt(0), outside: layerAt(radius + 40) };
+  });
+
+const lensSettles = (radius: number) =>
+  browser.waitUntil(async () => (await lens()).radius === radius, {
+    timeoutMsg: `lens never settled at ${radius}px`,
+  });
+
 describe("ASCII graffiti view", () => {
   beforeEach(async () => {
     // A hash-only navigation would reuse the page, so start each test fresh.
@@ -32,14 +65,14 @@ describe("ASCII graffiti view", () => {
     await expect(toggle()).toBeDisplayed();
     await expect(toggle()).toHaveAttribute("aria-pressed", "false");
     await expect(graffiti()).toBeDisplayed();
-    await expect(ascii()).not.toBeDisplayed();
+    await expectView("svg");
+    expect((await lens()).radius).toBe(0);
   });
 
   it("renders the artwork as ASCII and toggles back", async () => {
     await browser.url("/");
     await toggle().click();
-    await expect(ascii()).toBeDisplayed();
-    await expect(graffiti()).not.toBeDisplayed();
+    await expectView("ascii");
     await expect(toggle()).toHaveAttribute("aria-pressed", "true");
     expect(await browser.getUrl()).toMatch(/#ascii$/);
 
@@ -53,16 +86,14 @@ describe("ASCII graffiti view", () => {
     expect(art.overflow).toBe(false);
 
     await toggle().click();
-    await expect(graffiti()).toBeDisplayed();
-    await expect(ascii()).not.toBeDisplayed();
+    await expectView("svg");
     await expect(toggle()).toHaveAttribute("aria-pressed", "false");
     expect(await browser.getUrl()).not.toContain("#");
   });
 
   it("opens in ASCII from the #ascii link", async () => {
     await browser.url("/#ascii");
-    await expect(ascii()).toBeDisplayed();
-    await expect(graffiti()).not.toBeDisplayed();
+    await expectView("ascii");
     await expect(toggle()).toHaveAttribute("aria-pressed", "true");
     expect((await renderedArt()).ink).toBeGreaterThan(2000);
   });
@@ -72,26 +103,109 @@ describe("ASCII graffiti view", () => {
     await browser.execute(() => {
       window.location.hash = "ascii";
     });
-    await expect(ascii()).toBeDisplayed();
+    await expectView("ascii");
     await expect(toggle()).toHaveAttribute("aria-pressed", "true");
 
     await browser.execute(() => {
       window.location.hash = "";
     });
-    await expect(graffiti()).toBeDisplayed();
-    await expect(ascii()).not.toBeDisplayed();
+    await expectView("svg");
     await expect(toggle()).toHaveAttribute("aria-pressed", "false");
   });
 
-  it("stays on the SVG when the artwork cannot load", async () => {
+  it("peeks at the ASCII through a lens under the pointer", async () => {
     await browser.url("/");
-    await browser.execute(() => {
+    await stage().moveTo({ xOffset: -300, yOffset: -40 });
+    await lensSettles(46);
+    expect(await lens()).toMatchObject({
+      inside: "ascii",
+      outside: "graffiti",
+    });
+
+    await browser.action("pointer").move({ x: 1, y: 1 }).perform();
+    await lensSettles(0);
+    await expectView("svg");
+  });
+
+  it("peeks with a mouse on a touch-first device", async () => {
+    const touchFirst = await browser.addInitScript(() => {
+      const match = window.matchMedia.bind(window);
+      window.matchMedia = (query: string) =>
+        query === "(hover: hover)"
+          ? ({ matches: false } as MediaQueryList)
+          : match(query);
+    });
+    try {
+      await browser.url("/");
+      await stage().moveTo({ xOffset: -300, yOffset: -40 });
+      await stage().moveTo({ xOffset: -290, yOffset: -40 });
+      await lensSettles(46);
+      expect((await lens()).inside).toBe("ascii");
+    } finally {
+      await touchFirst.remove();
+    }
+  });
+
+  it("flips the view when the artwork is clicked", async () => {
+    await browser.url("/");
+    await stage().click({ x: 120, y: 30 });
+    await expectView("ascii");
+    await expect(toggle()).toHaveAttribute("aria-pressed", "true");
+    expect(await browser.getUrl()).toMatch(/#ascii$/);
+
+    // The lens reopens onto the SVG that is now underneath.
+    await lensSettles(46);
+    expect(await lens()).toMatchObject({
+      inside: "graffiti",
+      outside: "ascii",
+    });
+
+    await stage().click({ x: -300, y: -40 });
+    await expectView("svg");
+    await expect(toggle()).toHaveAttribute("aria-pressed", "false");
+    expect(await browser.getUrl()).not.toContain("#");
+    await lensSettles(46);
+    expect((await lens()).inside).toBe("ascii");
+  });
+
+  it("finishes one flip when clicked twice while the ASCII renders", async () => {
+    const slow = await browser.addInitScript(() => {
+      const load = window.fetch.bind(window);
+      window.fetch = (...request: Parameters<typeof fetch>) =>
+        new Promise((resolve) => setTimeout(resolve, 1000)).then(() =>
+          load(...request),
+        );
+    });
+    try {
+      await browser.url("/");
+      await stage().click({ x: -300, y: -40 });
+      await stage().click({ x: 120, y: 30 });
+      await expectView("ascii");
+      await expect(toggle()).toHaveAttribute("aria-pressed", "true");
+      expect(await browser.getUrl()).toMatch(/#ascii$/);
+      await lensSettles(46);
+    } finally {
+      await slow.remove();
+    }
+  });
+
+  it("stays on the SVG when the artwork cannot load", async () => {
+    const offline = await browser.addInitScript(() => {
       window.fetch = () => Promise.reject(new Error("offline"));
     });
-    await toggle().click();
-    await expect(toggle()).toHaveAttribute("aria-pressed", "false");
-    await expect(graffiti()).toBeDisplayed();
-    await expect(ascii()).not.toBeDisplayed();
-    expect(await browser.getUrl()).not.toContain("#");
+    try {
+      await browser.url("/");
+      await toggle().click();
+      await expect(toggle()).toHaveAttribute("aria-pressed", "false");
+      await expectView("svg");
+      expect(await browser.getUrl()).not.toContain("#");
+
+      await stage().click();
+      await expect(toggle()).toHaveAttribute("aria-pressed", "false");
+      await expectView("svg");
+      expect((await lens()).radius).toBe(0);
+    } finally {
+      await offline.remove();
+    }
   });
 });
