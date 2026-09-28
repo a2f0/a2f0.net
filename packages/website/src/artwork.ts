@@ -46,12 +46,14 @@ export const isolate = (svg: Document, selector: string): Document => {
   return copy;
 };
 
-/** Rasterizes the artwork, giving each pixel's luminance from 0 to 1. */
-export const luminance = async (
+// Draws the artwork into a canvas of the given size, over the background
+// if there is one, and returns its pixels.
+const pixels = async (
   svg: Document,
   width: number,
   height: number,
-): Promise<Float32Array> => {
+  background?: string,
+): Promise<Uint8ClampedArray> => {
   // Firefox only rasterizes SVG images that declare an intrinsic size.
   svg.documentElement.setAttribute("width", String(width));
   svg.documentElement.setAttribute("height", String(height));
@@ -68,20 +70,46 @@ export const luminance = async (
     canvas.height = height;
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) throw new Error("Canvas 2D is unavailable");
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, width, height);
-    ctx.drawImage(image, 0, 0, width, height);
-    const { data } = ctx.getImageData(0, 0, width, height);
-    const values = new Float32Array(width * height);
-    for (let i = 0; i < values.length; i++) {
-      values[i] =
-        (0.2126 * data[i * 4] +
-          0.7152 * data[i * 4 + 1] +
-          0.0722 * data[i * 4 + 2]) /
-        255;
+    if (background) {
+      ctx.fillStyle = background;
+      ctx.fillRect(0, 0, width, height);
     }
-    return values;
+    ctx.drawImage(image, 0, 0, width, height);
+    return ctx.getImageData(0, 0, width, height).data;
   } finally {
     URL.revokeObjectURL(url);
   }
+};
+
+/** Rasterizes the artwork, giving each pixel's luminance from 0 to 1. */
+export const luminance = async (
+  svg: Document,
+  width: number,
+  height: number,
+): Promise<Float32Array> => {
+  const data = await pixels(svg, width, height, "#000");
+  const values = new Float32Array(width * height);
+  for (let i = 0; i < values.length; i++) {
+    values[i] =
+      (0.2126 * data[i * 4] +
+        0.7152 * data[i * 4 + 1] +
+        0.0722 * data[i * 4 + 2]) /
+      255;
+  }
+  return values;
+};
+
+/**
+ * Rasterizes the artwork with its own paint, giving how much each pixel is
+ * covered, from 0 to 1, whether the paint there is light or dark.
+ */
+export const coverage = async (
+  svg: Document,
+  width: number,
+  height: number,
+): Promise<Float32Array> => {
+  const data = await pixels(svg, width, height);
+  const values = new Float32Array(width * height);
+  for (let i = 0; i < values.length; i++) values[i] = data[i * 4 + 3] / 255;
+  return values;
 };

@@ -1,7 +1,8 @@
 // Plays the etching over the stage. A laser beam first traces every stroke
 // of the artwork, the lettering first, each glowing hot and then cooling.
-// Then a fat laser, a burning line fed by a fan of light, fills in each unit
-// of the artwork with its real paint, and the unit's etched lines fade.
+// Then a fat laser, burning lines fed by a fan of light, fills in each unit
+// of the artwork with its real paint, burning only where the unit has
+// paint, and the unit's etched lines fade.
 
 import { fetchArtwork } from "../artwork";
 import { type FillUnit, fillLayer, fillUnits } from "./fills";
@@ -18,6 +19,7 @@ import {
   mostlyWithin,
   outlinePoints,
 } from "./order";
+import { type Span, unitProfile } from "./profile";
 import { GEOMETRY, strokeLayer, traceable } from "./strokes";
 import { type EtchFrame, etchFrame } from "./timeline";
 import { unitOf } from "./units";
@@ -44,9 +46,12 @@ interface Fill extends FillUnit {
   letter: boolean;
   /** The filled fraction last shown, to skip unchanged units. */
   shown: number;
+  /** Where the unit has paint, row by row, once worked out. */
+  rows?: Span[][];
 }
 
 interface Scene {
+  paint: SVGSVGElement;
   layers: Element[];
   traces: Trace[];
   fills: Fill[];
@@ -95,9 +100,12 @@ export class Etcher {
       const prepared = await Promise.race([this.#prepared, stopped]);
       if (!prepared) return;
       const scene = this.#build(prepared);
+      let playing = true;
+      void this.#profile(scene, () => playing);
       try {
         await this.#run(scene);
       } finally {
+        playing = false;
         for (const layer of scene.layers) layer.remove();
         this.#art.style.visibility = "";
         delete this.#stage.dataset.etching;
@@ -168,7 +176,21 @@ export class Etcher {
     for (const { group, letter } of fills) {
       if (letter) group.dataset.letter = "";
     }
-    return { layers: [paint, lines, glow], traces, fills, glow, ctx };
+    return { paint, layers: [paint, lines, glow], traces, fills, glow, ctx };
+  }
+
+  // Works out each unit's painted rows in turn while the strokes are traced,
+  // spreading the work out so it does not hold up any one frame.
+  async #profile({ paint, fills }: Scene, playing: () => boolean) {
+    for (const fill of fills) {
+      if (!playing()) return;
+      try {
+        fill.rows = await unitProfile(paint, fill);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    if (playing()) paint.dataset.profiled = "";
   }
 
   #run(scene: Scene): Promise<void> {
@@ -245,13 +267,21 @@ export class Etcher {
       drawBeam(ctx, emitter, spot, beam);
       drawSpot(ctx, spot, Math.max(8, box.width / 90));
     } else if (frame.filling >= 0) {
-      const { group, box: unit } = fills[frame.filling];
-      const y = unit.y + frame.filled[frame.filling] * unit.height;
+      const { group, box: unit, rows } = fills[frame.filling];
+      const filled = frame.filled[frame.filling];
+      const y = unit.y + filled * unit.height;
+      // Without its profile yet, a unit is burned across its whole width.
+      const spans: readonly Span[] = rows
+        ? (rows[Math.min(Math.floor(filled * rows.length), rows.length - 1)] ??
+          [])
+        : [[unit.x, unit.x + unit.width]];
       drawFatBeam(
         ctx,
         emitter,
-        onCanvas(group, unit.x, y),
-        onCanvas(group, unit.x + unit.width, y),
+        spans.map(
+          ([start, end]) =>
+            [onCanvas(group, start, y), onCanvas(group, end, y)] as const,
+        ),
         beam,
       );
     }

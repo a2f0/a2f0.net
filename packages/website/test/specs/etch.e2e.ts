@@ -1,4 +1,13 @@
+import { execFileSync } from "node:child_process";
+
 import { $, browser, expect } from "@wdio/globals";
+
+// The profiler bundled on its own, to load into the page.
+const profiler = execFileSync(
+  "bun",
+  ["build", "test/profiler.ts", "--target=browser"],
+  { encoding: "utf8" },
+);
 
 const play = () => $(".play-toggle");
 const stage = () => $(".stage");
@@ -45,6 +54,86 @@ const settled = async () => {
     ),
   ).toBe("");
 };
+
+// Drives the animation clock by hand, so any moment can be drawn on demand
+// and drawn again.
+const freezeClock = () =>
+  browser.addInitScript(() => {
+    let now = 0;
+    let queue: FrameRequestCallback[] = [];
+    performance.now = () => now;
+    window.requestAnimationFrame = (callback) => queue.push(callback);
+    window.cancelAnimationFrame = () => undefined;
+    Object.assign(window, {
+      drawAt: (time: number) => {
+        now = time;
+        const callbacks = queue;
+        queue = [];
+        for (const callback of callbacks) callback(time);
+      },
+    });
+  });
+
+// Starts the etching and waits until every unit's paint is profiled; until
+// then a unit burns across its whole width.
+const playProfiled = async () => {
+  await browser.url("/");
+  await play().click();
+  await expect($(".etch-fills[data-profiled]")).toBeExisting();
+};
+
+// Draws a moment with the frozen clock and totals the glow canvas.
+const glowTotal = (time: number) =>
+  browser.execute((at: number) => {
+    (window as unknown as { drawAt: (t: number) => void }).drawAt(at);
+    const canvas = document.querySelector<HTMLCanvasElement>(".etch-glow");
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return 0;
+    let total = 0;
+    for (const value of ctx.getImageData(0, 0, canvas.width, canvas.height)
+      .data) {
+      total += value;
+    }
+    return total;
+  }, time);
+
+// Counts the separate pieces of the fat laser's white-hot core at a moment:
+// the core is far brighter than the fan and halo around it.
+const burningSegments = (time: number) =>
+  browser.execute((at: number) => {
+    (window as unknown as { drawAt: (t: number) => void }).drawAt(at);
+    const canvas = document.querySelector<HTMLCanvasElement>(".etch-glow");
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return 0;
+    const { width, height } = canvas;
+    const { data } = ctx.getImageData(0, 0, width, height);
+    const core = (i: number) => data[i * 4 + 3] > 240;
+    const seen = new Uint8Array(width * height);
+    let segments = 0;
+    for (let start = 0; start < width * height; start++) {
+      if (seen[start] || !core(start)) continue;
+      let size = 0;
+      const stack = [start];
+      seen[start] = 1;
+      while (stack.length > 0) {
+        const i = stack.pop() ?? 0;
+        size++;
+        const [x, y] = [i % width, Math.floor(i / width)];
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            const [nx, ny] = [x + dx, y + dy];
+            const n = ny * width + nx;
+            if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+            if (seen[n] || !core(n)) continue;
+            seen[n] = 1;
+            stack.push(n);
+          }
+        }
+      }
+      if (size > 10) segments++;
+    }
+    return segments;
+  }, time);
 
 describe("Laser etching", () => {
   beforeEach(async () => {
@@ -165,6 +254,71 @@ describe("Laser etching", () => {
           () => document.querySelectorAll(".etch-stroke.cooled").length,
         )) > 50,
     );
+  });
+
+  it("keeps the fat laser steady from frame to frame", async () => {
+    const clock = await freezeClock();
+    try {
+      await playProfiled();
+      const first = await glowTotal(8200);
+      expect(first).toBeGreaterThan(0);
+      expect(await glowTotal(8200)).toBe(first);
+    } finally {
+      await clock.remove();
+    }
+  });
+
+  it("burns only where the unit under the laser has paint", async () => {
+    const clock = await freezeClock();
+    try {
+      await playProfiled();
+      // Early in the fill pass the laser crosses the extrusion, whose rows
+      // break between the letters. Burning a unit's whole width would draw
+      // one unbroken line instead.
+      const segments = [];
+      for (const time of [6150, 6400, 6700, 7000]) {
+        segments.push(await burningSegments(time));
+      }
+      expect(Math.max(...segments)).toBeGreaterThan(1);
+    } finally {
+      await clock.remove();
+    }
+  });
+
+  it("profiles a stroke-only curve by its stroke, not its inside", async () => {
+    await browser.url("/");
+    await browser.execute(profiler);
+    // A C-shaped stroke with no fill of its own, in a layer whose root sets
+    // fill="none", as the artwork's does. At its middle row the curve bulges
+    // out to about x = 225; filling it would paint that row from x = 0.
+    const middle = await browser.execute(async () => {
+      const ns = "http://www.w3.org/2000/svg";
+      const layer = document.createElementNS(ns, "svg");
+      layer.setAttribute("viewBox", "0 0 400 400");
+      layer.setAttribute("fill", "none");
+      const group = document.createElementNS(ns, "g");
+      const path = document.createElementNS(ns, "path");
+      path.setAttribute("d", "M0 0 C300 0 300 400 0 400");
+      path.setAttribute("stroke", "#fff");
+      path.setAttribute("stroke-width", "4");
+      group.append(path);
+      layer.append(group);
+      document.body.append(layer);
+      const { unitProfile } = window as unknown as {
+        unitProfile: (
+          layer: SVGSVGElement,
+          unit: { group: SVGGElement; box: DOMRect },
+        ) => Promise<(readonly [number, number])[][]>;
+      };
+      const rows = await unitProfile(layer, {
+        group,
+        box: new DOMRect(-10, -10, 420, 420),
+      });
+      layer.remove();
+      return rows[Math.floor(rows.length / 2)];
+    });
+    expect(middle.length).toBeGreaterThan(0);
+    expect(middle.every(([start]) => start > 150)).toBe(true);
   });
 
   it("etches and fills the lettering first", async () => {
