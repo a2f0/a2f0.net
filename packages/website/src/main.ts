@@ -1,12 +1,13 @@
 // Stacks the graffiti SVG and its ASCII rendering. A lens that follows the
 // pointer reveals the view underneath, and clicking floods the lens to swap.
 // The play button animates the view on show: a laser etches the SVG in, and
-// falling code writes the ASCII.
+// falling code writes the ASCII. The square opens a terminal window around it.
 
 import { AsciiDisplay } from "./ascii/display";
 import { Etcher } from "./etch/etcher";
 import { Lens, type Point } from "./lens";
 import { Rain } from "./rain/rain";
+import { TerminalWindow } from "./terminal";
 
 const find = <T extends Element>(selector: string): T => {
   const element = document.querySelector<T>(selector);
@@ -15,16 +16,16 @@ const find = <T extends Element>(selector: string): T => {
 };
 
 const main = find<HTMLElement>("main");
+const canvas = find<HTMLElement>(".canvas");
 const stage = find<HTMLElement>(".stage");
 const graffiti = find<HTMLImageElement>(".graffiti");
 const ascii = find<HTMLPreElement>(".ascii");
 const toggle = find<HTMLButtonElement>(".view-toggle");
 const play = find<HTMLButtonElement>(".play-toggle");
+const windowToggle = find<HTMLButtonElement>(".window-toggle");
 
-const lens = new Lens(
-  stage,
-  window.matchMedia("(prefers-reduced-motion: reduce)"),
-);
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+const lens = new Lens(stage, reducedMotion);
 const display = new AsciiDisplay(
   ascii,
   () => main.clientWidth,
@@ -32,6 +33,11 @@ const display = new AsciiDisplay(
 );
 const etcher = new Etcher(stage, graffiti);
 const rain = new Rain(stage, ascii, display);
+const terminal = new TerminalWindow(
+  canvas,
+  find<HTMLElement>(".window"),
+  reducedMotion,
+);
 
 let pointer: Point | undefined;
 let flooding = false;
@@ -150,6 +156,15 @@ play.addEventListener("click", async () => {
   }
 });
 play.hidden = false;
+
+// The window zooms out of, and back into, the square drawn on its toggle.
+windowToggle.addEventListener("click", () => {
+  const open = windowToggle.getAttribute("aria-pressed") !== "true";
+  windowToggle.setAttribute("aria-pressed", String(open));
+  const square = windowToggle.querySelector("rect") ?? windowToggle;
+  (open ? terminal.open(square) : terminal.close(square)).catch(console.error);
+});
+windowToggle.hidden = false;
 if (window.matchMedia("(hover: hover)").matches) {
   // Safari has no idle callbacks.
   const idle = window.requestIdleCallback ?? setTimeout;

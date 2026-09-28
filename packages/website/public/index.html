@@ -63,8 +63,19 @@
       /* The canvas holds the artwork and the toolbar in its top-right corner.
          The toolbar sits outside the stage so its clicks never flip the view. */
       .canvas {
+        --bar: 32px;
         position: relative;
         width: min(100%, 1440px);
+      }
+
+      /* The open window's bars sit above and below the art. They are the
+         same height, so the art stays centred where it was. A viewport too
+         short for the art and both bars scrolls instead, moving the art to
+         make room. The room is taken only while the window is open:
+         reserving it when closed would leave that page scrolling, with the
+         art off-centre, for everyone who never opens the window. */
+      .canvas[data-window] {
+        margin-block: var(--bar);
       }
 
       /* Both views share one cell. The view not on show sits above the other,
@@ -190,6 +201,93 @@
         pointer-events: none;
       }
 
+      /* A terminal window around the art: a title bar above it and a prompt
+         below. Clicks pass through to the art. */
+      .window {
+        display: none;
+        position: absolute;
+        inset: calc(-1 * var(--bar)) 0;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden;
+        border: 1px solid #3d3d3d;
+        border-radius: 8px;
+        pointer-events: none;
+      }
+
+      .canvas[data-window] > .window {
+        display: flex;
+      }
+
+      /* Each bar fills the room beside the art, inside the window's border. */
+      .titlebar,
+      .prompt {
+        display: flex;
+        box-sizing: border-box;
+        height: calc(var(--bar) - 1px);
+        align-items: center;
+      }
+
+      .titlebar {
+        position: relative;
+        justify-content: center;
+        border-bottom: 1px solid #2a2a2a;
+        background: #141414;
+        color: #8a8a8a;
+        font: 12px system-ui, sans-serif;
+      }
+
+      .lights {
+        position: absolute;
+        left: 12px;
+        display: flex;
+        gap: 8px;
+      }
+
+      .lights > span {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #4d4d4d;
+      }
+
+      .prompt {
+        gap: 0.5ch;
+        padding-inline: 12px;
+        background: #000;
+        color: #8c8c8c;
+        font: 13px var(--mono);
+      }
+
+      .cursor {
+        width: 1ch;
+        height: 1.2em;
+        background: #f2f2f2;
+        animation: blink 1.06s steps(1) infinite;
+      }
+
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .cursor {
+          animation: none;
+        }
+      }
+
+      /* Outlines that zoom between the toolbar's square and the window. */
+      .zoom-line {
+        position: absolute;
+        box-sizing: border-box;
+        border: 1px solid #fff;
+        border-radius: 4px;
+        box-shadow: 0 0 4px rgb(255 255 255 / 0.4);
+        pointer-events: none;
+      }
+
       .toolbar {
         position: absolute;
         top: 12px;
@@ -261,6 +359,15 @@
             aria-label="a2f0 graffiti rendered as ASCII art"
             aria-hidden="true"
           ></pre>
+        </div>
+        <div class="window" aria-hidden="true">
+          <div class="titlebar">
+            <span class="lights"><span></span><span></span><span></span></span>
+            <span class="title">a2f0 — zsh</span>
+          </div>
+          <div class="prompt">
+            <span>a2f0@a2f0.net ~ %</span><span class="cursor"></span>
+          </div>
         </div>
         <div class="toolbar">
           <button
@@ -335,6 +442,27 @@
                 stroke="currentColor"
                 stroke-width="1.5"
                 stroke-linecap="round"
+              />
+            </svg>
+          </button>
+          <button
+            class="tool window-toggle"
+            type="button"
+            aria-label="Terminal window"
+            aria-pressed="false"
+            title="Terminal window"
+            hidden
+          >
+            <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+              <rect
+                x="2.75"
+                y="2.75"
+                width="10.5"
+                height="10.5"
+                rx="1"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
               />
             </svg>
           </button>

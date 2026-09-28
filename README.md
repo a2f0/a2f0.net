@@ -25,10 +25,10 @@ layout. PDF generation remains in the browser.
 The apex website displays a grayscale SVG graffiti wordmark on a black canvas,
 served by Cloudflare Workers. Edit `packages/website/public/a2f0.svg` to refine
 the artwork. Its TypeScript in `packages/website/src` renders the ASCII view,
-the lens, and the toolbar's play button animations: a laser etching over the
-SVG, and falling code that writes the ASCII art. Wrangler runs
-`bun run build` before `dev` and `deploy`, which bundles it with `public/`
-into `dist/`. Preview it with
+the lens, the toolbar's play button animations (a laser etching over the SVG,
+and falling code that writes the ASCII art), and the terminal window that its
+square opens around the art. Wrangler runs `bun run build` before `dev` and
+`deploy`, which bundles it with `public/` into `dist/`. Preview it with
 `bun run --cwd packages/website start` on port 4002.
 
 ## Testing
