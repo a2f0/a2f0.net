@@ -57,7 +57,7 @@ const lensSettles = (radius: number) =>
 
 describe("ASCII graffiti view", () => {
   beforeEach(async () => {
-    // A hash-only navigation would reuse the page, so start each test fresh.
+    // Start every test from a fresh page load.
     await browser.url("about:blank");
   });
 
@@ -75,7 +75,7 @@ describe("ASCII graffiti view", () => {
     await toggle().click();
     await expectView("ascii");
     await expect(toggle()).toHaveAttribute("aria-pressed", "true");
-    expect(await browser.getUrl()).toMatch(/#ascii$/);
+    expect(await browser.getUrl()).not.toContain("#");
 
     const art = await renderedArt();
     expect(art.columns).toBe(200);
@@ -92,26 +92,31 @@ describe("ASCII graffiti view", () => {
     expect(await browser.getUrl()).not.toContain("#");
   });
 
-  it("opens in ASCII from the #ascii link", async () => {
+  it("keeps the view out of the URL", async () => {
     await browser.url("/#ascii");
-    await expectView("ascii");
-    await expect(toggle()).toHaveAttribute("aria-pressed", "true");
-    expect((await renderedArt()).ink).toBeGreaterThan(2000);
-  });
-
-  it("follows #ascii navigation within the page", async () => {
-    await browser.url("/");
-    await browser.execute(() => {
-      window.location.hash = "ascii";
-    });
-    await expectView("ascii");
-    await expect(toggle()).toHaveAttribute("aria-pressed", "true");
-
-    await browser.execute(() => {
-      window.location.hash = "";
-    });
     await expectView("svg");
     await expect(toggle()).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("styles the ASCII toggle like a link, with no pressed look", async () => {
+    const look = () =>
+      browser.execute(() => {
+        const button = document.querySelector(".view-toggle");
+        if (!button) throw new Error("Missing .view-toggle");
+        const style = window.getComputedStyle(button);
+        return { color: style.color, border: style.borderTopWidth };
+      });
+    await browser.url("/");
+    const resting = await look();
+    expect(resting.border).toBe("0px");
+
+    await toggle().moveTo();
+    expect((await look()).color).toBe("rgb(255, 255, 255)");
+
+    await toggle().click();
+    await expectView("ascii");
+    await browser.action("pointer").move({ x: 1, y: 1 }).perform();
+    expect(await look()).toEqual(resting);
   });
 
   it("puts square tools in the canvas's top-right corner", async () => {
@@ -204,7 +209,7 @@ describe("ASCII graffiti view", () => {
     await stage().click({ x: 120, y: 30 });
     await expectView("ascii");
     await expect(toggle()).toHaveAttribute("aria-pressed", "true");
-    expect(await browser.getUrl()).toMatch(/#ascii$/);
+    expect(await browser.getUrl()).not.toContain("#");
 
     // The lens reopens onto the SVG that is now underneath.
     await lensSettles(46);
@@ -235,7 +240,7 @@ describe("ASCII graffiti view", () => {
       await stage().click({ x: 120, y: 30 });
       await expectView("ascii");
       await expect(toggle()).toHaveAttribute("aria-pressed", "true");
-      expect(await browser.getUrl()).toMatch(/#ascii$/);
+      expect(await browser.getUrl()).not.toContain("#");
       await lensSettles(46);
     } finally {
       await slow.remove();

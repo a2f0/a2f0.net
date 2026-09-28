@@ -376,11 +376,6 @@ const wanted = () => toggle.getAttribute("aria-pressed") === "true";
 
 const show = async (asAscii, origin) => {
   toggle.setAttribute("aria-pressed", String(asAscii));
-  window.history.replaceState(
-    null,
-    "",
-    asAscii ? "#ascii" : window.location.pathname + window.location.search,
-  );
   try {
     if (asAscii) await draw();
   } catch (error) {
@@ -445,11 +440,7 @@ window.addEventListener("resize", () => {
   }, 200);
 });
 toggle.addEventListener("click", () => show(!wanted()));
-window.addEventListener("hashchange", () =>
-  show(window.location.hash === "#ascii"),
-);
 toggle.hidden = false;
-if (window.location.hash === "#ascii") show(true);
-else if (window.matchMedia("(hover: hover)").matches) {
+if (window.matchMedia("(hover: hover)").matches) {
   (window.requestIdleCallback ?? setTimeout)(warm);
 }
