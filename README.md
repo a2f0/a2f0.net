@@ -24,7 +24,10 @@ layout. PDF generation remains in the browser.
 
 The apex website displays a grayscale SVG graffiti wordmark on a black canvas,
 served by Cloudflare Workers. Edit `packages/website/public/a2f0.svg` to refine
-the artwork. Preview it with `bun run --cwd packages/website start` on port 4002.
+the artwork. Its TypeScript in `packages/website/src` renders the ASCII view
+and the lens; Wrangler runs `bun run build` before `dev` and `deploy`, which
+bundles it with `public/` into `dist/`. Preview it with
+`bun run --cwd packages/website start` on port 4002.
 
 ## Testing
 
@@ -38,12 +41,17 @@ bun run lint:md
 
 `ci-headless` builds the static export and runs the browser tests against
 Wrangler on port 4001. It covers the resume views, downloads, menus, direct
-routes, canonical URLs, and 404 responses. The website test serves
-`packages/website/public` through Wrangler and checks that the apex page
+routes, canonical URLs, and 404 responses. The website test builds and serves
+`packages/website/dist` through Wrangler and checks that the apex page
 responds without a resume redirect.
 
-`bun run unit` runs both the app tests and the Node-based tests in
-[`packages/agent-tool`](packages/agent-tool/README.md). Invoke the repository's
+Both browser suites include an `a11y.e2e.ts` spec that audits each view with
+[axe-core](https://github.com/dequelabs/axe-core) against WCAG 2.2 A and AA
+and axe's best practices, and drives the menus and toolbar from the keyboard.
+Biome enforces all of its `a11y` lint rules on the TSX and HTML.
+
+`bun run unit` runs the resume and website unit tests and the Node-based tests
+in [`packages/agent-tool`](packages/agent-tool/README.md). Invoke the repository's
 [`$ship-pr` skill](.codex/skills/ship-pr/SKILL.md) to validate, independently
 review, and squash-merge the current PR. The production branch rule requires
 the stable `build` CI check with the branch up to date before merging.

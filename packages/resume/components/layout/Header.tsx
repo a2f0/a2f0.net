@@ -18,6 +18,10 @@ interface IProps {
   scale: number;
 }
 
+interface HeaderProps {
+  title: string;
+}
+
 const StyledHeader = styled.header<IProps>`
   height: calc(var(--header-height) * ${(props) => props.scale});
   background-color: #404040;
@@ -36,12 +40,12 @@ const StyledHeader = styled.header<IProps>`
   }
 `;
 
-const Header = () => {
+const Header = ({ title }: HeaderProps) => {
   const scale = useAppSelector(selectScale);
   return (
     <>
       <Head>
-        <title>&lrm;</title>
+        <title>{title}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>

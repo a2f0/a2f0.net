@@ -1,6 +1,7 @@
 import type { GetStaticProps } from "next";
 import Main from "../components/layout/Main";
 import SvgResume from "../components/SvgResume";
+import { RESUME_NAME } from "../lib/resumeName";
 
 interface HomeProps {
   desktopSvg: string | null;
@@ -19,7 +20,7 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
 
 export default function Home({ desktopSvg }: HomeProps) {
   return (
-    <Main>
+    <Main title={`${RESUME_NAME} – Resume`}>
       <SvgResume desktopSvg={desktopSvg} />
     </Main>
   );

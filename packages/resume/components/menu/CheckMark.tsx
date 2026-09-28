@@ -4,7 +4,9 @@ interface IProps {
   $isActive: boolean;
 }
 
-const CheckMark = styled.span<IProps>`
+// Decorative: options expose their state through aria-pressed or
+// aria-current instead.
+const CheckMark = styled.span.attrs({ "aria-hidden": true })<IProps>`
   display: inline-block;
   transform: rotate(45deg);
   height: 10px;
