@@ -187,7 +187,8 @@ describe("Laser etching", () => {
     try {
       await browser.url("/");
       await play().click();
-      await expect($(".etch-fills")).toBeExisting();
+      // Before its profile is ready, a unit burns across its whole width.
+      await expect($(".etch-fills[data-profiled]")).toBeExisting();
       // Draws a moment in the fill pass and totals the glow canvas.
       const glowAt = (time: number) =>
         browser.execute((at: number) => {

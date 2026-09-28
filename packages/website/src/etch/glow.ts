@@ -79,19 +79,22 @@ export const drawSpot = (
 };
 
 /**
- * The fat laser: a line burned across the surface, fed by a fan of light
- * from the emitter, like a flashlight beam seen from the side. Unlike the
- * small spot, it holds a steady brightness: across an area this large, a
- * shimmer reads as flicker.
+ * The fat laser: lines burned across the surface where there is paint, fed
+ * by a fan of light from the emitter spread over their full extent, like a
+ * flashlight beam seen from the side. Unlike the small spot, it holds a
+ * steady brightness: across an area this large, a shimmer reads as
+ * flicker.
  */
 export const drawFatBeam = (
   ctx: CanvasRenderingContext2D,
   from: Point,
-  a: Point,
-  b: Point,
+  segments: readonly (readonly [Point, Point])[],
   width: number,
 ) => {
-  const middle = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+  const first = segments[0]?.[0];
+  const last = segments.at(-1)?.[1];
+  if (!first || !last) return;
+  const middle = { x: (first.x + last.x) / 2, y: (first.y + last.y) / 2 };
   const edge =
     middle.y > from.y
       ? Math.min(Math.max(-from.y / (middle.y - from.y), 0), 1)
@@ -103,24 +106,26 @@ export const drawFatBeam = (
   ctx.fillStyle = fan;
   ctx.beginPath();
   ctx.moveTo(from.x, from.y);
-  ctx.lineTo(a.x, a.y);
-  ctx.lineTo(b.x, b.y);
+  ctx.lineTo(first.x, first.y);
+  ctx.lineTo(last.x, last.y);
   ctx.closePath();
   ctx.fill();
 
-  // The burning line: a white core inside a soft halo.
+  // The burning lines: a white core inside a soft halo.
   ctx.lineCap = "round";
+  ctx.strokeStyle = "rgba(255, 255, 255, 1)";
   for (const [scale, alpha] of [
     [5, 0.15],
     [2, 0.4],
     [0.6, 1],
   ]) {
     ctx.globalAlpha = alpha;
-    ctx.strokeStyle = "rgba(255, 255, 255, 1)";
     ctx.lineWidth = width * scale;
     ctx.beginPath();
-    ctx.moveTo(a.x, a.y);
-    ctx.lineTo(b.x, b.y);
+    for (const [a, b] of segments) {
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+    }
     ctx.stroke();
   }
   ctx.globalAlpha = 1;
