@@ -40,9 +40,18 @@ describe("Accessibility", () => {
     await browser.keys("Enter");
     await expect($(".stage")).toHaveAttribute("data-view", "ascii");
     await expect($(".view-toggle")).toHaveAttribute("aria-pressed", "true");
+    // The play button names the animation of the view on show.
+    await expect($(".play-toggle")).toHaveAttribute(
+      "aria-label",
+      "Play code rain animation",
+    );
     await browser.keys(" ");
     await expect($(".stage")).toHaveAttribute("data-view", "svg");
     await expect($(".view-toggle")).toHaveAttribute("aria-pressed", "false");
+    await expect($(".play-toggle")).toHaveAttribute(
+      "aria-label",
+      "Play etching animation",
+    );
   });
 
   it("has no axe violations while etching", async () => {
@@ -50,6 +59,15 @@ describe("Accessibility", () => {
     await $(".play-toggle").click();
     await expect($(".stage")).toHaveAttribute("data-etching");
     expect(await axeViolations()).toEqual([]);
+  });
+
+  it("has no axe violations while the code rain plays", async () => {
+    await browser.url("/");
+    await $(".view-toggle").click();
+    await expect($(".stage")).toHaveAttribute("data-view", "ascii");
+    await $(".play-toggle").click();
+    await expect($(".stage")).toHaveAttribute("data-raining");
+    expect(await axeViolations({ logos: [".ascii"] })).toEqual([]);
   });
 
   it("plays and stops the etching from the keyboard", async () => {
