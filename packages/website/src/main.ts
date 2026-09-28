@@ -1,10 +1,12 @@
 // Stacks the graffiti SVG and its ASCII rendering. A lens that follows the
 // pointer reveals the view underneath, and clicking floods the lens to swap.
-// The play button etches the SVG in with a laser.
+// The play button animates the view on show: a laser etches the SVG in, and
+// falling code writes the ASCII.
 
 import { AsciiDisplay } from "./ascii/display";
 import { Etcher } from "./etch/etcher";
 import { Lens, type Point } from "./lens";
+import { Rain } from "./rain/rain";
 
 const find = <T extends Element>(selector: string): T => {
   const element = document.querySelector<T>(selector);
@@ -29,22 +31,38 @@ const display = new AsciiDisplay(
   () => settle(),
 );
 const etcher = new Etcher(stage, graffiti);
+const rain = new Rain(stage, ascii, display);
 
 let pointer: Point | undefined;
 let flooding = false;
 
-// The lens stays shut while the etching plays over the artwork.
+const animating = () => etcher.playing || rain.playing;
+const stopAnimating = () => {
+  etcher.stop();
+  rain.stop();
+};
+
+// The lens stays shut while an animation plays over the artwork.
 const settle = () => {
   if (!flooding) {
-    lens.peek(pointer !== undefined && display.ready && !etcher.playing);
+    lens.peek(pointer !== undefined && display.ready && !animating());
   }
 };
 
 const shown = () => stage.dataset.view === "ascii";
 const wanted = () => toggle.getAttribute("aria-pressed") === "true";
 
+// The play button names the animation of the view the toggle picks.
+const labelPlay = () => {
+  const action = play.dataset.playing === undefined ? "Play" : "Stop";
+  const text = `${action} ${wanted() ? "code rain" : "etching"} animation`;
+  play.setAttribute("aria-label", text);
+  play.title = text;
+};
+
 const show = async (asAscii: boolean, origin?: Point): Promise<void> => {
   toggle.setAttribute("aria-pressed", String(asAscii));
+  labelPlay();
   try {
     if (asAscii) await display.draw();
   } catch (error) {
@@ -93,7 +111,7 @@ stage.addEventListener("pointerleave", () => {
   settle();
 });
 stage.addEventListener("click", (event) => {
-  if (!flooding && !etcher.playing) show(!shown(), lens.locate(event));
+  if (!flooding && !animating()) show(!shown(), lens.locate(event));
 });
 
 let resizeTimer: ReturnType<typeof setTimeout> | undefined;
@@ -104,23 +122,22 @@ window.addEventListener("resize", () => {
   }, 200);
 });
 toggle.addEventListener("click", () => {
-  etcher.stop();
+  stopAnimating();
   show(!wanted());
 });
 toggle.hidden = false;
 
-const label = (text: string) => {
-  play.setAttribute("aria-label", text);
-  play.title = text;
-};
 play.addEventListener("click", async () => {
-  if (etcher.playing) return etcher.stop();
+  if (animating()) return stopAnimating();
   if (flooding) return;
-  // The etching draws the SVG, so it plays over that view.
-  if (wanted()) await show(false);
+  // The etching draws the SVG, and the code rain writes the ASCII, so each
+  // waits for its view to be on show.
+  const asAscii = wanted();
+  if (shown() !== asAscii) await show(asAscii);
+  if (shown() !== asAscii || animating()) return;
   play.dataset.playing = "";
-  label("Stop etching animation");
-  const playing = etcher.play();
+  labelPlay();
+  const playing = (asAscii ? rain : etcher).play();
   settle();
   try {
     await playing;
@@ -128,7 +145,7 @@ play.addEventListener("click", async () => {
     console.error(error);
   } finally {
     delete play.dataset.playing;
-    label("Play etching animation");
+    labelPlay();
     settle();
   }
 });

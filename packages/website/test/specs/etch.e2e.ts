@@ -2,6 +2,8 @@ import { execFileSync } from "node:child_process";
 
 import { $, browser, expect } from "@wdio/globals";
 
+import { drawAt, freezeClock } from "../clock";
+
 // The profiler bundled on its own, to load into the page.
 const profiler = execFileSync(
   "bun",
@@ -41,12 +43,12 @@ const progress = () =>
     };
   });
 
-const settled = async () => {
+const settled = async (label = "Play etching animation") => {
   await expect($(".etch-lines")).not.toBeExisting();
   await expect($(".etch-fills")).not.toBeExisting();
   await expect($(".etch-glow")).not.toBeExisting();
   await expect(stage()).not.toHaveAttribute("data-etching");
-  await expect(play()).toHaveAttribute("aria-label", "Play etching animation");
+  await expect(play()).toHaveAttribute("aria-label", label);
   await expect(play()).not.toHaveAttribute("data-playing");
   expect(
     await browser.execute(
@@ -54,25 +56,6 @@ const settled = async () => {
     ),
   ).toBe("");
 };
-
-// Drives the animation clock by hand, so any moment can be drawn on demand
-// and drawn again.
-const freezeClock = () =>
-  browser.addInitScript(() => {
-    let now = 0;
-    let queue: FrameRequestCallback[] = [];
-    performance.now = () => now;
-    window.requestAnimationFrame = (callback) => queue.push(callback);
-    window.cancelAnimationFrame = () => undefined;
-    Object.assign(window, {
-      drawAt: (time: number) => {
-        now = time;
-        const callbacks = queue;
-        queue = [];
-        for (const callback of callbacks) callback(time);
-      },
-    });
-  });
 
 // Starts the etching and waits until every unit's paint is profiled; until
 // then a unit burns across its whole width.
@@ -83,9 +66,9 @@ const playProfiled = async () => {
 };
 
 // Draws a moment with the frozen clock and totals the glow canvas.
-const glowTotal = (time: number) =>
-  browser.execute((at: number) => {
-    (window as unknown as { drawAt: (t: number) => void }).drawAt(at);
+const glowTotal = async (time: number) => {
+  await drawAt(time);
+  return browser.execute(() => {
     const canvas = document.querySelector<HTMLCanvasElement>(".etch-glow");
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return 0;
@@ -95,13 +78,14 @@ const glowTotal = (time: number) =>
       total += value;
     }
     return total;
-  }, time);
+  });
+};
 
 // Counts the separate pieces of the fat laser's white-hot core at a moment:
 // the core is far brighter than the fan and halo around it.
-const burningSegments = (time: number) =>
-  browser.execute((at: number) => {
-    (window as unknown as { drawAt: (t: number) => void }).drawAt(at);
+const burningSegments = async (time: number) => {
+  await drawAt(time);
+  return browser.execute(() => {
     const canvas = document.querySelector<HTMLCanvasElement>(".etch-glow");
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return 0;
@@ -133,7 +117,8 @@ const burningSegments = (time: number) =>
       if (size > 10) segments++;
     }
     return segments;
-  }, time);
+  });
+};
 
 describe("Laser etching", () => {
   beforeEach(async () => {
@@ -383,15 +368,6 @@ describe("Laser etching", () => {
     }
   });
 
-  it("switches from the ASCII view to the SVG before etching", async () => {
-    await browser.url("/");
-    await $(".view-toggle").click();
-    await expect(stage()).toHaveAttribute("data-view", "ascii");
-    await play().click();
-    await expect(stage()).toHaveAttribute("data-view", "svg");
-    await expect(stage()).toHaveAttribute("data-etching");
-  });
-
   it("keeps the lens shut and ignores clicks on the art while etching", async () => {
     await browser.url("/");
     await play().click();
@@ -413,7 +389,7 @@ describe("Laser etching", () => {
     await play().click();
     await expect(stage()).toHaveAttribute("data-etching");
     await $(".view-toggle").click();
-    await settled();
+    await settled("Play code rain animation");
     await expect(stage()).toHaveAttribute("data-view", "ascii");
   });
 });
