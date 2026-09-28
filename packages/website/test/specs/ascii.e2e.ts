@@ -126,6 +126,7 @@ describe("ASCII graffiti view", () => {
     await expect($(".play-toggle")).toBeDisplayed();
     await expect(music()).toBeDisplayed();
     await expect(toggle()).toBeDisplayed();
+    await expect($(".window-toggle")).toBeDisplayed();
     const layout = await browser.execute(() => {
       const rect = (selector: string) => {
         const element = document.querySelector(selector);
@@ -134,13 +135,18 @@ describe("ASCII graffiti view", () => {
       };
       const canvas = rect(".canvas");
       const stage = rect(".stage");
-      const tools = [".play-toggle", ".music-toggle", ".view-toggle"].map(rect);
-      const ascii = tools[tools.length - 1];
+      const tools = [
+        ".play-toggle",
+        ".music-toggle",
+        ".view-toggle",
+        ".window-toggle",
+      ].map(rect);
+      const last = tools[tools.length - 1];
       return {
         canvas: [canvas.width, canvas.height],
         stage: [stage.width, stage.height],
         top: tools[0].top - canvas.top,
-        right: canvas.right - ascii.right,
+        right: canvas.right - last.right,
         inOrder: tools.every(
           (tool, i) => i === 0 || tools[i - 1].right <= tool.left,
         ),

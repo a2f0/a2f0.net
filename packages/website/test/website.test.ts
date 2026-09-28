@@ -16,6 +16,7 @@ test("serves the canvas toolbar and the bundled script", async () => {
   expect(page).toContain('class="toolbar"');
   expect(page).toContain('class="tool view-toggle"');
   expect(page).toContain('class="tool music-toggle"');
+  expect(page).toContain('class="tool window-toggle"');
   expect(page).toContain('src="/graffiti.js"');
 
   const script = await fetch("http://localhost:4002/graffiti.js");

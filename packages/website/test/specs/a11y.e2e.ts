@@ -25,6 +25,13 @@ describe("Accessibility", () => {
     expect(await axeViolations({ logos: [".ascii"] })).toEqual([]);
   });
 
+  it("has no axe violations with the terminal window open", async () => {
+    await browser.url("/");
+    await $(".window-toggle").click();
+    await expect($(".window")).toBeDisplayed();
+    expect(await axeViolations()).toEqual([]);
+  });
+
   it("reaches and operates the toolbar from the keyboard", async () => {
     await browser.url("/");
     await browser.keys("Tab");
@@ -52,6 +59,18 @@ describe("Accessibility", () => {
       "aria-label",
       "Play etching animation",
     );
+
+    await browser.keys("Tab");
+    expect(await focused()).toEqual({
+      label: "Terminal window",
+      visible: true,
+    });
+    await browser.keys("Enter");
+    await expect($(".window-toggle")).toHaveAttribute("aria-pressed", "true");
+    await expect($(".window")).toBeDisplayed();
+    await browser.keys(" ");
+    await expect($(".window-toggle")).toHaveAttribute("aria-pressed", "false");
+    await expect($(".window")).not.toBeDisplayed();
   });
 
   it("has no axe violations while etching", async () => {
