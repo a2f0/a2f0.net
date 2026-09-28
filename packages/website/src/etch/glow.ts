@@ -80,7 +80,9 @@ export const drawSpot = (
 
 /**
  * The fat laser: a line burned across the surface, fed by a fan of light
- * from the emitter, like a flashlight beam seen from the side.
+ * from the emitter, like a flashlight beam seen from the side. Unlike the
+ * small spot, it holds a steady brightness: across an area this large, a
+ * shimmer reads as flicker.
  */
 export const drawFatBeam = (
   ctx: CanvasRenderingContext2D,
@@ -99,7 +101,6 @@ export const drawFatBeam = (
   fan.addColorStop(edge, "rgba(255, 255, 255, 0)");
   fan.addColorStop(1, "rgba(255, 255, 255, 0.28)");
   ctx.fillStyle = fan;
-  ctx.globalAlpha = flicker(1);
   ctx.beginPath();
   ctx.moveTo(from.x, from.y);
   ctx.lineTo(a.x, a.y);
@@ -114,7 +115,7 @@ export const drawFatBeam = (
     [2, 0.4],
     [0.6, 1],
   ]) {
-    ctx.globalAlpha = flicker(alpha);
+    ctx.globalAlpha = alpha;
     ctx.strokeStyle = "rgba(255, 255, 255, 1)";
     ctx.lineWidth = width * scale;
     ctx.beginPath();

@@ -167,6 +167,48 @@ describe("Laser etching", () => {
     );
   });
 
+  it("keeps the fat laser steady from frame to frame", async () => {
+    // Drives the animation clock by hand, so one moment can be drawn twice.
+    const clock = await browser.addInitScript(() => {
+      let now = 0;
+      let queue: FrameRequestCallback[] = [];
+      performance.now = () => now;
+      window.requestAnimationFrame = (callback) => queue.push(callback);
+      window.cancelAnimationFrame = () => undefined;
+      Object.assign(window, {
+        drawAt: (time: number) => {
+          now = time;
+          const callbacks = queue;
+          queue = [];
+          for (const callback of callbacks) callback(time);
+        },
+      });
+    });
+    try {
+      await browser.url("/");
+      await play().click();
+      await expect($(".etch-fills")).toBeExisting();
+      // Draws a moment in the fill pass and totals the glow canvas.
+      const glowAt = (time: number) =>
+        browser.execute((at: number) => {
+          (window as unknown as { drawAt: (t: number) => void }).drawAt(at);
+          const canvas =
+            document.querySelector<HTMLCanvasElement>(".etch-glow");
+          const ctx = canvas?.getContext("2d");
+          if (!canvas || !ctx) return null;
+          const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          let total = 0;
+          for (const value of data) total += value;
+          return total;
+        }, time);
+      const first = await glowAt(8200);
+      expect(first).toBeGreaterThan(0);
+      expect(await glowAt(8200)).toBe(first);
+    } finally {
+      await clock.remove();
+    }
+  });
+
   it("etches and fills the lettering first", async () => {
     await browser.url("/");
     await play().click();
