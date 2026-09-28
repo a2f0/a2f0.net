@@ -1,6 +1,7 @@
 import { $, $$, browser, expect } from "@wdio/globals";
 
 import { axeViolations } from "../lib/axe";
+import waitForHydration from "../lib/hydration";
 
 const focusedId = () => browser.execute(() => document.activeElement?.id);
 
@@ -39,20 +40,22 @@ describe("Accessibility", () => {
     expect(await axeViolations()).toEqual([]);
   });
 
-  it("has no axe violations on the PDF preview", async () => {
-    await browser.url("/pdf");
-    await $("#pdfObjectContainer iframe").waitForExist();
-    expect(await axeViolations()).toEqual([]);
-  });
-
   it("has no axe violations at phone width", async () => {
-    const { width, height } = await browser.getWindowSize();
-    await browser.setWindowSize(390, 844);
+    await openResume();
+    const viewport = await browser.execute(() => ({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    }));
+    await browser.setViewport({ width: 390, height: 844 });
     try {
-      await openResume();
+      await browser.execute(() => window.dispatchEvent(new Event("resize")));
+      // Phones hide the pre-rendered desktop SVG and generate their own once
+      // the page hydrates, so audit only after that one is showing.
+      await waitForHydration("#svgContainer");
+      await $("#svgResume.svg:not(.desktop-svg)").waitForDisplayed();
       expect(await axeViolations()).toEqual([]);
     } finally {
-      await browser.setWindowSize(width, height);
+      await browser.setViewport(viewport);
     }
   });
 
@@ -94,5 +97,13 @@ describe("Accessibility", () => {
     const options = await $$("#menuItemsView a, #menuItemsView button").length;
     await browser.keys(Array(options + 1).fill("Tab"));
     await expect($("#menuItemsView")).not.toBeDisplayed();
+  });
+
+  // Last, because the embedded PDF viewer can leave the session targeting
+  // another browsing context.
+  it("has no axe violations on the PDF preview", async () => {
+    await browser.url("/pdf");
+    await $("#pdfObjectContainer iframe").waitForExist();
+    expect(await axeViolations()).toEqual([]);
   });
 });
