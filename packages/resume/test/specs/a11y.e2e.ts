@@ -48,11 +48,23 @@ describe("Accessibility", () => {
     }));
     await browser.setViewport({ width: 390, height: 844 });
     try {
+      await browser.waitUntil(
+        () =>
+          browser.execute(
+            () => window.matchMedia("(max-width: 768px)").matches,
+          ),
+        { timeoutMsg: "expected a phone viewport" },
+      );
       await browser.execute(() => window.dispatchEvent(new Event("resize")));
       // Phones hide the pre-rendered desktop SVG and generate their own once
-      // the page hydrates, so audit only after that one is showing.
+      // the page hydrates. The app replaces that SVG while the viewport
+      // settles, so look it up afresh on each check rather than waiting on
+      // an element that may be detached.
       await waitForHydration("#svgContainer");
-      await $("#svgResume.svg:not(.desktop-svg)").waitForDisplayed();
+      await browser.waitUntil(
+        async () => (await $("#svgResume.svg:not(.desktop-svg)")).isDisplayed(),
+        { timeoutMsg: "expected the generated mobile resume to be displayed" },
+      );
       expect(await axeViolations()).toEqual([]);
     } finally {
       await browser.setViewport(viewport);

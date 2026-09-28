@@ -2,8 +2,10 @@
 // stroked shape in painting order, keeping the transforms and clips that
 // place it.
 
+import { importArtwork } from "./layer";
+
 const SVG_NS = "http://www.w3.org/2000/svg";
-const GEOMETRY = "path, line, polyline, polygon, rect, circle, ellipse";
+export const GEOMETRY = "path, line, polyline, polygon, rect, circle, ellipse";
 const NUMBER = /[-+]?(?:\d*\.\d+|\d+\.?)(?:[eE][-+]?\d+)?/g;
 // Attributes of a <use> that place its copy rather than style it.
 const PLACEMENT = new Set(["href", "x", "y", "width", "height", "transform"]);
@@ -110,19 +112,9 @@ const dropHiddenCopies = (layer: SVGSVGElement) => {
   }
 };
 
-/** A detached, fill-less copy of the artwork, ready to be placed. */
+/** A detached copy of the artwork's strokes, ready to be placed. */
 export const strokeLayer = (svg: Document): SVGSVGElement => {
-  const layer = document.importNode(svg.documentElement, true) as Element;
-  if (!(layer instanceof SVGSVGElement)) throw new Error("Not an SVG");
-  for (const element of layer.querySelectorAll(
-    ":scope > title, :scope > desc",
-  )) {
-    element.remove();
-  }
-  for (const name of ["role", "aria-labelledby", "width", "height"]) {
-    layer.removeAttribute(name);
-  }
-  layer.setAttribute("aria-hidden", "true");
+  const layer = importArtwork(svg, "etch-lines-");
   expandUses(layer);
   dropHiddenCopies(layer);
   return layer;
