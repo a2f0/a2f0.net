@@ -1,13 +1,13 @@
 // Works out where a unit actually has paint, row by row, so the fat laser
 // burns only across the shape under it instead of the unit's whole bounds.
 
-import { luminance } from "../artwork";
+import { coverage } from "../artwork";
 import type { FillUnit } from "./fills";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 // Silhouettes are rasterized at half the artwork's size.
 const SCALE = 0.5;
-// Paint fainter than this is left to the neighbouring rows.
+// Paint covering less of a pixel than this does not count.
 const THRESHOLD = 0.05;
 // Rows borrow spans from this many neighbours each side, and spans closer
 // than this many pixels join, so sparse shapes do not blink the laser.
@@ -62,22 +62,6 @@ export const widenRows = (
     ),
   );
 
-// Copies a unit's contents painted solid white, keeping the shapes, clips,
-// and stroke widths that decide where paint lands.
-const silhouetteOf = (group: SVGGElement): Element[] =>
-  [...group.children].map((child) => {
-    const copy = child.cloneNode(true) as Element;
-    const originals = [child, ...child.querySelectorAll("*")];
-    const copies = [copy, ...copy.querySelectorAll("*")];
-    originals.forEach((original, i) => {
-      const { fill, stroke } = window.getComputedStyle(original);
-      copies[i].setAttribute("fill", fill === "none" ? "none" : "#fff");
-      copies[i].setAttribute("stroke", stroke === "none" ? "none" : "#fff");
-      copies[i].removeAttribute("filter");
-    });
-    return copy;
-  });
-
 /**
  * The painted spans of each row of a unit, in the unit's own coordinates,
  * with the rows spread evenly down its box.
@@ -93,12 +77,14 @@ export const unitProfile = async (
   svg.setAttribute("preserveAspectRatio", "none");
   const defs = layer.querySelector("defs");
   if (defs) svg.append(defs.cloneNode(true));
-  svg.append(...silhouetteOf(group));
+  // The unit's own paint, so faint and fading paint counts for only as much
+  // as it covers.
+  svg.append(...[...group.children].map((child) => child.cloneNode(true)));
   const doc = new DOMParser().parseFromString(
     new XMLSerializer().serializeToString(svg),
     "image/svg+xml",
   );
-  const mask = await luminance(doc, width, height);
+  const mask = await coverage(doc, width, height);
   const toUnit = (x: number) => box.x + (x / width) * box.width;
   return widenRows(spansOf(mask, width, height), REACH, GAP).map((spans) =>
     spans.map(([start, end]) => [toUnit(start), toUnit(end)] as const),

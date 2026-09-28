@@ -46,6 +46,86 @@ const settled = async () => {
   ).toBe("");
 };
 
+// Drives the animation clock by hand, so any moment can be drawn on demand
+// and drawn again.
+const freezeClock = () =>
+  browser.addInitScript(() => {
+    let now = 0;
+    let queue: FrameRequestCallback[] = [];
+    performance.now = () => now;
+    window.requestAnimationFrame = (callback) => queue.push(callback);
+    window.cancelAnimationFrame = () => undefined;
+    Object.assign(window, {
+      drawAt: (time: number) => {
+        now = time;
+        const callbacks = queue;
+        queue = [];
+        for (const callback of callbacks) callback(time);
+      },
+    });
+  });
+
+// Starts the etching and waits until every unit's paint is profiled; until
+// then a unit burns across its whole width.
+const playProfiled = async () => {
+  await browser.url("/");
+  await play().click();
+  await expect($(".etch-fills[data-profiled]")).toBeExisting();
+};
+
+// Draws a moment with the frozen clock and totals the glow canvas.
+const glowTotal = (time: number) =>
+  browser.execute((at: number) => {
+    (window as unknown as { drawAt: (t: number) => void }).drawAt(at);
+    const canvas = document.querySelector<HTMLCanvasElement>(".etch-glow");
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return 0;
+    let total = 0;
+    for (const value of ctx.getImageData(0, 0, canvas.width, canvas.height)
+      .data) {
+      total += value;
+    }
+    return total;
+  }, time);
+
+// Counts the separate pieces of the fat laser's white-hot core at a moment:
+// the core is far brighter than the fan and halo around it.
+const burningSegments = (time: number) =>
+  browser.execute((at: number) => {
+    (window as unknown as { drawAt: (t: number) => void }).drawAt(at);
+    const canvas = document.querySelector<HTMLCanvasElement>(".etch-glow");
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return 0;
+    const { width, height } = canvas;
+    const { data } = ctx.getImageData(0, 0, width, height);
+    const core = (i: number) => data[i * 4 + 3] > 240;
+    const seen = new Uint8Array(width * height);
+    let segments = 0;
+    for (let start = 0; start < width * height; start++) {
+      if (seen[start] || !core(start)) continue;
+      let size = 0;
+      const stack = [start];
+      seen[start] = 1;
+      while (stack.length > 0) {
+        const i = stack.pop() ?? 0;
+        size++;
+        const [x, y] = [i % width, Math.floor(i / width)];
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            const [nx, ny] = [x + dx, y + dy];
+            const n = ny * width + nx;
+            if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+            if (seen[n] || !core(n)) continue;
+            seen[n] = 1;
+            stack.push(n);
+          }
+        }
+      }
+      if (size > 10) segments++;
+    }
+    return segments;
+  }, time);
+
 describe("Laser etching", () => {
   beforeEach(async () => {
     await browser.url("about:blank");
@@ -168,43 +248,29 @@ describe("Laser etching", () => {
   });
 
   it("keeps the fat laser steady from frame to frame", async () => {
-    // Drives the animation clock by hand, so one moment can be drawn twice.
-    const clock = await browser.addInitScript(() => {
-      let now = 0;
-      let queue: FrameRequestCallback[] = [];
-      performance.now = () => now;
-      window.requestAnimationFrame = (callback) => queue.push(callback);
-      window.cancelAnimationFrame = () => undefined;
-      Object.assign(window, {
-        drawAt: (time: number) => {
-          now = time;
-          const callbacks = queue;
-          queue = [];
-          for (const callback of callbacks) callback(time);
-        },
-      });
-    });
+    const clock = await freezeClock();
     try {
-      await browser.url("/");
-      await play().click();
-      // Before its profile is ready, a unit burns across its whole width.
-      await expect($(".etch-fills[data-profiled]")).toBeExisting();
-      // Draws a moment in the fill pass and totals the glow canvas.
-      const glowAt = (time: number) =>
-        browser.execute((at: number) => {
-          (window as unknown as { drawAt: (t: number) => void }).drawAt(at);
-          const canvas =
-            document.querySelector<HTMLCanvasElement>(".etch-glow");
-          const ctx = canvas?.getContext("2d");
-          if (!canvas || !ctx) return null;
-          const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          let total = 0;
-          for (const value of data) total += value;
-          return total;
-        }, time);
-      const first = await glowAt(8200);
+      await playProfiled();
+      const first = await glowTotal(8200);
       expect(first).toBeGreaterThan(0);
-      expect(await glowAt(8200)).toBe(first);
+      expect(await glowTotal(8200)).toBe(first);
+    } finally {
+      await clock.remove();
+    }
+  });
+
+  it("burns only where the unit under the laser has paint", async () => {
+    const clock = await freezeClock();
+    try {
+      await playProfiled();
+      // Early in the fill pass the laser crosses the extrusion, whose rows
+      // break between the letters. Burning a unit's whole width would draw
+      // one unbroken line instead.
+      const segments = [];
+      for (const time of [6150, 6400, 6700, 7000]) {
+        segments.push(await burningSegments(time));
+      }
+      expect(Math.max(...segments)).toBeGreaterThan(1);
     } finally {
       await clock.remove();
     }
