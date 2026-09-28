@@ -43,10 +43,10 @@ export class Etcher {
   /** Plays the etching, resolving once it finishes or is stopped. */
   async play(): Promise<void> {
     if (this.playing) return;
-    let stopped = false;
-    this.#stop = () => {
-      stopped = true;
-    };
+    // Stopping settles play() at once, even while the artwork is loading.
+    const stopped = new Promise<undefined>((resolve) => {
+      this.#stop = () => resolve(undefined);
+    });
     try {
       this.#outlines ??= fetchArtwork()
         .then(outlinesOf)
@@ -54,8 +54,8 @@ export class Etcher {
           this.#outlines = undefined;
           throw error;
         });
-      const outlines = await this.#outlines;
-      if (stopped) return;
+      const outlines = await Promise.race([this.#outlines, stopped]);
+      if (!outlines) return;
       const scene = this.#build(outlines);
       try {
         await this.#run(scene);

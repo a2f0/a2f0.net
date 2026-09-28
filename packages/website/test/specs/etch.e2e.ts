@@ -80,6 +80,34 @@ describe("Laser etching", () => {
     await settled();
   });
 
+  it("stops at once while the artwork is still loading", async () => {
+    const slow = await browser.addInitScript(() => {
+      const load = window.fetch.bind(window);
+      window.fetch = ((...request: Parameters<typeof fetch>) =>
+        new Promise((resolve) => setTimeout(resolve, 3000)).then(() =>
+          load(...request),
+        )) as typeof fetch;
+    });
+    try {
+      await browser.url("/");
+      await play().click();
+      await expect(play()).toHaveAttribute(
+        "aria-label",
+        "Stop etching animation",
+      );
+      await play().click();
+      await browser.waitUntil(
+        async () =>
+          (await play().getAttribute("aria-label")) ===
+          "Play etching animation",
+        { timeout: 1000, timeoutMsg: "stop waited for the artwork to load" },
+      );
+      await settled();
+    } finally {
+      await slow.remove();
+    }
+  });
+
   it("switches from the ASCII view to the SVG before etching", async () => {
     await browser.url("/");
     await $(".view-toggle").click();
