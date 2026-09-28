@@ -194,6 +194,65 @@ describe("SVG Resume", () => {
     await expect(SvgPage.leftPartition).toBeExisting();
   });
 
+  it("follows width changes that fire no resize event", async () => {
+    await SvgPage.open();
+    // Scrollbars that take up width, as on Linux; styling them turns off
+    // the overlay scrollbars macOS uses.
+    await browser.execute(() =>
+      document.head.insertAdjacentHTML(
+        "beforeend",
+        "<style>::-webkit-scrollbar{width:15px}::-webkit-scrollbar-thumb{background:#666}</style>",
+      ),
+    );
+    await browser.setViewport({ width: 390, height: 844 });
+    await browser.waitUntil(
+      () =>
+        browser.execute(() => window.matchMedia("(max-width: 768px)").matches),
+      { timeoutMsg: "expected a mobile viewport" },
+    );
+    await browser.execute(() => window.dispatchEvent(new Event("resize")));
+    await waitForHydration("#svgContainer");
+    const layout = () =>
+      browser.execute(() => ({
+        clientWidth: document.documentElement.clientWidth,
+        svgWidth: document
+          .querySelector("#svgResume.svg:not(.desktop-svg)")
+          ?.getAttribute("width"),
+      }));
+    await browser.waitUntil(
+      async () => {
+        const { clientWidth, svgWidth } = await layout();
+        return svgWidth === `${clientWidth}px`;
+      },
+      { timeoutMsg: "expected the mobile resume to fit the page" },
+    );
+    const { clientWidth: narrow } = await layout();
+
+    // Hiding the scrollbar widens the page without firing a resize event,
+    // as a scrollbar appearing narrows it; the resume must follow either way.
+    await browser.execute(() => {
+      document.documentElement.style.overflowY = "hidden";
+    });
+    try {
+      await browser.waitUntil(
+        async () => {
+          const { clientWidth, svgWidth } = await layout();
+          return clientWidth > narrow && svgWidth === `${clientWidth}px`;
+        },
+        {
+          timeoutMsg: `expected the resume to follow the wider page: ${JSON.stringify(
+            await layout(),
+          )}`,
+        },
+      );
+    } finally {
+      await browser.execute(() => {
+        document.documentElement.style.overflowY = "";
+      });
+      await browser.setViewport({ width: 1366, height: 900 });
+    }
+  });
+
   it("renders mobile content when the font fails to load", async () => {
     // Start from the desktop layout even if an earlier test left a mobile one.
     await browser.setViewport({ width: 1366, height: 900 });

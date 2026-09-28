@@ -102,7 +102,14 @@ export default function SvgResume({ desktopSvg }: SvgResumeProps) {
     };
     handleResize();
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    // A scrollbar appearing or disappearing changes the page's width without
+    // a resize event, which would leave the SVG sized for the old width.
+    const observer = new ResizeObserver(handleResize);
+    observer.observe(document.documentElement);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      observer.disconnect();
+    };
   }, []);
 
   useEffect(() => {
