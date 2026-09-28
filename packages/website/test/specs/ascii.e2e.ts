@@ -107,8 +107,10 @@ describe("ASCII graffiti view", () => {
         return { color: style.color, border: style.borderTopWidth };
       });
     await browser.url("/");
+    // Earlier tests can leave the pointer where the toggle sits.
+    await browser.action("pointer").move({ x: 1, y: 1 }).perform();
     const resting = await look();
-    expect(resting.border).toBe("0px");
+    expect(resting).toEqual({ color: "rgb(138, 138, 138)", border: "0px" });
 
     await toggle().moveTo();
     expect((await look()).color).toBe("rgb(255, 255, 255)");
