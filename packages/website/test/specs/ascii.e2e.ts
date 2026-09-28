@@ -1,6 +1,7 @@
 import { $, browser, expect } from "@wdio/globals";
 
 const toggle = () => $(".view-toggle");
+const music = () => $(".music-toggle");
 const stage = () => $(".stage");
 const graffiti = () => $(".graffiti");
 const ascii = () => $(".ascii");
@@ -113,6 +114,52 @@ describe("ASCII graffiti view", () => {
     await expect(toggle()).toHaveAttribute("aria-pressed", "false");
   });
 
+  it("puts square tools in the canvas's top-right corner", async () => {
+    await browser.url("/");
+    await expect(music()).toBeDisplayed();
+    await expect(toggle()).toBeDisplayed();
+    const layout = await browser.execute(() => {
+      const rect = (selector: string) => {
+        const element = document.querySelector(selector);
+        if (!element) throw new Error(`Missing ${selector}`);
+        return element.getBoundingClientRect();
+      };
+      const canvas = rect(".canvas");
+      const stage = rect(".stage");
+      const music = rect(".music-toggle");
+      const ascii = rect(".view-toggle");
+      return {
+        canvas: [canvas.width, canvas.height],
+        stage: [stage.width, stage.height],
+        top: music.top - canvas.top,
+        right: canvas.right - ascii.right,
+        musicFirst: music.right <= ascii.left,
+        aligned: music.top === ascii.top,
+        squares: [music, ascii].every(
+          ({ width, height }) => width === height && width <= 32,
+        ),
+      };
+    });
+    expect(layout.canvas).toEqual(layout.stage);
+    expect(layout.top).toBeGreaterThan(0);
+    expect(layout.top).toBeLessThanOrEqual(16);
+    expect(layout.right).toBeGreaterThan(0);
+    expect(layout.right).toBeLessThanOrEqual(16);
+    expect(layout).toMatchObject({
+      musicFirst: true,
+      aligned: true,
+      squares: true,
+    });
+  });
+
+  it("leaves the music player as a placeholder", async () => {
+    await browser.url("/");
+    await expect(music()).toHaveAttribute("aria-disabled", "true");
+    await music().click();
+    await expectView("svg");
+    expect(await browser.getUrl()).not.toContain("#");
+  });
+
   it("peeks at the ASCII through a lens under the pointer", async () => {
     await browser.url("/");
     await stage().moveTo({ xOffset: -300, yOffset: -40 });
@@ -125,6 +172,12 @@ describe("ASCII graffiti view", () => {
     await browser.action("pointer").move({ x: 1, y: 1 }).perform();
     await lensSettles(0);
     await expectView("svg");
+
+    // The toolbar sits over the canvas but is not part of the artwork.
+    await stage().moveTo({ xOffset: -300, yOffset: -40 });
+    await lensSettles(46);
+    await toggle().moveTo();
+    await lensSettles(0);
   });
 
   it("peeks with a mouse on a touch-first device", async () => {
