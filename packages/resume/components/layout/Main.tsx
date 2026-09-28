@@ -8,9 +8,12 @@ import Footer from "./Footer";
 import Gutter from "./Gutter";
 import Header from "./Header";
 import MainColumn from "./MainColumn";
+import VisuallyHidden from "./VisuallyHidden";
 
 interface IProps {
   children: ReactNode;
+  /** Names the page in the browser tab and in its top-level heading. */
+  title: string;
 }
 
 const StyledMain = styled.main`
@@ -22,13 +25,14 @@ const StyledMain = styled.main`
   align-items: center;
 `;
 
-const Main = ({ children }: IProps) => {
+const Main = ({ children, title }: IProps) => {
   const scale = useAppSelector(selectScale);
   return (
     <StyledMain>
       <Gutter />
       <MainColumn scale={scale}>
-        <Header />
+        <VisuallyHidden as="h1">{title}</VisuallyHidden>
+        <Header title={title} />
         <Body>{children}</Body>
         <Footer />
       </MainColumn>

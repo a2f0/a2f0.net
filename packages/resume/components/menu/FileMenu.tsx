@@ -19,13 +19,11 @@ import {
 } from "../../lib/svgFont";
 import CheckMark from "./CheckMark";
 import { useDropdownMenu } from "./DropdownMenuContext";
-import MenuLink from "./MenuLink";
-import MenuListItem from "./MenuListItem";
-import { useMenuParent } from "./MenuParentContext";
+import MenuAction from "./MenuAction";
+import MenuLabel from "./MenuLabel";
 
 const FileMenu = () => {
-  const context = useDropdownMenu();
-  const parentContext = useMenuParent();
+  const { close } = useDropdownMenu();
   const foregroundColor = useAppSelector(selectForegroundColor);
   const backgroundColor = useAppSelector(selectBackgroundColor);
   const highlightColor = useAppSelector(selectHighlightColor);
@@ -40,8 +38,7 @@ const FileMenu = () => {
     const resumeFactory = new PdfResumeFactory(config, resume);
     const pdfResume = resumeFactory.getResume();
     pdfResume.save("dan.sullivan.resume.pdf");
-    parentContext.setActiveDropdown("");
-    parentContext.setIsActive(false);
+    close();
   };
 
   const downloadSVG = async () => {
@@ -92,29 +89,33 @@ const FileMenu = () => {
     element.href = window.URL.createObjectURL(blob);
     element.click();
     element.remove();
-    context.setIsActive(false);
-    parentContext.setActiveDropdown("");
-    parentContext.setIsActive(false);
+    close();
   };
 
   return (
     <ul>
-      <MenuListItem
-        id="downloadPdfMenuOption"
-        onClick={downloadPDF}
-        scale={scale}
-      >
-        <CheckMark $isActive={false} />
-        <MenuLink>Download PDF</MenuLink>
-      </MenuListItem>
-      <MenuListItem
-        id="downloadSvgMenuOption"
-        onClick={downloadSVG}
-        scale={scale}
-      >
-        <CheckMark $isActive={false} />
-        <MenuLink>Download SVG</MenuLink>
-      </MenuListItem>
+      <li>
+        <MenuAction
+          type="button"
+          id="downloadPdfMenuOption"
+          onClick={downloadPDF}
+          $scale={scale}
+        >
+          <CheckMark $isActive={false} />
+          <MenuLabel>Download PDF</MenuLabel>
+        </MenuAction>
+      </li>
+      <li>
+        <MenuAction
+          type="button"
+          id="downloadSvgMenuOption"
+          onClick={downloadSVG}
+          $scale={scale}
+        >
+          <CheckMark $isActive={false} />
+          <MenuLabel>Download SVG</MenuLabel>
+        </MenuAction>
+      </li>
     </ul>
   );
 };

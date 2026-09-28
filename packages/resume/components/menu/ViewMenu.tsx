@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useDispatch } from "react-redux";
 
@@ -14,10 +15,9 @@ import {
 import resume from "../../resume.json";
 import CheckMark from "./CheckMark";
 import { useDropdownMenu } from "./DropdownMenuContext";
+import MenuAction from "./MenuAction";
 import MenuDivider from "./MenuDivider";
-import MenuLink from "./MenuLink";
-import MenuListItem from "./MenuListItem";
-import { useMenuParent } from "./MenuParentContext";
+import MenuLabel from "./MenuLabel";
 
 const {
   darkForegroundColor,
@@ -29,11 +29,9 @@ const {
 } = resumeConfiguration;
 
 const ViewMenu = () => {
-  const context = useDropdownMenu();
-  const parentContext = useMenuParent();
+  const { close } = useDropdownMenu();
   const dispatch = useDispatch();
   const { asPath } = useRouter();
-  const router = useRouter();
   const foregroundColor = useAppSelector(selectForegroundColor);
   const scale = useAppSelector(selectScale);
 
@@ -41,98 +39,106 @@ const ViewMenu = () => {
     dispatch(setForegroundColor(darkForegroundColor));
     dispatch(setBackgroundColor(darkBackgroundColor));
     dispatch(setHighlightColor(darkHighlightColor));
-    context.setIsActive(false);
-    parentContext.setActiveDropdown("");
-    parentContext.setIsActive(false);
+    close();
   };
 
   const setLightTheme = () => {
     dispatch(setForegroundColor(lightForegroundColor));
     dispatch(setBackgroundColor(lightBackgroundColor));
     dispatch(setHighlightColor(lightHighlightColor));
-    context.setIsActive(false);
-    parentContext.setActiveDropdown("");
-    parentContext.setIsActive(false);
+    close();
   };
 
-  const setScaleFactor = (scale: number) => {
-    dispatch(setScale(scale));
-    context.setIsActive(false);
-    parentContext.setActiveDropdown("");
-    parentContext.setIsActive(false);
+  const setScaleFactor = (factor: number) => {
+    dispatch(setScale(factor));
+    close();
   };
 
-  const dismissMenu = () => {
-    context.setIsActive(false);
-    parentContext.setActiveDropdown("");
-    parentContext.setIsActive(false);
-  };
+  const scaleOption = (factor: number, label: string) => (
+    <li>
+      <MenuAction
+        type="button"
+        aria-pressed={scale === factor}
+        onClick={() => setScaleFactor(factor)}
+        $scale={scale}
+      >
+        <CheckMark $isActive={scale === factor} />
+        <MenuLabel>{label}</MenuLabel>
+      </MenuAction>
+    </li>
+  );
 
-  const sourceCode = () => {
-    context.setIsActive(false);
-    parentContext.setActiveDropdown("");
-    parentContext.setIsActive(false);
-    window.open(resume.url);
-  };
+  const pageOption = (path: string, label: string) => (
+    <li>
+      <MenuAction
+        as={Link}
+        href={path}
+        aria-current={asPath === path ? "page" : undefined}
+        onClick={close}
+        $scale={scale}
+      >
+        <CheckMark $isActive={asPath === path} />
+        <MenuLabel>{label}</MenuLabel>
+      </MenuAction>
+    </li>
+  );
 
   return (
-    <ul>
-      <MenuListItem
-        id="darkThemeMenuOption"
-        onClick={setDarkTheme}
-        scale={scale}
-      >
-        <CheckMark $isActive={foregroundColor === darkForegroundColor} />
-        <MenuLink>Dark Theme</MenuLink>
-      </MenuListItem>
-      <MenuListItem
-        id="lightThemeMenuOption"
-        onClick={setLightTheme}
-        scale={scale}
-      >
-        <CheckMark $isActive={foregroundColor === lightForegroundColor} />
-        <MenuLink>Light Theme</MenuLink>
-      </MenuListItem>
+    <>
+      <ul aria-label="Theme">
+        <li>
+          <MenuAction
+            type="button"
+            id="darkThemeMenuOption"
+            aria-pressed={foregroundColor === darkForegroundColor}
+            onClick={setDarkTheme}
+            $scale={scale}
+          >
+            <CheckMark $isActive={foregroundColor === darkForegroundColor} />
+            <MenuLabel>Dark Theme</MenuLabel>
+          </MenuAction>
+        </li>
+        <li>
+          <MenuAction
+            type="button"
+            id="lightThemeMenuOption"
+            aria-pressed={foregroundColor === lightForegroundColor}
+            onClick={setLightTheme}
+            $scale={scale}
+          >
+            <CheckMark $isActive={foregroundColor === lightForegroundColor} />
+            <MenuLabel>Light Theme</MenuLabel>
+          </MenuAction>
+        </li>
+      </ul>
       <MenuDivider />
-      <MenuListItem onClick={() => setScaleFactor(1.5)} scale={scale}>
-        <CheckMark $isActive={scale === 1.5} />
-        <MenuLink onClick={dismissMenu}>150%</MenuLink>
-      </MenuListItem>
-      <MenuListItem onClick={() => setScaleFactor(1.25)} scale={scale}>
-        <CheckMark $isActive={scale === 1.25} />
-        <MenuLink onClick={dismissMenu}>125%</MenuLink>
-      </MenuListItem>
-      <MenuListItem onClick={() => setScaleFactor(1)} scale={scale}>
-        <CheckMark $isActive={scale === 1} />
-        <MenuLink onClick={dismissMenu}>Real Size</MenuLink>
-      </MenuListItem>
+      <ul aria-label="Size">
+        {scaleOption(1.5, "150%")}
+        {scaleOption(1.25, "125%")}
+        {scaleOption(1, "Real Size")}
+      </ul>
       <MenuDivider />
-      <MenuListItem
-        onClick={() => {
-          dismissMenu();
-          router.push("/");
-        }}
-        scale={scale}
-      >
-        <CheckMark $isActive={asPath === "/"} />
-        <MenuLink>SVG</MenuLink>
-      </MenuListItem>
-      <MenuListItem
-        onClick={() => {
-          dismissMenu();
-          router.push("/pdf");
-        }}
-        scale={scale}
-      >
-        <CheckMark $isActive={asPath === "/pdf"} />
-        <MenuLink>PDF Preview</MenuLink>
-      </MenuListItem>
+      <ul aria-label="Format">
+        {pageOption("/", "SVG")}
+        {pageOption("/pdf", "PDF Preview")}
+      </ul>
       <MenuDivider />
-      <MenuListItem onClick={sourceCode} scale={scale}>
-        <CheckMark $isActive={false} />
-        <MenuLink>Source Code</MenuLink>
-      </MenuListItem>
-    </ul>
+      <ul>
+        <li>
+          <MenuAction
+            as="a"
+            href={resume.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={close}
+            $scale={scale}
+          >
+            <CheckMark $isActive={false} />
+            <MenuLabel>Source Code</MenuLabel>
+          </MenuAction>
+        </li>
+      </ul>
+    </>
   );
 };
 

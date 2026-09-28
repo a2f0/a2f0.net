@@ -1,21 +1,22 @@
-import { type ReactNode, createContext, useContext } from "react";
+import { createContext, type ReactNode, useContext } from "react";
 
 const DropdownMenuContext = createContext<DropdownContextProps | undefined>(
   undefined,
 );
 
 interface DropdownContextProps {
-  setIsActive: React.Dispatch<React.SetStateAction<boolean>>;
+  /** Hides the menu, returning focus to its button if focus was inside. */
+  close: () => void;
 }
 
 interface DropdownMenuProps {
   children: ReactNode;
-  setIsActive: React.Dispatch<React.SetStateAction<boolean>>;
+  close: () => void;
 }
 
-function DropdownMenuProvider({ children, setIsActive }: DropdownMenuProps) {
+function DropdownMenuProvider({ children, close }: DropdownMenuProps) {
   return (
-    <DropdownMenuContext.Provider value={{ setIsActive: setIsActive }}>
+    <DropdownMenuContext.Provider value={{ close }}>
       {children}
     </DropdownMenuContext.Provider>
   );

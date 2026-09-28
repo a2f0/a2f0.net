@@ -5,7 +5,12 @@
   "workers_dev": false,
   "preview_urls": false,
   // Keep the existing Worker name so its apex custom domain stays attached.
+  // Bundles src/ and copies public/ into dist/ before dev and deploy.
+  "build": {
+    "command": "bun run build",
+    "watch_dir": ["src", "public"]
+  },
   "assets": {
-    "directory": "./public"
+    "directory": "./dist"
   }
 }

@@ -107,6 +107,7 @@
         "useConst": "error",
         "noNonNullAssertion": "error"
       },
+      "a11y": { "preset": "all" },
       "nursery": {}
     },
     "includes": ["**"]

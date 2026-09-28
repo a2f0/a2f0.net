@@ -231,10 +231,10 @@ describe("ASCII graffiti view", () => {
   it("finishes one flip when clicked twice while the ASCII renders", async () => {
     const slow = await browser.addInitScript(() => {
       const load = window.fetch.bind(window);
-      window.fetch = (...request: Parameters<typeof fetch>) =>
+      window.fetch = ((...request: Parameters<typeof fetch>) =>
         new Promise((resolve) => setTimeout(resolve, 1000)).then(() =>
           load(...request),
-        );
+        )) as typeof fetch;
     });
     try {
       await browser.url("/");
@@ -251,7 +251,8 @@ describe("ASCII graffiti view", () => {
 
   it("stays on the SVG when the artwork cannot load", async () => {
     const offline = await browser.addInitScript(() => {
-      window.fetch = () => Promise.reject(new Error("offline"));
+      window.fetch = ((..._request: Parameters<typeof fetch>) =>
+        Promise.reject(new Error("offline"))) as typeof fetch;
     });
     try {
       await browser.url("/");

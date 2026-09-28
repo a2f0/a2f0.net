@@ -31,6 +31,15 @@
         background: #000;
       }
 
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+      }
+
       html,
       body {
         width: 100%;
@@ -156,6 +165,7 @@
   </head>
   <body>
     <main>
+      <h1 class="visually-hidden">a2f0</h1>
       <div class="canvas">
         <div class="stage" data-view="svg">
           <img
@@ -228,6 +238,6 @@
         </div>
       </div>
     </main>
-    <script type="module" src="/ascii.js"></script>
+    <script type="module" src="/graffiti.js"></script>
   </body>
 </html>

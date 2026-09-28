@@ -22,7 +22,9 @@ export const VersionLink = styled.a`
   font-family: Helvetica;
   font-weight: 10;
   text-decoration: none;
-  :hover {
+  /* Hidden until pointed at or reached from the keyboard. */
+  &:hover,
+  &:focus-visible {
     color: white;
   }
 `;
