@@ -47,10 +47,12 @@ const zoomAt = (time: number) =>
     });
   }, time);
 
-// The ASCII renders ahead of use, and the stage fits the taller of the two
-// views, so the art is measured once it has.
+// The stage fits the taller of the two views, so the art is measured once
+// the ASCII has rendered. Hovering the art renders it on any device; only
+// one that reports hover renders it unprompted.
 const loaded = async () => {
   await browser.url("/");
+  await $(".stage").moveTo();
   await browser.waitUntil(
     async () =>
       (await browser.execute(
@@ -58,6 +60,7 @@ const loaded = async () => {
       )) > 0,
     { timeoutMsg: "the ASCII never rendered" },
   );
+  await browser.action("pointer").move({ x: 1, y: 1 }).perform();
 };
 
 const settled = () =>
