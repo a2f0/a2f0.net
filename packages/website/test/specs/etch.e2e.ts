@@ -3,36 +3,45 @@ import { $, browser, expect } from "@wdio/globals";
 const play = () => $(".play-toggle");
 const stage = () => $(".stage");
 
-// Reports how far the etching has got: how much of the first stroke is
-// traced, how much of the artwork is revealed, and how much of the traced
-// strokes the raster pass has already replaced.
+// Reports how far the etching has got: how many strokes the laser has
+// started tracing, which units the fat laser has begun to fill, and how
+// many etched lines have given way to paint.
 const progress = () =>
   browser.execute(() => {
-    const stroke = document.querySelector<SVGGeometryElement>(".etch-stroke");
-    const lines = document.querySelector<SVGSVGElement>(".etch-lines");
-    const clip =
-      document.querySelector<HTMLElement>(".graffiti")?.style.clipPath;
-    const hidden = /inset\(0(?:px)? 0(?:px)? ([\d.]+)%/.exec(clip ?? "");
-    const replaced = /inset\(([\d.]+)%/.exec(lines?.style.clipPath ?? "");
+    const strokes = [
+      ...document.querySelectorAll<SVGGeometryElement>(".etch-stroke"),
+    ];
+    const units = [
+      ...document.querySelectorAll<SVGGElement>(".etch-fills g[data-fill]"),
+    ];
     return {
-      traced: stroke
-        ? stroke.getTotalLength() -
-          Number.parseFloat(stroke.style.strokeDashoffset)
-        : null,
-      revealed: hidden ? 100 - Number.parseFloat(hidden[1]) : null,
-      replaced: replaced ? Number.parseFloat(replaced[1]) : 0,
+      traced: strokes.filter(
+        (stroke) =>
+          Number.parseFloat(stroke.style.strokeDashoffset) <
+          stroke.getTotalLength(),
+      ).length,
+      filling: units
+        .filter((unit) => {
+          const reveal = document.querySelector(
+            `#etch-reveal-${unit.dataset.fill} rect`,
+          );
+          return Number(reveal?.getAttribute("height")) > 0;
+        })
+        .map((unit) => unit.hasAttribute("data-letter")),
+      faded: document.querySelectorAll(".etch-stroke.filled").length,
     };
   });
 
 const settled = async () => {
   await expect($(".etch-lines")).not.toBeExisting();
+  await expect($(".etch-fills")).not.toBeExisting();
   await expect($(".etch-glow")).not.toBeExisting();
   await expect(stage()).not.toHaveAttribute("data-etching");
   await expect(play()).toHaveAttribute("aria-label", "Play etching animation");
   await expect(play()).not.toHaveAttribute("data-playing");
   expect(
     await browser.execute(
-      () => document.querySelector<HTMLElement>(".graffiti")?.style.clipPath,
+      () => document.querySelector<HTMLElement>(".graffiti")?.style.visibility,
     ),
   ).toBe("");
 };
@@ -48,7 +57,7 @@ describe("Laser etching", () => {
     await settled();
   });
 
-  it("traces the strokes, then reveals the artwork from the top", async () => {
+  it("traces the strokes, then fills each unit with its paint", async () => {
     await browser.url("/");
     await play().click();
     await expect(stage()).toHaveAttribute("data-etching");
@@ -57,25 +66,21 @@ describe("Laser etching", () => {
       "Stop etching animation",
     );
 
-    // The vector pass traces the strokes over a still-hidden artwork.
+    // The vector pass traces strokes before anything is painted.
     await browser.waitUntil(async () => {
-      const { traced, revealed } = await progress();
-      return (traced ?? 0) > 0 && revealed === 0;
+      const { traced, filling } = await progress();
+      return traced > 0 && filling.length === 0;
     });
-    // The raster pass swaps the traced strokes for the finished artwork.
+    // The fat laser then fills units, and their etched lines give way.
     await browser.waitUntil(
       async () => {
-        const { revealed, replaced } = await progress();
-        return (
-          (revealed ?? 0) > 0 &&
-          (revealed ?? 0) < 100 &&
-          Math.abs((revealed ?? 0) - replaced) < 1
-        );
+        const { filling, faded } = await progress();
+        return filling.length > 0 && faded > 0;
       },
       { timeout: 12000 },
     );
     await browser.waitUntil(
-      async () => !(await $(".etch-lines").isExisting()),
+      async () => !(await $(".etch-fills").isExisting()),
       { timeout: 15000, timeoutMsg: "the etching never finished" },
     );
     await settled();
@@ -114,6 +119,12 @@ describe("Laser etching", () => {
     const [r, g, b] = (stroke ?? "").match(/\d+/g)?.map(Number) ?? [];
     expect(r).toBe(g);
     expect(g).toBe(b);
+
+    // The fat laser's fan and burning line are gray too.
+    await browser.waitUntil(async () => (await progress()).filling.length > 0, {
+      timeout: 12000,
+    });
+    expect((await glow())?.colored).toBe(0);
   });
 
   it("traces every stroke in the artwork", async () => {
@@ -135,8 +146,9 @@ describe("Laser etching", () => {
           (shape) =>
             !shape.closest("defs") && !shape.classList.contains("etch-stroke"),
         ).length,
-        copies: document.querySelectorAll(".etch-lines [data-copy='#word']")
-          .length,
+        copies: document.querySelectorAll(
+          ".etch-lines [data-copy='#etch-lines-word']",
+        ).length,
       };
     });
     // Every contour of the brushwork, extrusion edges, faces, and details;
@@ -153,6 +165,32 @@ describe("Laser etching", () => {
           () => document.querySelectorAll(".etch-stroke.cooled").length,
         )) > 50,
     );
+  });
+
+  it("etches and fills the lettering first", async () => {
+    await browser.url("/");
+    await play().click();
+    // The first strokes to finish are all on the letters.
+    const cooled = () =>
+      browser.execute(() =>
+        [...document.querySelectorAll(".etch-stroke.cooled")].map((stroke) =>
+          stroke.hasAttribute("data-letter"),
+        ),
+      );
+    await browser.waitUntil(async () => (await cooled()).length > 20);
+    expect((await cooled()).every(Boolean)).toBe(true);
+    // So are the first units the fat laser fills.
+    await browser.waitUntil(async () => (await progress()).filling.length > 0, {
+      timeout: 12000,
+    });
+    expect((await progress()).filling.every(Boolean)).toBe(true);
+    // Brushwork and ornaments follow the lettering in both passes.
+    expect(
+      await browser.execute(
+        () =>
+          document.querySelectorAll(".etch-stroke:not([data-letter])").length,
+      ),
+    ).toBeGreaterThan(0);
   });
 
   it("stops at once when stop is pressed", async () => {

@@ -1,6 +1,6 @@
 // Draws the laser on the glow canvas, in grayscale: the beam from the
-// emitter, the white-hot spot where it strikes, and the line the raster
-// pass is burning.
+// emitter and the white-hot spot where it strikes, or the fat laser's fan
+// of light and the line it burns.
 
 export interface Point {
   x: number;
@@ -78,16 +78,49 @@ export const drawSpot = (
   ctx.stroke();
 };
 
-export const drawScanline = (
+/**
+ * The fat laser: a line burned across the surface, fed by a fan of light
+ * from the emitter, like a flashlight beam seen from the side.
+ */
+export const drawFatBeam = (
   ctx: CanvasRenderingContext2D,
-  y: number,
+  from: Point,
+  a: Point,
+  b: Point,
   width: number,
-  thickness: number,
 ) => {
-  const band = ctx.createLinearGradient(0, y - thickness, 0, y + thickness);
-  band.addColorStop(0, "rgba(255, 255, 255, 0)");
-  band.addColorStop(0.5, "rgba(230, 230, 230, 0.5)");
-  band.addColorStop(1, "rgba(255, 255, 255, 0)");
-  ctx.fillStyle = band;
-  ctx.fillRect(0, y - thickness, width, thickness * 2);
+  const middle = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+  const edge =
+    middle.y > from.y
+      ? Math.min(Math.max(-from.y / (middle.y - from.y), 0), 1)
+      : 0;
+  const fan = ctx.createLinearGradient(from.x, from.y, middle.x, middle.y);
+  fan.addColorStop(0, "rgba(255, 255, 255, 0)");
+  fan.addColorStop(edge, "rgba(255, 255, 255, 0)");
+  fan.addColorStop(1, "rgba(255, 255, 255, 0.28)");
+  ctx.fillStyle = fan;
+  ctx.globalAlpha = flicker(1);
+  ctx.beginPath();
+  ctx.moveTo(from.x, from.y);
+  ctx.lineTo(a.x, a.y);
+  ctx.lineTo(b.x, b.y);
+  ctx.closePath();
+  ctx.fill();
+
+  // The burning line: a white core inside a soft halo.
+  ctx.lineCap = "round";
+  for (const [scale, alpha] of [
+    [5, 0.15],
+    [2, 0.4],
+    [0.6, 1],
+  ]) {
+    ctx.globalAlpha = flicker(alpha);
+    ctx.strokeStyle = "rgba(255, 255, 255, 1)";
+    ctx.lineWidth = width * scale;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
 };
