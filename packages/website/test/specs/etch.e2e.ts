@@ -72,6 +72,40 @@ describe("Laser etching", () => {
     await expect(stage()).toHaveAttribute("data-view", "svg");
   });
 
+  it("draws a visible beam and everything in grayscale", async () => {
+    await browser.url("/");
+    await play().click();
+    // Reads the glow canvas during the vector pass: every lit pixel must be
+    // gray, and the beam must reach up into the top of the canvas.
+    const glow = () =>
+      browser.execute(() => {
+        const canvas = document.querySelector<HTMLCanvasElement>(".etch-glow");
+        const ctx = canvas?.getContext("2d");
+        const path = document.querySelector(".etch-lines path");
+        if (!canvas?.width || !ctx || !path) return null;
+        const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const band = canvas.width * Math.floor(canvas.height * 0.05);
+        let lit = 0;
+        let colored = 0;
+        let top = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          if (data[i + 3] === 0) continue;
+          lit++;
+          const channels = [data[i], data[i + 1], data[i + 2]];
+          if (Math.max(...channels) - Math.min(...channels) > 2) colored++;
+          if (i / 4 < band) top++;
+        }
+        return { lit, colored, top, stroke: getComputedStyle(path).stroke };
+      });
+    await browser.waitUntil(async () => ((await glow())?.lit ?? 0) > 0);
+    const { colored, top, stroke } = (await glow()) ?? {};
+    expect(colored).toBe(0);
+    expect(top).toBeGreaterThan(0);
+    const [r, g, b] = (stroke ?? "").match(/\d+/g)?.map(Number) ?? [];
+    expect(r).toBe(g);
+    expect(g).toBe(b);
+  });
+
   it("stops at once when stop is pressed", async () => {
     await browser.url("/");
     await play().click();

@@ -1,8 +1,15 @@
-// Plays the etching over the stage: a glowing laser traces the hot letter
-// outlines, then a raster sweep reveals the finished artwork line by line.
+// Plays the etching over the stage: a visible laser beam traces the hot
+// letter outlines, then a raster sweep reveals the finished artwork line by
+// line.
 
 import { fetchArtwork } from "../artwork";
-import { drawHead, drawScanline } from "./glow";
+import {
+  drawBeam,
+  drawScanline,
+  drawSpot,
+  emitterFor,
+  type Point,
+} from "./glow";
 import { type Outlines, outlinesOf } from "./outlines";
 import { type EtchFrame, etchFrame, sweep } from "./timeline";
 
@@ -139,21 +146,26 @@ export class Etcher {
     ctx.globalCompositeOperation = "lighter";
     const radius = Math.max(8, box.width / 90);
 
+    let spot: Point | undefined;
     if (frame.active >= 0) {
       const path = paths[frame.active];
       const point = path.getPointAtLength(frame.traced[frame.active]);
       const screen = point.matrixTransform(path.getScreenCTM() ?? undefined);
-      drawHead(ctx, screen.x - box.left, screen.y - box.top, radius);
+      spot = { x: screen.x - box.left, y: screen.y - box.top };
     } else if (frame.scan > 0 && !frame.done) {
       const art = this.#art.getBoundingClientRect();
       const y = art.top + frame.scan * art.height - box.top;
       drawScanline(ctx, y, box.width, radius / 2);
-      drawHead(
+      spot = { x: art.left - box.left + sweep(frame.scan) * art.width, y };
+    }
+    if (spot) {
+      drawBeam(
         ctx,
-        art.left - box.left + sweep(frame.scan) * art.width,
-        y,
-        radius,
+        emitterFor(box.width, box.height),
+        spot,
+        Math.max(1.5, box.width / 700),
       );
+      drawSpot(ctx, spot, radius);
     }
   }
 }
