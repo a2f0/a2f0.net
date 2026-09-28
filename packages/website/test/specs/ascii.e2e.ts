@@ -123,6 +123,7 @@ describe("ASCII graffiti view", () => {
 
   it("puts square tools in the canvas's top-right corner", async () => {
     await browser.url("/");
+    await expect($(".play-toggle")).toBeDisplayed();
     await expect(music()).toBeDisplayed();
     await expect(toggle()).toBeDisplayed();
     const layout = await browser.execute(() => {
@@ -133,16 +134,18 @@ describe("ASCII graffiti view", () => {
       };
       const canvas = rect(".canvas");
       const stage = rect(".stage");
-      const music = rect(".music-toggle");
-      const ascii = rect(".view-toggle");
+      const tools = [".play-toggle", ".music-toggle", ".view-toggle"].map(rect);
+      const ascii = tools[tools.length - 1];
       return {
         canvas: [canvas.width, canvas.height],
         stage: [stage.width, stage.height],
-        top: music.top - canvas.top,
+        top: tools[0].top - canvas.top,
         right: canvas.right - ascii.right,
-        musicFirst: music.right <= ascii.left,
-        aligned: music.top === ascii.top,
-        squares: [music, ascii].every(
+        inOrder: tools.every(
+          (tool, i) => i === 0 || tools[i - 1].right <= tool.left,
+        ),
+        aligned: tools.every((tool) => tool.top === tools[0].top),
+        squares: tools.every(
           ({ width, height }) => width === height && width <= 32,
         ),
       };
@@ -153,7 +156,7 @@ describe("ASCII graffiti view", () => {
     expect(layout.right).toBeGreaterThan(0);
     expect(layout.right).toBeLessThanOrEqual(16);
     expect(layout).toMatchObject({
-      musicFirst: true,
+      inOrder: true,
       aligned: true,
       squares: true,
     });

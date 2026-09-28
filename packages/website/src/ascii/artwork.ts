@@ -1,11 +1,8 @@
 // Loads a2f0.svg and rasterizes it as luminance, whole and with the letter
 // faces and their extrusion isolated, so each layer can be shaded on its own.
 
+import { FACES, fetchArtwork, LETTERS, viewBoxOf } from "../artwork";
 import { type Glyphs, glyphShapes } from "./glyphs";
-
-const SVG_URL = "/a2f0.svg";
-const FACES = 'use[href="#word"]:not([transform])';
-const LETTERS = 'use[href="#word"]';
 
 export interface Artwork {
   svg: Document;
@@ -84,15 +81,10 @@ const luminance = async (
 };
 
 export const loadArtwork = async (fontFamily: string): Promise<Artwork> => {
-  const response = await fetch(SVG_URL);
-  if (!response.ok) throw new Error(`Failed to load ${SVG_URL}`);
-  const svg = new DOMParser().parseFromString(
-    await response.text(),
-    "image/svg+xml",
-  );
-  const viewBox = svg.documentElement.getAttribute("viewBox");
-  if (!viewBox) throw new Error(`${SVG_URL} has no viewBox`);
-  const [, , width, height] = viewBox.split(/[\s,]+/).map(Number);
+  const svg = await fetchArtwork();
+  const [, , width, height] = viewBoxOf(svg)
+    .split(/[\s,]+/)
+    .map(Number);
   return { svg, aspect: height / width, glyphs: glyphShapes(fontFamily) };
 };
 

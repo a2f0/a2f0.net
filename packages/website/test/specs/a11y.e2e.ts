@@ -28,6 +28,11 @@ describe("Accessibility", () => {
   it("reaches and operates the toolbar from the keyboard", async () => {
     await browser.url("/");
     await browser.keys("Tab");
+    expect(await focused()).toEqual({
+      label: "Play etching animation",
+      visible: true,
+    });
+    await browser.keys("Tab");
     expect(await focused()).toEqual({ label: "Music player", visible: true });
     await browser.keys("Tab");
     expect(await focused()).toEqual({ label: "ASCII view", visible: true });
@@ -38,5 +43,29 @@ describe("Accessibility", () => {
     await browser.keys(" ");
     await expect($(".stage")).toHaveAttribute("data-view", "svg");
     await expect($(".view-toggle")).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("has no axe violations while etching", async () => {
+    await browser.url("/");
+    await $(".play-toggle").click();
+    await expect($(".stage")).toHaveAttribute("data-etching");
+    expect(await axeViolations()).toEqual([]);
+  });
+
+  it("plays and stops the etching from the keyboard", async () => {
+    await browser.url("/");
+    await browser.keys("Tab");
+    await browser.keys("Enter");
+    await expect($(".stage")).toHaveAttribute("data-etching");
+    await expect($(".play-toggle")).toHaveAttribute(
+      "aria-label",
+      "Stop etching animation",
+    );
+    await browser.keys("Enter");
+    await expect($(".stage")).not.toHaveAttribute("data-etching");
+    expect(await focused()).toEqual({
+      label: "Play etching animation",
+      visible: true,
+    });
   });
 });
