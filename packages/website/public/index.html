@@ -125,7 +125,7 @@
         height: 28px;
         padding: 0;
         place-items: center;
-        border: 1px solid #333;
+        border: 0;
         border-radius: 4px;
         background: #0a0a0a;
         color: #8a8a8a;
@@ -141,15 +141,13 @@
         height: 16px;
       }
 
+      /* Tools read like links: white on hover, with no pressed look. */
       .tool:hover,
-      .tool:focus-visible,
-      .tool[aria-pressed="true"] {
-        border-color: #666;
-        color: #eee;
+      .tool:focus-visible {
+        color: #fff;
       }
 
       .tool[aria-disabled="true"] {
-        border-color: #333;
         color: #8a8a8a;
         opacity: 0.5;
         cursor: default;
