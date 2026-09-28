@@ -69,7 +69,11 @@
       }
 
       /* The open window's bars sit above and below the art. They are the
-         same height, so the art stays centred where it was. */
+         same height, so the art stays centred where it was. A viewport too
+         short for the art and both bars scrolls instead, moving the art to
+         make room. The room is taken only while the window is open:
+         reserving it when closed would leave that page scrolling, with the
+         art off-centre, for everyone who never opens the window. */
       .canvas[data-window] {
         margin-block: var(--bar);
       }
