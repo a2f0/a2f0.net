@@ -5,6 +5,20 @@ import { coverage } from "../artwork";
 import type { FillUnit } from "./fills";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
+// Presentation attributes a unit's ancestors pass down to its shapes. Their
+// transforms stay behind: the profile is drawn in the unit's coordinates.
+const PAINT = [
+  "fill",
+  "fill-opacity",
+  "fill-rule",
+  "stroke",
+  "stroke-width",
+  "stroke-opacity",
+  "stroke-linecap",
+  "stroke-linejoin",
+  "stroke-miterlimit",
+  "opacity",
+];
 // Silhouettes are rasterized at half the artwork's size.
 const SCALE = 0.5;
 // Paint covering less of a pixel than this does not count.
@@ -78,8 +92,27 @@ export const unitProfile = async (
   const defs = layer.querySelector("defs");
   if (defs) svg.append(defs.cloneNode(true));
   // The unit's own paint, so faint and fading paint counts for only as much
-  // as it covers.
-  svg.append(...[...group.children].map((child) => child.cloneNode(true)));
+  // as it covers, inside groups that pass down what its ancestors set, such
+  // as the artwork's fill="none" that keeps open curves unfilled.
+  const ancestors: Element[] = [];
+  for (
+    let n: Element | null = group.parentElement;
+    n && n !== layer;
+    n = n.parentElement
+  ) {
+    ancestors.unshift(n);
+  }
+  let parent: Element = svg;
+  for (const ancestor of [layer, ...ancestors]) {
+    const inherited = document.createElementNS(SVG_NS, "g");
+    for (const name of PAINT) {
+      const value = ancestor.getAttribute(name);
+      if (value !== null) inherited.setAttribute(name, value);
+    }
+    parent.append(inherited);
+    parent = inherited;
+  }
+  parent.append(...[...group.children].map((child) => child.cloneNode(true)));
   const doc = new DOMParser().parseFromString(
     new XMLSerializer().serializeToString(svg),
     "image/svg+xml",

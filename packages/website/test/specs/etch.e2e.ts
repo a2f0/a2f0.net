@@ -1,4 +1,13 @@
+import { execFileSync } from "node:child_process";
+
 import { $, browser, expect } from "@wdio/globals";
+
+// The profiler bundled on its own, to load into the page.
+const profiler = execFileSync(
+  "bun",
+  ["build", "test/profiler.ts", "--target=browser"],
+  { encoding: "utf8" },
+);
 
 const play = () => $(".play-toggle");
 const stage = () => $(".stage");
@@ -274,6 +283,42 @@ describe("Laser etching", () => {
     } finally {
       await clock.remove();
     }
+  });
+
+  it("profiles a stroke-only curve by its stroke, not its inside", async () => {
+    await browser.url("/");
+    await browser.execute(profiler);
+    // A C-shaped stroke with no fill of its own, in a layer whose root sets
+    // fill="none", as the artwork's does. At its middle row the curve bulges
+    // out to about x = 225; filling it would paint that row from x = 0.
+    const middle = await browser.execute(async () => {
+      const ns = "http://www.w3.org/2000/svg";
+      const layer = document.createElementNS(ns, "svg");
+      layer.setAttribute("viewBox", "0 0 400 400");
+      layer.setAttribute("fill", "none");
+      const group = document.createElementNS(ns, "g");
+      const path = document.createElementNS(ns, "path");
+      path.setAttribute("d", "M0 0 C300 0 300 400 0 400");
+      path.setAttribute("stroke", "#fff");
+      path.setAttribute("stroke-width", "4");
+      group.append(path);
+      layer.append(group);
+      document.body.append(layer);
+      const { unitProfile } = window as unknown as {
+        unitProfile: (
+          layer: SVGSVGElement,
+          unit: { group: SVGGElement; box: DOMRect },
+        ) => Promise<(readonly [number, number])[][]>;
+      };
+      const rows = await unitProfile(layer, {
+        group,
+        box: new DOMRect(-10, -10, 420, 420),
+      });
+      layer.remove();
+      return rows[Math.floor(rows.length / 2)];
+    });
+    expect(middle.length).toBeGreaterThan(0);
+    expect(middle.every(([start]) => start > 150)).toBe(true);
   });
 
   it("etches and fills the lettering first", async () => {
