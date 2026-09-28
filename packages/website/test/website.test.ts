@@ -11,9 +11,11 @@ test("serves the apex page without redirecting to the resume", async () => {
   expect(await response.text()).toContain("<title>a2f0.net</title>");
 });
 
-test("serves the ASCII art toggle and its script", async () => {
+test("serves the canvas toolbar and the ASCII script", async () => {
   const page = await (await fetch("http://localhost:4002/")).text();
-  expect(page).toContain('class="view-toggle"');
+  expect(page).toContain('class="toolbar"');
+  expect(page).toContain('class="tool view-toggle"');
+  expect(page).toContain('class="tool music-toggle"');
   expect(page).toContain('src="/ascii.js"');
 
   const script = await fetch("http://localhost:4002/ascii.js");
