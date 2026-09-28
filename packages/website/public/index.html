@@ -135,12 +135,22 @@
         pointer-events: none;
       }
 
-      .etch-lines path {
+      /* Every stroke is etched as a thin line whatever its width in the
+         art, white while hot and gray once it cools. */
+      .etch-lines * {
         fill: none;
-        stroke: #f4f4f4;
-        stroke-width: 3;
+      }
+
+      .etch-lines .etch-stroke {
+        stroke: #fff;
+        stroke-width: 2.5;
         stroke-linecap: round;
         stroke-linejoin: round;
+        transition: stroke 1.2s ease-out;
+      }
+
+      .etch-lines .etch-stroke.cooled {
+        stroke: #8c8c8c;
       }
 
       .stage > .etch-glow {

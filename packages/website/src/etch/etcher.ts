@@ -1,6 +1,6 @@
-// Plays the etching over the stage: a visible laser beam traces the hot
-// letter outlines, then a raster sweep reveals the finished artwork line by
-// line.
+// Plays the etching over the stage: a visible laser beam traces every
+// stroke of the artwork in painting order, each glowing hot then cooling,
+// and a raster sweep then reveals the finished artwork line by line.
 
 import { fetchArtwork } from "../artwork";
 import {
@@ -10,15 +10,15 @@ import {
   emitterFor,
   type Point,
 } from "./glow";
-import { type Outlines, outlinesOf } from "./outlines";
+import { strokeLayer, traceable } from "./strokes";
 import { type EtchFrame, etchFrame, sweep } from "./timeline";
-
-const SVG_NS = "http://www.w3.org/2000/svg";
 
 interface Scene {
   lines: SVGSVGElement;
-  paths: SVGPathElement[];
+  strokes: SVGGeometryElement[];
   lengths: number[];
+  /** The dash offset last set on each stroke, to skip unchanged ones. */
+  offsets: number[];
   glow: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
 }
@@ -26,7 +26,7 @@ interface Scene {
 export class Etcher {
   readonly #stage: HTMLElement;
   readonly #art: HTMLElement;
-  #outlines?: Promise<Outlines>;
+  #artwork?: Promise<Document>;
   #stop?: () => void;
 
   /**
@@ -55,15 +55,13 @@ export class Etcher {
       this.#stop = () => resolve(undefined);
     });
     try {
-      this.#outlines ??= fetchArtwork()
-        .then(outlinesOf)
-        .catch((error) => {
-          this.#outlines = undefined;
-          throw error;
-        });
-      const outlines = await Promise.race([this.#outlines, stopped]);
-      if (!outlines) return;
-      const scene = this.#build(outlines);
+      this.#artwork ??= fetchArtwork().catch((error) => {
+        this.#artwork = undefined;
+        throw error;
+      });
+      const artwork = await Promise.race([this.#artwork, stopped]);
+      if (!artwork) return;
+      const scene = this.#build(artwork);
       try {
         await this.#run(scene);
       } finally {
@@ -77,18 +75,9 @@ export class Etcher {
     }
   }
 
-  #build({ viewBox, outlines }: Outlines): Scene {
-    const lines = document.createElementNS(SVG_NS, "svg");
+  #build(artwork: Document): Scene {
+    const lines = strokeLayer(artwork);
     lines.setAttribute("class", "etch-lines");
-    lines.setAttribute("viewBox", viewBox);
-    lines.setAttribute("aria-hidden", "true");
-    const paths = outlines.map(({ d, transform }) => {
-      const path = document.createElementNS(SVG_NS, "path");
-      path.setAttribute("d", d);
-      if (transform) path.setAttribute("transform", transform);
-      return path;
-    });
-    lines.append(...paths);
 
     const glow = document.createElement("canvas");
     glow.className = "etch-glow";
@@ -98,11 +87,14 @@ export class Etcher {
 
     this.#stage.append(lines, glow);
     this.#stage.dataset.etching = "";
-    const lengths = paths.map((path) => path.getTotalLength());
-    paths.forEach((path, i) => {
-      path.style.strokeDasharray = `${lengths[i]}`;
+    const strokes = traceable(lines);
+    const lengths = strokes.map((stroke) => stroke.getTotalLength());
+    strokes.forEach((stroke, i) => {
+      stroke.classList.add("etch-stroke");
+      stroke.style.strokeDasharray = `${lengths[i]}`;
+      stroke.style.strokeDashoffset = `${lengths[i]}`;
     });
-    return { lines, paths, lengths, glow, ctx };
+    return { lines, strokes, lengths, offsets: [...lengths], glow, ctx };
   }
 
   #run(scene: Scene): Promise<void> {
@@ -124,12 +116,20 @@ export class Etcher {
     });
   }
 
-  #draw({ lines, paths, lengths, glow, ctx }: Scene, frame: EtchFrame) {
-    paths.forEach((path, i) => {
-      path.style.strokeDashoffset = `${lengths[i] - frame.traced[i]}`;
+  #draw(
+    { lines, strokes, lengths, offsets, glow, ctx }: Scene,
+    frame: EtchFrame,
+  ) {
+    strokes.forEach((stroke, i) => {
+      const offset = lengths[i] - frame.traced[i];
+      if (offset === offsets[i]) return;
+      offsets[i] = offset;
+      stroke.style.strokeDashoffset = `${offset}`;
+      // A finished stroke cools from white to gray.
+      if (offset === 0) stroke.classList.add("cooled");
     });
-    // The hot outlines cool as the raster pass fills in the art.
-    lines.style.opacity = `${1 - frame.scan}`;
+    // The raster pass replaces the traced strokes with the finished art.
+    lines.style.clipPath = `inset(${frame.scan * 100}% 0 0 0)`;
     this.#art.style.clipPath = `inset(0 0 ${(1 - frame.scan) * 100}% 0)`;
 
     const box = glow.getBoundingClientRect();
@@ -148,9 +148,9 @@ export class Etcher {
 
     let spot: Point | undefined;
     if (frame.active >= 0) {
-      const path = paths[frame.active];
-      const point = path.getPointAtLength(frame.traced[frame.active]);
-      const screen = point.matrixTransform(path.getScreenCTM() ?? undefined);
+      const stroke = strokes[frame.active];
+      const point = stroke.getPointAtLength(frame.traced[frame.active]);
+      const screen = point.matrixTransform(stroke.getScreenCTM() ?? undefined);
       spot = { x: screen.x - box.left, y: screen.y - box.top };
     } else if (frame.scan > 0 && !frame.done) {
       const art = this.#art.getBoundingClientRect();

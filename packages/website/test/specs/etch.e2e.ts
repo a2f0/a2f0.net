@@ -3,21 +3,24 @@ import { $, browser, expect } from "@wdio/globals";
 const play = () => $(".play-toggle");
 const stage = () => $(".stage");
 
-// Reports how far the etching has got: how much of the first outline is
-// traced, how much of the artwork is revealed, and how hot the outlines are.
+// Reports how far the etching has got: how much of the first stroke is
+// traced, how much of the artwork is revealed, and how much of the traced
+// strokes the raster pass has already replaced.
 const progress = () =>
   browser.execute(() => {
-    const path = document.querySelector<SVGPathElement>(".etch-lines path");
+    const stroke = document.querySelector<SVGGeometryElement>(".etch-stroke");
     const lines = document.querySelector<SVGSVGElement>(".etch-lines");
     const clip =
       document.querySelector<HTMLElement>(".graffiti")?.style.clipPath;
     const hidden = /inset\(0(?:px)? 0(?:px)? ([\d.]+)%/.exec(clip ?? "");
+    const replaced = /inset\(([\d.]+)%/.exec(lines?.style.clipPath ?? "");
     return {
-      traced: path
-        ? path.getTotalLength() - Number.parseFloat(path.style.strokeDashoffset)
+      traced: stroke
+        ? stroke.getTotalLength() -
+          Number.parseFloat(stroke.style.strokeDashoffset)
         : null,
       revealed: hidden ? 100 - Number.parseFloat(hidden[1]) : null,
-      heat: lines ? Number.parseFloat(lines.style.opacity || "1") : null,
+      replaced: replaced ? Number.parseFloat(replaced[1]) : 0,
     };
   });
 
@@ -45,7 +48,7 @@ describe("Laser etching", () => {
     await settled();
   });
 
-  it("traces the outlines, then reveals the artwork from the top", async () => {
+  it("traces the strokes, then reveals the artwork from the top", async () => {
     await browser.url("/");
     await play().click();
     await expect(stage()).toHaveAttribute("data-etching");
@@ -54,19 +57,26 @@ describe("Laser etching", () => {
       "Stop etching animation",
     );
 
-    // The vector pass traces the outlines over a still-hidden artwork.
+    // The vector pass traces the strokes over a still-hidden artwork.
     await browser.waitUntil(async () => {
       const { traced, revealed } = await progress();
       return (traced ?? 0) > 0 && revealed === 0;
     });
-    // The raster pass reveals the artwork while the outlines cool.
-    await browser.waitUntil(async () => {
-      const { revealed, heat } = await progress();
-      return (revealed ?? 0) > 0 && (revealed ?? 0) < 100 && (heat ?? 1) < 1;
-    });
+    // The raster pass swaps the traced strokes for the finished artwork.
+    await browser.waitUntil(
+      async () => {
+        const { revealed, replaced } = await progress();
+        return (
+          (revealed ?? 0) > 0 &&
+          (revealed ?? 0) < 100 &&
+          Math.abs((revealed ?? 0) - replaced) < 1
+        );
+      },
+      { timeout: 12000 },
+    );
     await browser.waitUntil(
       async () => !(await $(".etch-lines").isExisting()),
-      { timeout: 8000, timeoutMsg: "the etching never finished" },
+      { timeout: 15000, timeoutMsg: "the etching never finished" },
     );
     await settled();
     await expect(stage()).toHaveAttribute("data-view", "svg");
@@ -81,7 +91,7 @@ describe("Laser etching", () => {
       browser.execute(() => {
         const canvas = document.querySelector<HTMLCanvasElement>(".etch-glow");
         const ctx = canvas?.getContext("2d");
-        const path = document.querySelector(".etch-lines path");
+        const path = document.querySelector(".etch-stroke");
         if (!canvas?.width || !ctx || !path) return null;
         const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const band = canvas.width * Math.floor(canvas.height * 0.05);
@@ -104,6 +114,45 @@ describe("Laser etching", () => {
     const [r, g, b] = (stroke ?? "").match(/\d+/g)?.map(Number) ?? [];
     expect(r).toBe(g);
     expect(g).toBe(b);
+  });
+
+  it("traces every stroke in the artwork", async () => {
+    await browser.url("/");
+    await play().click();
+    await expect($(".etch-lines")).toBeExisting();
+    const layer = await browser.execute(() => {
+      const strokes = [
+        ...document.querySelectorAll<SVGGeometryElement>(".etch-stroke"),
+      ];
+      const shapes = document.querySelectorAll(
+        ".etch-lines :is(path, line, polyline, polygon, rect, circle, ellipse)",
+      );
+      return {
+        strokes: strokes.length,
+        clipped: strokes.filter((stroke) => stroke.closest("[clip-path]"))
+          .length,
+        unstroked: [...shapes].filter(
+          (shape) =>
+            !shape.closest("defs") && !shape.classList.contains("etch-stroke"),
+        ).length,
+        copies: document.querySelectorAll(".etch-lines [data-copy='#word']")
+          .length,
+      };
+    });
+    // Every contour of the brushwork, extrusion edges, faces, and details;
+    // only the extrusion's hidden middle copies are left out.
+    expect(layer.strokes).toBeGreaterThan(200);
+    expect(layer.clipped).toBeGreaterThan(0);
+    expect(layer.unstroked).toBe(0);
+    expect(layer.copies).toBe(6);
+
+    // Finished strokes cool from white to gray as later ones are traced.
+    await browser.waitUntil(
+      async () =>
+        (await browser.execute(
+          () => document.querySelectorAll(".etch-stroke.cooled").length,
+        )) > 50,
+    );
   });
 
   it("stops at once when stop is pressed", async () => {
