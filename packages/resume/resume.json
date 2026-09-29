@@ -178,6 +178,8 @@
     "Vault",
     "Packer",
     "npm",
-    "SOPS"
+    "SOPS",
+    "MobX",
+    "MobX-State-Tree"
   ]
 }
