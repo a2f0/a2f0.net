@@ -180,6 +180,8 @@
     "npm",
     "SOPS",
     "MobX",
-    "MobX-State-Tree"
+    "MobX-State-Tree",
+    "llama.cpp",
+    "llama.rn"
   ]
 }
