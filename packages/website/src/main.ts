@@ -70,6 +70,9 @@ const labelPlay = () => {
 const show = async (asAscii: boolean, origin?: Point): Promise<void> => {
   toggle.setAttribute("aria-pressed", String(asAscii));
   labelPlay();
+  // The SVG waits hidden only while the page opens on the ASCII; choosing
+  // the SVG shows it at once. See index.html.
+  if (!asAscii) stage.dataset.ready = "";
   try {
     if (asAscii) await display.draw();
   } catch (error) {
@@ -156,7 +159,7 @@ windowToggle.addEventListener("click", () => {
   (open ? terminal.open(square) : terminal.close(square)).catch(console.error);
 });
 windowToggle.hidden = false;
-// The SVG stays hidden until the first view is settled; see index.html.
+// The SVG stays hidden until the first view is settled.
 show(true).finally(() => {
   stage.dataset.ready = "";
 });

@@ -129,6 +129,20 @@ describe("ASCII graffiti view", () => {
     }
   });
 
+  it("shows the SVG at once when chosen while the ASCII renders", async () => {
+    const slow = await slowFetch(10000);
+    try {
+      await browser.url("/");
+      expect(await svgVisible()).toBe(false);
+      await toggle().click();
+      await expect(toggle()).toHaveAttribute("aria-pressed", "false");
+      await expectView("svg");
+      expect(await svgVisible()).toBe(true);
+    } finally {
+      await slow.remove();
+    }
+  });
+
   it("renders the artwork as ASCII and toggles back", async () => {
     await opened();
     expect(await browser.getUrl()).not.toContain("#");

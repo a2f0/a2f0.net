@@ -37,10 +37,10 @@ describe("Accessibility", () => {
   });
 
   it("has no axe violations with the terminal window open", async () => {
-    await browser.url("/");
+    await opened();
     await $(".window-toggle").click();
     await expect($(".window")).toBeDisplayed();
-    expect(await axeViolations()).toEqual([]);
+    expect(await axeViolations({ logos: [".ascii"] })).toEqual([]);
   });
 
   it("reaches and operates the toolbar from the keyboard", async () => {
