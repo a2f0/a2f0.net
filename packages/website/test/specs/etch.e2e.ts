@@ -14,6 +14,14 @@ const profiler = execFileSync(
 const play = () => $(".play-toggle");
 const stage = () => $(".stage");
 
+// The page opens on the ASCII; the etching plays over the SVG.
+const openSvg = async () => {
+  await browser.url("/");
+  await expect(stage()).toHaveAttribute("data-view", "ascii");
+  await $(".view-toggle").click();
+  await expect(stage()).toHaveAttribute("data-view", "svg");
+};
+
 // Reports how far the etching has got: how many strokes the laser has
 // started tracing, which units the fat laser has begun to fill, and how
 // many etched lines have given way to paint.
@@ -60,7 +68,7 @@ const settled = async (label = "Play etching animation") => {
 // Starts the etching and waits until every unit's paint is profiled; until
 // then a unit burns across its whole width.
 const playProfiled = async () => {
-  await browser.url("/");
+  await openSvg();
   await play().click();
   await expect($(".etch-fills[data-profiled]")).toBeExisting();
 };
@@ -128,11 +136,11 @@ describe("Laser etching", () => {
   it("loads the finished artwork without etching", async () => {
     await browser.url("/");
     await expect(play()).toBeDisplayed();
-    await settled();
+    await settled("Play code rain animation");
   });
 
   it("traces the strokes, then fills each unit with its paint", async () => {
-    await browser.url("/");
+    await openSvg();
     await play().click();
     await expect(stage()).toHaveAttribute("data-etching");
     await expect(play()).toHaveAttribute(
@@ -162,7 +170,7 @@ describe("Laser etching", () => {
   });
 
   it("draws a visible beam and everything in grayscale", async () => {
-    await browser.url("/");
+    await openSvg();
     await play().click();
     // Reads the glow canvas during the vector pass: every lit pixel must be
     // gray, and the beam must reach up into the top of the canvas.
@@ -202,7 +210,7 @@ describe("Laser etching", () => {
   });
 
   it("traces every stroke in the artwork", async () => {
-    await browser.url("/");
+    await openSvg();
     await play().click();
     await expect($(".etch-lines")).toBeExisting();
     const layer = await browser.execute(() => {
@@ -307,7 +315,7 @@ describe("Laser etching", () => {
   });
 
   it("etches and fills the lettering first", async () => {
-    await browser.url("/");
+    await openSvg();
     await play().click();
     // The first strokes to finish are all on the letters.
     const cooled = () =>
@@ -333,7 +341,7 @@ describe("Laser etching", () => {
   });
 
   it("stops at once when stop is pressed", async () => {
-    await browser.url("/");
+    await openSvg();
     await play().click();
     await expect($(".etch-lines")).toBeExisting();
     await play().click();
@@ -349,7 +357,11 @@ describe("Laser etching", () => {
         )) as typeof fetch;
     });
     try {
+      // The slow fetch holds up the ASCII too, so choosing the SVG before
+      // it renders keeps the page from ever leaving the SVG.
       await browser.url("/");
+      await $(".view-toggle").click();
+      await expect(stage()).toHaveAttribute("data-view", "svg");
       await play().click();
       await expect(play()).toHaveAttribute(
         "aria-label",
@@ -369,7 +381,7 @@ describe("Laser etching", () => {
   });
 
   it("keeps the lens shut and ignores clicks on the art while etching", async () => {
-    await browser.url("/");
+    await openSvg();
     await play().click();
     await stage().moveTo({ xOffset: -300, yOffset: -40 });
     await stage().click({ x: -300, y: -40 });
@@ -385,7 +397,7 @@ describe("Laser etching", () => {
   });
 
   it("stops etching when the ASCII view is chosen", async () => {
-    await browser.url("/");
+    await openSvg();
     await play().click();
     await expect(stage()).toHaveAttribute("data-etching");
     await $(".view-toggle").click();

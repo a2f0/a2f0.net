@@ -1,5 +1,6 @@
-// Stacks the graffiti SVG and its ASCII rendering. A lens that follows the
-// pointer reveals the view underneath, and clicking floods the lens to swap.
+// Stacks the graffiti SVG and its ASCII rendering, opening on the ASCII once
+// it renders, or on the SVG if it cannot. A lens that follows the pointer
+// reveals the view underneath, and clicking floods the lens to swap.
 // The play button animates the view on show: a laser etches the SVG in, and
 // falling code writes the ASCII. The square opens a terminal window around it.
 
@@ -69,6 +70,9 @@ const labelPlay = () => {
 const show = async (asAscii: boolean, origin?: Point): Promise<void> => {
   toggle.setAttribute("aria-pressed", String(asAscii));
   labelPlay();
+  // The SVG waits hidden only while the page opens on the ASCII; choosing
+  // the SVG shows it at once. See index.html.
+  if (!asAscii) stage.dataset.ready = "";
   try {
     if (asAscii) await display.draw();
   } catch (error) {
@@ -94,19 +98,9 @@ const show = async (asAscii: boolean, origin?: Point): Promise<void> => {
   settle();
 };
 
-// Renders once ahead of the first peek so the lens has something to reveal.
-let warmed = false;
-const warm = () => {
-  if (warmed) return;
-  warmed = true;
-  display.draw().catch(console.error);
-};
-
 stage.addEventListener("pointermove", (event) => {
   // Touch has no hover, so a tap flips the view without peeking first.
   if (event.pointerType === "touch") return;
-  // Touch-first devices can still have a mouse or trackpad attached.
-  warm();
   pointer = lens.locate(event);
   if (flooding) return;
   lens.aim(pointer);
@@ -165,8 +159,7 @@ windowToggle.addEventListener("click", () => {
   (open ? terminal.open(square) : terminal.close(square)).catch(console.error);
 });
 windowToggle.hidden = false;
-if (window.matchMedia("(hover: hover)").matches) {
-  // Safari has no idle callbacks.
-  const idle = window.requestIdleCallback ?? setTimeout;
-  idle(warm);
-}
+// The SVG stays hidden until the first view is settled.
+show(true).finally(() => {
+  stage.dataset.ready = "";
+});

@@ -48,18 +48,10 @@ const zoomAt = (time: number) =>
   }, time);
 
 // The stage fits the taller of the two views, so the art is measured once
-// the ASCII has rendered. Hovering the art renders it on any device; only
-// one that reports hover renders it unprompted.
+// the page has opened on the rendered ASCII.
 const loaded = async () => {
   await browser.url("/");
-  await $(".stage").moveTo();
-  await browser.waitUntil(
-    async () =>
-      (await browser.execute(
-        () => document.querySelector(".ascii")?.textContent?.length ?? 0,
-      )) > 0,
-    { timeoutMsg: "the ASCII never rendered" },
-  );
+  await expect($(".stage")).toHaveAttribute("data-view", "ascii");
   await browser.action("pointer").move({ x: 1, y: 1 }).perform();
 };
 
@@ -108,8 +100,7 @@ describe("Terminal window", () => {
   });
 
   it("zooms a trail of outlines out from the square to the frame", async () => {
-    await browser.url("/");
-    await browser.action("pointer").move({ x: 1, y: 1 }).perform();
+    await loaded();
     await toggle().click();
     const { square, frame: window } = await layout();
 
@@ -192,10 +183,10 @@ describe("Terminal window", () => {
   });
 
   it("lets clicks through to the art", async () => {
-    await browser.url("/");
+    await loaded();
     await toggle().click();
     await settled();
     await $(".stage").click({ x: -300, y: -40 });
-    await expect($(".stage")).toHaveAttribute("data-view", "ascii");
+    await expect($(".stage")).toHaveAttribute("data-view", "svg");
   });
 });
