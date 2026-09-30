@@ -2,6 +2,7 @@ import { $, browser, expect } from "@wdio/globals";
 
 const toggle = () => $(".view-toggle");
 const music = () => $(".music-toggle");
+const play = () => $(".play-toggle");
 const stage = () => $(".stage");
 const graffiti = () => $(".graffiti");
 const ascii = () => $(".ascii");
@@ -55,26 +56,81 @@ const lensSettles = (radius: number) =>
     timeoutMsg: `lens never settled at ${radius}px`,
   });
 
+// Whether the SVG is painted, wherever it sits in the stack.
+const svgVisible = () =>
+  browser.execute(() => {
+    const svg = document.querySelector(".graffiti");
+    if (!svg) throw new Error("Missing .graffiti");
+    return window.getComputedStyle(svg).visibility === "visible";
+  });
+
+// Holds back every fetch the page makes, and so the ASCII render.
+const slowFetch = (ms: number) =>
+  browser.addInitScript((delay: number) => {
+    const load = window.fetch.bind(window);
+    window.fetch = ((...request: Parameters<typeof fetch>) =>
+      new Promise((resolve) => setTimeout(resolve, delay)).then(() =>
+        load(...request),
+      )) as typeof fetch;
+  }, ms);
+
+// Loads the page and waits for it to open on the ASCII.
+const opened = async () => {
+  await browser.url("/");
+  await expectView("ascii");
+};
+
 describe("ASCII graffiti view", () => {
   beforeEach(async () => {
     // Start every test from a fresh page load.
     await browser.url("about:blank");
   });
 
-  it("starts on the SVG with the toggle unpressed", async () => {
+  it("opens on the ASCII with the toggle pressed", async () => {
     await browser.url("/");
     await expect(toggle()).toBeDisplayed();
-    await expect(toggle()).toHaveAttribute("aria-pressed", "false");
-    await expect(graffiti()).toBeDisplayed();
-    await expectView("svg");
+    await expect(toggle()).toHaveAttribute("aria-pressed", "true");
+    await expectView("ascii");
+    await expect(ascii()).toBeDisplayed();
     expect((await lens()).radius).toBe(0);
+    // The SVG underneath is ready for the lens.
+    expect(await svgVisible()).toBe(true);
+  });
+
+  it("keeps the SVG hidden until the ASCII renders", async () => {
+    const slow = await slowFetch(1000);
+    try {
+      await browser.url("/");
+      await expect(toggle()).toHaveAttribute("aria-pressed", "true");
+      await expect(stage()).toHaveAttribute("data-view", "svg");
+      expect(await svgVisible()).toBe(false);
+      await expectView("ascii");
+      expect(await svgVisible()).toBe(true);
+    } finally {
+      await slow.remove();
+    }
+  });
+
+  it("shows the SVG anyway when the ASCII is slow to render", async () => {
+    // The SVG shows after a few seconds whether or not anything settles the
+    // view, as when the script never runs.
+    const slow = await slowFetch(10000);
+    try {
+      await browser.url("/");
+      expect(await svgVisible()).toBe(false);
+      await browser.waitUntil(svgVisible, {
+        timeout: 5000,
+        timeoutMsg: "the SVG never showed",
+      });
+      await expect(stage()).toHaveAttribute("data-view", "svg");
+      await expect(stage()).not.toHaveAttribute("data-ready");
+    } finally {
+      await slow.remove();
+    }
   });
 
   it("renders the artwork as ASCII and toggles back", async () => {
-    await browser.url("/");
-    await toggle().click();
-    await expectView("ascii");
-    await expect(toggle()).toHaveAttribute("aria-pressed", "true");
+    await opened();
     expect(await browser.getUrl()).not.toContain("#");
 
     const art = await renderedArt();
@@ -90,12 +146,17 @@ describe("ASCII graffiti view", () => {
     await expectView("svg");
     await expect(toggle()).toHaveAttribute("aria-pressed", "false");
     expect(await browser.getUrl()).not.toContain("#");
+
+    await toggle().click();
+    await expectView("ascii");
+    await expect(toggle()).toHaveAttribute("aria-pressed", "true");
+    expect(await browser.getUrl()).not.toContain("#");
   });
 
   it("keeps the view out of the URL", async () => {
-    await browser.url("/#ascii");
-    await expectView("svg");
-    await expect(toggle()).toHaveAttribute("aria-pressed", "false");
+    await browser.url("/#svg");
+    await expectView("ascii");
+    await expect(toggle()).toHaveAttribute("aria-pressed", "true");
   });
 
   it("styles the ASCII toggle like a link, with no pressed look", async () => {
@@ -106,7 +167,7 @@ describe("ASCII graffiti view", () => {
         const style = window.getComputedStyle(button);
         return { color: style.color, border: style.borderTopWidth };
       });
-    await browser.url("/");
+    await opened();
     // Earlier tests can leave the pointer where the toggle sits.
     await browser.action("pointer").move({ x: 1, y: 1 }).perform();
     const resting = await look();
@@ -116,7 +177,7 @@ describe("ASCII graffiti view", () => {
     expect((await look()).color).toBe("rgb(255, 255, 255)");
 
     await toggle().click();
-    await expectView("ascii");
+    await expectView("svg");
     await browser.action("pointer").move({ x: 1, y: 1 }).perform();
     expect(await look()).toEqual(resting);
   });
@@ -169,25 +230,25 @@ describe("ASCII graffiti view", () => {
   });
 
   it("leaves the music player as a placeholder", async () => {
-    await browser.url("/");
+    await opened();
     await expect(music()).toHaveAttribute("aria-disabled", "true");
     await music().click();
-    await expectView("svg");
+    await expectView("ascii");
     expect(await browser.getUrl()).not.toContain("#");
   });
 
-  it("peeks at the ASCII through a lens under the pointer", async () => {
-    await browser.url("/");
+  it("peeks at the SVG through a lens under the pointer", async () => {
+    await opened();
     await stage().moveTo({ xOffset: -300, yOffset: -40 });
     await lensSettles(46);
     expect(await lens()).toMatchObject({
-      inside: "ascii",
-      outside: "graffiti",
+      inside: "graffiti",
+      outside: "ascii",
     });
 
     await browser.action("pointer").move({ x: 1, y: 1 }).perform();
     await lensSettles(0);
-    await expectView("svg");
+    await expectView("ascii");
 
     // The toolbar sits over the canvas but is not part of the artwork.
     await stage().moveTo({ xOffset: -300, yOffset: -40 });
@@ -205,46 +266,40 @@ describe("ASCII graffiti view", () => {
           : match(query);
     });
     try {
-      await browser.url("/");
+      await opened();
       await stage().moveTo({ xOffset: -300, yOffset: -40 });
       await stage().moveTo({ xOffset: -290, yOffset: -40 });
       await lensSettles(46);
-      expect((await lens()).inside).toBe("ascii");
+      expect((await lens()).inside).toBe("graffiti");
     } finally {
       await touchFirst.remove();
     }
   });
 
   it("flips the view when the artwork is clicked", async () => {
-    await browser.url("/");
+    await opened();
     await stage().click({ x: 120, y: 30 });
-    await expectView("ascii");
-    await expect(toggle()).toHaveAttribute("aria-pressed", "true");
-    expect(await browser.getUrl()).not.toContain("#");
-
-    // The lens reopens onto the SVG that is now underneath.
-    await lensSettles(46);
-    expect(await lens()).toMatchObject({
-      inside: "graffiti",
-      outside: "ascii",
-    });
-
-    await stage().click({ x: -300, y: -40 });
     await expectView("svg");
     await expect(toggle()).toHaveAttribute("aria-pressed", "false");
     expect(await browser.getUrl()).not.toContain("#");
+
+    // The lens reopens onto the ASCII that is now underneath.
     await lensSettles(46);
-    expect((await lens()).inside).toBe("ascii");
+    expect(await lens()).toMatchObject({
+      inside: "ascii",
+      outside: "graffiti",
+    });
+
+    await stage().click({ x: -300, y: -40 });
+    await expectView("ascii");
+    await expect(toggle()).toHaveAttribute("aria-pressed", "true");
+    expect(await browser.getUrl()).not.toContain("#");
+    await lensSettles(46);
+    expect((await lens()).inside).toBe("graffiti");
   });
 
-  it("finishes one flip when clicked twice while the ASCII renders", async () => {
-    const slow = await browser.addInitScript(() => {
-      const load = window.fetch.bind(window);
-      window.fetch = ((...request: Parameters<typeof fetch>) =>
-        new Promise((resolve) => setTimeout(resolve, 1000)).then(() =>
-          load(...request),
-        )) as typeof fetch;
-    });
+  it("settles on the ASCII when clicked twice while it renders", async () => {
+    const slow = await slowFetch(1000);
     try {
       await browser.url("/");
       await stage().click({ x: -300, y: -40 });
@@ -258,13 +313,21 @@ describe("ASCII graffiti view", () => {
     }
   });
 
-  it("stays on the SVG when the artwork cannot load", async () => {
+  it("falls back to the SVG when the artwork cannot load", async () => {
     const offline = await browser.addInitScript(() => {
       window.fetch = ((..._request: Parameters<typeof fetch>) =>
         Promise.reject(new Error("offline"))) as typeof fetch;
     });
     try {
       await browser.url("/");
+      await expect(toggle()).toHaveAttribute("aria-pressed", "false");
+      await expectView("svg");
+      expect(await svgVisible()).toBe(true);
+      await expect(play()).toHaveAttribute(
+        "aria-label",
+        "Play etching animation",
+      );
+
       await toggle().click();
       await expect(toggle()).toHaveAttribute("aria-pressed", "false");
       await expectView("svg");

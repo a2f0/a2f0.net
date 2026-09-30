@@ -11,18 +11,29 @@ const focused = () =>
     };
   });
 
-describe("Accessibility", () => {
-  it("has no axe violations in the SVG view", async () => {
-    await browser.url("/");
-    expect(await axeViolations()).toEqual([]);
-  });
+// Loads the page and waits for it to open on the ASCII.
+const opened = async () => {
+  await browser.url("/");
+  await expect($(".stage")).toHaveAttribute("data-view", "ascii");
+};
 
+// Switches from the ASCII the page opens on to the SVG.
+const openSvg = async () => {
+  await opened();
+  await $(".view-toggle").click();
+  await expect($(".stage")).toHaveAttribute("data-view", "svg");
+};
+
+describe("Accessibility", () => {
   it("has no axe violations in the ASCII view", async () => {
-    await browser.url("/");
-    await $(".view-toggle").click();
-    await expect($(".stage")).toHaveAttribute("data-view", "ascii");
+    await opened();
     // The ASCII art is the logo drawn in characters.
     expect(await axeViolations({ logos: [".ascii"] })).toEqual([]);
+  });
+
+  it("has no axe violations in the SVG view", async () => {
+    await openSvg();
+    expect(await axeViolations()).toEqual([]);
   });
 
   it("has no axe violations with the terminal window open", async () => {
@@ -33,10 +44,10 @@ describe("Accessibility", () => {
   });
 
   it("reaches and operates the toolbar from the keyboard", async () => {
-    await browser.url("/");
+    await opened();
     await browser.keys("Tab");
     expect(await focused()).toEqual({
-      label: "Play etching animation",
+      label: "Play code rain animation",
       visible: true,
     });
     await browser.keys("Tab");
@@ -45,19 +56,19 @@ describe("Accessibility", () => {
     expect(await focused()).toEqual({ label: "ASCII view", visible: true });
 
     await browser.keys("Enter");
-    await expect($(".stage")).toHaveAttribute("data-view", "ascii");
-    await expect($(".view-toggle")).toHaveAttribute("aria-pressed", "true");
+    await expect($(".stage")).toHaveAttribute("data-view", "svg");
+    await expect($(".view-toggle")).toHaveAttribute("aria-pressed", "false");
     // The play button names the animation of the view on show.
     await expect($(".play-toggle")).toHaveAttribute(
       "aria-label",
-      "Play code rain animation",
+      "Play etching animation",
     );
     await browser.keys(" ");
-    await expect($(".stage")).toHaveAttribute("data-view", "svg");
-    await expect($(".view-toggle")).toHaveAttribute("aria-pressed", "false");
+    await expect($(".stage")).toHaveAttribute("data-view", "ascii");
+    await expect($(".view-toggle")).toHaveAttribute("aria-pressed", "true");
     await expect($(".play-toggle")).toHaveAttribute(
       "aria-label",
-      "Play etching animation",
+      "Play code rain animation",
     );
 
     await browser.keys("Tab");
@@ -74,34 +85,32 @@ describe("Accessibility", () => {
   });
 
   it("has no axe violations while etching", async () => {
-    await browser.url("/");
+    await openSvg();
     await $(".play-toggle").click();
     await expect($(".stage")).toHaveAttribute("data-etching");
     expect(await axeViolations()).toEqual([]);
   });
 
   it("has no axe violations while the code rain plays", async () => {
-    await browser.url("/");
-    await $(".view-toggle").click();
-    await expect($(".stage")).toHaveAttribute("data-view", "ascii");
+    await opened();
     await $(".play-toggle").click();
     await expect($(".stage")).toHaveAttribute("data-raining");
     expect(await axeViolations({ logos: [".ascii"] })).toEqual([]);
   });
 
-  it("plays and stops the etching from the keyboard", async () => {
-    await browser.url("/");
+  it("plays and stops the code rain from the keyboard", async () => {
+    await opened();
     await browser.keys("Tab");
     await browser.keys("Enter");
-    await expect($(".stage")).toHaveAttribute("data-etching");
+    await expect($(".stage")).toHaveAttribute("data-raining");
     await expect($(".play-toggle")).toHaveAttribute(
       "aria-label",
-      "Stop etching animation",
+      "Stop code rain animation",
     );
     await browser.keys("Enter");
-    await expect($(".stage")).not.toHaveAttribute("data-etching");
+    await expect($(".stage")).not.toHaveAttribute("data-raining");
     expect(await focused()).toEqual({
-      label: "Play etching animation",
+      label: "Play code rain animation",
       visible: true,
     });
   });

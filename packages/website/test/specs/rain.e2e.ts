@@ -13,10 +13,9 @@ const ink = (text: string) => text.replace(/\s/g, "").length;
 // The art's rows; the text ends with a newline.
 const lines = (text: string) => text.split("\n").filter(Boolean);
 
-// Switches to the ASCII view, giving the finished art.
+// Loads the page, which opens on the ASCII, giving the finished art.
 const openAscii = async () => {
   await browser.url("/");
-  await $(".view-toggle").click();
   await expect(stage()).toHaveAttribute("data-view", "ascii");
   return art();
 };

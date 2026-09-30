@@ -104,6 +104,22 @@
         height: auto;
       }
 
+      /* The script opens on the ASCII, so the SVG waits hidden while that
+         renders rather than showing first. It shows anyway after a few
+         seconds, in case the script never runs. */
+      @media (scripting: enabled) {
+        .stage:not([data-ready]) > .graffiti {
+          animation: placeholder 3s;
+        }
+      }
+
+      @keyframes placeholder {
+        from,
+        to {
+          visibility: hidden;
+        }
+      }
+
       .ascii {
         margin: 0;
         color: #5c5c5c;
@@ -373,8 +389,8 @@
           <button
             class="tool play-toggle"
             type="button"
-            aria-label="Play etching animation"
-            title="Play etching animation"
+            aria-label="Play code rain animation"
+            title="Play code rain animation"
             hidden
           >
             <svg
@@ -431,7 +447,7 @@
             class="tool view-toggle"
             type="button"
             aria-label="ASCII view"
-            aria-pressed="false"
+            aria-pressed="true"
             title="ASCII view"
             hidden
           >
