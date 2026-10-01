@@ -1,7 +1,7 @@
 import type Color from "color";
 import { jsPDF, type jsPDFOptions, type TextOptionsLight } from "jspdf";
 
-import { resumeConfiguration } from "../configuration";
+import { resumeConfiguration } from "./configuration";
 import type { Resume } from "./resume";
 import type { ResumeConfig } from "./resumeConfig";
 import ResumeFactory from "./resumeFactory";

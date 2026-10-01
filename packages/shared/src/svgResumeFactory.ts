@@ -1,6 +1,6 @@
 import type Color from "color";
 
-import { resumeConfiguration } from "../configuration";
+import { resumeConfiguration } from "./configuration";
 import type { Resume } from "./resume";
 import type { ResumeConfig } from "./resumeConfig";
 import ResumeFactory from "./resumeFactory";

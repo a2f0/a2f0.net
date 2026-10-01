@@ -4,10 +4,10 @@ import Color from "color";
 import { registerFont } from "canvas";
 import { JSDOM } from "jsdom";
 
-import { resumeConfiguration } from "../../configuration";
-import { resume } from "../resume";
-import { SVG_FONT_FAMILY } from "../svgFont";
-import SvgResumeFactory from "../svgResumeFactory";
+import { resumeConfiguration } from "@a2f0/shared/configuration";
+import { resume } from "@a2f0/shared/resume";
+import { SVG_FONT_FAMILY } from "@a2f0/shared/svgFont";
+import SvgResumeFactory from "@a2f0/shared/svgResumeFactory";
 
 registerFont(resolve("lib/assets/Arimo.ttf"), { family: SVG_FONT_FAMILY });
 const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");

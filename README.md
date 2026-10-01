@@ -6,8 +6,9 @@ Use the Node version in `.nvmrc` and the Bun version in `package.json`.
 [Install Bun](https://bun.com/docs/installation) before running these commands.
 The resume app lives in [`packages/resume`](packages/resume), the apex website
 lives in [`packages/website`](packages/website), and PR helpers live in
-[`packages/agent-tool`](packages/agent-tool). Run the commands below from the
-repository root.
+[`packages/agent-tool`](packages/agent-tool). The resume data, layout, and SVG
+and PDF factories live in [`packages/shared`](packages/shared/README.md),
+which the resume imports. Run the commands below from the repository root.
 
 ```sh
 nvm use
@@ -52,9 +53,9 @@ Both browser suites include an `a11y.e2e.ts` spec that audits each view with
 and axe's best practices, and drives the menus and toolbar from the keyboard.
 Biome enforces all of its `a11y` lint rules on the TSX and HTML.
 
-`bun run unit` runs the resume and website unit tests and the Node-based tests
-in [`packages/agent-tool`](packages/agent-tool/README.md). Invoke the repository's
-[`$ship-pr` skill](.codex/skills/ship-pr/SKILL.md) to validate, independently
+`bun run unit` runs the shared, resume, and website unit tests and the
+Node-based tests in [`packages/agent-tool`](packages/agent-tool/README.md).
+Invoke the repository's [`$ship-pr` skill](.codex/skills/ship-pr/SKILL.md) to validate, independently
 review, and squash-merge the current PR. The production branch rule requires
 the stable `build` CI check with the branch up to date before merging.
 
@@ -86,7 +87,7 @@ Spell check against the
 [aspell definition in dotfiles](https://github.com/a2f0/dotfiles/blob/main/files/aspell.en.pws):
 
 ```sh
-aspell --master=en_US --lang=en_US -c packages/resume/resume.json
+aspell --master=en_US --lang=en_US -c packages/shared/resume.json
 ```
 
 ## Cloudflare Deployment

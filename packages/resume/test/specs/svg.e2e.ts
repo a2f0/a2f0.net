@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { JSDOM } from "jsdom";
 
-import { resumeConfiguration } from "../../configuration";
+import { resumeConfiguration } from "@a2f0/shared/configuration";
 import waitForDownload from "../lib/fs";
 import waitForHydration from "../lib/hydration";
 import SvgPage from "../pageobjects/svg.page";

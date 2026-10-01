@@ -1,0 +1,28 @@
+{
+  "name": "@a2f0/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./resume.json": "./resume.json",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "compile": "tsc",
+    "unit": "vitest run"
+  },
+  "dependencies": {
+    "@chenglou/pretext": "0.0.9",
+    "color": "5.0.3",
+    "invariant": "2.2.4",
+    "jspdf": "4.2.1"
+  },
+  "devDependencies": {
+    "@types/invariant": "2.2.37",
+    "@types/node": "26.6.2",
+    "canvas": "3.2.3",
+    "jsdom": "30.1.1",
+    "typescript": "7.0.2",
+    "vitest": "5.0.1"
+  }
+}

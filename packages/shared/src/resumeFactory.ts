@@ -1,7 +1,7 @@
 import Color from "color";
 import invariant from "invariant";
 
-import { resumeConfiguration as config } from "../configuration";
+import { resumeConfiguration as config } from "./configuration";
 import type { Resume } from "./resume";
 import type { ResumeConfig } from "./resumeConfig";
 import {

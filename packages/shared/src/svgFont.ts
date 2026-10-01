@@ -1,5 +1,7 @@
 export const SVG_FONT_FAMILY = "Arimo";
 export const SVG_FONT_STACK = "Arimo, Arial, sans-serif";
+/** Where each app serves the font from its public directory. */
+export const SVG_FONT_URL = "/fonts/Arimo.woff2";
 
 export async function loadSvgFont(): Promise<boolean> {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
