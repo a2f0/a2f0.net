@@ -42,6 +42,15 @@ resource "cloudflare_workers_custom_domain" "staging" {
   service    = "resume-staging"
 }
 
+# Prototype host for packages/experiment, deployed from the
+# proto/tearleads-windowing branch. Deploy the Worker with Wrangler first.
+resource "cloudflare_workers_custom_domain" "experiment" {
+  account_id = var.cloudflare_account_id
+  zone_id    = data.cloudflare_zone.resume.id
+  hostname   = "experiment.${var.domain}"
+  service    = "experiment"
+}
+
 resource "cloudflare_zone_setting" "always_use_https" {
   zone_id    = data.cloudflare_zone.resume.id
   setting_id = "always_use_https"

@@ -103,6 +103,10 @@ is served using Cloudflare's
 | `staging` | `bun run deploy:staging` | `resume-staging` | `staging.a2f0.net` |
 | `production` | `bun run deploy:prod` | `resume-prod` | `resume.a2f0.net` |
 | `production` | `bun run deploy:website` | `resume-redirect` | `a2f0.net` |
+| `proto/tearleads-windowing` | `bun run --cwd packages/experiment deploy` | `experiment` | `experiment.a2f0.net` |
+
+The experiment links an unpublished tearleads package, so it lives only on its
+prototype branch and is deployed by hand rather than from CI.
 
 `a2f0.net` serves the website directly. The resume remains at
 `resume.a2f0.net`. The website keeps the existing Worker service name so the
