@@ -14,7 +14,7 @@ vi.mock("pdfobject", () => {
   };
 });
 
-vi.mock("../../lib/pdfResumeFactory", () => {
+vi.mock("@a2f0/shared/pdfResumeFactory", () => {
   return {
     default: class PdfResumeFactory {
       getResume() {

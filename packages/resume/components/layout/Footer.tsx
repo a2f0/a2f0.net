@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 import packageJson from "../../package.json";
-import resume from "../../resume.json";
+import resume from "@a2f0/shared/resume.json";
 import FlexColumn from "./FlexColumn";
 import FlexContainerCenterAlign from "./FlexContainerCenterAlign";
 import FlexContainerColumnPageWidth from "./FlexContainerColumnPageWidth";

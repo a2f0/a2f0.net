@@ -1,5 +1,5 @@
-import { isResumeData } from "../../lib/resume";
-import resumeData from "../../resume.json";
+import { isResumeData } from "./resume";
+import resumeData from "../resume.json";
 
 describe("isResumeData", () => {
   describe("success cases", () => {

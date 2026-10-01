@@ -2,7 +2,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useDispatch } from "react-redux";
 
-import { resumeConfiguration } from "../../configuration";
+import { resumeConfiguration } from "@a2f0/shared/configuration";
 import { useAppSelector } from "../../lib/hooks";
 import {
   selectForegroundColor,
@@ -12,7 +12,7 @@ import {
   setHighlightColor,
   setScale,
 } from "../../lib/resumeConfigSlice";
-import resume from "../../resume.json";
+import resume from "@a2f0/shared/resume.json";
 import CheckMark from "./CheckMark";
 import { useDropdownMenu } from "./DropdownMenuContext";
 import MenuAction from "./MenuAction";

@@ -1,22 +1,12 @@
-import Color from "color";
+import { downloadPdf, downloadSvg } from "@a2f0/shared/downloads";
 
-import { resumeConfiguration } from "../../configuration";
 import { useAppSelector } from "../../lib/hooks";
-import PdfResumeFactory from "../../lib/pdfResumeFactory";
-import { resume } from "../../lib/resume";
-import type { ResumeConfig } from "../../lib/resumeConfig";
 import {
   selectBackgroundColor,
   selectForegroundColor,
   selectHighlightColor,
 } from "../../lib/resumeConfigSlice";
 import { selectScale } from "../../lib/resumeConfigSlice";
-import SvgResumeFactory from "../../lib/svgResumeFactory";
-import {
-  loadSvgFont,
-  SVG_FONT_FAMILY,
-  SVG_FONT_STACK,
-} from "../../lib/svgFont";
 import CheckMark from "./CheckMark";
 import { useDropdownMenu } from "./DropdownMenuContext";
 import MenuAction from "./MenuAction";
@@ -29,66 +19,15 @@ const FileMenu = () => {
   const highlightColor = useAppSelector(selectHighlightColor);
   const scale = useAppSelector(selectScale);
 
+  const colors = { foregroundColor, backgroundColor, highlightColor };
+
   const downloadPDF = () => {
-    const config: ResumeConfig = {
-      foregroundColor: new Color(foregroundColor),
-      backgroundColor: new Color(backgroundColor),
-      highlightColor: new Color(highlightColor),
-    };
-    const resumeFactory = new PdfResumeFactory(config, resume);
-    const pdfResume = resumeFactory.getResume();
-    pdfResume.save("dan.sullivan.resume.pdf");
+    downloadPdf(colors);
     close();
   };
 
   const downloadSVG = async () => {
-    let fontDataUrl: string | null = null;
-    try {
-      if (!(await loadSvgFont())) throw new Error("Could not load SVG font");
-      const fontResponse = await fetch("/fonts/Arimo.woff2", {
-        signal: AbortSignal.timeout(2000),
-      });
-      if (!fontResponse.ok) throw new Error("Could not load SVG font");
-      const fontBlob = await fontResponse.blob();
-      fontDataUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = () => reject(reader.error);
-        reader.readAsDataURL(fontBlob);
-      });
-    } catch {
-      // The download still works offline using the original system font.
-    }
-    const config: ResumeConfig = {
-      foregroundColor: Color(foregroundColor),
-      backgroundColor: Color(backgroundColor),
-      highlightColor: Color(highlightColor),
-    };
-    const resumeFactory = new SvgResumeFactory(
-      config,
-      resume,
-      false,
-      0,
-      false,
-      fontDataUrl ? SVG_FONT_STACK : resumeConfiguration.fontFamily,
-    );
-    const svg = resumeFactory.getResume();
-    if (fontDataUrl) {
-      const style = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "style",
-      );
-      style.textContent = `@font-face { font-family: ${SVG_FONT_FAMILY}; src: url("${fontDataUrl}") format("woff2"); }`;
-      svg.prepend(style);
-    }
-    const blob = new Blob([svg.outerHTML], {
-      type: "image/svg+xml",
-    });
-    const element = document.createElement("a");
-    element.download = "dan.sullivan.resume.svg";
-    element.href = window.URL.createObjectURL(blob);
-    element.click();
-    element.remove();
+    await downloadSvg(colors);
     close();
   };
 

@@ -1,7 +1,6 @@
-import Color from "color";
+import { type ResumeConfig, toResumeConfig } from "@a2f0/shared/resumeConfig";
 
 import { useAppSelector } from "./hooks";
-import type { ResumeConfig } from "./resumeConfig";
 import {
   selectBackgroundColor,
   selectForegroundColor,
@@ -13,9 +12,5 @@ export const useResume = (): ResumeConfig => {
   const backgroundColor = useAppSelector(selectBackgroundColor);
   const highlightColor = useAppSelector(selectHighlightColor);
 
-  return {
-    foregroundColor: Color(foregroundColor),
-    backgroundColor: Color(backgroundColor),
-    highlightColor: Color(highlightColor),
-  };
+  return toResumeConfig({ foregroundColor, backgroundColor, highlightColor });
 };

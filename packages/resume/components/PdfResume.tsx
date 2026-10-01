@@ -3,9 +3,9 @@ import { useEffect } from "react";
 import styled from "styled-components";
 
 import { useAppSelector } from "../lib/hooks";
-import PdfResumeFactory from "../lib/pdfResumeFactory";
-import { resume } from "../lib/resume";
-import { RESUME_NAME } from "../lib/resumeName";
+import PdfResumeFactory from "@a2f0/shared/pdfResumeFactory";
+import { resume } from "@a2f0/shared/resume";
+import { RESUME_NAME } from "@a2f0/shared/resumeName";
 import { selectScale } from "../lib/resumeConfigSlice";
 import { useResume } from "../lib/useResume";
 

@@ -5,6 +5,8 @@
 import { globSync, readFileSync } from "node:fs";
 
 const EXACT_VERSION = /^\d+\.\d+\.\d+(-[\w.]+)?(\+[\w.]+)?$/;
+// Workspace packages always resolve to the checked-out source.
+const WORKSPACE = "workspace:*";
 const GROUPS = [
   "dependencies",
   "devDependencies",
@@ -18,7 +20,7 @@ for (const manifest of globSync(["package.json", "packages/*/package.json"])) {
   );
   for (const group of GROUPS) {
     for (const [name, version] of Object.entries(packageJson[group] ?? {})) {
-      if (!EXACT_VERSION.test(version)) {
+      if (version !== WORKSPACE && !EXACT_VERSION.test(version)) {
         unpinned.push(`${manifest} > ${group} > ${name}: ${version}`);
       }
     }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { resumeConfiguration } from "../configuration";
+import { resumeConfiguration } from "./configuration";
 
 const { standardFontSize } = resumeConfiguration;
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env -S bunx --no-install tsx
 import Ajv, { type JSONSchemaType } from "ajv";
 
-import resume from "../../resume.json";
-import type { ResumeData } from "../resume";
+import resume from "@a2f0/shared/resume.json";
+import type { ResumeData } from "@a2f0/shared/resume";
 
 const ajv = new Ajv();
 

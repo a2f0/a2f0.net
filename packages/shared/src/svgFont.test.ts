@@ -1,6 +1,6 @@
 import { expect, test, vi } from "vitest";
 
-import { loadSvgFont } from "../../lib/svgFont";
+import { loadSvgFont } from "./svgFont";
 
 test("font loading falls back when the request never settles", async () => {
   vi.useFakeTimers();

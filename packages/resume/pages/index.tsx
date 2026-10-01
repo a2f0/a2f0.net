@@ -1,7 +1,7 @@
 import type { GetStaticProps } from "next";
 import Main from "../components/layout/Main";
 import SvgResume from "../components/SvgResume";
-import { RESUME_NAME } from "../lib/resumeName";
+import { RESUME_NAME } from "@a2f0/shared/resumeName";
 
 interface HomeProps {
   desktopSvg: string | null;
