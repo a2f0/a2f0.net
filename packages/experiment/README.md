@@ -1,9 +1,14 @@
 # Experiment
 
 A prototype for [a2f0/a2f0.net#1144](https://github.com/a2f0/a2f0.net/issues/1144):
-the resume in a draggable, resizable window from
+the resume and the a2f0.net artwork in draggable, resizable windows from
 [`@tearleads/windowing`](https://github.com/a2f0/tearleads/tree/main/packages/windowing),
-meant for `experiment.a2f0.net`.
+deployed to `experiment.a2f0.net`.
+
+The website window reads `packages/website/public/index.html` for its markup
+and styles and runs the site's own `mountSite` inside a shadow root, so the
+site's stylesheet and the window stylesheets cannot restyle each other. Each
+window's View menu mirrors that app's controls.
 
 The package is not published yet, so this app links a local tearleads checkout
 and does not build in CI. Register the package once from the checkout, then
@@ -15,7 +20,8 @@ bun install
 bun run --cwd packages/experiment dev
 ```
 
-The dev server listens on port 4003. `build` writes a static export to `out/`,
+The dev server listens on port 4003. `dev` and `build` first copy the
+website's `a2f0.svg` into `public/`. `build` writes a static export to `out/`,
 `start` serves it through Wrangler on the same port, and `deploy` publishes the
 `experiment` Worker. Terraform attaches the `experiment.a2f0.net` domain.
 

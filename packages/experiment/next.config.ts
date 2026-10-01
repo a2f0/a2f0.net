@@ -11,13 +11,15 @@ const packageDirectory = (name: string) =>
 const nextConfig: NextConfig = {
   output: "export",
   agentRules: false,
-  transpilePackages: ["@a2f0/shared", "@tearleads/windowing"],
+  transpilePackages: ["@a2f0/shared", "@a2f0/website", "@tearleads/windowing"],
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
       react: packageDirectory("react"),
       "react-dom": packageDirectory("react-dom"),
     };
+    // `?raw` imports a file's text, such as the website's index.html.
+    config.module.rules.push({ resourceQuery: /raw/, type: "asset/source" });
     return config;
   },
 };

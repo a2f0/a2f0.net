@@ -11,6 +11,8 @@ import {
 } from "@tearleads/windowing";
 import { type RefObject, useEffect, useRef, useState } from "react";
 
+import { checked, EM_SPACE } from "./menuLabels";
+
 const {
   documentWidth,
   pixelsPerPoint,
@@ -33,12 +35,6 @@ const LIGHT: ResumeColors = {
   backgroundColor: lightBackgroundColor,
   highlightColor: lightHighlightColor,
 };
-
-// The window menus have no checked state, so the active choice is marked in
-// its label and the others are indented to match.
-const EM_SPACE = "\u2003";
-const checked = (active: boolean, label: string) =>
-  `${active ? "✓" : EM_SPACE} ${label}`;
 
 function useResumeMenus(
   colors: ResumeColors,

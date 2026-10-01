@@ -5,15 +5,35 @@ import {
   WindowStateProvider,
 } from "@tearleads/windowing";
 import {
+  type ComponentType,
   type MouseEvent as ReactMouseEvent,
-  useCallback,
   useEffect,
   useRef,
 } from "react";
 
 import ResumeWindow from "./ResumeWindow";
+import WebsiteWindow from "./WebsiteWindow";
 
-const RESUME_APP_ID = "resume";
+interface App {
+  appId: string;
+  title: string;
+  component: ComponentType;
+  /** Where the window first opens, in viewport pixels. */
+  x: number;
+  y: number;
+}
+
+// Opened in this order on load, so the last one starts in front.
+const APPS: App[] = [
+  { appId: "resume", title: "Resume", component: ResumeWindow, x: 48, y: 32 },
+  {
+    appId: "website",
+    title: "a2f0.net",
+    component: WebsiteWindow,
+    x: 360,
+    y: 140,
+  },
+];
 
 // Drag and resize follow the mouse only, so touch and narrow screens get the
 // window maximized instead.
@@ -45,41 +65,50 @@ function DesktopSurface() {
   );
 }
 
-function Taskbar() {
+function useOpenApp() {
   const { windows } = useWindowStateData();
   const { bringToFront, create, maximize, restore } = useWindowActions();
-  const resumeWindow = windows.find((entry) => entry.appId === RESUME_APP_ID);
 
-  const openResume = useCallback(() => {
-    if (resumeWindow) {
-      restore(resumeWindow.id);
-      bringToFront(resumeWindow.id);
+  return ({ appId, component, title, x, y }: App) => {
+    const open = windows.find((entry) => entry.appId === appId);
+    if (open) {
+      restore(open.id);
+      bringToFront(open.id);
       return;
     }
-    const id = create("Resume", 48, 32, ResumeWindow, {
-      appId: RESUME_APP_ID,
-    });
+    const id = create(title, x, y, component, { appId });
     if (prefersMaximized()) maximize(id);
-  }, [bringToFront, create, maximize, restore, resumeWindow]);
+  };
+}
 
-  // Open the resume once on load; reopening after a close is the taskbar's job.
+function Taskbar() {
+  const { windows } = useWindowStateData();
+  const openApp = useOpenApp();
+
+  // Open every app once on load; reopening after a close is the taskbar's job.
   const opened = useRef(false);
   useEffect(() => {
     if (opened.current) return;
     opened.current = true;
-    openResume();
-  }, [openResume]);
+    for (const app of APPS) openApp(app);
+  });
 
   return (
     <nav className="desktop-taskbar" aria-label="Windows">
-      <button
-        type="button"
-        className="desktop-taskbar-button"
-        aria-pressed={resumeWindow !== undefined && !resumeWindow.minimized}
-        onClick={openResume}
-      >
-        Resume
-      </button>
+      {APPS.map((app) => {
+        const open = windows.find((entry) => entry.appId === app.appId);
+        return (
+          <button
+            key={app.appId}
+            type="button"
+            className="desktop-taskbar-button"
+            aria-pressed={open !== undefined && !open.minimized}
+            onClick={() => openApp(app)}
+          >
+            {app.title}
+          </button>
+        );
+      })}
     </nav>
   );
 }

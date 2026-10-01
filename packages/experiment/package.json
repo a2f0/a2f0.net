@@ -4,14 +4,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev --webpack -p 4003",
-    "build": "next build --webpack",
+    "copy-art": "cp ../website/public/a2f0.svg public/a2f0.svg",
+    "dev": "bun run copy-art && next dev --webpack -p 4003",
+    "build": "bun run copy-art && next build --webpack",
     "start": "wrangler dev --port 4003 --local",
     "compile": "tsc",
     "deploy": "bun run build && wrangler deploy"
   },
   "dependencies": {
     "@a2f0/shared": "workspace:*",
+    "@a2f0/website": "workspace:*",
     "@tearleads/windowing": "link:@tearleads/windowing",
     "next": "16.3.6",
     "react": "19.3.0",

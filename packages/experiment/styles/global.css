@@ -85,6 +85,13 @@ body {
   margin: 0 auto;
 }
 
+/* The website draws on black edge to edge, so it spans the body's padding. */
+.website-window {
+  height: calc(100% + 2 * var(--space-md));
+  margin: calc(-1 * var(--space-md));
+  background: #000;
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;
