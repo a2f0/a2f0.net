@@ -32,6 +32,9 @@
     },
     "packages/shared": {
       "project": ["src/**/*.ts"]
+    },
+    "packages/experiment": {
+      "project": ["**/*.{ts,tsx}"]
     }
   }
 }

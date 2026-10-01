@@ -36,7 +36,7 @@
     "start": "bun run --cwd packages/resume start",
     "lint": "biome lint",
     "lint:md": "markdownlint-cli2",
-    "compile": "bun run --cwd packages/shared compile && bun run --cwd packages/resume compile && bun run --cwd packages/agent-tool compile && bun run --cwd packages/website compile",
+    "compile": "bun run --cwd packages/shared compile && bun run --cwd packages/resume compile && bun run --cwd packages/agent-tool compile && bun run --cwd packages/website compile && bun run --cwd packages/experiment compile",
     "fix": "biome . --fix",
     "prepare": "husky && bun run compile",
     "unit": "bun run --cwd packages/shared unit && bun run --cwd packages/resume unit && bun run --cwd packages/agent-tool test && bun run --cwd packages/website unit",

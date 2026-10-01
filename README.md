@@ -7,8 +7,9 @@ Use the Node version in `.nvmrc` and the Bun version in `package.json`.
 The resume app lives in [`packages/resume`](packages/resume), the apex website
 lives in [`packages/website`](packages/website), and PR helpers live in
 [`packages/agent-tool`](packages/agent-tool). The resume data, layout, and SVG
-and PDF factories live in [`packages/shared`](packages/shared/README.md),
-which the resume imports. Run the commands below from the repository root.
+and PDF factories live in [`packages/shared`](packages/shared/README.md), and
+[`packages/experiment`](packages/experiment/README.md) is a prototype that opens
+the resume in a window. Run the commands below from the repository root.
 
 ```sh
 nvm use
