@@ -1,6 +1,6 @@
 # Experiment
 
-A prototype for [a2f0/a2f0.net#1144](https://github.com/a2f0/a2f0.net/issues/1144):
+An experiment started in [a2f0/a2f0.net#1144](https://github.com/a2f0/a2f0.net/issues/1144):
 the resume and the a2f0.net artwork in draggable, resizable windows from
 [`@tearleads/windowing`](https://github.com/a2f0/tearleads/tree/main/packages/windowing),
 deployed to `experiment.a2f0.net`.
@@ -10,22 +10,20 @@ and styles and runs the site's own `mountSite` inside a shadow root, so the
 site's stylesheet and the window stylesheets cannot restyle each other. Each
 window's View menu mirrors that app's controls.
 
-The package is not published yet, so this app links a local tearleads checkout
-and does not build in CI. Register the package once from the checkout, then
-install from this repository's root:
+The app uses the published `@tearleads/windowing` package, pinned to `0.1.1`.
+Install from this repository's root:
 
 ```sh
-(cd ~/github/tearleads/packages/windowing && bun link)
-bun install
+bun ci
 bun run --cwd packages/experiment dev
 ```
 
 The dev server listens on port 4003. `dev` and `build` first copy the
 website's `a2f0.svg` into `public/`. `build` writes a static export to `out/`,
 `start` serves it through Wrangler on the same port, and `deploy` publishes the
-`experiment` Worker. Terraform attaches the `experiment.a2f0.net` domain.
+`experiment` Worker. Terraform attaches the `experiment.a2f0.net` domain. CI
+builds and tests the app, then deploys it on validated pushes to `production`.
 
-Next.js builds with webpack (`--webpack`) because Turbopack neither follows the
-`bun link` symlink nor accepts the package's component stylesheets.
-`next.config.ts` pins React to this app's copy so the linked source does not
-load a second one from the tearleads checkout.
+Next.js builds with webpack (`--webpack`) to import the website's HTML as text
+through the `?raw` resource rule. The windowing package supplies its own CSS
+defaults and uses the app's React through peer dependencies.

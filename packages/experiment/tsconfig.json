@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "types": ["node"],
+    "types": ["node", "@wdio/globals/types", "@wdio/mocha-framework"],
     "lib": ["dom", "dom.iterable", "esnext"],
     "target": "esnext",
     "module": "esnext",

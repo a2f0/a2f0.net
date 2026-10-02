@@ -4,12 +4,7 @@ import {
   Window,
   WindowStateProvider,
 } from "@tearleads/windowing";
-import {
-  type ComponentType,
-  type MouseEvent as ReactMouseEvent,
-  useEffect,
-  useRef,
-} from "react";
+import { type ComponentType, useEffect, useRef } from "react";
 
 import ResumeWindow from "./ResumeWindow";
 import WebsiteWindow from "./WebsiteWindow";
@@ -35,29 +30,14 @@ const APPS: App[] = [
   },
 ];
 
-// Drag and resize follow the mouse only, so touch and narrow screens get the
-// window maximized instead.
+// Start maximized on touch and narrow screens to keep the content readable.
 const prefersMaximized = () =>
   window.matchMedia("(pointer: coarse), (max-width: 700px)").matches;
-
-// The window layer starts a resize without preventing the mousedown default,
-// so dragging a corner across the resume would select its text.
-const preventResizeSelection = (event: ReactMouseEvent) => {
-  if (
-    event.target instanceof Element &&
-    event.target.closest(".window-resize")
-  ) {
-    event.preventDefault();
-  }
-};
 
 function DesktopSurface() {
   const { windows } = useWindowStateData();
   return (
-    <div
-      className="desktop-surface"
-      onMouseDownCapture={preventResizeSelection}
-    >
+    <div className="desktop-surface">
       {windows.map((entry) => (
         <Window key={entry.id} windowId={entry.id} />
       ))}

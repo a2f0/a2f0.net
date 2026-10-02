@@ -34,7 +34,9 @@
       "project": ["src/**/*.ts"]
     },
     "packages/experiment": {
-      "project": ["**/*.{ts,tsx}"]
+      "entry": ["pages/**/*.tsx", "test/specs/*.e2e.ts"],
+      "project": ["**/*.{ts,tsx}"],
+      "ignoreDependencies": ["@types/mocha", "@wdio/local-runner"]
     }
   }
 }

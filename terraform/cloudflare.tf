@@ -42,8 +42,7 @@ resource "cloudflare_workers_custom_domain" "staging" {
   service    = "resume-staging"
 }
 
-# Prototype host for packages/experiment, deployed from the
-# proto/tearleads-windowing branch. Deploy the Worker with Wrangler first.
+# Host for packages/experiment, deployed from production CI.
 resource "cloudflare_workers_custom_domain" "experiment" {
   account_id = var.cloudflare_account_id
   zone_id    = data.cloudflare_zone.resume.id

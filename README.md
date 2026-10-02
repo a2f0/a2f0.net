@@ -8,8 +8,8 @@ The resume app lives in [`packages/resume`](packages/resume), the apex website
 lives in [`packages/website`](packages/website), and PR helpers live in
 [`packages/agent-tool`](packages/agent-tool). The resume data, layout, and SVG
 and PDF factories live in [`packages/shared`](packages/shared/README.md), and
-[`packages/experiment`](packages/experiment/README.md) is a prototype that opens
-the resume in a window. Run the commands below from the repository root.
+[`packages/experiment`](packages/experiment/README.md) opens the resume and
+website artwork in desktop windows. Run the commands below from the repository root.
 
 ```sh
 nvm use
@@ -104,10 +104,10 @@ is served using Cloudflare's
 | `staging` | `bun run deploy:staging` | `resume-staging` | `staging.a2f0.net` |
 | `production` | `bun run deploy:prod` | `resume-prod` | `resume.a2f0.net` |
 | `production` | `bun run deploy:website` | `resume-redirect` | `a2f0.net` |
-| `proto/tearleads-windowing` | `bun run --cwd packages/experiment deploy` | `experiment` | `experiment.a2f0.net` |
+| `production` | `bun run --cwd packages/experiment deploy` | `experiment` | `experiment.a2f0.net` |
 
-The experiment links an unpublished tearleads package, so it lives only on its
-prototype branch and is deployed by hand rather than from CI.
+The experiment uses the published, pinned `@tearleads/windowing` package and
+deploys alongside the resume and website after production validation succeeds.
 
 `a2f0.net` serves the website directly. The resume remains at
 `resume.a2f0.net`. The website keeps the existing Worker service name so the

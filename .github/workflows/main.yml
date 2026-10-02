@@ -48,6 +48,8 @@ jobs:
         run: bun run ci-headless
       - name: Test apex website with Cloudflare Workers
         run: bun run --cwd packages/website test
+      - name: Test experiment with Cloudflare Workers
+        run: bun run --cwd packages/experiment test
 
   deploy:
     needs: build
@@ -67,6 +69,9 @@ jobs:
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6  # v2.2.0
       - run: bun ci
       - run: bun run build
+      - name: Build experiment
+        if: github.ref == 'refs/heads/production'
+        run: bun run --cwd packages/experiment build
       - name: Deploy staging
         if: github.ref == 'refs/heads/staging'
         working-directory: packages/resume
@@ -84,6 +89,13 @@ jobs:
       - name: Deploy website
         if: github.ref == 'refs/heads/production'
         working-directory: packages/website
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: bunx --no-install wrangler deploy
+      - name: Deploy experiment
+        if: github.ref == 'refs/heads/production'
+        working-directory: packages/experiment
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
