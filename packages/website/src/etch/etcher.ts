@@ -28,10 +28,16 @@ import { unitOf } from "./units";
 // are still seen being filled.
 const MIN_SWEEP = 24;
 
-interface Prepared {
+/** The artwork an etching draws, with which points lie on the letters. */
+export interface Prepared {
   svg: Document;
   onLetters: (point: Point) => boolean;
 }
+
+const prepareArtwork = async (): Promise<Prepared> => {
+  const svg = await fetchArtwork();
+  return { svg, onLetters: await letterSilhouette(svg) };
+};
 
 interface Trace {
   shape: SVGGeometryElement;
@@ -62,16 +68,24 @@ interface Scene {
 export class Etcher {
   readonly #stage: HTMLElement;
   readonly #art: HTMLElement;
+  readonly #prepare: () => Promise<Prepared>;
   #prepared?: Promise<Prepared>;
   #stop?: () => void;
 
   /**
    * @param stage The element the etching plays over.
    * @param art The finished artwork, hidden until the etching ends.
+   * @param prepare Loads the artwork to etch, once. It defaults to fetching
+   * a2f0.svg; tests supply their own.
    */
-  constructor(stage: HTMLElement, art: HTMLElement) {
+  constructor(
+    stage: HTMLElement,
+    art: HTMLElement,
+    prepare: () => Promise<Prepared> = prepareArtwork,
+  ) {
     this.#stage = stage;
     this.#art = art;
+    this.#prepare = prepare;
   }
 
   get playing() {
@@ -87,18 +101,21 @@ export class Etcher {
   async play(): Promise<void> {
     if (this.playing) return;
     // Stopping settles play() at once, even while the artwork is loading.
+    let stopping = false;
     const stopped = new Promise<undefined>((resolve) => {
-      this.#stop = () => resolve(undefined);
+      this.#stop = () => {
+        stopping = true;
+        resolve(undefined);
+      };
     });
     try {
-      this.#prepared ??= fetchArtwork()
-        .then(async (svg) => ({ svg, onLetters: await letterSilhouette(svg) }))
-        .catch((error) => {
-          this.#prepared = undefined;
-          throw error;
-        });
+      this.#prepared ??= this.#prepare().catch((error) => {
+        this.#prepared = undefined;
+        throw error;
+      });
       const prepared = await Promise.race([this.#prepared, stopped]);
-      if (!prepared) return;
+      // Artwork already loaded wins the race even when stopped straight away.
+      if (!prepared || stopping) return;
       const scene = this.#build(prepared);
       let playing = true;
       void this.#profile(scene, () => playing);
