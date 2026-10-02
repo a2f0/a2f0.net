@@ -42,16 +42,27 @@ export class AsciiDisplay {
   readonly #pre: HTMLElement;
   readonly #width: () => number;
   readonly #rendered: () => void;
+  readonly #renderArt: (columns: number) => Promise<AsciiArt>;
   #artwork?: Promise<Artwork>;
   #columns = 0;
   #drawing: Promise<void> = Promise.resolve();
   #grid?: Grid;
   #runs: (Placed & { node: Text })[] = [];
 
-  constructor(pre: HTMLElement, width: () => number, rendered: () => void) {
+  /**
+   * @param render Renders the art at a column count. It defaults to loading
+   * and rasterizing a2f0.svg; tests supply their own.
+   */
+  constructor(
+    pre: HTMLElement,
+    width: () => number,
+    rendered: () => void,
+    render?: (columns: number) => Promise<AsciiArt>,
+  ) {
     this.#pre = pre;
     this.#width = width;
     this.#rendered = rendered;
+    this.#renderArt = render ?? ((columns) => this.#render(columns));
   }
 
   /** Whether a render has been started and has not since failed. */
@@ -69,7 +80,7 @@ export class AsciiDisplay {
     const next = columnsFor(this.#width());
     if (next === this.#columns) return this.#drawing;
     this.#columns = next;
-    this.#drawing = this.#render(next).then(
+    this.#drawing = this.#renderArt(next).then(
       (art) => {
         if (next !== this.#columns) return;
         this.#write(next, art);

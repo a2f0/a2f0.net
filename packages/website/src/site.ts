@@ -214,6 +214,9 @@ export const mountSite = (container: HTMLElement): (() => void) => {
     clearTimeout(resizeTimer);
     display.abandon();
     stopAnimating();
+    // The animations end without settling, so their button resets here.
+    delete play.dataset.playing;
+    labelPlay();
     lens.snap(0);
     terminal.cancel();
   };

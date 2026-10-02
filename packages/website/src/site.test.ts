@@ -11,6 +11,7 @@ import {
   test,
 } from "bun:test";
 
+import { AsciiDisplay } from "./ascii/display";
 import { mountSite } from "./site";
 
 const page = await readFile(
@@ -106,4 +107,33 @@ test("leaves the markup alone when unmounted during the first render", async () 
     container.querySelector(".view-toggle")?.getAttribute("aria-pressed"),
   ).toBe("true");
   expect(errorSpy).not.toHaveBeenCalled();
+});
+
+test("abandons the render under way when unmounted", () => {
+  const abandon = spyOn(AsciiDisplay.prototype, "abandon");
+  try {
+    const unmount = mountSite(render());
+    expect(abandon).not.toHaveBeenCalled();
+    unmount();
+    expect(abandon).toHaveBeenCalledTimes(1);
+  } finally {
+    abandon.mockRestore();
+  }
+});
+
+test("resets the play button when unmounted during an animation", async () => {
+  // The ASCII fails to load, so the site settles on the SVG, and the etching
+  // then waits on its own fetch of the artwork.
+  fetchSpy.mockReturnValue(new Promise<Response>(() => undefined));
+  fetchSpy.mockRejectedValueOnce(new Error("offline"));
+  const container = render();
+  const unmount = mountSite(container);
+  await settled();
+  const play = container.querySelector<HTMLButtonElement>(".play-toggle");
+  play?.click();
+  expect(play?.dataset.playing).toBe("");
+  expect(play?.getAttribute("aria-label")).toBe("Stop etching animation");
+  unmount();
+  expect(play?.dataset.playing).toBeUndefined();
+  expect(play?.getAttribute("aria-label")).toBe("Play etching animation");
 });

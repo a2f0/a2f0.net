@@ -31,6 +31,7 @@ export class TerminalWindow {
   readonly #frame: HTMLElement;
   readonly #reducedMotion: MediaQueryList;
   #animations: Animation[] = [];
+  #closing = false;
 
   /**
    * @param canvas The element holding the artwork, which the window wraps.
@@ -70,6 +71,7 @@ export class TerminalWindow {
   async close(to: Element): Promise<boolean> {
     this.#cancel();
     if (!this.#reducedMotion.matches) {
+      this.#closing = true;
       const played = await this.#play([
         this.#frame.animate(
           { opacity: [1, 0] },
@@ -79,15 +81,21 @@ export class TerminalWindow {
       ]);
       if (!played) return false;
     }
+    this.#closing = false;
     delete this.#canvas.dataset.window;
     // The faded frame stays hidden with the window, ready to open again.
     this.#cancel();
     return true;
   }
 
-  /** Stops opening or closing where it is, removing the outlines. */
+  /**
+   * Stops opening or closing at once, removing the outlines. A window that
+   * was opening stays open, and one that was closing closes.
+   */
   cancel() {
+    const closing = this.#closing;
     this.#cancel();
+    if (closing) delete this.#canvas.dataset.window;
   }
 
   // Where an element sits within the canvas.
@@ -134,6 +142,7 @@ export class TerminalWindow {
   }
 
   #cancel() {
+    this.#closing = false;
     for (const animation of this.#animations) animation.cancel();
     this.#animations = [];
   }
