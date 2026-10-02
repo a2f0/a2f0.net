@@ -52,17 +52,19 @@ test("closes a window cancelled while it closes", async () => {
   const { canvas, square, terminal } = setup();
   canvas.dataset.window = "";
   const closing = terminal.close(square);
+  expect(canvas.querySelector(".zoom-line")).not.toBeNull();
   terminal.cancel();
-  expect(await closing).toBe(false);
   expect(canvas.dataset.window).toBeUndefined();
   expect(canvas.querySelector(".zoom-line")).toBeNull();
+  expect(await closing).toBe(false);
 });
 
 test("keeps a window open when cancelled while it opens", async () => {
   const { canvas, square, terminal } = setup();
   const opening = terminal.open(square);
+  expect(canvas.querySelector(".zoom-line")).not.toBeNull();
   terminal.cancel();
-  expect(await opening).toBe(false);
   expect(canvas.dataset.window).toBe("");
   expect(canvas.querySelector(".zoom-line")).toBeNull();
+  expect(await opening).toBe(false);
 });

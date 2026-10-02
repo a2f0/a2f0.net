@@ -31,6 +31,7 @@ export class TerminalWindow {
   readonly #frame: HTMLElement;
   readonly #reducedMotion: MediaQueryList;
   #animations: Animation[] = [];
+  #lines: Element[] = [];
   #closing = false;
 
   /**
@@ -112,6 +113,7 @@ export class TerminalWindow {
       const line = document.createElement("div");
       line.className = "zoom-line";
       this.#canvas.append(line);
+      this.#lines.push(line);
       const animation = line.animate(
         [
           { ...placed(from), opacity: 0 },
@@ -145,5 +147,8 @@ export class TerminalWindow {
     this.#closing = false;
     for (const animation of this.#animations) animation.cancel();
     this.#animations = [];
+    // Cancelling settles the animations later; the outlines go now.
+    for (const line of this.#lines) line.remove();
+    this.#lines = [];
   }
 }

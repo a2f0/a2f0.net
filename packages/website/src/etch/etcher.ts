@@ -102,12 +102,14 @@ export class Etcher {
     if (this.playing) return;
     // Stopping settles play() at once, even while the artwork is loading.
     let stopping = false;
+    let stopLoading: () => void = () => undefined;
     const stopped = new Promise<undefined>((resolve) => {
-      this.#stop = () => {
+      stopLoading = () => {
         stopping = true;
         resolve(undefined);
       };
     });
+    this.#stop = stopLoading;
     try {
       this.#prepared ??= this.#prepare().catch((error) => {
         this.#prepared = undefined;
@@ -135,7 +137,9 @@ export class Etcher {
         end();
       }
     } finally {
-      this.#stop = undefined;
+      // Once stopped, another etching can start before this one settles, so
+      // only clear the stop if it is still this etching's.
+      if (this.#stop === stopLoading) this.#stop = undefined;
     }
   }
 
