@@ -32,6 +32,11 @@
     },
     "packages/shared": {
       "project": ["src/**/*.ts"]
+    },
+    "packages/experiment": {
+      "entry": ["pages/**/*.tsx", "test/specs/*.e2e.ts"],
+      "project": ["**/*.{ts,tsx}"],
+      "ignoreDependencies": ["@types/mocha", "@wdio/local-runner"]
     }
   }
 }

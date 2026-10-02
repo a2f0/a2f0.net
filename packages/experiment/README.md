@@ -1,0 +1,29 @@
+# Experiment
+
+An experiment started in [a2f0/a2f0.net#1144](https://github.com/a2f0/a2f0.net/issues/1144):
+the resume and the a2f0.net artwork in draggable, resizable windows from
+[`@tearleads/windowing`](https://github.com/a2f0/tearleads/tree/main/packages/windowing),
+deployed to `experiment.a2f0.net`.
+
+The website window reads `packages/website/public/index.html` for its markup
+and styles and runs the site's own `mountSite` inside a shadow root, so the
+site's stylesheet and the window stylesheets cannot restyle each other. Each
+window's View menu mirrors that app's controls.
+
+The app uses the published `@tearleads/windowing` package, pinned to `0.1.1`.
+Install from this repository's root:
+
+```sh
+bun ci
+bun run --cwd packages/experiment dev
+```
+
+The dev server listens on port 4003. `dev` and `build` first copy the
+website's `a2f0.svg` into `public/`. `build` writes a static export to `out/`,
+`start` serves it through Wrangler on the same port, and `deploy` publishes the
+`experiment` Worker. Terraform attaches the `experiment.a2f0.net` domain. CI
+builds and tests the app, then deploys it on validated pushes to `production`.
+
+Next.js builds with webpack (`--webpack`) to import the website's HTML as text
+through the `?raw` resource rule. The windowing package supplies its own CSS
+defaults and uses the app's React through peer dependencies.
