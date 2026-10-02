@@ -159,6 +159,9 @@ export const mountSite = (container: HTMLElement): (() => void) => {
   );
   toggle.hidden = false;
 
+  // Counts the animations started, so a stopped one settling late leaves the
+  // button to the one that replaced it.
+  let plays = 0;
   play.addEventListener(
     "click",
     async () => {
@@ -169,6 +172,7 @@ export const mountSite = (container: HTMLElement): (() => void) => {
       const asAscii = wanted();
       if (shown() !== asAscii) await show(asAscii);
       if (!mounted() || shown() !== asAscii || animating()) return;
+      const current = ++plays;
       play.dataset.playing = "";
       labelPlay();
       const playing = (asAscii ? rain : etcher).play();
@@ -178,7 +182,7 @@ export const mountSite = (container: HTMLElement): (() => void) => {
       } catch (error) {
         console.error(error);
       } finally {
-        if (mounted()) {
+        if (mounted() && current === plays) {
           delete play.dataset.playing;
           labelPlay();
           settle();

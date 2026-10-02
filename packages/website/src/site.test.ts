@@ -153,3 +153,48 @@ test("stops both animations when unmounted", () => {
     for (const stop of stops) stop.mockRestore();
   }
 });
+
+test("keeps Stop showing for an animation restarted as the last one stops", async () => {
+  // A stand-in etching that runs until stopped.
+  let running = false;
+  let settle: () => void = () => undefined;
+  const playing = Object.getOwnPropertyDescriptor(Etcher.prototype, "playing");
+  Object.defineProperty(Etcher.prototype, "playing", {
+    configurable: true,
+    get: () => running,
+  });
+  const stubs = [
+    spyOn(Etcher.prototype, "play").mockImplementation(() => {
+      running = true;
+      return new Promise((resolve) => {
+        settle = resolve;
+      });
+    }),
+    spyOn(Etcher.prototype, "stop").mockImplementation(() => {
+      running = false;
+      settle();
+    }),
+  ];
+  try {
+    const container = render();
+    const unmount = mountSite(container);
+    // The artwork fails to load, so the site settles on the SVG.
+    await settled();
+    const play = container.querySelector<HTMLButtonElement>(".play-toggle");
+    // Play, stop, and play again before the first etching settles.
+    play?.click();
+    play?.click();
+    play?.click();
+    await settled();
+    expect(running).toBe(true);
+    expect(play?.dataset.playing).toBe("");
+    expect(play?.getAttribute("aria-label")).toBe("Stop etching animation");
+    play?.click();
+    await settled();
+    expect(play?.dataset.playing).toBeUndefined();
+    unmount();
+  } finally {
+    for (const stub of stubs) stub.mockRestore();
+    if (playing) Object.defineProperty(Etcher.prototype, "playing", playing);
+  }
+});
