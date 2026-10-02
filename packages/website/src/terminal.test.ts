@@ -15,7 +15,8 @@ import { TerminalWindow } from "./terminal";
 beforeAll(() => GlobalRegistrator.register());
 afterAll(() => GlobalRegistrator.unregister());
 
-// Every animation runs until it is cancelled, like a zoom caught midway.
+// happy-dom implements Element.prototype.animate; the spy holds every
+// animation until it is cancelled, like a zoom caught midway.
 let held: Mock<typeof Element.prototype.animate>;
 beforeEach(() => {
   held = spyOn(Element.prototype, "animate").mockImplementation(() => {
