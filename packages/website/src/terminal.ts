@@ -85,6 +85,11 @@ export class TerminalWindow {
     return true;
   }
 
+  /** Stops opening or closing where it is, removing the outlines. */
+  cancel() {
+    this.#cancel();
+  }
+
   // Where an element sits within the canvas.
   #boxOf(element: Element): Box {
     const canvas = this.#canvas.getBoundingClientRect();

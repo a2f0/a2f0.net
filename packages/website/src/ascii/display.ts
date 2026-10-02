@@ -84,6 +84,11 @@ export class AsciiDisplay {
     return this.#drawing;
   }
 
+  /** Drops any render under way, which then never writes to the pre. */
+  abandon() {
+    this.#columns = 0;
+  }
+
   /**
    * Shows each column of the art only down to a depth, in rows, or the whole
    * art without depths.

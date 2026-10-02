@@ -13,9 +13,14 @@ import { TerminalWindow } from "./terminal";
 /**
  * Wires up the artwork, toolbar, and terminal window inside a container
  * holding index.html's markup. The ASCII is sized to the container's width.
- * Returns a function that stops the animations and observers.
+ * Returns a function that removes the listeners, stops the animations and
+ * observers, and leaves any work still under way from changing the markup.
  */
 export const mountSite = (container: HTMLElement): (() => void) => {
+  const unmounted = new AbortController();
+  const { signal } = unmounted;
+  const mounted = () => !signal.aborted;
+
   const find = <T extends Element>(selector: string): T => {
     const element = container.querySelector<T>(selector);
     if (!element) throw new Error(`Missing ${selector}`);
@@ -56,7 +61,7 @@ export const mountSite = (container: HTMLElement): (() => void) => {
 
   // The lens stays shut while an animation plays over the artwork.
   const settle = () => {
-    if (!flooding) {
+    if (!flooding && mounted()) {
       lens.peek(pointer !== undefined && display.ready && !animating());
     }
   };
@@ -81,9 +86,11 @@ export const mountSite = (container: HTMLElement): (() => void) => {
     try {
       if (asAscii) await display.draw();
     } catch (error) {
+      if (!mounted()) return;
       console.error(error);
       return show(false);
     }
+    if (!mounted()) return;
     // A later click wins over a render that was still in flight. A flood that
     // is already under way checks which view is wanted once it ends, so it is
     // left to finish rather than interrupted by a second one.
@@ -92,6 +99,7 @@ export const mountSite = (container: HTMLElement): (() => void) => {
       flooding = true;
       const flooded = await lens.flood(origin);
       flooding = false;
+      if (!mounted()) return;
       if (!flooded || wanted() !== asAscii) return settle();
     }
     stage.dataset.view = asAscii ? "ascii" : "svg";
@@ -103,21 +111,33 @@ export const mountSite = (container: HTMLElement): (() => void) => {
     settle();
   };
 
-  stage.addEventListener("pointermove", (event) => {
-    // Touch has no hover, so a tap flips the view without peeking first.
-    if (event.pointerType === "touch") return;
-    pointer = lens.locate(event);
-    if (flooding) return;
-    lens.aim(pointer);
-    settle();
-  });
-  stage.addEventListener("pointerleave", () => {
-    pointer = undefined;
-    settle();
-  });
-  stage.addEventListener("click", (event) => {
-    if (!flooding && !animating()) show(!shown(), lens.locate(event));
-  });
+  stage.addEventListener(
+    "pointermove",
+    (event) => {
+      // Touch has no hover, so a tap flips the view without peeking first.
+      if (event.pointerType === "touch") return;
+      pointer = lens.locate(event);
+      if (flooding) return;
+      lens.aim(pointer);
+      settle();
+    },
+    { signal },
+  );
+  stage.addEventListener(
+    "pointerleave",
+    () => {
+      pointer = undefined;
+      settle();
+    },
+    { signal },
+  );
+  stage.addEventListener(
+    "click",
+    (event) => {
+      if (!flooding && !animating()) show(!shown(), lens.locate(event));
+    },
+    { signal },
+  );
 
   // The container follows the viewport on the site, and its window when the
   // site is embedded in one.
@@ -129,54 +149,72 @@ export const mountSite = (container: HTMLElement): (() => void) => {
     }, 200);
   });
   resized.observe(container);
-  toggle.addEventListener("click", () => {
-    stopAnimating();
-    show(!wanted());
-  });
+  toggle.addEventListener(
+    "click",
+    () => {
+      stopAnimating();
+      show(!wanted());
+    },
+    { signal },
+  );
   toggle.hidden = false;
 
-  play.addEventListener("click", async () => {
-    if (animating()) return stopAnimating();
-    if (flooding) return;
-    // The etching draws the SVG, and the code rain writes the ASCII, so each
-    // waits for its view to be on show.
-    const asAscii = wanted();
-    if (shown() !== asAscii) await show(asAscii);
-    if (shown() !== asAscii || animating()) return;
-    play.dataset.playing = "";
-    labelPlay();
-    const playing = (asAscii ? rain : etcher).play();
-    settle();
-    try {
-      await playing;
-    } catch (error) {
-      console.error(error);
-    } finally {
-      delete play.dataset.playing;
+  play.addEventListener(
+    "click",
+    async () => {
+      if (animating()) return stopAnimating();
+      if (flooding) return;
+      // The etching draws the SVG, and the code rain writes the ASCII, so each
+      // waits for its view to be on show.
+      const asAscii = wanted();
+      if (shown() !== asAscii) await show(asAscii);
+      if (!mounted() || shown() !== asAscii || animating()) return;
+      play.dataset.playing = "";
       labelPlay();
+      const playing = (asAscii ? rain : etcher).play();
       settle();
-    }
-  });
+      try {
+        await playing;
+      } catch (error) {
+        console.error(error);
+      } finally {
+        if (mounted()) {
+          delete play.dataset.playing;
+          labelPlay();
+          settle();
+        }
+      }
+    },
+    { signal },
+  );
   play.hidden = false;
 
   // The window zooms out of, and back into, the square drawn on its toggle.
-  windowToggle.addEventListener("click", () => {
-    const open = windowToggle.getAttribute("aria-pressed") !== "true";
-    windowToggle.setAttribute("aria-pressed", String(open));
-    const square = windowToggle.querySelector("rect") ?? windowToggle;
-    (open ? terminal.open(square) : terminal.close(square)).catch(
-      console.error,
-    );
-  });
+  windowToggle.addEventListener(
+    "click",
+    () => {
+      const open = windowToggle.getAttribute("aria-pressed") !== "true";
+      windowToggle.setAttribute("aria-pressed", String(open));
+      const square = windowToggle.querySelector("rect") ?? windowToggle;
+      (open ? terminal.open(square) : terminal.close(square)).catch(
+        console.error,
+      );
+    },
+    { signal },
+  );
   windowToggle.hidden = false;
   // The SVG stays hidden until the first view is settled.
   show(true).finally(() => {
-    stage.dataset.ready = "";
+    if (mounted()) stage.dataset.ready = "";
   });
 
   return () => {
+    unmounted.abort();
     resized.disconnect();
     clearTimeout(resizeTimer);
+    display.abandon();
     stopAnimating();
+    lens.snap(0);
+    terminal.cancel();
   };
 };
