@@ -348,6 +348,26 @@ describe("Laser etching", () => {
     await settled();
   });
 
+  it("restores the artwork before stop returns", async () => {
+    await openSvg();
+    await play().click();
+    await expect($(".etch-lines")).toBeExisting();
+    // Stop and look in the same turn, so nothing can tidy up in between.
+    const stopped = await browser.execute(() => {
+      document.querySelector<HTMLButtonElement>(".play-toggle")?.click();
+      const stage = document.querySelector<HTMLElement>(".stage");
+      return {
+        layers: document.querySelectorAll(
+          ".etch-lines, .etch-fills, .etch-glow",
+        ).length,
+        etching: stage?.dataset.etching !== undefined,
+        visibility:
+          document.querySelector<HTMLElement>(".graffiti")?.style.visibility,
+      };
+    });
+    expect(stopped).toEqual({ layers: 0, etching: false, visibility: "" });
+  });
+
   it("stops at once while the artwork is still loading", async () => {
     const slow = await browser.addInitScript(() => {
       const load = window.fetch.bind(window);

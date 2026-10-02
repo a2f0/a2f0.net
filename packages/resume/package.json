@@ -38,7 +38,7 @@
     "@types/invariant": "2.2.37",
     "@types/jsdom": "30.0.0",
     "@types/mocha": "10.0.10",
-    "@types/node": "26.6.2",
+    "@types/node": "26.6.3",
     "@types/pdfobject": "2.2.5",
     "@types/react": "19.3.0",
     "@vitejs/plugin-react": "6.1.1",
@@ -54,7 +54,7 @@
     "start-server-and-test": "3.0.12",
     "tsx": "4.23.13",
     "typescript": "7.0.2",
-    "vitest": "5.0.1",
+    "vitest": "5.0.2",
     "wdio-video-reporter": "6.2.0",
     "wrangler": "4.132.0"
   }
