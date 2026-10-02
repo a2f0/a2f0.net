@@ -12,6 +12,7 @@
     "deploy": "wrangler deploy"
   },
   "devDependencies": {
+    "@happy-dom/global-registrator": "20.14.5",
     "@types/bun": "1.4.2",
     "@wdio/cli": "9.32.0",
     "@wdio/globals": "9.31.3",

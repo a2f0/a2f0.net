@@ -59,13 +59,20 @@ export class Rain {
     const grid = this.#display.grid;
     if (this.playing || !grid) return;
     const scene = this.#build(grid);
-    try {
-      await this.#run(scene);
-    } finally {
+    // Runs as the rain ends, so stop() leaves the art whole before it returns.
+    let ended = false;
+    const end = () => {
+      if (ended) return;
+      ended = true;
       this.#stop = undefined;
       scene.canvas.remove();
       this.#display.reveal();
       delete this.#stage.dataset.raining;
+    };
+    try {
+      await this.#run(scene, end);
+    } finally {
+      end();
     }
   }
 
@@ -96,12 +103,13 @@ export class Rain {
     };
   }
 
-  #run(scene: Scene): Promise<void> {
+  #run(scene: Scene, end: () => void): Promise<void> {
     return new Promise((resolve) => {
       const start = performance.now();
       let request = 0;
       const finish = () => {
         cancelAnimationFrame(request);
+        end();
         resolve();
       };
       this.#stop = finish;

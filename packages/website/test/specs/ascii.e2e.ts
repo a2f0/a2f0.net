@@ -167,6 +167,23 @@ describe("ASCII graffiti view", () => {
     expect(await browser.getUrl()).not.toContain("#");
   });
 
+  it("redraws the ASCII for its container's width", async () => {
+    await opened();
+    expect((await renderedArt()).columns).toBe(200);
+    // The site follows its container rather than the viewport, so it can be
+    // shown in a window.
+    await browser.execute(() => {
+      const main = document.querySelector("main");
+      if (main) main.style.width = "700px";
+    });
+    await browser.waitUntil(async () => (await renderedArt()).columns === 100, {
+      timeoutMsg: "The ASCII never redrew for its narrower container",
+    });
+    const art = await renderedArt();
+    expect(art.widths).toEqual([100]);
+    expect(art.overflow).toBe(false);
+  });
+
   it("keeps the view out of the URL", async () => {
     await browser.url("/#svg");
     await expectView("ascii");

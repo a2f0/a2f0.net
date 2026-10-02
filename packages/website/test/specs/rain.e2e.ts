@@ -161,6 +161,24 @@ describe("Code rain", () => {
     );
   });
 
+  it("leaves the art whole before stop returns", async () => {
+    const finished = await openAscii();
+    await play().click();
+    await expect($(".rain")).toBeExisting();
+    // Stop and look in the same turn, so nothing can tidy up in between.
+    const stopped = await browser.execute(() => {
+      document.querySelector<HTMLButtonElement>(".play-toggle")?.click();
+      return {
+        canvases: document.querySelectorAll(".rain").length,
+        raining:
+          document.querySelector<HTMLElement>(".stage")?.dataset.raining !==
+          undefined,
+        art: document.querySelector(".ascii")?.textContent,
+      };
+    });
+    expect(stopped).toEqual({ canvases: 0, raining: false, art: finished });
+  });
+
   it("stops the rain when the SVG view is chosen", async () => {
     const finished = await openAscii();
     await play().click();
