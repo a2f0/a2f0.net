@@ -12,6 +12,8 @@ import {
 } from "bun:test";
 
 import { AsciiDisplay } from "./ascii/display";
+import { Etcher } from "./etch/etcher";
+import { Rain } from "./rain/rain";
 import { mountSite } from "./site";
 
 const page = await readFile(
@@ -136,4 +138,18 @@ test("resets the play button when unmounted during an animation", async () => {
   unmount();
   expect(play?.dataset.playing).toBeUndefined();
   expect(play?.getAttribute("aria-label")).toBe("Play etching animation");
+});
+
+test("stops both animations when unmounted", () => {
+  const stops = [
+    spyOn(Etcher.prototype, "stop"),
+    spyOn(Rain.prototype, "stop"),
+  ];
+  try {
+    const unmount = mountSite(render());
+    unmount();
+    for (const stop of stops) expect(stop).toHaveBeenCalledTimes(1);
+  } finally {
+    for (const stop of stops) stop.mockRestore();
+  }
 });

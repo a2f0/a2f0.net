@@ -117,15 +117,22 @@ export class Etcher {
       // Artwork already loaded wins the race even when stopped straight away.
       if (!prepared || stopping) return;
       const scene = this.#build(prepared);
+      // Runs as the etching ends, so stop() restores the artwork before it
+      // returns.
       let playing = true;
-      void this.#profile(scene, () => playing);
-      try {
-        await this.#run(scene);
-      } finally {
+      const end = () => {
+        if (!playing) return;
         playing = false;
+        this.#stop = undefined;
         for (const layer of scene.layers) layer.remove();
         this.#art.style.visibility = "";
         delete this.#stage.dataset.etching;
+      };
+      void this.#profile(scene, () => playing);
+      try {
+        await this.#run(scene, end);
+      } finally {
+        end();
       }
     } finally {
       this.#stop = undefined;
@@ -210,7 +217,7 @@ export class Etcher {
     if (playing()) paint.dataset.profiled = "";
   }
 
-  #run(scene: Scene): Promise<void> {
+  #run(scene: Scene, end: () => void): Promise<void> {
     const lengths = scene.traces.map(({ length }) => length);
     const sweeps = scene.fills.map(({ box }) =>
       Math.max(box.height, MIN_SWEEP),
@@ -220,6 +227,7 @@ export class Etcher {
       let request = 0;
       const finish = () => {
         cancelAnimationFrame(request);
+        end();
         resolve();
       };
       this.#stop = finish;
