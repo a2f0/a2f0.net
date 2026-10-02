@@ -4,6 +4,29 @@ const resumeWindow = () => $("section.window:has(.resume-window)");
 const websiteWindow = () => $("section.window:has(.website-window)");
 const taskbar = (title: string) => $(`.desktop-taskbar-button=${title}`);
 
+// A scrollbar changes the measured body width, replacing the SVG during
+// layout. Query the current node each time instead of retaining a detached one.
+const waitForResume = () =>
+  browser.waitUntil(
+    () =>
+      browser.execute(() => {
+        const svg = document.querySelector(".resume-window svg");
+        if (!(svg instanceof SVGElement)) return false;
+        const { width, height } = svg.getBoundingClientRect();
+        return (
+          width > 0 &&
+          height > 0 &&
+          svg.querySelector("text") !== null &&
+          svg.checkVisibility({
+            contentVisibilityAuto: true,
+            opacityProperty: true,
+            visibilityProperty: true,
+          })
+        );
+      }),
+    { timeoutMsg: "the current resume SVG did not render visibly" },
+  );
+
 const siteState = () =>
   browser.execute(() => {
     const root = document.querySelector(".website-window")?.shadowRoot;
@@ -17,7 +40,7 @@ describe("Experiment desktop", () => {
   beforeEach(async () => {
     await browser.setViewport({ width: 1440, height: 900 });
     await browser.url("/");
-    await expect($(".resume-window svg")).toBeDisplayed();
+    await waitForResume();
     await browser.waitUntil(async () => (await siteState()).view === "ascii", {
       timeoutMsg: "the website did not mount inside its shadow root",
     });
@@ -76,6 +99,13 @@ describe("Experiment desktop", () => {
   });
 
   it("moves, resizes, minimizes, and reopens a window", async () => {
+    // Exercise the scrollbars that consume layout width on Linux too.
+    await browser.execute(() => {
+      const style = document.createElement("style");
+      style.textContent =
+        ".window-body-content-scroll::-webkit-scrollbar { width: 17px; height: 17px; }";
+      document.head.append(style);
+    });
     await taskbar("Resume").click();
     const before = await resumeWindow().getLocation();
     await browser
@@ -105,11 +135,11 @@ describe("Experiment desktop", () => {
     await expect(resumeWindow()).not.toBeExisting();
     await expect(taskbar("Resume")).toHaveAttribute("aria-pressed", "false");
     await taskbar("Resume").click();
-    await expect($(".resume-window svg")).toBeDisplayed();
+    await waitForResume();
     await resumeWindow().$("button[aria-label='Close window']").click();
     await expect(resumeWindow()).not.toBeExisting();
     await taskbar("Resume").click();
-    await expect($(".resume-window svg")).toBeDisplayed();
+    await waitForResume();
     await expect(
       $$(".desktop-surface > section.window"),
     ).toBeElementsArrayOfSize(2);
@@ -121,7 +151,7 @@ describe("Experiment desktop", () => {
     await expect(websiteWindow()).toHaveElementClass("window--maximized");
     await taskbar("Resume").click();
     await expect(resumeWindow()).toHaveElementClass("window--maximized");
-    await expect($(".resume-window svg")).toBeDisplayed();
+    await waitForResume();
     const width = await resumeWindow().getSize("width");
     expect(width).toBeLessThanOrEqual(390);
     await expect(taskbar("a2f0.net")).toBeDisplayed();
