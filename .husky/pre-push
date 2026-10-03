@@ -2,6 +2,7 @@ set -e
 
 bunx --no-install knip
 bun run check:dependencies
+bun run agents:check
 
 # Lint the commits being pushed. Skipped when origin/production is not
 # available (e.g. shallow CI checkouts).
