@@ -47,17 +47,20 @@ commitlint configuration before GitHub generates the squash commit.
 
 ```sh
 bun run agent-tool --help
-bun run agent-tool solicitClaudeCodeReview
-bun run agent-tool solicitCodexReview
-bun run agent-tool openPr 'feat: describe the change' < /tmp/pr-body.md
+bun run agent-tool review claude
+bun run agent-tool review codex
+bun run agent-tool pr open 'feat: describe the change' < /tmp/pr-body.md
 PR_TITLE=$(gh pr view "$PR_NUMBER" -R "$REPO" --json title -q .title)
 printf '%s\n' "$PR_TITLE" | bunx --no-install commitlint && \
   node_modules/.bin/agent-tool pr merge '' "$REVIEWED_SHA" "$REVIEW_BASE_REF"
 ```
 
 Invoke the installed executable directly for merging because `bun run` drops
-empty positional arguments. The shipping skills retain the repository's
-validation, review, CI, and cleanup gates.
+empty positional arguments. The shipping skills come from the pinned shared package in `.agents/skills`
+and `.claude/skills`; project checks and rules stay in `AGENTS.md`. After updating
+the dependency pin, run `bun install` and `bun run agents:sync`, then commit the
+lockfile, skills, and `.agent-tool-skills.json` together. `bun run agents:check`
+is a read-only hook and CI gate that rejects missing or stale managed skills.
 
 ## Testing
 
@@ -82,7 +85,7 @@ Biome enforces all of its `a11y` lint rules on the TSX and HTML.
 
 `bun run unit` runs the shared, resume, and website unit tests. Agent helper
 tests and compilation run in the standalone agent-tool repository's CI.
-Invoke the repository's [`$ship-pr` skill](.codex/skills/ship-pr/SKILL.md) to validate, independently
+Invoke the repository's [`$ship-pr` skill](.agents/skills/ship-pr/SKILL.md) to validate, independently
 review, and squash-merge the current PR. The production branch rule requires
 the stable `build` CI check with the branch up to date before merging.
 
