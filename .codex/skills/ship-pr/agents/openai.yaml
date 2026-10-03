@@ -1,5 +1,0 @@
----
-interface:
-  display_name: "Ship PR"
-  short_description: "Review, validate, squash merge, and clean up a PR"
-  default_prompt: "Use $ship-pr to review, validate, and ship this branch."
