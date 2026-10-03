@@ -41,15 +41,18 @@ square opens around the art. Wrangler runs `bun run build` before `dev` and
 The source CLI runs with the repository's pinned Bun version. Update that SHA
 after reviewing an upstream change, then run `bun install` to refresh the lock.
 `agent-tool.json` configures the 100-character title limit, the required `build`
-check in workflow `CI`, and PR branding restrictions. Commit hooks enforce the
-complete commitlint configuration.
+check in workflow `CI`, and PR branding restrictions. Commit hooks validate local
+commits; the shipping skills explicitly validate the PR title with the complete
+commitlint configuration before GitHub generates the squash commit.
 
 ```sh
 bun run agent-tool --help
 bun run agent-tool solicitClaudeCodeReview
 bun run agent-tool solicitCodexReview
 bun run agent-tool openPr 'feat: describe the change' < /tmp/pr-body.md
-node_modules/.bin/agent-tool pr merge '' "$REVIEWED_SHA" "$REVIEW_BASE_REF"
+PR_TITLE=$(gh pr view "$PR_NUMBER" -R "$REPO" --json title -q .title)
+printf '%s\n' "$PR_TITLE" | bunx --no-install commitlint && \
+  node_modules/.bin/agent-tool pr merge '' "$REVIEWED_SHA" "$REVIEW_BASE_REF"
 ```
 
 Invoke the installed executable directly for merging because `bun run` drops
