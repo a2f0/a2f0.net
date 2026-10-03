@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "subject": {
+    "maxLength": 100
+  },
+  "merge": {
+    "requiredChecks": [
+      {
+        "name": "build",
+        "workflow": "CI"
+      }
+    ]
+  },
+  "pr": {
+    "rejectClaudeBranding": true
+  }
+}
