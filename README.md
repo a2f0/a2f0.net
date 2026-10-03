@@ -5,8 +5,9 @@
 Use the Node version in `.nvmrc` and the Bun version in `package.json`.
 [Install Bun](https://bun.com/docs/installation) before running these commands.
 The resume app lives in [`packages/resume`](packages/resume), the apex website
-lives in [`packages/website`](packages/website), and PR helpers live in
-[`packages/agent-tool`](packages/agent-tool). The resume data, layout, and SVG
+lives in [`packages/website`](packages/website), and PR helpers come from the
+commit-pinned [agent-tool repository](https://github.com/a2f0/agent-tool).
+The resume data, layout, and SVG
 and PDF factories live in [`packages/shared`](packages/shared/README.md), and
 [`packages/experiment`](packages/experiment/README.md) opens the resume and
 website artwork in desktop windows. Run the commands below from the repository root.
@@ -33,6 +34,31 @@ square opens around the art. Wrangler runs `bun run build` before `dev` and
 `deploy`, which bundles it with `public/` into `dist/`. Preview it with
 `bun run --cwd packages/website start` on port 4002.
 
+## Agent tooling
+
+`bun ci` installs agent-tool directly from GitHub at the full commit SHA in
+`package.json` and `bun.lock`; no published npm package or local build is needed.
+The source CLI runs with the repository's pinned Bun version. Update that SHA
+after reviewing an upstream change, then run `bun install` to refresh the lock.
+`agent-tool.json` configures the 100-character title limit, the required `build`
+check in workflow `CI`, and PR branding restrictions. Commit hooks validate local
+commits; the shipping skills explicitly validate the PR title with the complete
+commitlint configuration before GitHub generates the squash commit.
+
+```sh
+bun run agent-tool --help
+bun run agent-tool solicitClaudeCodeReview
+bun run agent-tool solicitCodexReview
+bun run agent-tool openPr 'feat: describe the change' < /tmp/pr-body.md
+PR_TITLE=$(gh pr view "$PR_NUMBER" -R "$REPO" --json title -q .title)
+printf '%s\n' "$PR_TITLE" | bunx --no-install commitlint && \
+  node_modules/.bin/agent-tool pr merge '' "$REVIEWED_SHA" "$REVIEW_BASE_REF"
+```
+
+Invoke the installed executable directly for merging because `bun run` drops
+empty positional arguments. The shipping skills retain the repository's
+validation, review, CI, and cleanup gates.
+
 ## Testing
 
 ```sh
@@ -54,8 +80,8 @@ Both browser suites include an `a11y.e2e.ts` spec that audits each view with
 and axe's best practices, and drives the menus and toolbar from the keyboard.
 Biome enforces all of its `a11y` lint rules on the TSX and HTML.
 
-`bun run unit` runs the shared, resume, and website unit tests and the
-Node-based tests in [`packages/agent-tool`](packages/agent-tool/README.md).
+`bun run unit` runs the shared, resume, and website unit tests. Agent helper
+tests and compilation run in the standalone agent-tool repository's CI.
 Invoke the repository's [`$ship-pr` skill](.codex/skills/ship-pr/SKILL.md) to validate, independently
 review, and squash-merge the current PR. The production branch rule requires
 the stable `build` CI check with the branch up to date before merging.

@@ -116,16 +116,21 @@ Immediately before merging:
 
 ## Merge and clean up
 
-Use the helper for a synchronous, exact-head squash with the PR title as its
-subject and an empty body:
+Validate the PR title against the complete repository commitlint configuration
+immediately before using the helper for a synchronous, exact-head squash with
+that title as its subject and an empty body. Do not edit the title concurrently
+with shipping:
 
 ```sh
-bunx --no-install tsx packages/agent-tool/src/index.ts \
-  squashMerge '' "$REVIEWED_SHA" "$REVIEW_BASE_REF"
+PR_TITLE=$(gh pr view "$PR_NUMBER" -R "$REPO" --json title -q .title)
+printf '%s\n' "$PR_TITLE" | bunx --no-install commitlint && \
+  node_modules/.bin/agent-tool pr merge '' "$REVIEWED_SHA" "$REVIEW_BASE_REF"
 ```
 
-The helper appends the PR number and validates the subject with commitlint.
-Call the CLI through `bunx` here because `bun run` drops the empty subject argument.
+The helper appends the PR number and validates the subject using
+`agent-tool.json`. Invoke the installed executable directly because `bun run`
+drops the empty subject argument. Local commit hooks do not run for GitHub's
+server-generated squash commit, so the explicit commitlint check is required.
 Never substitute `gh pr merge`, auto-merge, or merge queues. The mutation's
 `expectedHeadOid` rejects an unreviewed head. GitHub has no atomic expected-base
 input, so never retarget the PR concurrently with shipping. If a stale base

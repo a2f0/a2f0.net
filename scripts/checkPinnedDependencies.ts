@@ -5,6 +5,8 @@
 import { globSync, readFileSync } from "node:fs";
 
 const EXACT_VERSION = /^\d+\.\d+\.\d+(-[\w.]+)?(\+[\w.]+)?$/;
+// GitHub dependencies must name an immutable full commit, never a branch or tag.
+const GITHUB_COMMIT = /^github:[^/#\s]+\/[^/#\s]+#[0-9a-f]{40}$/i;
 // Workspace packages always resolve to the checked-out source.
 const WORKSPACE = "workspace:*";
 const GROUPS = [
@@ -20,7 +22,11 @@ for (const manifest of globSync(["package.json", "packages/*/package.json"])) {
   );
   for (const group of GROUPS) {
     for (const [name, version] of Object.entries(packageJson[group] ?? {})) {
-      if (version !== WORKSPACE && !EXACT_VERSION.test(version)) {
+      if (
+        version !== WORKSPACE &&
+        !EXACT_VERSION.test(version) &&
+        !GITHUB_COMMIT.test(version)
+      ) {
         unpinned.push(`${manifest} > ${group} > ${name}: ${version}`);
       }
     }
