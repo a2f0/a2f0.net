@@ -23,9 +23,6 @@
         "@wdio/spec-reporter"
       ]
     },
-    "packages/agent-tool": {
-      "project": ["src/**/*.ts"]
-    },
     "packages/website": {
       "entry": ["src/main.ts", "src/**/*.test.ts", "test/**/*.ts"],
       "ignoreDependencies": ["@wdio/local-runner"]
