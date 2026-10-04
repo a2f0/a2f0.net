@@ -1,7 +1,7 @@
 import { $, $$, browser, expect } from "@wdio/globals";
 
 const resumeWindow = () => $("section.window:has(.resume-window)");
-const websiteWindow = () => $("section.window:has(.website-window)");
+const asciiArtWindow = () => $("section.window:has(.ascii-art-window)");
 const taskbar = (title: string) => $(`.desktop-taskbar-button=${title}`);
 
 // A scrollbar changes the measured body width, replacing the SVG during
@@ -29,10 +29,11 @@ const waitForResume = () =>
 
 const siteState = () =>
   browser.execute(() => {
-    const root = document.querySelector(".website-window")?.shadowRoot;
+    const root = document.querySelector(".ascii-art-window")?.shadowRoot;
     return {
       view: root?.querySelector(".stage")?.getAttribute("data-view"),
       ascii: root?.querySelector(".ascii")?.textContent,
+      terminal: root?.querySelector(".canvas")?.hasAttribute("data-window"),
     };
   });
 
@@ -53,7 +54,7 @@ describe("Experiment desktop", () => {
     await expect(resumeWindow().$(".window-titlebar-title")).toHaveText(
       "Resume",
     );
-    await expect(websiteWindow().$(".window-titlebar-title")).toHaveText(
+    await expect(asciiArtWindow().$(".window-titlebar-title")).toHaveText(
       "a2f0.net",
     );
     expect((await siteState()).ascii?.trim().length).toBeGreaterThan(0);
@@ -91,11 +92,45 @@ describe("Experiment desktop", () => {
     await expect(resumeWindow().$("button=Download SVG")).toBeDisplayed();
 
     await taskbar("a2f0.net").click();
-    await websiteWindow().$("button=View").click();
-    await websiteWindow().$("button*=ASCII View").click();
+    await asciiArtWindow().$("button=View").click();
+    await asciiArtWindow().$("button*=ASCII View").click();
     await browser.waitUntil(async () => (await siteState()).view === "svg", {
       timeoutMsg: "the window menu did not update the artwork controls",
     });
+  });
+
+  it("puts the artwork controls in the window toolbar", async () => {
+    const toolbar = asciiArtWindow().$(
+      "[role='toolbar'][aria-label='Toolbar']",
+    );
+    const labels = await toolbar
+      .$$("button")
+      .map((button) => button.getAttribute("aria-label"));
+    expect(labels).toEqual([
+      "Play code rain animation",
+      "Music player (coming soon)",
+      "ASCII view",
+      "Terminal window",
+    ]);
+    await expect(toolbar.$("button[aria-label^='Music']")).toBeDisabled();
+    // The resume has no toolbar actions, so its window has no toolbar row.
+    await expect(resumeWindow().$(".window-toolbar")).not.toBeExisting();
+
+    const asciiView = toolbar.$("button[aria-label='ASCII view']");
+    await expect(asciiView).toHaveAttribute("aria-pressed", "true");
+    await asciiView.click();
+    await browser.waitUntil(async () => (await siteState()).view === "svg", {
+      timeoutMsg: "the toolbar did not switch the artwork to the SVG",
+    });
+    await expect(asciiView).toHaveAttribute("aria-pressed", "false");
+    await expect(
+      toolbar.$("button[aria-label='Play etching animation']"),
+    ).toBeExisting();
+
+    const terminal = toolbar.$("button[aria-label='Terminal window']");
+    await terminal.click();
+    await expect(terminal).toHaveAttribute("aria-pressed", "true");
+    expect((await siteState()).terminal).toBe(true);
   });
 
   it("moves, resizes, minimizes, and reopens a window", async () => {
@@ -131,6 +166,18 @@ describe("Experiment desktop", () => {
     expect(sizeAfter.width).toBe(sizeBefore.width - 60);
     expect(sizeAfter.height).toBe(sizeBefore.height - 40);
 
+    // A side handle resizes only its own axis.
+    await browser
+      .action("pointer")
+      .move({ origin: resumeWindow().$(".window-resize--e") })
+      .down()
+      .move({ origin: "pointer", x: 30, y: 20, duration: 150 })
+      .up()
+      .perform();
+    const sideAfter = await resumeWindow().getSize();
+    expect(sideAfter.width).toBe(sizeAfter.width + 30);
+    expect(sideAfter.height).toBe(sizeAfter.height);
+
     await resumeWindow().$("button[aria-label='Minimize window']").click();
     await expect(resumeWindow()).not.toBeExisting();
     await expect(taskbar("Resume")).toHaveAttribute("aria-pressed", "false");
@@ -148,7 +195,7 @@ describe("Experiment desktop", () => {
   it("starts maximized on narrow screens and switches apps through the taskbar", async () => {
     await browser.setViewport({ width: 390, height: 844 });
     await browser.refresh();
-    await expect(websiteWindow()).toHaveElementClass("window--maximized");
+    await expect(asciiArtWindow()).toHaveElementClass("window--maximized");
     await taskbar("Resume").click();
     await expect(resumeWindow()).toHaveElementClass("window--maximized");
     await waitForResume();

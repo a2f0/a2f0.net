@@ -1,0 +1,11 @@
+.resume-window {
+  width: max-content;
+  min-width: 100%;
+  min-height: 100%;
+  text-align: center;
+}
+
+.resume-window .svg {
+  display: block;
+  margin: 0 auto;
+}

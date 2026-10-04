@@ -40,6 +40,13 @@ body {
   overflow: hidden;
 }
 
+/* A window takes focus when it opens. Ring it in the theme's foreground, over
+   its own border, rather than in the browser's default blue. */
+.window:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: -2px;
+}
+
 .desktop-taskbar {
   display: flex;
   gap: 0.25rem;
@@ -61,25 +68,6 @@ body {
 .desktop-taskbar-button[aria-pressed="true"] {
   background: var(--emphasis-surface, #3a3a3a);
   color: var(--emphasis-text, #f2f2f2);
-}
-
-.resume-window {
-  width: max-content;
-  min-width: 100%;
-  min-height: 100%;
-  text-align: center;
-}
-
-.resume-window .svg {
-  display: block;
-  margin: 0 auto;
-}
-
-/* The website draws on black edge to edge, so it spans the body's padding. */
-.website-window {
-  height: calc(100% + 2 * var(--space-md));
-  margin: calc(-1 * var(--space-md));
-  background: #000;
 }
 
 .visually-hidden {

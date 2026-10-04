@@ -5,10 +5,12 @@ the resume and the a2f0.net artwork in draggable, resizable windows from
 [`@tearleads/windowing`](https://github.com/a2f0/tearleads/tree/main/packages/windowing),
 deployed to `experiment.a2f0.net`.
 
-The website window reads `packages/website/public/index.html` for its markup
-and styles and runs the site's own `mountSite` inside a shadow root, so the
-site's stylesheet and the window stylesheets cannot restyle each other. Each
-window's View menu mirrors that app's controls.
+Each window is a mini-app, defined in [`mini-apps/`](mini-apps/README.md)
+in the same shape as Tearleads' mini-apps. The artwork window reads
+`packages/website/public/index.html` for its markup and styles and runs the
+site's own `mountSite` inside a shadow root, so the site's stylesheet and the
+window stylesheets cannot restyle each other. Its controls sit in the window's
+toolbar and View menu.
 
 The app uses the published `@tearleads/windowing` package, pinned to `0.1.1`.
 Install from this repository's root:

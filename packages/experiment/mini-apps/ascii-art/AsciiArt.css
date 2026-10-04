@@ -1,0 +1,6 @@
+/* The artwork draws on black edge to edge, so it spans the body's padding. */
+.ascii-art-window {
+  height: calc(100% + 2 * var(--space-md));
+  margin: calc(-1 * var(--space-md));
+  background: #000;
+}
