@@ -11,6 +11,14 @@
   --color-muted: #282828;
   --tearleads-window-titlebar-background: #282828;
   --tearleads-window-titlebar-text: #e5e5e5;
+  /* The windowing package derives these from --color-dark, the near-white
+     foreground, unless the theme sets them. Tearleads' dark theme values keep
+     window edges, dividers, and hover chips muted. */
+  --border-strong-color: #3b3b3b;
+  --color-hairline: color-mix(in srgb, var(--color-dark) 12%, transparent);
+  --emphasis-surface: #3a3a3a;
+  --emphasis-text: #f2f2f2;
+  --color-danger: #ec7a74;
   --app-shadow-surface: 0 0.5rem 2rem rgb(0 0 0 / 32%);
   --app-shadow-window:
     0 1rem 3rem rgb(0 0 0 / 28%), 0 0.25rem 0.75rem rgb(0 0 0 / 20%);
@@ -40,11 +48,26 @@ body {
   overflow: hidden;
 }
 
-/* A window takes focus when it opens. Ring it in the theme's foreground, over
-   its own border, rather than in the browser's default blue. */
+/* A window takes focus when it opens. Ring it over its own border in a mid
+   tone of the theme's foreground, rather than the browser's default blue, so
+   it reads as focus without glaring. */
 .window:focus-visible {
-  outline: 2px solid var(--color-dark);
+  outline: 2px solid color-mix(in srgb, var(--color-dark) 50%, transparent);
   outline-offset: -2px;
+}
+
+/* The artwork paints black to the window's bottom edge, over the rounded
+   border. Clip the body to the window's inner radius while it is the bottom
+   band. @tearleads/windowing adds the same rule after 0.2.0; delete this once
+   the experiment depends on a release that has it. */
+.window:not(.window--maximized)
+> .window-body:not(
+  :has(
+    + .window-statusbar-live > .window-statusbar:not(.window-statusbar--hidden)
+  )
+) {
+  border-radius: 0 0 calc(var(--app-radius-surface) - var(--border-width))
+    calc(var(--app-radius-surface) - var(--border-width));
 }
 
 .desktop-taskbar {
