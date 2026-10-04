@@ -52,7 +52,7 @@
     "@biomejs/biome": "2.5.13",
     "@commitlint/cli": "21.2.3",
     "@commitlint/config-conventional": "21.2.3",
-    "agent-tool": "github:a2f0/agent-tool#dfae8d2caca5710eb69717b3f441ec5256bf1f48",
+    "agent-tool": "github:a2f0/agent-tool#ef1a91300c347ac13a1cb163d85ad734bfe81bf9",
     "husky": "9.1.7",
     "knip": "6.38.0",
     "lint-staged": "17.6.0",

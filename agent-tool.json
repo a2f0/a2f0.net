@@ -9,7 +9,8 @@
         "name": "build",
         "workflow": "CI"
       }
-    ]
+    ],
+    "requireStrictBaseFreshness": true
   },
   "pr": {
     "rejectClaudeBranding": true
