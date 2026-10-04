@@ -142,6 +142,26 @@ describe("Experiment desktop", () => {
     );
   });
 
+  it("keeps pointer focus ringless after the first press", async () => {
+    // The first input is a pointer press, which ends the pristine state.
+    await asciiArtWindow().$(".window-titlebar-title").click();
+    await expect($("html")).not.toHaveAttribute("data-pristine");
+
+    await asciiArtWindow().$("button[aria-label='Minimize window']").click();
+    await expect(asciiArtWindow()).not.toBeExisting();
+    await taskbar("a2f0.net").click();
+    await expect(asciiArtWindow()).toBeExisting();
+    const focused = await browser.execute(() => {
+      const active = document.activeElement;
+      if (!(active instanceof HTMLElement)) throw new Error("Nothing focused");
+      return {
+        title: active.querySelector(".window-titlebar-title")?.textContent,
+        outline: getComputedStyle(active).outlineStyle,
+      };
+    });
+    expect(focused).toEqual({ title: "a2f0.net", outline: "none" });
+  });
+
   it("registers the resume and artwork menus", async () => {
     await taskbar("Resume").click();
     await resumeWindow().$("button=View").click();
