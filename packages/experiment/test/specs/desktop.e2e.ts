@@ -66,6 +66,7 @@ describe("Experiment desktop", () => {
       return {
         position: style.position,
         borderWidth: style.borderTopWidth,
+        borderColor: style.borderTopColor,
         radius: style.borderTopLeftRadius,
         background: style.backgroundColor,
       };
@@ -73,8 +74,30 @@ describe("Experiment desktop", () => {
     expect(styles).toEqual({
       position: "absolute",
       borderWidth: "1px",
+      // The dark theme's muted edge, not the near-white foreground.
+      borderColor: "rgb(59, 59, 59)",
       radius: "12px",
       background: "rgb(22, 22, 22)",
+    });
+
+    // The artwork paints to the window's bottom edge; the body clips it inside
+    // the window's rounded border (12px less the 1px border).
+    const corners = await browser.execute(() => {
+      const body = document.querySelector(
+        "section.window:has(.ascii-art-window) .window-body",
+      );
+      if (!body) throw new Error("Missing artwork window body");
+      const style = getComputedStyle(body);
+      return {
+        left: style.borderBottomLeftRadius,
+        right: style.borderBottomRightRadius,
+        overflow: style.overflow,
+      };
+    });
+    expect(corners).toEqual({
+      left: "11px",
+      right: "11px",
+      overflow: "hidden",
     });
   });
 
