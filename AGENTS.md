@@ -79,9 +79,10 @@ PR title against the full repository commitlint configuration with
 `node_modules/.bin/agent-tool pr merge '' "$REVIEWED_SHA" "$BASE_REF"` directly
 because `bun run` drops empty arguments.
 
-Require the production branch's effective strict required-check rule to remain
-active without a current-user bypass, and require `build` in workflow `CI` on
-the reviewed head. Recheck the live base, PR base, and head before merging.
+Per `agent-tool.json`, the merge helper requires `build` in workflow `CI` on the
+reviewed head and refuses to merge unless the `production` ruleset enforces
+strict status checks that the merging account cannot bypass. Recheck the live
+base, PR base, and head before merging.
 Verify merge ancestry and branch identities before deleting shipped branches.
 
 After merging to `production`, wait for the `CI` deployment for that merge commit
