@@ -101,6 +101,47 @@ describe("Experiment desktop", () => {
     });
   });
 
+  it("rings a focused window only for keyboard focus", async () => {
+    const focusRing = () =>
+      browser.execute(() => {
+        const active = document.activeElement;
+        if (!(active instanceof HTMLElement))
+          throw new Error("Nothing focused");
+        return {
+          title: active.querySelector(".window-titlebar-title")?.textContent,
+          outline: getComputedStyle(active).outlineStyle,
+        };
+      });
+    // The front window takes focus on load, before any input, without a ring.
+    expect(await focusRing()).toEqual({ title: "a2f0.net", outline: "none" });
+
+    // A window reopened from the keyboard shows where focus went.
+    await browser.execute(() =>
+      document
+        .querySelector<HTMLButtonElement>(
+          "section.window:has(.ascii-art-window) button[aria-label='Minimize window']",
+        )
+        ?.focus(),
+    );
+    await browser.keys("Enter");
+    await expect(asciiArtWindow()).not.toBeExisting();
+    await browser.execute(() =>
+      [
+        ...document.querySelectorAll<HTMLButtonElement>(
+          ".desktop-taskbar-button",
+        ),
+      ]
+        .find((button) => button.textContent === "a2f0.net")
+        ?.focus(),
+    );
+    await browser.keys("Enter");
+    await expect(asciiArtWindow()).toBeExisting();
+    await browser.waitUntil(
+      async () => (await focusRing()).outline === "solid",
+      { timeoutMsg: "the keyboard-opened window showed no focus ring" },
+    );
+  });
+
   it("registers the resume and artwork menus", async () => {
     await taskbar("Resume").click();
     await resumeWindow().$("button=View").click();

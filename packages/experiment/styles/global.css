@@ -56,6 +56,12 @@ body {
   outline-offset: -2px;
 }
 
+/* No ring for the focus the front window takes on load, before any input; see
+   useFirstInput in Desktop.tsx. */
+:root[data-pristine] .window:focus-visible {
+  outline: none;
+}
+
 /* The artwork paints black to the window's bottom edge, over the rounded
    border. Clip the body to the window's inner radius while it is the bottom
    band. @tearleads/windowing adds the same rule after 0.2.0; delete this once
