@@ -87,6 +87,10 @@ describe("Experiment desktop", () => {
     await resumeWindow().$("button*=150%").click();
     await resumeWindow().$("button=View").click();
     await expect(resumeWindow().$("button*=150%")).toHaveText("✓ 150%");
+    // Close View first. While a menu is open, hovering File opens it, and the
+    // click then closes it again whenever React renders the hover first.
+    await resumeWindow().$("button=View").click();
+    await expect(resumeWindow().$("button*=150%")).not.toBeExisting();
     await resumeWindow().$("button=File").click();
     await expect(resumeWindow().$("button=Download PDF")).toBeDisplayed();
     await expect(resumeWindow().$("button=Download SVG")).toBeDisplayed();
