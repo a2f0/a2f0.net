@@ -3,6 +3,11 @@ import Head from "next/head";
 import type React from "react";
 
 import "../styles/global.css";
+// Next.js takes global stylesheets only from here, so each mini-app's
+// stylesheet, kept beside the app, is imported here too.
+import "../mini-apps/MiniApps.css";
+import "../mini-apps/ascii-art/AsciiArt.css";
+import "../mini-apps/resume/Resume.css";
 
 export default function ExperimentApp({
   Component,
