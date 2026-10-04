@@ -56,8 +56,8 @@ body {
   outline-offset: -2px;
 }
 
-/* No ring for the focus the front window takes on load, before any input; see
-   useFirstInput in Desktop.tsx. */
+/* No ring for the focus the front window takes on load, until a key is
+   pressed; see useFirstKeyPress in Desktop.tsx. */
 :root[data-pristine] .window:focus-visible {
   outline: none;
 }

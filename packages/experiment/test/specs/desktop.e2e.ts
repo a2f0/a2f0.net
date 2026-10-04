@@ -142,24 +142,27 @@ describe("Experiment desktop", () => {
     );
   });
 
-  it("keeps pointer focus ringless after the first press", async () => {
-    // The first input is a pointer press, which ends the pristine state.
+  it("keeps pointer focus ringless", async () => {
+    const focusRing = () =>
+      browser.execute(() => {
+        const active = document.activeElement;
+        if (!(active instanceof HTMLElement))
+          throw new Error("Nothing focused");
+        return {
+          title: active.querySelector(".window-titlebar-title")?.textContent,
+          outline: getComputedStyle(active).outlineStyle,
+        };
+      });
+    // Clicking the window that took focus on load leaves that focus in place,
+    // so it must not bring back the load-time ring.
     await asciiArtWindow().$(".window-titlebar-title").click();
-    await expect($("html")).not.toHaveAttribute("data-pristine");
+    expect(await focusRing()).toEqual({ title: "a2f0.net", outline: "none" });
 
     await asciiArtWindow().$("button[aria-label='Minimize window']").click();
     await expect(asciiArtWindow()).not.toBeExisting();
     await taskbar("a2f0.net").click();
     await expect(asciiArtWindow()).toBeExisting();
-    const focused = await browser.execute(() => {
-      const active = document.activeElement;
-      if (!(active instanceof HTMLElement)) throw new Error("Nothing focused");
-      return {
-        title: active.querySelector(".window-titlebar-title")?.textContent,
-        outline: getComputedStyle(active).outlineStyle,
-      };
-    });
-    expect(focused).toEqual({ title: "a2f0.net", outline: "none" });
+    expect(await focusRing()).toEqual({ title: "a2f0.net", outline: "none" });
   });
 
   it("registers the resume and artwork menus", async () => {

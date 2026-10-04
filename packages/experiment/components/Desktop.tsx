@@ -16,31 +16,31 @@ function DesktopSurface() {
 }
 
 /**
- * Clears `data-pristine` on the first key or pointer press. Browsers count the
- * focus the window layer gives the front window on load as keyboard focus, so
- * global.css hides the window focus ring until then. @tearleads/windowing
- * stops this itself after 0.2.1; delete this, the attribute, and its rule
- * once the experiment depends on that release.
+ * Clears `data-pristine` on the first key press. Browsers count the focus the
+ * window layer gives the front window on load as keyboard focus, so global.css
+ * hides the window focus ring until then. A pointer press does not clear it:
+ * clicking the window that already has focus leaves that focus, and its
+ * load-time ring, in place. @tearleads/windowing stops this itself after
+ * 0.2.1; delete this, the attribute, and its rule once the experiment depends
+ * on that release.
  */
-function useFirstInput() {
+function useFirstKeyPress() {
   useEffect(() => {
     const controller = new AbortController();
-    const touched = () => {
-      delete document.documentElement.dataset.pristine;
-      controller.abort();
-    };
-    for (const type of ["keydown", "pointerdown"]) {
-      window.addEventListener(type, touched, {
-        capture: true,
-        signal: controller.signal,
-      });
-    }
+    window.addEventListener(
+      "keydown",
+      () => {
+        delete document.documentElement.dataset.pristine;
+        controller.abort();
+      },
+      { capture: true, signal: controller.signal },
+    );
     return () => controller.abort();
   }, []);
 }
 
 export default function Desktop() {
-  useFirstInput();
+  useFirstKeyPress();
   return (
     <WindowStateProvider>
       <main className="desktop">
