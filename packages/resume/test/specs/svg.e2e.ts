@@ -4,12 +4,21 @@ import path from "node:path";
 import { JSDOM } from "jsdom";
 
 import { resumeConfiguration } from "@a2f0/shared/configuration";
+import { MAIN_WIDTH, mobileQuery } from "../../lib/breakpoints";
 import waitForDownload from "../lib/fs";
 import waitForHydration from "../lib/hydration";
 import SvgPage from "../pageobjects/svg.page";
 import { testDownloadDir } from "../testDownloadDir";
 
 const { darkBackgroundColor, lightBackgroundColor } = resumeConfiguration;
+
+// The page opens at a scale of 1.5, where the desktop column needs 1275px.
+const DEFAULT_SCALE = 1.5;
+const isMobileViewport = () =>
+  browser.execute(
+    (query: string) => window.matchMedia(query).matches,
+    mobileQuery(DEFAULT_SCALE),
+  );
 
 // The app replaces the SVG while the viewport settles, so look it up afresh
 // on each retry instead of holding an element that may have been detached.
@@ -36,7 +45,7 @@ describe("SVG Resume", () => {
     assert.match(styles, /Arimo\.woff2/);
     assert.match(
       styles,
-      /@media \(max-width: 768px\)\{[^}]*\.desktop-svg\{display:none;/,
+      /@media \(width < 1275px\)\{[^}]*\.desktop-svg\{display:none;/,
     );
     dom.window.close();
   });
@@ -137,11 +146,9 @@ describe("SVG Resume", () => {
   it("generates the mobile layout after hydration", async () => {
     await SvgPage.open();
     await browser.setViewport({ width: 390, height: 844 });
-    await browser.waitUntil(
-      () =>
-        browser.execute(() => window.matchMedia("(max-width: 768px)").matches),
-      { timeoutMsg: "expected a mobile viewport" },
-    );
+    await browser.waitUntil(isMobileViewport, {
+      timeoutMsg: "expected a mobile viewport",
+    });
     await browser.execute(() => window.dispatchEvent(new Event("resize")));
     await waitForHydration("#svgContainer");
     await browser.waitUntil(
@@ -151,12 +158,12 @@ describe("SVG Resume", () => {
     await waitForDisplayed("#svgResume");
     await waitForDisplayed("#firstName");
 
-    await browser.setViewport({ width: 768, height: 844 });
-    await browser.waitUntil(
-      () =>
-        browser.execute(() => window.matchMedia("(max-width: 768px)").matches),
-      { timeoutMsg: "expected the 768px viewport to be mobile" },
-    );
+    // Any viewport too narrow for the desktop column is mobile.
+    const widestMobile = MAIN_WIDTH * DEFAULT_SCALE - 1;
+    await browser.setViewport({ width: widestMobile, height: 844 });
+    await browser.waitUntil(isMobileViewport, {
+      timeoutMsg: `expected the ${widestMobile}px viewport to be mobile`,
+    });
     await browser.execute(() => window.dispatchEvent(new Event("resize")));
     const getMobileLayout = () =>
       browser.execute(() => {
@@ -184,7 +191,7 @@ describe("SVG Resume", () => {
       });
     } catch {
       throw new Error(
-        `Expected a visible mobile SVG at 768px: ${JSON.stringify(await getMobileLayout())}`,
+        `Expected a visible mobile SVG at ${widestMobile}px: ${JSON.stringify(await getMobileLayout())}`,
       );
     }
     await expect(SvgPage.leftPartition).not.toBeExisting();
@@ -205,11 +212,9 @@ describe("SVG Resume", () => {
       ),
     );
     await browser.setViewport({ width: 390, height: 844 });
-    await browser.waitUntil(
-      () =>
-        browser.execute(() => window.matchMedia("(max-width: 768px)").matches),
-      { timeoutMsg: "expected a mobile viewport" },
-    );
+    await browser.waitUntil(isMobileViewport, {
+      timeoutMsg: "expected a mobile viewport",
+    });
     await browser.execute(() => window.dispatchEvent(new Event("resize")));
     await waitForHydration("#svgContainer");
     const layout = () =>

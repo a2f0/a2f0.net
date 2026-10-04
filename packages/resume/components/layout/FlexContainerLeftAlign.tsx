@@ -1,12 +1,16 @@
 import styled from "styled-components";
 
-import { MOBILE_MEDIA_QUERY } from "../../lib/breakpoints";
+import { mobileMediaQuery } from "../../lib/breakpoints";
 
-const FlexContainerLeftAlign = styled.div`
+interface IProps {
+  $scale: number;
+}
+
+const FlexContainerLeftAlign = styled.div<IProps>`
   display: flex;
   justify-content: flex-start;
 
-  ${MOBILE_MEDIA_QUERY} {
+  ${(props) => mobileMediaQuery(props.$scale)} {
     padding-left: 5px;
   }
 `;

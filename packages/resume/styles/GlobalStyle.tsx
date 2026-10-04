@@ -1,8 +1,14 @@
 import { createGlobalStyle } from "styled-components";
 
-import { MOBILE_MEDIA_QUERY } from "../lib/breakpoints";
+import { MAIN_WIDTH, mobileMediaQuery } from "../lib/breakpoints";
+import { useAppSelector } from "../lib/hooks";
+import { selectScale } from "../lib/resumeConfigSlice";
 
-const GlobalStyle = createGlobalStyle`
+interface IProps {
+  $scale: number;
+}
+
+const StyledGlobal = createGlobalStyle<IProps>`
   @font-face {
     font-family: "Arimo";
     src: url("/fonts/Arimo.woff2") format("woff2");
@@ -14,7 +20,7 @@ const GlobalStyle = createGlobalStyle`
     --header-bottom-border: 1px;
     --header-height: 35px;
     --footer-height: 25px;
-    --main-width: 850px;
+    --main-width: ${MAIN_WIDTH}px;
     --main-background-color: #181818;
   }
 
@@ -25,15 +31,21 @@ const GlobalStyle = createGlobalStyle`
     background-color: var(--main-background-color);
   }
 
-  ${MOBILE_MEDIA_QUERY} {
+  ${(props) => mobileMediaQuery(props.$scale)} {
     html,
     body {
       /* Content wider than the screen (e.g. an open dropdown) must clip
          rather than expand the mobile layout viewport, which would shrink
-         all rendered text. */
-      overflow-x: hidden;
+         all rendered text. Unlike hidden, clip does not make body a scroll
+         container, which would stop the header and footer from sticking. */
+      overflow-x: clip;
     }
   }
 `;
+
+const GlobalStyle = () => {
+  const scale = useAppSelector(selectScale);
+  return <StyledGlobal $scale={scale} />;
+};
 
 export default GlobalStyle;

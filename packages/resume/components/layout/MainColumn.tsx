@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { MOBILE_MEDIA_QUERY } from "../../lib/breakpoints";
+import { mobileMediaQuery } from "../../lib/breakpoints";
 
 interface IMainColumnProps {
   scale: number;
@@ -8,10 +8,13 @@ interface IMainColumnProps {
 
 const MainColumn = styled.div<IMainColumnProps>`
   width: calc(var(--main-width) * ${(props) => props.scale});
+  /* Scrollbars that take up width can leave slightly less room than the
+     breakpoint assumes; narrow the column rather than let it overflow. */
+  max-width: 100%;
   min-height: 100vh;
 
-  ${MOBILE_MEDIA_QUERY} {
-    width: 100vw;
+  ${(props) => mobileMediaQuery(props.scale)} {
+    width: 100%;
   }
 `;
 

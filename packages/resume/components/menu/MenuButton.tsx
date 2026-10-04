@@ -1,7 +1,5 @@
 import styled from "styled-components";
 
-import { MOBILE_MEDIA_QUERY } from "../../lib/breakpoints";
-
 interface IProps {
   scale: number;
 }
@@ -29,11 +27,5 @@ export const MenuButton = styled.button<IProps>`
   height: var(--height);
   &:hover {
     background: #d3d3d3;
-  }
-
-  ${MOBILE_MEDIA_QUERY} {
-    margin-top: calc(var(--header-height) - var(--height));
-    margin-left: 0;
-    margin-right: 0;
   }
 `;

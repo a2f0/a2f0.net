@@ -3,7 +3,7 @@ import { isKnownTheme, renderSvgResume } from "@a2f0/shared/svgResume";
 import { type CSSProperties, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
-import { MOBILE_BREAKPOINT } from "../lib/breakpoints";
+import { mobileMediaQuery, mobileQuery } from "../lib/breakpoints";
 import { useAppSelector } from "../lib/hooks";
 import {
   selectBackgroundColor,
@@ -12,14 +12,18 @@ import {
   selectScale,
 } from "../lib/resumeConfigSlice";
 
-const SvgContainer = styled.div`
+interface ISvgContainerProps {
+  $scale: number;
+}
+
+const SvgContainer = styled.div<ISvgContainerProps>`
   .desktop-svg {
     width: var(--desktop-width);
     height: var(--desktop-height);
     max-width: 100%;
   }
 
-  @media (max-width: ${MOBILE_BREAKPOINT}px) {
+  ${(props) => mobileMediaQuery(props.$scale)} {
     .desktop-svg {
       display: none;
     }
@@ -67,9 +71,8 @@ export default function SvgResume({ desktopSvg }: SvgResumeProps) {
   useEffect(() => {
     const handleResize = () => {
       const width = document.documentElement.clientWidth;
-      const isMobile = window.matchMedia(
-        `(max-width: ${MOBILE_BREAKPOINT}px)`,
-      ).matches;
+      // The breakpoint moves with the scale, which reruns this effect.
+      const isMobile = window.matchMedia(mobileQuery(scale)).matches;
       // Resize events often repeat the same size (mobile browsers fire them
       // as their toolbars move); keep the current state so the SVG is not
       // rebuilt for nothing.
@@ -89,7 +92,7 @@ export default function SvgResume({ desktopSvg }: SvgResumeProps) {
       window.removeEventListener("resize", handleResize);
       observer.disconnect();
     };
-  }, []);
+  }, [scale]);
 
   useEffect(() => {
     if (viewport === null || usePreRenderedDesktop) {
@@ -97,6 +100,10 @@ export default function SvgResume({ desktopSvg }: SvgResumeProps) {
       // already laid out for the actual viewport.
       return;
     }
+    // Switching to the pre-rendered SVG remounts the container before this
+    // effect is cleaned up, so a render finishing in between must not reach
+    // the new container.
+    const container = containerRef.current;
     let cancelled = false;
     const renderSvg = async () => {
       const svgResume = await renderSvgResume({
@@ -106,7 +113,7 @@ export default function SvgResume({ desktopSvg }: SvgResumeProps) {
         width: viewport.width,
       });
       if (cancelled) return;
-      containerRef.current?.replaceChildren(svgResume);
+      container?.replaceChildren(svgResume);
     };
     void renderSvg();
     return () => {
@@ -127,6 +134,7 @@ export default function SvgResume({ desktopSvg }: SvgResumeProps) {
       ref={containerRef}
       className="svg"
       id="svgContainer"
+      $scale={scale}
       style={positionSvg}
       // biome-ignore lint/security/noDangerouslySetInnerHtml: The SVG is generated from checked-in resume data during the build.
       dangerouslySetInnerHTML={

@@ -1,7 +1,7 @@
 import Head from "next/head";
 import styled from "styled-components";
 
-import { MOBILE_MEDIA_QUERY } from "../../lib/breakpoints";
+import { mobileMediaQuery } from "../../lib/breakpoints";
 import { useAppSelector } from "../../lib/hooks";
 import { selectScale } from "../../lib/resumeConfigSlice";
 import DropdownMenu from "../menu/DropdownMenu";
@@ -34,8 +34,7 @@ const StyledHeader = styled.header<IProps>`
   overflow: visible;
   display: flex;
 
-  ${MOBILE_MEDIA_QUERY} {
-    height: var(--header-height);
+  ${(props) => mobileMediaQuery(props.scale)} {
     padding: 0 5px;
   }
 `;
@@ -53,7 +52,7 @@ const Header = ({ title }: HeaderProps) => {
       <StyledHeader scale={scale}>
         <FlexContainerColumnPageWidth>
           <FlexColumn>
-            <FlexContainerLeftAlign>
+            <FlexContainerLeftAlign $scale={scale}>
               <MenuParent>
                 <DropdownMenu label="File">
                   <FileMenu />

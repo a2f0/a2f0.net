@@ -9,11 +9,15 @@ import { RESUME_NAME } from "@a2f0/shared/resumeName";
 import { selectScale } from "../lib/resumeConfigSlice";
 import { useResume } from "../lib/useResume";
 
-const PdfObjectContainer = styled.div`
+interface IPdfObjectContainerProps {
+  $scale: number;
+}
+
+const PdfObjectContainer = styled.div<IPdfObjectContainerProps>`
   height: calc(
-    100vh - var(--header-height) - var(--header-bottom-border) - var(
-        --footer-height
-      )
+    100vh - calc(var(--header-height) * ${(props) => props.$scale}) - var(
+        --header-bottom-border
+      ) - var(--footer-height)
   );
   width: 100%;
 `;
@@ -44,5 +48,5 @@ export default function PdfResume() {
     if (frame) frame.title = `${RESUME_NAME}'s resume`;
   });
 
-  return <PdfObjectContainer id="pdfObjectContainer" />;
+  return <PdfObjectContainer id="pdfObjectContainer" $scale={scale} />;
 }

@@ -105,21 +105,3 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: bunx --no-install wrangler deploy
-
-  notify-failure:
-    needs: [build, deploy]
-    if: failure()
-    runs-on: ubuntu-latest
-    env:
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-    steps:
-      - name: Report failure to Slack
-        if: env.SLACK_WEBHOOK_URL != ''
-        uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d  # v4.0.0
-        with:
-          webhook: ${{ env.SLACK_WEBHOOK_URL }}
-          webhook-type: incoming-webhook
-          payload: |
-            text: >-
-              CI failed for ${{ github.repository }}.
-              ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
