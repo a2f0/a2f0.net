@@ -23,8 +23,9 @@ bun run --cwd packages/experiment dev
 The dev server listens on port 4003. `dev` and `build` first copy the
 website's `a2f0.svg` into `public/`. `build` writes a static export to `out/`,
 `start` serves it through Wrangler on the same port, and `deploy` publishes the
-`experiment` Worker. Terraform attaches the `experiment.a2f0.net` domain. CI
-builds and tests the app, then deploys it on validated pushes to `production`.
+`experiment` Worker. `unit` runs the mini-app tests under happy-dom. Terraform
+attaches the `experiment.a2f0.net` domain. CI builds and tests the app, then
+deploys it on validated pushes to `production`.
 
 Next.js builds with webpack (`--webpack`) to import the website's HTML as text
 through the `?raw` resource rule. The windowing package supplies its own CSS
