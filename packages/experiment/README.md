@@ -12,7 +12,7 @@ site's own `mountSite` inside a shadow root, so the site's stylesheet and the
 window stylesheets cannot restyle each other. Its controls sit in the window's
 toolbar and View menu.
 
-The app uses the published `@tearleads/windowing` package, pinned to `0.2.0`.
+The app uses the published `@tearleads/windowing` package, pinned to `0.2.3`.
 Install from this repository's root:
 
 ```sh

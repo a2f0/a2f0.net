@@ -56,26 +56,6 @@ body {
   outline-offset: -2px;
 }
 
-/* No ring for the focus the front window takes on load, until a key is
-   pressed; see useFirstKeyPress in Desktop.tsx. */
-:root[data-pristine] .window:focus-visible {
-  outline: none;
-}
-
-/* The artwork paints black to the window's bottom edge, over the rounded
-   border. Clip the body to the window's inner radius while it is the bottom
-   band. @tearleads/windowing adds the same rule after 0.2.0; delete this once
-   the experiment depends on a release that has it. */
-.window:not(.window--maximized)
-> .window-body:not(
-  :has(
-    + .window-statusbar-live > .window-statusbar:not(.window-statusbar--hidden)
-  )
-) {
-  border-radius: 0 0 calc(var(--app-radius-surface) - var(--border-width))
-    calc(var(--app-radius-surface) - var(--border-width));
-}
-
 .desktop-taskbar {
   display: flex;
   gap: 0.25rem;
