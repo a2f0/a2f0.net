@@ -1,5 +1,6 @@
 import { $, $$, browser, expect } from "@wdio/globals";
 
+import { mobileQuery } from "../../lib/breakpoints";
 import { axeViolations } from "../lib/axe";
 import waitForHydration from "../lib/hydration";
 
@@ -51,7 +52,8 @@ describe("Accessibility", () => {
       await browser.waitUntil(
         () =>
           browser.execute(
-            () => window.matchMedia("(max-width: 768px)").matches,
+            (query: string) => window.matchMedia(query).matches,
+            mobileQuery(1.5),
           ),
         { timeoutMsg: "expected a phone viewport" },
       );

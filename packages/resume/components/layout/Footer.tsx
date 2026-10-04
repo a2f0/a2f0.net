@@ -2,6 +2,8 @@ import styled from "styled-components";
 
 import packageJson from "../../package.json";
 import resume from "@a2f0/shared/resume.json";
+import { useAppSelector } from "../../lib/hooks";
+import { selectScale } from "../../lib/resumeConfigSlice";
 import FlexColumn from "./FlexColumn";
 import FlexContainerCenterAlign from "./FlexContainerCenterAlign";
 import FlexContainerColumnPageWidth from "./FlexContainerColumnPageWidth";
@@ -39,24 +41,29 @@ export const StyledFooter = styled.footer`
   bottom: 0;
 `;
 
-const Footer = () => (
-  <StyledFooter>
-    <FlexContainerColumnPageWidth>
-      <FlexColumn>
-        <FlexContainerLeftAlign>
-          <VersionContainer>
-            <VersionLink href={resume.url}>v{packageJson.version}</VersionLink>
-          </VersionContainer>
-        </FlexContainerLeftAlign>
-      </FlexColumn>
-      <FlexColumn>
-        <FlexContainerCenterAlign />
-      </FlexColumn>
-      <FlexColumn>
-        <FlexContainerRightAlign />
-      </FlexColumn>
-    </FlexContainerColumnPageWidth>
-  </StyledFooter>
-);
+const Footer = () => {
+  const scale = useAppSelector(selectScale);
+  return (
+    <StyledFooter>
+      <FlexContainerColumnPageWidth>
+        <FlexColumn>
+          <FlexContainerLeftAlign $scale={scale}>
+            <VersionContainer>
+              <VersionLink href={resume.url}>
+                v{packageJson.version}
+              </VersionLink>
+            </VersionContainer>
+          </FlexContainerLeftAlign>
+        </FlexColumn>
+        <FlexColumn>
+          <FlexContainerCenterAlign />
+        </FlexColumn>
+        <FlexColumn>
+          <FlexContainerRightAlign />
+        </FlexColumn>
+      </FlexContainerColumnPageWidth>
+    </StyledFooter>
+  );
+};
 
 export default Footer;
