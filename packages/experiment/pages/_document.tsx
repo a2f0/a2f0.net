@@ -2,8 +2,7 @@ import { Head, Html, Main, NextScript } from "next/document";
 
 export default function ExperimentDocument() {
   return (
-    // data-pristine lasts until the first key press; see Desktop.
-    <Html lang="en" data-theme="dark" data-pristine="">
+    <Html lang="en" data-theme="dark">
       <Head />
       <body>
         <Main />
