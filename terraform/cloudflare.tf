@@ -50,6 +50,14 @@ resource "cloudflare_workers_custom_domain" "experiment" {
   service    = "experiment"
 }
 
+# Host for the Noise Connoisseur web app, deployed with Wrangler from a2f0/nc.
+resource "cloudflare_workers_custom_domain" "nc" {
+  account_id = var.cloudflare_account_id
+  zone_id    = data.cloudflare_zone.resume.id
+  hostname   = "nc.${var.domain}"
+  service    = "nc"
+}
+
 resource "cloudflare_zone_setting" "always_use_https" {
   zone_id    = data.cloudflare_zone.resume.id
   setting_id = "always_use_https"
