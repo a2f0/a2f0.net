@@ -2,8 +2,7 @@ import siteHtml from "@a2f0/website/public/index.html?raw";
 
 // The site lays out its own <main>; inside a window a plain container takes
 // its place, and fills the window body. The window's toolbar carries the
-// site's controls, so the site's own toolbar stays unseen; it keeps its place,
-// as the square the terminal window zooms out of.
+// site's controls, so the site's own toolbar stays unseen.
 const HOST_CSS = `
   :host {
     display: block;

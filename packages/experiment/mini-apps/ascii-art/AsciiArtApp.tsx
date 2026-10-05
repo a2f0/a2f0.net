@@ -7,8 +7,8 @@ import { useAsciiArtToolbar } from "./useAsciiArtToolbar";
 import { useSiteControls } from "./useSiteControls";
 
 /**
- * The a2f0.net artwork and terminal window, with the site's controls in the
- * window's toolbar and View menu.
+ * The a2f0.net artwork, with the site's controls in the window's toolbar and
+ * View menu.
  */
 export function AsciiArtApp() {
   const hostRef = useRef<HTMLDivElement>(null);

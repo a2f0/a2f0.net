@@ -38,7 +38,8 @@ several apps.
 - `resume/` renders the shared resume as SVG and puts its downloads, theme, and
   scale in the File and View menus.
 - `ascii-art/` runs the a2f0.net artwork from `packages/website` inside a
-  shadow root. Its controls (the animation, the music player, the ASCII view,
-  and the terminal window) sit in the window's toolbar, with pressed states on
-  the two toggles, and in its View menu. Both mirror the site's own toolbar,
-  which stays in the shadow root unseen and keeps the site's behavior.
+  shadow root. Its controls (the animation, the music player, and the ASCII
+  view, with its pressed state) sit in the window's toolbar and its View menu.
+  Both mirror the site's own toolbar, which stays in the shadow root unseen and
+  keeps the site's behavior. The site's terminal window is left out, as the
+  artwork already sits in a window.

@@ -1,7 +1,6 @@
 import { HashIcon } from "@phosphor-icons/react/dist/csr/Hash";
 import { MusicNotesIcon } from "@phosphor-icons/react/dist/csr/MusicNotes";
 import { PlayIcon } from "@phosphor-icons/react/dist/csr/Play";
-import { SquareIcon } from "@phosphor-icons/react/dist/csr/Square";
 import { StopIcon } from "@phosphor-icons/react/dist/csr/Stop";
 import { useWindowTitleBarAction } from "@tearleads/windowing";
 import { useMemo } from "react";
@@ -10,18 +9,17 @@ import type { SiteControl, SiteControlsState } from "./useSiteControls";
 
 // Stable icon elements, so an unchanged action matches its registration
 // across renders (the window compares the fields with Object.is). Play and
-// stop are filled, as on the site, so stop never reads as the terminal's
-// outlined square.
+// stop are filled, as on the site.
 const PLAY_ICON = <PlayIcon aria-hidden size={18} weight="fill" />;
 const STOP_ICON = <StopIcon aria-hidden size={18} weight="fill" />;
 const MUSIC_ICON = <MusicNotesIcon aria-hidden size={18} />;
 const ASCII_ICON = <HashIcon aria-hidden size={18} />;
-const TERMINAL_ICON = <SquareIcon aria-hidden size={18} />;
 
 /**
  * The site's toolbar, in the window's toolbar row and in the site's order:
- * the animation, the music player, then the two toggles. The window lays the
- * actions out from the highest priority.
+ * the animation, the music player, then the ASCII view. The site's terminal
+ * window is left out, as the artwork already sits in a window. The window lays
+ * the actions out from the highest priority.
  */
 export function useAsciiArtToolbar(
   state: SiteControlsState | null,
@@ -64,20 +62,6 @@ export function useAsciiArtToolbar(
           onClick: () => press(".view-toggle"),
           pressed: state.ascii,
           priority: 20,
-        },
-      [press, state],
-    ),
-  );
-  useWindowTitleBarAction(
-    useMemo(
-      () =>
-        state && {
-          icon: TERMINAL_ICON,
-          id: "terminal-window",
-          label: "Terminal window",
-          onClick: () => press(".window-toggle"),
-          pressed: state.terminal,
-          priority: 10,
         },
       [press, state],
     ),
