@@ -2,6 +2,7 @@
   "name": "@a2f0/shared",
   "version": "0.1.0",
   "private": true,
+  "license": "UNLICENSED",
   "type": "module",
   "exports": {
     "./resume.json": "./resume.json",
