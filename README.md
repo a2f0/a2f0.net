@@ -142,6 +142,10 @@ deploys alongside the resume and website after production validation succeeds.
 `resume.a2f0.net`. The website keeps the existing Worker service name so the
 apex domain stays attached when the redirect code is replaced.
 
+Terraform also attaches `nc.a2f0.net` to the `nc` Worker, which
+[a2f0/nc](https://github.com/a2f0/nc) builds and deploys with
+`bun run web:deploy`; this repository's CI doesn't deploy it.
+
 Set `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in your environment for
 local deployments. GitHub Actions uses repository secrets with the same names
 and deploys only after validation succeeds on pushes to those two branches.
