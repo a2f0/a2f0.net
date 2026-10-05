@@ -7,6 +7,7 @@ import {
 } from "@tearleads/windowing";
 import { type RefObject, useEffect, useRef, useState } from "react";
 
+import type { MiniAppProps } from "../types";
 import { DARK, isDarkTheme, useResumeMenus } from "./useResumeMenus";
 
 const { documentHeight, documentWidth, pixelsPerPoint } = resumeConfiguration;
@@ -32,7 +33,7 @@ function useBodyWidth(containerRef: RefObject<HTMLDivElement | null>) {
  * The resume, laid out as the desktop page when the window is wide enough for
  * it and as the single mobile column otherwise.
  */
-export function ResumeApp() {
+export function ResumeApp({ onLoad }: MiniAppProps) {
   const [colors, setColors] = useState<ResumeColors>(DARK);
   const [scale, setScale] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -70,13 +71,15 @@ export function ResumeApp() {
     let cancelled = false;
     void renderSvgResume({ colors, scale, isMobile, width: layoutWidth }).then(
       (svg) => {
-        if (!cancelled) containerRef.current?.replaceChildren(svg);
+        if (cancelled) return;
+        containerRef.current?.replaceChildren(svg);
+        onLoad();
       },
     );
     return () => {
       cancelled = true;
     };
-  }, [measured, colors, scale, isMobile, layoutWidth]);
+  }, [measured, colors, scale, isMobile, layoutWidth, onLoad]);
 
   return <div ref={containerRef} className="resume-window" />;
 }
