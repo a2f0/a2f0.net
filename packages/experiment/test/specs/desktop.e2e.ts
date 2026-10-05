@@ -27,6 +27,13 @@ const waitForResume = () =>
     { timeoutMsg: "the current resume SVG did not render visibly" },
   );
 
+const windowBackground = (selector: string) =>
+  browser.execute((frameSelector) => {
+    const frame = document.querySelector(frameSelector);
+    if (!frame) throw new Error(`Missing ${frameSelector}`);
+    return getComputedStyle(frame).backgroundColor;
+  }, selector);
+
 const siteState = () =>
   browser.execute(() => {
     const root = document.querySelector(".ascii-art-window")?.shadowRoot;
@@ -59,8 +66,10 @@ describe("Experiment desktop", () => {
     expect((await siteState()).ascii?.trim().length).toBeGreaterThan(0);
 
     const styles = await browser.execute(() => {
-      const frame = document.querySelector("section.window");
-      if (!frame) throw new Error("Missing window");
+      const frame = document.querySelector(
+        "section.window:has(.ascii-art-window)",
+      );
+      if (!frame) throw new Error("Missing artwork window");
       const style = getComputedStyle(frame);
       return {
         position: style.position,
@@ -78,6 +87,11 @@ describe("Experiment desktop", () => {
       radius: "12px",
       background: "rgb(22, 22, 22)",
     });
+    // Around its page the resume shows the page's #0F0F0F background with a
+    // tenth of its #DCDCDC foreground mixed in.
+    expect(await windowBackground("section.window:has(.resume-window)")).toBe(
+      "color(srgb 0.139216 0.139216 0.139216)",
+    );
 
     // The artwork paints to the window's bottom edge; the body clips it inside
     // the window's rounded border (12px less the 1px border).
@@ -169,6 +183,10 @@ describe("Experiment desktop", () => {
     await resumeWindow().$("button=View").click();
     await resumeWindow().$("button*=Light Theme").click();
     await expect($("html")).toHaveAttribute("data-theme", "light");
+    // White with a tenth of black.
+    expect(await windowBackground("section.window:has(.resume-window)")).toBe(
+      "color(srgb 0.9 0.9 0.9)",
+    );
     await resumeWindow().$("button=View").click();
     await resumeWindow().$("button*=150%").click();
     await resumeWindow().$("button=View").click();

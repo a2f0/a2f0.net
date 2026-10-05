@@ -1,6 +1,7 @@
 import { resumeConfiguration } from "@a2f0/shared/configuration";
 import type { ResumeColors } from "@a2f0/shared/resumeConfig";
 import { renderSvgResume } from "@a2f0/shared/svgResume";
+import { useWindowBackground } from "@tearleads/windowing";
 import { type RefObject, useEffect, useRef, useState } from "react";
 
 import { DARK, isDarkTheme, useResumeMenus } from "./useResumeMenus";
@@ -42,6 +43,12 @@ export function ResumeApp() {
 
   useResumeMenus(colors, setColors, scale, setScale);
 
+  // The resume paints its own page, so around it the window shows an
+  // off-color of the page's background and frames it as a sheet.
+  useWindowBackground(
+    `color-mix(in srgb, ${colors.foregroundColor} 10%, ${colors.backgroundColor})`,
+  );
+
   // The window chrome follows the resume theme.
   useEffect(() => {
     document.documentElement.dataset.theme = isDarkTheme(colors)
@@ -63,11 +70,5 @@ export function ResumeApp() {
     };
   }, [measured, colors, scale, isMobile, layoutWidth]);
 
-  return (
-    <div
-      ref={containerRef}
-      className="resume-window"
-      style={{ background: colors.backgroundColor }}
-    />
-  );
+  return <div ref={containerRef} className="resume-window" />;
 }
