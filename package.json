@@ -1,6 +1,7 @@
 {
   "name": "resume-workspace",
   "private": true,
+  "license": "UNLICENSED",
   "type": "module",
   "packageManager": "bun@1.3.11",
   "workspaces": [

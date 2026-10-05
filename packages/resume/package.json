@@ -2,6 +2,7 @@
   "name": "@resume/site",
   "version": "0.1.156",
   "private": true,
+  "license": "UNLICENSED",
   "type": "module",
   "scripts": {
     "start-server": "next dev -p 4000",

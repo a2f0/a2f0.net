@@ -2,6 +2,7 @@
   "name": "@a2f0/experiment",
   "version": "0.1.0",
   "private": true,
+  "license": "UNLICENSED",
   "type": "module",
   "scripts": {
     "copy-art": "cp ../website/public/a2f0.svg public/a2f0.svg",
