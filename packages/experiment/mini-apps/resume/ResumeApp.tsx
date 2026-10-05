@@ -1,12 +1,15 @@
 import { resumeConfiguration } from "@a2f0/shared/configuration";
 import type { ResumeColors } from "@a2f0/shared/resumeConfig";
 import { renderSvgResume } from "@a2f0/shared/svgResume";
-import { useWindowBackground } from "@tearleads/windowing";
+import {
+  useWindowBackground,
+  useWindowContentSize,
+} from "@tearleads/windowing";
 import { type RefObject, useEffect, useRef, useState } from "react";
 
 import { DARK, isDarkTheme, useResumeMenus } from "./useResumeMenus";
 
-const { documentWidth, pixelsPerPoint } = resumeConfiguration;
+const { documentHeight, documentWidth, pixelsPerPoint } = resumeConfiguration;
 
 /** The width of the window's scrolling body, inside its padding. */
 function useBodyWidth(containerRef: RefObject<HTMLDivElement | null>) {
@@ -42,6 +45,11 @@ export function ResumeApp() {
   const layoutWidth = isMobile ? bodyWidth : 0;
 
   useResumeMenus(colors, setColors, scale, setScale);
+  // Fit to Content sizes the window to the desktop page.
+  useWindowContentSize({
+    width: (documentWidth / pixelsPerPoint) * scale,
+    height: (documentHeight / pixelsPerPoint) * scale,
+  });
 
   // The resume paints its own page, so around it the window shows an
   // off-color of the page's background and frames it as a sheet.

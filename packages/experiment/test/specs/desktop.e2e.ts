@@ -207,6 +207,47 @@ describe("Experiment desktop", () => {
     });
   });
 
+  it("fits the resume window to its page", async () => {
+    await taskbar("Resume").click();
+    await resumeWindow().$("button=View").click();
+    await resumeWindow().$("button=Fit to Content").click();
+
+    await browser.waitUntil(
+      () =>
+        browser.execute(() => {
+          const frame = document.querySelector<HTMLElement>(
+            "section.window:has(.resume-window)",
+          );
+          return frame?.parentElement?.clientHeight === frame?.offsetHeight;
+        }),
+      { timeoutMsg: "the resume window did not fit to its page" },
+    );
+    await waitForResume();
+    const fit = await browser.execute(() => {
+      const pane = document.querySelector<HTMLElement>(
+        "section.window:has(.resume-window) .window-body-content-scroll",
+      );
+      const svg = pane?.querySelector("svg");
+      if (!pane || !svg) throw new Error("Missing resume");
+      const { paddingLeft, paddingRight } = getComputedStyle(pane);
+      return {
+        contentWidth:
+          pane.clientWidth -
+          Number.parseFloat(paddingLeft) -
+          Number.parseFloat(paddingRight),
+        scrollsAcross: pane.scrollWidth > pane.clientWidth,
+        viewBox: svg.getAttribute("viewBox"),
+      };
+    });
+    // The page is taller than the 900px desktop, so the window fills its
+    // height and scrolls down, while the desktop page shows its full width.
+    expect(fit).toEqual({
+      contentWidth: 816,
+      scrollsAcross: false,
+      viewBox: "0 0 816 1056",
+    });
+  });
+
   it("puts the artwork controls in the window toolbar", async () => {
     const toolbar = asciiArtWindow().$(
       "[role='toolbar'][aria-label='Toolbar']",
