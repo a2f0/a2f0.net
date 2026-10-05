@@ -8,9 +8,14 @@ hooks. The layout follows Tearleads'
 
 - `types.ts` lists the mini-app ids. The window layer stores a window's `appId`
   as an opaque string; `isMiniAppId` narrows it back.
-- `catalog.ts` holds each app's title, launch order, and first position
-  without importing any app, so code that only labels apps stays light.
+- `catalog.ts` holds each app's title, launch order, and window options (where
+  the window first opens and whether it opens fitted to its content) without
+  importing any app, so code that only labels apps stays light.
 - `registry.ts` pairs those titles with the components.
+- `MiniAppContent.tsx` renders each app with the framework's `MiniAppProps`.
+  Its `onLoad` callback tells the window that the app's content has loaded. A
+  window that opens with `fitToContent` then fits the size the app reports with
+  `useWindowContentSize`, once. Later calls do nothing.
 - `MiniAppWindow.tsx` renders a mini-app's window. It fills the window's
   `ContentBoundary` slot with `MiniAppBoundary`, so an app that throws fails
   inside its own window, and turns off the history Back button: these apps have
@@ -21,10 +26,12 @@ hooks. The layout follows Tearleads'
 ## Adding a mini-app
 
 1. Add its id to `MINI_APP_IDS` in `types.ts`.
-2. Give it a title, a position, and a place in the launch order in
+2. Give it a title, window options, and a place in the launch order in
    `catalog.ts`.
-3. Create its directory with `<Name>App.tsx` and register the component in
-   `registry.ts`.
+3. Create its directory with `<Name>App.tsx`, a component that takes
+   `MiniAppProps`, and register it in `registry.ts` through
+   `withMiniAppProps`. An app that opens fitted reports its size and calls
+   `onLoad` once its content shows.
 4. Import its stylesheet, if it has one, from `pages/_app.tsx`: Next.js takes
    global stylesheets only from there.
 
@@ -36,7 +43,8 @@ stylesheet, and the hooks that register its window chrome
 several apps.
 
 - `resume/` renders the shared resume as SVG and puts its downloads, theme, and
-  scale in the File and View menus.
+  scale in the File and View menus. Its window opens fitted to the page once
+  the SVG has rendered.
 - `ascii-art/` runs the a2f0.net artwork from `packages/website` inside a
   shadow root. Its controls (the animation, the music player, and the ASCII
   view, with its pressed state) sit in the window's toolbar and its View menu.

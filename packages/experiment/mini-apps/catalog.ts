@@ -1,6 +1,6 @@
-import type { MiniAppId, MiniAppWindowPosition } from "./types";
+import type { MiniAppId, MiniAppWindowOptions } from "./types";
 
-// Presentation metadata for every mini-app: titles, launch order, and where
+// Presentation metadata for every mini-app: titles, launch order, and how
 // each window first opens. It imports no mini-app implementation, so code that
 // only labels apps (such as the error boundary) does not load them.
 // registry.ts pairs these titles with the components.
@@ -10,10 +10,10 @@ export const MINI_APP_TITLES: Readonly<Record<MiniAppId, string>> = {
   "ascii-art": "a2f0.net",
 };
 
-export const MINI_APP_POSITIONS: Readonly<
-  Record<MiniAppId, MiniAppWindowPosition>
+export const MINI_APP_WINDOWS: Readonly<
+  Record<MiniAppId, MiniAppWindowOptions>
 > = {
-  resume: { x: 48, y: 32 },
+  resume: { x: 48, y: 32, fitToContent: true },
   "ascii-art": { x: 360, y: 140 },
 };
 
