@@ -5,14 +5,9 @@ export interface SiteControlsState {
   ascii: boolean;
   music: { disabled: boolean; label: string };
   play: { label: string; playing: boolean };
-  terminal: boolean;
 }
 
-export type SiteControl =
-  | ".music-toggle"
-  | ".play-toggle"
-  | ".view-toggle"
-  | ".window-toggle";
+export type SiteControl = ".music-toggle" | ".play-toggle" | ".view-toggle";
 
 /**
  * Follows the site's own toolbar, which `mountSite` drives, so the window's
@@ -39,7 +34,6 @@ export function useSiteControls(root: ShadowRoot | null) {
           label: attribute(".play-toggle", "aria-label") ?? "Play animation",
           playing: attribute(".play-toggle", "data-playing") !== null,
         },
-        terminal: attribute(".window-toggle", "aria-pressed") === "true",
       });
     read();
     const observer = new MutationObserver(read);

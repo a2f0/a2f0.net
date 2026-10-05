@@ -33,7 +33,6 @@ const siteState = () =>
     return {
       view: root?.querySelector(".stage")?.getAttribute("data-view"),
       ascii: root?.querySelector(".ascii")?.textContent,
-      terminal: root?.querySelector(".canvas")?.hasAttribute("data-window"),
     };
   });
 
@@ -201,7 +200,6 @@ describe("Experiment desktop", () => {
       "Play code rain animation",
       "Music player (coming soon)",
       "ASCII view",
-      "Terminal window",
     ]);
     await expect(toolbar.$("button[aria-label^='Music']")).toBeDisabled();
     // The resume has no toolbar actions, so its window has no toolbar row.
@@ -217,11 +215,6 @@ describe("Experiment desktop", () => {
     await expect(
       toolbar.$("button[aria-label='Play etching animation']"),
     ).toBeExisting();
-
-    const terminal = toolbar.$("button[aria-label='Terminal window']");
-    await terminal.click();
-    await expect(terminal).toHaveAttribute("aria-pressed", "true");
-    expect((await siteState()).terminal).toBe(true);
   });
 
   it("moves, resizes, minimizes, and reopens a window", async () => {

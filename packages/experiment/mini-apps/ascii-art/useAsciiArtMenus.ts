@@ -24,12 +24,4 @@ export function useAsciiArtMenus(
       onClick: () => press(".play-toggle"),
     },
   );
-  useWindowViewMenuItem(
-    state && {
-      id: "terminal-window",
-      label: checked(state.terminal, "Terminal Window"),
-      priority: 10,
-      onClick: () => press(".window-toggle"),
-    },
-  );
 }
