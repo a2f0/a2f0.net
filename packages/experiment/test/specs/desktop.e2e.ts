@@ -34,6 +34,20 @@ const windowBackground = (selector: string) =>
     return getComputedStyle(frame).backgroundColor;
   }, selector);
 
+// The resume opens fitted once its page renders: at the 900px desktop the
+// window fills the surface's height.
+const waitForResumeFit = () =>
+  browser.waitUntil(
+    () =>
+      browser.execute(() => {
+        const frame = document.querySelector<HTMLElement>(
+          "section.window:has(.resume-window)",
+        );
+        return frame?.parentElement?.clientHeight === frame?.offsetHeight;
+      }),
+    { timeoutMsg: "the resume window did not fit to its page" },
+  );
+
 const siteState = () =>
   browser.execute(() => {
     const root = document.querySelector(".ascii-art-window")?.shadowRoot;
@@ -207,45 +221,64 @@ describe("Experiment desktop", () => {
     });
   });
 
-  it("fits the resume window to its page", async () => {
-    await taskbar("Resume").click();
-    await resumeWindow().$("button=View").click();
-    await resumeWindow().$("button=Fit to Content").click();
-
-    await browser.waitUntil(
-      () =>
-        browser.execute(() => {
-          const frame = document.querySelector<HTMLElement>(
-            "section.window:has(.resume-window)",
-          );
-          return frame?.parentElement?.clientHeight === frame?.offsetHeight;
-        }),
-      { timeoutMsg: "the resume window did not fit to its page" },
-    );
-    await waitForResume();
-    const fit = await browser.execute(() => {
-      const pane = document.querySelector<HTMLElement>(
-        "section.window:has(.resume-window) .window-body-content-scroll",
-      );
-      const svg = pane?.querySelector("svg");
-      if (!pane || !svg) throw new Error("Missing resume");
-      const { paddingLeft, paddingRight } = getComputedStyle(pane);
-      return {
-        contentWidth:
-          pane.clientWidth -
-          Number.parseFloat(paddingLeft) -
-          Number.parseFloat(paddingRight),
-        scrollsAcross: pane.scrollWidth > pane.clientWidth,
-        viewBox: svg.getAttribute("viewBox"),
-      };
-    });
+  it("opens the resume fitted to its page", async () => {
+    const fitState = () =>
+      browser.execute(() => {
+        const pane = document.querySelector<HTMLElement>(
+          "section.window:has(.resume-window) .window-body-content-scroll",
+        );
+        const svg = pane?.querySelector("svg");
+        if (!pane || !svg) throw new Error("Missing resume");
+        const { paddingLeft, paddingRight } = getComputedStyle(pane);
+        return {
+          contentWidth:
+            pane.clientWidth -
+            Number.parseFloat(paddingLeft) -
+            Number.parseFloat(paddingRight),
+          scrollsAcross: pane.scrollWidth > pane.clientWidth,
+          viewBox: svg.getAttribute("viewBox"),
+        };
+      });
     // The page is taller than the 900px desktop, so the window fills its
     // height and scrolls down, while the desktop page shows its full width.
-    expect(fit).toEqual({
+    const page = {
       contentWidth: 816,
       scrollsAcross: false,
       viewBox: "0 0 816 1056",
-    });
+    };
+    const expectFitted = async () => {
+      await waitForResumeFit();
+      await browser.waitUntil(
+        async () => (await fitState()).viewBox === page.viewBox,
+        { timeoutMsg: "the fitted resume did not show its desktop page" },
+      );
+      expect(await fitState()).toEqual(page);
+    };
+    await expectFitted();
+
+    // Narrowed past the page, the resume takes its single column; View > Fit
+    // to Content brings the page back.
+    await taskbar("Resume").click();
+    await browser
+      .action("pointer")
+      .move({ origin: resumeWindow().$(".window-resize--e") })
+      .down()
+      .move({ origin: "pointer", x: -100, y: 0, duration: 150 })
+      .up()
+      .perform();
+    await browser.waitUntil(
+      () =>
+        browser.execute(
+          () =>
+            document
+              .querySelector(".resume-window svg")
+              ?.getAttribute("viewBox") !== "0 0 816 1056",
+        ),
+      { timeoutMsg: "the narrowed resume kept its desktop page" },
+    );
+    await resumeWindow().$("button=View").click();
+    await resumeWindow().$("button=Fit to Content").click();
+    await expectFitted();
   });
 
   it("puts the artwork controls in the window toolbar", async () => {
@@ -277,6 +310,10 @@ describe("Experiment desktop", () => {
   });
 
   it("moves, resizes, minimizes, and reopens a window", async () => {
+    // The resume opens as tall as the desktop; a taller viewport gives it room
+    // to move down and puts its bottom edge clear of the taskbar.
+    await waitForResumeFit();
+    await browser.setViewport({ width: 1440, height: 1200 });
     // Exercise the scrollbars that consume layout width on Linux too.
     await browser.execute(() => {
       const style = document.createElement("style");

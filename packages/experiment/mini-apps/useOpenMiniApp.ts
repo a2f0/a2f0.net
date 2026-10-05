@@ -1,7 +1,7 @@
 import { useWindowActions, useWindowStateData } from "@tearleads/windowing";
 import { useCallback } from "react";
 
-import { MINI_APP_POSITIONS } from "./catalog";
+import { MINI_APP_WINDOWS } from "./catalog";
 import { MINI_APPS } from "./registry";
 import type { MiniAppId } from "./types";
 
@@ -26,8 +26,8 @@ export function useOpenMiniApp() {
         return;
       }
       const { component, title } = MINI_APPS[appId];
-      const { x, y } = MINI_APP_POSITIONS[appId];
-      const id = create(title, x, y, component, { appId });
+      const { fitToContent, x, y } = MINI_APP_WINDOWS[appId];
+      const id = create(title, x, y, component, { appId, fitToContent });
       if (prefersMaximized()) maximize(id);
     },
     [bringToFront, create, maximize, restore, windows],
