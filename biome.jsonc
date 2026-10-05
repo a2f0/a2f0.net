@@ -9,7 +9,8 @@
       "!**/.next/**/*",
       "!**/dist/**/*",
       "!**/out/**/*",
-      "!**/.wrangler/**/*"
+      "!**/.wrangler/**/*",
+      "!terraform/*.json"
     ]
   },
   "formatter": { "enabled": true, "indentStyle": "space" },

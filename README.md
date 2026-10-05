@@ -157,7 +157,7 @@ CI exposes it only to Wrangler, after installation and the build finish.
 The Terraform provider uses `cloudflare_api_token`, which also needs Workers
 custom-domain access, Zone Read, DNS Edit, and Zone Settings Edit for `a2f0.net`.
 Creating the zone requires additional zone-creation permission; the stack looks
-up a zone created beforehand. Both tokens are stored in Blackbox.
+up a zone created beforehand. Both tokens are stored with SOPS.
 
 Public `workers.dev` and preview URLs are disabled. Each Worker becomes
 publicly reachable when Terraform attaches its custom domain and the zone is
@@ -173,19 +173,20 @@ registration remains with AWS and delegates to the Cloudflare nameservers.
 ### Setup
 
 1. Install Terraform using the version in `terraform/.terraform-version`.
-2. Install [Blackbox](https://github.com/StackExchange/blackbox).
-3. Run `blackbox_decrypt_all_files` with an authorized GPG key.
+2. Install [SOPS](https://github.com/getsops/sops) and GnuPG.
+3. Run `terraform/decrypt.sh` with the GPG key listed in `.sops.yaml`.
 4. Configure AWS credentials for the S3 backend, plus a GitHub
    token through `GITHUB_TOKEN` or the sensitive `github_token` variable.
-5. Check `terraform/main.tfvars`: it includes `cloudflare_account_id` and
+5. Check `terraform/main.tfvars.json`: it includes `cloudflare_account_id` and
    `cloudflare_api_token` plus the separate `cloudflare_deploy_api_token`.
    The Google Workspace service-account credentials
-   are encrypted separately as `terraform/google-credentials.json.gpg`.
+   are encrypted separately as `terraform/google-credentials.sops.json`.
 
-To change encrypted variables, use `blackbox_edit_start terraform/main.tfvars`,
-edit the file, and run `blackbox_edit_end terraform/main.tfvars`. Commit only
-the encrypted `.gpg` file. Terraform plan files also contain secrets and are
-ignored by Git.
+To change encrypted variables, run `sops edit terraform/main.tfvars.sops.json`,
+then rerun `terraform/decrypt.sh`. Commit only the encrypted `.sops.json` files.
+To add a recipient, add its key to `.sops.yaml` and run `sops updatekeys` on
+each encrypted file. Terraform plan files also contain secrets and are ignored
+by Git.
 
 ### Validation and Provisioning
 
@@ -201,7 +202,7 @@ For the real backend:
 ```sh
 cd terraform
 terraform init -backend-config=terraform.backend
-terraform plan -var-file=main.tfvars -out=infrastructure.tfplan
+terraform plan -var-file=main.tfvars.json -out=infrastructure.tfplan
 terraform apply infrastructure.tfplan
 ```
 
@@ -244,5 +245,5 @@ Refresh providers and check the real plan:
 cd terraform
 terraform init -upgrade -backend-config=terraform.backend
 terraform providers lock -platform=darwin_arm64 -platform=linux_amd64
-terraform plan -var-file=main.tfvars
+terraform plan -var-file=main.tfvars.json
 ```
