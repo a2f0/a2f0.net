@@ -30,7 +30,7 @@ export const MINI_APP_WINDOWS: Readonly<
 > = {
   resume: { x: 48, y: 32, fitToContent: true },
   "ascii-art": { x: 360, y: 140 },
-  skyline: { x: 480, y: 60 },
+  skyline: { x: 240, y: 48, relativeSize: { width: 0.75, height: 0.75 } },
   dnbm: { x: 120, y: 24, fitToContent: true },
 };
 

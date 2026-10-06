@@ -9,7 +9,8 @@ hooks. The layout follows Tearleads'
 - `types.ts` lists the mini-app ids. The window layer stores a window's `appId`
   as an opaque string; `isMiniAppId` narrows it back.
 - `catalog.ts` holds each app's title, icon, launch order, and window options
-  (where the window first opens and whether it opens fitted to its content)
+  (where the window first opens, its size as a fraction of the desktop, and
+  whether it opens fitted to its content)
   without importing any app, so code that only labels apps stays light.
 - `registry.ts` pairs those titles with the components.
 - `MiniAppContent.tsx` renders each app with the framework's `MiniAppProps`.
@@ -56,7 +57,8 @@ several apps.
   the viewer's assets into `public/skyline/`, where the iframe loads them.
   Presses inside an iframe never reach the window, so the app raises its
   window when focus moves into the viewer instead
-  (`shared/useRaiseOnFrameFocus.ts`).
+  (`shared/useRaiseOnFrameFocus.ts`). Its window opens at three quarters of
+  the desktop's width and height, to give the 3D scene room.
 - `dnbm/` mounts the dnbm drum and bass sequencer from `@a2f0/dnbm` in an
   iframe the same way, from assets the `copy-dnbm` script copies into
   `public/dnbm/`. Its window opens fitted to the sequencer's 1200 by 800
