@@ -12,6 +12,7 @@
       "!**/.wrangler/**/*",
       "!**/.turbo/**/*",
       "!packages/experiment/public/skyline/**/*",
+      "!packages/experiment/public/dnbm/**/*",
       "!terraform/*.json"
     ]
   },

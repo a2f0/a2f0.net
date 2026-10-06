@@ -1,7 +1,7 @@
 import { mountSkyline } from "@a2f0/skyline";
 import { useEffect, useRef, useState } from "react";
 
-import { useRaiseOnFrameFocus } from "./useRaiseOnFrameFocus";
+import { useRaiseOnFrameFocus } from "../shared/useRaiseOnFrameFocus";
 
 // The viewer's assets, copied into public/ by the copy-skyline script.
 const SKYLINE_ASSETS_URL = "/skyline/";
