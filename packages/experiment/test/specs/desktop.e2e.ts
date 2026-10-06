@@ -3,6 +3,7 @@ import { $, $$, browser, expect } from "@wdio/globals";
 const resumeWindow = () => $("section.window:has(.resume-window)");
 const asciiArtWindow = () => $("section.window:has(.ascii-art-window)");
 const skylineWindow = () => $("section.window:has(.skyline-window)");
+const dnbmWindow = () => $("section.window:has(.dnbm-window)");
 const taskbar = (title: string) => $(`.desktop-taskbar-button=${title}`);
 // WebDriver's code for the Shift key.
 const SHIFT = "\uE008";
@@ -85,6 +86,28 @@ const skylineFrames = () =>
     };
   });
 
+// The dnbm sequencer's frame and the app inside it, read through the
+// same-origin frame the package mounts.
+const dnbmFrame = () =>
+  browser.execute(() => {
+    const frame = document.querySelector<HTMLIFrameElement>(
+      ".dnbm-window iframe",
+    );
+    const app = frame?.contentDocument;
+    const wordmark = app?.querySelector(".brand");
+    return {
+      title: frame?.title,
+      width: frame?.clientWidth ?? 0,
+      app: app && {
+        path: app.location.pathname,
+        query: app.location.search,
+        embedded: app.documentElement.hasAttribute("data-embed"),
+        wordmark: wordmark && getComputedStyle(wordmark).display,
+        steps: app.querySelectorAll(".cell").length > 0,
+      },
+    };
+  });
+
 // The window whose title bar is foremost on the desktop.
 const frontWindowTitle = () =>
   browser.execute(() => {
@@ -114,7 +137,7 @@ describe("Experiment desktop", () => {
   it("renders every app with the published window styles", async () => {
     await expect(
       $$(".desktop-surface > section.window"),
-    ).toBeElementsArrayOfSize(3);
+    ).toBeElementsArrayOfSize(4);
     await expect(resumeWindow().$(".window-titlebar-title")).toHaveText(
       "Resume",
     );
@@ -124,6 +147,7 @@ describe("Experiment desktop", () => {
     await expect(skylineWindow().$(".window-titlebar-title")).toHaveText(
       "Skyline",
     );
+    await expect(dnbmWindow().$(".window-titlebar-title")).toHaveText("dnbm");
     expect((await siteState()).ascii?.trim().length).toBeGreaterThan(0);
 
     const styles = await browser.execute(() => {
@@ -411,6 +435,38 @@ describe("Experiment desktop", () => {
     ).toBe(true);
   });
 
+  it("embeds the dnbm sequencer from its copied assets, fitted to its layout", async () => {
+    await browser.waitUntil(async () => (await dnbmFrame()).app?.steps, {
+      timeoutMsg: "the dnbm sequencer did not load",
+    });
+    const { width, ...frame } = await dnbmFrame();
+    expect(frame).toEqual({
+      title: "dnbm drum and bass sequencer",
+      app: {
+        path: "/dnbm/",
+        query: "?embed=1",
+        embedded: true,
+        // The window's title names the app.
+        wordmark: "none",
+        steps: true,
+      },
+    });
+    // The window opens fitted to the sequencer's 1200px desktop layout.
+    expect(width).toBeGreaterThanOrEqual(1200);
+    // The sequencer opens behind the other apps.
+    expect(await frontWindowTitle()).toBe("a2f0.net");
+
+    // In front, a press on play starts its audio engine: the playhead moves.
+    await taskbar("dnbm").click();
+    await browser.switchFrame($(".dnbm-window iframe"));
+    await $(".play").click();
+    await $(".cell.now").waitForExist({
+      timeoutMsg: "the sequencer's playhead did not move",
+    });
+    await $(".play").click();
+    await browser.switchFrame(null);
+  });
+
   it("opens apps from the start menu", async () => {
     const start = $(".desktop-taskbar button[aria-label='Menu']");
     await expect(start).toHaveAttribute("aria-haspopup", "menu");
@@ -422,12 +478,13 @@ describe("Experiment desktop", () => {
     await expect(start).toHaveAttribute("aria-expanded", "true");
     const items = $$(".menu button");
     expect(await items.map((item) => item.getText())).toEqual([
+      "dnbm",
       "Resume",
       "Skyline",
       "a2f0.net",
     ]);
     await expect($$(".menu button svg.menu-item-icon")).toBeElementsArrayOfSize(
-      3,
+      4,
     );
 
     await $(".menu").$("button=Skyline").click();
@@ -497,7 +554,7 @@ describe("Experiment desktop", () => {
     await waitForResume();
     await expect(
       $$(".desktop-surface > section.window"),
-    ).toBeElementsArrayOfSize(3);
+    ).toBeElementsArrayOfSize(4);
   });
 
   it("starts maximized on narrow screens and switches apps through the taskbar", async () => {

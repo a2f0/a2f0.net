@@ -21,6 +21,7 @@
       "name": "@a2f0/experiment",
       "version": "0.1.0",
       "dependencies": {
+        "@a2f0/dnbm": "0.1.1",
         "@a2f0/shared": "workspace:*",
         "@a2f0/skyline": "0.1.2",
         "@a2f0/website": "workspace:*",
@@ -143,6 +144,8 @@
     "smol-toml": "1.8.0",
   },
   "packages": {
+    "@a2f0/dnbm": ["@a2f0/dnbm@0.1.1", "", {}, "sha512-ERaK/OPorfceNdO2lo57u0AD0+ks8vvUhujxPh4mBJZdoZ8QTvsWoNEPYGiUVp5/3k1Gs6IxQY5X6Cg74IWRsw=="],
+
     "@a2f0/experiment": ["@a2f0/experiment@workspace:packages/experiment"],
 
     "@a2f0/shared": ["@a2f0/shared@workspace:packages/shared"],

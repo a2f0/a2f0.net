@@ -1,5 +1,6 @@
 import { AsciiArtApp } from "./ascii-art/AsciiArtApp";
 import { MINI_APP_TITLES } from "./catalog";
+import { DnbmApp } from "./dnbm/DnbmApp";
 import { withMiniAppProps } from "./MiniAppContent";
 import { ResumeApp } from "./resume/ResumeApp";
 import { SkylineApp } from "./skyline/SkylineApp";
@@ -20,5 +21,9 @@ export const MINI_APPS: Readonly<Record<MiniAppId, MiniAppDefinition>> = {
   skyline: {
     component: withMiniAppProps(SkylineApp),
     title: MINI_APP_TITLES.skyline,
+  },
+  dnbm: {
+    component: withMiniAppProps(DnbmApp),
+    title: MINI_APP_TITLES.dnbm,
   },
 };

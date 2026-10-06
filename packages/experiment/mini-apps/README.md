@@ -55,4 +55,11 @@ several apps.
   with the viewer's own navigation hidden. The `copy-skyline` script copies
   the viewer's assets into `public/skyline/`, where the iframe loads them.
   Presses inside an iframe never reach the window, so the app raises its
-  window when focus moves into the viewer instead.
+  window when focus moves into the viewer instead
+  (`shared/useRaiseOnFrameFocus.ts`).
+- `dnbm/` mounts the dnbm drum and bass sequencer from `@a2f0/dnbm` in an
+  iframe the same way, from assets the `copy-dnbm` script copies into
+  `public/dnbm/`. Its window opens fitted to the sequencer's 1200 by 800
+  desktop layout, within the desktop, behind the other apps; a smaller window
+  scrolls. Audio starts on the first press inside the frame, and the song
+  autosaves to this origin's local storage.
