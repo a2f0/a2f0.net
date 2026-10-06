@@ -3,6 +3,7 @@ import {
   findTopWindow,
   StartMenu,
   type StartMenuItem,
+  useWindowActions,
   useWindowStateData,
 } from "@tearleads/windowing";
 import { useEffect, useMemo, useRef } from "react";
@@ -12,21 +13,26 @@ import {
   MINI_APP_LAUNCH_ORDER,
   MINI_APP_TITLES,
 } from "../mini-apps/catalog";
+import { isMiniAppId } from "../mini-apps/types";
 import { useOpenMiniApp } from "../mini-apps/useOpenMiniApp";
 
 const START_ICON = <SquaresFourIcon aria-hidden size={18} />;
 
 /**
- * The start menu, which opens any mini-app, then a button per mini-app. As in
- * Tearleads' footer, the front window's button is pressed, and an app whose
- * window is closed or minimized shows its name muted.
+ * The start menu, which opens any mini-app, then a button per open window, as
+ * in Tearleads' footer. A button restores its window and brings it to the
+ * front. The front window's button is pressed, and a minimized window's shows
+ * its title muted. Closing a window removes its button; the start menu opens
+ * the app again.
  */
 export default function Taskbar() {
   const { windows } = useWindowStateData();
+  const { restore } = useWindowActions();
   const openMiniApp = useOpenMiniApp();
   const front = findTopWindow(windows, (entry) => !entry.minimized);
 
-  // Open every app once on load; reopening after a close is the taskbar's job.
+  // Open every app once on load; reopening after a close is the start menu's
+  // job.
   const opened = useRef(false);
   useEffect(() => {
     if (opened.current) return;
@@ -50,28 +56,24 @@ export default function Taskbar() {
   return (
     <nav className="desktop-taskbar" aria-label="Windows">
       <StartMenu icon={START_ICON} items={startItems} />
-      {MINI_APP_LAUNCH_ORDER.map((appId) => {
-        const open = windows.find((entry) => entry.appId === appId);
-        const AppIcon = MINI_APP_ICONS[appId];
-        const title = MINI_APP_TITLES[appId];
+      {windows.map((entry) => {
+        const AppIcon = isMiniAppId(entry.appId)
+          ? MINI_APP_ICONS[entry.appId]
+          : undefined;
         return (
           <button
-            key={appId}
+            key={entry.id}
             type="button"
             className="desktop-taskbar-button"
-            aria-pressed={open !== undefined && open.id === front?.id}
-            data-state={
-              open === undefined
-                ? "closed"
-                : open.minimized
-                  ? "minimized"
-                  : "open"
-            }
-            title={title}
-            onClick={() => openMiniApp(appId)}
+            aria-pressed={entry.id === front?.id}
+            data-state={entry.minimized ? "minimized" : "open"}
+            title={entry.title}
+            onClick={() => restore(entry.id)}
           >
-            <AppIcon aria-hidden className="desktop-taskbar-icon" size={16} />
-            <span className="desktop-taskbar-label">{title}</span>
+            {AppIcon && (
+              <AppIcon aria-hidden className="desktop-taskbar-icon" size={16} />
+            )}
+            <span className="desktop-taskbar-label">{entry.title}</span>
           </button>
         );
       })}

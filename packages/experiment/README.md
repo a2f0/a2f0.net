@@ -17,9 +17,10 @@ and the dnbm window mounts the sequencer from
 [`@a2f0/dnbm`](https://www.npmjs.com/package/@a2f0/dnbm) the same way.
 
 The taskbar along the bottom starts with the windowing package's `StartMenu`,
-which lists every mini-app with its icon, followed by a button per mini-app,
-styled after Tearleads' pane footer: the front window's button is pressed, and
-an app whose window is closed or minimized shows its name muted.
+which lists every mini-app with its icon, followed by a button per open window,
+as in Tearleads' pane footer: a button restores its window, the front window's
+button is pressed, and a minimized window's shows its title muted. Closing a
+window removes its button; the start menu opens the app again.
 
 The app uses the published `@tearleads/windowing` package, pinned to `0.2.8`.
 Install from this repository's root:
