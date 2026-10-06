@@ -58,7 +58,8 @@ several apps.
   Presses inside an iframe never reach the window, so the app raises its
   window when focus moves into the viewer instead
   (`shared/useRaiseOnFrameFocus.ts`). Its window opens at three quarters of
-  the desktop's width and height, to give the 3D scene room.
+  the desktop's width and height, to give the 3D scene room, with the scene's
+  control bar open.
 - `dnbm/` mounts the dnbm drum and bass sequencer from `@a2f0/dnbm` in an
   iframe the same way, from assets the `copy-dnbm` script copies into
   `public/dnbm/`. Its window opens fitted to the sequencer's 1200 by 800

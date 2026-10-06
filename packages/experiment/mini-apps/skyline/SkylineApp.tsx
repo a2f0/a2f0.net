@@ -9,7 +9,8 @@ const SKYLINE_ASSETS_URL = "/skyline/";
 /**
  * The 3D Chicago skyline from `@a2f0/skyline`. The package mounts its viewer
  * in an iframe, which keeps its styles and the desktop's apart, and hides the
- * viewer's own navigation, as the window already frames it.
+ * viewer's own navigation, as the window already frames it. The scene's
+ * control bar starts open, so its views and display toggles show at once.
  */
 export function SkylineApp() {
   const hostRef = useRef<HTMLDivElement>(null);
@@ -20,7 +21,10 @@ export function SkylineApp() {
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
-    const skyline = mountSkyline(host, { assetsUrl: SKYLINE_ASSETS_URL });
+    const skyline = mountSkyline(host, {
+      assetsUrl: SKYLINE_ASSETS_URL,
+      controls: "open",
+    });
     setFrame(skyline.element);
     return () => {
       skyline.destroy();
