@@ -18,6 +18,10 @@ output "nc_url" {
   value = "https://${cloudflare_workers_custom_domain.nc.hostname}"
 }
 
+output "dnbm_url" {
+  value = "https://${cloudflare_workers_custom_domain.dnbm.hostname}"
+}
+
 output "cloudflare_nameservers" {
   value = data.cloudflare_zone.resume.name_servers
 }
