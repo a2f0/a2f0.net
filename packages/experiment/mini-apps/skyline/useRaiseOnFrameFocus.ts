@@ -13,10 +13,19 @@ export function useRaiseOnFrameFocus(frame: HTMLIFrameElement | null) {
 
   useEffect(() => {
     if (!frame || id === undefined) return;
+    let check: ReturnType<typeof setTimeout> | undefined;
+    // Firefox still reports the body as focused during the blur, so look for
+    // the frame once the blur has finished.
     const raise = () => {
-      if (document.activeElement === frame) bringToFront(id);
+      clearTimeout(check);
+      check = setTimeout(() => {
+        if (document.activeElement === frame) bringToFront(id);
+      });
     };
     window.addEventListener("blur", raise);
-    return () => window.removeEventListener("blur", raise);
+    return () => {
+      window.removeEventListener("blur", raise);
+      clearTimeout(check);
+    };
   }, [bringToFront, frame, id]);
 }
