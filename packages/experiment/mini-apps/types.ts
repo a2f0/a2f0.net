@@ -1,6 +1,12 @@
 import type { ComponentType } from "react";
 
-const MINI_APP_IDS = ["resume", "ascii-art", "skyline", "dnbm"] as const;
+const MINI_APP_IDS = [
+  "resume",
+  "ascii-art",
+  "skyline",
+  "dnbm",
+  "dnbm-player",
+] as const;
 
 export type MiniAppId = (typeof MINI_APP_IDS)[number];
 

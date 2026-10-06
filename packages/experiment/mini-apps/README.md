@@ -66,3 +66,7 @@ several apps.
   desktop layout, within the desktop, behind the other apps; a smaller window
   scrolls. Audio starts on the first press inside the frame, and the song
   autosaves to this origin's local storage.
+- `dnbm-player/` mounts the dnbm player from the same package and copied
+  assets, which plays dnbm's example songs as a playlist through the same
+  synthesizer. Its window opens fitted to the player and its whole playlist,
+  between the skyline and the artwork. It stores nothing.
