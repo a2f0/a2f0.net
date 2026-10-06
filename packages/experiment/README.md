@@ -16,7 +16,10 @@ toolbar and View menu. The skyline window mounts the viewer from
 and the dnbm window mounts the sequencer from
 [`@a2f0/dnbm`](https://www.npmjs.com/package/@a2f0/dnbm) the same way.
 
-The app uses the published `@tearleads/windowing` package, pinned to `0.2.3`.
+The taskbar along the bottom starts with the windowing package's `StartMenu`,
+which lists every mini-app with its icon, followed by a button per mini-app.
+
+The app uses the published `@tearleads/windowing` package, pinned to `0.2.8`.
 Install from this repository's root:
 
 ```sh

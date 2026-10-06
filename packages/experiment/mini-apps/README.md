@@ -8,9 +8,9 @@ hooks. The layout follows Tearleads'
 
 - `types.ts` lists the mini-app ids. The window layer stores a window's `appId`
   as an opaque string; `isMiniAppId` narrows it back.
-- `catalog.ts` holds each app's title, launch order, and window options (where
-  the window first opens and whether it opens fitted to its content) without
-  importing any app, so code that only labels apps stays light.
+- `catalog.ts` holds each app's title, icon, launch order, and window options
+  (where the window first opens and whether it opens fitted to its content)
+  without importing any app, so code that only labels apps stays light.
 - `registry.ts` pairs those titles with the components.
 - `MiniAppContent.tsx` renders each app with the framework's `MiniAppProps`.
   Its `onLoad` callback tells the window that the app's content has loaded. A
@@ -26,8 +26,8 @@ hooks. The layout follows Tearleads'
 ## Adding a mini-app
 
 1. Add its id to `MINI_APP_IDS` in `types.ts`.
-2. Give it a title, window options, and a place in the launch order in
-   `catalog.ts`.
+2. Give it a title, an icon, window options, and a place in the launch order
+   in `catalog.ts`.
 3. Create its directory with `<Name>App.tsx`, a component that takes
    `MiniAppProps`, and register it in `registry.ts` through
    `withMiniAppProps`. An app that opens fitted reports its size and calls
