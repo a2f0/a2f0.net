@@ -8,6 +8,7 @@ import "../styles/global.css";
 import "../mini-apps/MiniApps.css";
 import "../mini-apps/ascii-art/AsciiArt.css";
 import "../mini-apps/resume/Resume.css";
+import "../mini-apps/skyline/Skyline.css";
 
 export default function ExperimentApp({
   Component,

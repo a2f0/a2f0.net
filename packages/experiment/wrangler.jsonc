@@ -7,7 +7,10 @@
   // Terraform owns the custom domain (experiment.a2f0.net).
   "assets": {
     "directory": "./out",
-    "html_handling": "drop-trailing-slash",
+    // The skyline viewer loads /skyline/index.html and links its other pages
+    // relative to it. Keeping the trailing slash in /skyline/ keeps them in
+    // that directory; dropping it would resolve them at the root.
+    "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page"
   }
 }

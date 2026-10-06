@@ -6,8 +6,9 @@
   "type": "module",
   "scripts": {
     "copy-art": "cp ../website/public/a2f0.svg public/a2f0.svg",
-    "dev": "bun run copy-art && next dev --webpack -p 4003",
-    "build": "bun run copy-art && next build --webpack",
+    "copy-skyline": "bun scripts/copySkyline.ts",
+    "dev": "bun run copy-art && bun run copy-skyline && next dev --webpack -p 4003",
+    "build": "bun run copy-art && bun run copy-skyline && next build --webpack",
     "start": "wrangler dev --port 4003 --local",
     "compile": "tsc",
     "unit": "bun test ./mini-apps",
@@ -17,6 +18,7 @@
   },
   "dependencies": {
     "@a2f0/shared": "workspace:*",
+    "@a2f0/skyline": "0.1.2",
     "@a2f0/website": "workspace:*",
     "@phosphor-icons/react": "2.1.10",
     "@tearleads/windowing": "0.2.7",
