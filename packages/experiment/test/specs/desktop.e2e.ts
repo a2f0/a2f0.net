@@ -494,6 +494,63 @@ describe("Experiment desktop", () => {
     expect(await frontWindowTitle()).toBe("Skyline");
   });
 
+  it("marks the front window and muted apps in the taskbar", async () => {
+    const taskbarState = () =>
+      browser.execute(() =>
+        [
+          ...document.querySelectorAll<HTMLButtonElement>(
+            ".desktop-taskbar-button",
+          ),
+        ].map((button) => {
+          const style = getComputedStyle(button);
+          const label = button.querySelector(".desktop-taskbar-label");
+          return {
+            title: label?.textContent,
+            icon: button.querySelector("svg.desktop-taskbar-icon") !== null,
+            pressed: button.getAttribute("aria-pressed"),
+            state: button.dataset.state,
+            muted: label ? getComputedStyle(label).opacity === "0.75" : null,
+            // The chips take Tearleads' muted control border, not the text color.
+            mutedBorder: style.borderTopColor !== style.color,
+          };
+        }),
+      );
+    await resumeWindow().$("button[aria-label='Minimize window']").click();
+    await skylineWindow().$("button[aria-label='Close window']").click();
+    await expect(skylineWindow()).not.toBeExisting();
+
+    const chip = { icon: true, mutedBorder: true };
+    expect(await taskbarState()).toEqual([
+      { ...chip, title: "dnbm", pressed: "false", state: "open", muted: false },
+      {
+        ...chip,
+        title: "Resume",
+        pressed: "false",
+        state: "minimized",
+        muted: true,
+      },
+      {
+        ...chip,
+        title: "Skyline",
+        pressed: "false",
+        state: "closed",
+        muted: true,
+      },
+      // Only the front window's button is pressed.
+      {
+        ...chip,
+        title: "a2f0.net",
+        pressed: "true",
+        state: "open",
+        muted: false,
+      },
+    ]);
+
+    await taskbar("Resume").click();
+    await expect(taskbar("Resume")).toHaveAttribute("aria-pressed", "true");
+    await expect(taskbar("a2f0.net")).toHaveAttribute("aria-pressed", "false");
+  });
+
   it("moves, resizes, minimizes, and reopens a window", async () => {
     // The resume opens as tall as the desktop; a taller viewport gives it room
     // to move down and puts its bottom edge clear of the taskbar.
