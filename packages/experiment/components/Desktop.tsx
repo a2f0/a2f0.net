@@ -1,6 +1,8 @@
 import { useWindowStateData, WindowStateProvider } from "@tearleads/windowing";
+import { useEffect } from "react";
 
 import { MiniAppWindow } from "../mini-apps/MiniAppWindow";
+import { trackInputModality } from "./inputModality";
 import Taskbar from "./Taskbar";
 
 function DesktopSurface() {
@@ -15,6 +17,7 @@ function DesktopSurface() {
 }
 
 export default function Desktop() {
+  useEffect(() => trackInputModality(document), []);
   return (
     <WindowStateProvider>
       <main className="desktop">

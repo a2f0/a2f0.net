@@ -11,7 +11,7 @@
     "build": "bun run copy-art && bun run copy-skyline && next build --webpack",
     "start": "wrangler dev --port 4003 --local",
     "compile": "tsc",
-    "unit": "bun test ./mini-apps",
+    "unit": "bun test ./components ./mini-apps",
     "test": "bun run build && start-server-and-test 'bun run start' http://localhost:4003 'bun run test:served'",
     "test:served": "wdio run wdio.conf.ts",
     "deploy": "bun run build && wrangler deploy"
