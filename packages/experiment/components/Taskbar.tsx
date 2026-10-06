@@ -1,5 +1,6 @@
 import { SquaresFourIcon } from "@phosphor-icons/react/dist/csr/SquaresFour";
 import {
+  findTopWindow,
   StartMenu,
   type StartMenuItem,
   useWindowStateData,
@@ -16,12 +17,14 @@ import { useOpenMiniApp } from "../mini-apps/useOpenMiniApp";
 const START_ICON = <SquaresFourIcon aria-hidden size={18} />;
 
 /**
- * The start menu, which opens any mini-app, then a button per mini-app,
- * pressed while its window is open and showing.
+ * The start menu, which opens any mini-app, then a button per mini-app. As in
+ * Tearleads' footer, the front window's button is pressed, and an app whose
+ * window is closed or minimized shows its name muted.
  */
 export default function Taskbar() {
   const { windows } = useWindowStateData();
   const openMiniApp = useOpenMiniApp();
+  const front = findTopWindow(windows, (entry) => !entry.minimized);
 
   // Open every app once on load; reopening after a close is the taskbar's job.
   const opened = useRef(false);
@@ -49,15 +52,26 @@ export default function Taskbar() {
       <StartMenu icon={START_ICON} items={startItems} />
       {MINI_APP_LAUNCH_ORDER.map((appId) => {
         const open = windows.find((entry) => entry.appId === appId);
+        const AppIcon = MINI_APP_ICONS[appId];
+        const title = MINI_APP_TITLES[appId];
         return (
           <button
             key={appId}
             type="button"
             className="desktop-taskbar-button"
-            aria-pressed={open !== undefined && !open.minimized}
+            aria-pressed={open !== undefined && open.id === front?.id}
+            data-state={
+              open === undefined
+                ? "closed"
+                : open.minimized
+                  ? "minimized"
+                  : "open"
+            }
+            title={title}
             onClick={() => openMiniApp(appId)}
           >
-            {MINI_APP_TITLES[appId]}
+            <AppIcon aria-hidden className="desktop-taskbar-icon" size={16} />
+            <span className="desktop-taskbar-label">{title}</span>
           </button>
         );
       })}
