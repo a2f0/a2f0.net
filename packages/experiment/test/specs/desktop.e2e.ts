@@ -2,6 +2,7 @@ import { $, $$, browser, expect } from "@wdio/globals";
 
 const resumeWindow = () => $("section.window:has(.resume-window)");
 const asciiArtWindow = () => $("section.window:has(.ascii-art-window)");
+const skylineWindow = () => $("section.window:has(.skyline-window)");
 const taskbar = (title: string) => $(`.desktop-taskbar-button=${title}`);
 
 // A scrollbar changes the measured body width, replacing the SVG during
@@ -57,6 +58,47 @@ const siteState = () =>
     };
   });
 
+// The skyline viewer's frame and the 3D scene inside it, read through the
+// same-origin frames the package mounts.
+const skylineFrames = () =>
+  browser.execute(() => {
+    const viewer = document.querySelector<HTMLIFrameElement>(
+      ".skyline-window iframe",
+    );
+    const viewerDocument = viewer?.contentDocument;
+    const scene =
+      viewerDocument?.querySelector<HTMLIFrameElement>("#skyline-3d-scene");
+    const sceneDocument = scene?.contentDocument;
+    return {
+      title: viewer?.title,
+      viewer: viewerDocument && {
+        path: viewerDocument.location.pathname,
+        query: viewerDocument.location.search,
+        embedded: viewerDocument.documentElement.dataset.embedded,
+      },
+      scene: sceneDocument && {
+        path: sceneDocument.location.pathname,
+        canvas: sceneDocument.querySelector("canvas#building") !== null,
+      },
+    };
+  });
+
+// The window whose title bar is foremost on the desktop.
+const frontWindowTitle = () =>
+  browser.execute(() => {
+    const windows = [
+      ...document.querySelectorAll<HTMLElement>(
+        ".desktop-surface > section.window",
+      ),
+    ];
+    const front = windows.reduce((top, candidate) =>
+      Number(candidate.style.zIndex) > Number(top.style.zIndex)
+        ? candidate
+        : top,
+    );
+    return front.querySelector(".window-titlebar-title")?.textContent;
+  });
+
 describe("Experiment desktop", () => {
   beforeEach(async () => {
     await browser.setViewport({ width: 1440, height: 900 });
@@ -67,15 +109,18 @@ describe("Experiment desktop", () => {
     });
   });
 
-  it("renders both apps with the published window styles", async () => {
+  it("renders every app with the published window styles", async () => {
     await expect(
       $$(".desktop-surface > section.window"),
-    ).toBeElementsArrayOfSize(2);
+    ).toBeElementsArrayOfSize(3);
     await expect(resumeWindow().$(".window-titlebar-title")).toHaveText(
       "Resume",
     );
     await expect(asciiArtWindow().$(".window-titlebar-title")).toHaveText(
       "a2f0.net",
+    );
+    await expect(skylineWindow().$(".window-titlebar-title")).toHaveText(
+      "Skyline",
     );
     expect((await siteState()).ascii?.trim().length).toBeGreaterThan(0);
 
@@ -309,6 +354,54 @@ describe("Experiment desktop", () => {
     ).toBeExisting();
   });
 
+  it("embeds the skyline viewer from its copied assets", async () => {
+    // The viewer and its 3D scene load from /skyline/: the trailing slash
+    // keeps the scene's relative URL inside the copied assets.
+    await browser.waitUntil(
+      async () => (await skylineFrames()).scene?.canvas === true,
+      { timeoutMsg: "the skyline viewer did not load its 3D scene" },
+    );
+    expect(await skylineFrames()).toEqual({
+      title: "Interactive Chicago skyline",
+      viewer: { path: "/skyline/", query: "?embed=1", embedded: "true" },
+      scene: { path: "/skyline/skyline-3d", canvas: true },
+    });
+    // The skyline opens behind the artwork, so its frame has no focus yet.
+    expect(await frontWindowTitle()).toBe("a2f0.net");
+  });
+
+  it("raises the skyline window when its frame is pressed", async () => {
+    await browser.waitUntil(
+      async () => (await skylineFrames()).scene?.canvas === true,
+      { timeoutMsg: "the skyline viewer did not load its 3D scene" },
+    );
+    // Press the part of the skyline's body that shows right of the artwork.
+    const artwork = await asciiArtWindow().getSize();
+    const artworkAt = await asciiArtWindow().getLocation();
+    const skylineAt = await skylineWindow().getLocation();
+    const skylineSize = await skylineWindow().getSize();
+    const x = Math.round(
+      (artworkAt.x + artwork.width + skylineAt.x + skylineSize.width) / 2,
+    );
+    const y = Math.round(skylineAt.y + skylineSize.height / 2);
+    await browser
+      .action("pointer")
+      .move({ origin: "viewport", x, y })
+      .down()
+      .up()
+      .perform();
+    await browser.waitUntil(
+      async () => (await frontWindowTitle()) === "Skyline",
+      { timeoutMsg: "pressing the skyline did not raise its window" },
+    );
+    // Focus went into the viewer's frame, not back to the window.
+    expect(
+      await browser.execute(
+        () => document.activeElement?.closest(".skyline-window") !== null,
+      ),
+    ).toBe(true);
+  });
+
   it("moves, resizes, minimizes, and reopens a window", async () => {
     // The resume opens as tall as the desktop; a taller viewport gives it room
     // to move down and puts its bottom edge clear of the taskbar.
@@ -369,7 +462,7 @@ describe("Experiment desktop", () => {
     await waitForResume();
     await expect(
       $$(".desktop-surface > section.window"),
-    ).toBeElementsArrayOfSize(2);
+    ).toBeElementsArrayOfSize(3);
   });
 
   it("starts maximized on narrow screens and switches apps through the taskbar", async () => {

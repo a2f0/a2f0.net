@@ -19,7 +19,8 @@
         "!.next/cache/**",
         "dist/**",
         "out/**",
-        "public/a2f0.svg"
+        "public/a2f0.svg",
+        "public/skyline/**"
       ]
     }
   }

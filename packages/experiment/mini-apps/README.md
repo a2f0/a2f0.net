@@ -51,3 +51,8 @@ several apps.
   Both mirror the site's own toolbar, which stays in the shadow root unseen and
   keeps the site's behavior. The site's terminal window is left out, as the
   artwork already sits in a window.
+- `skyline/` mounts the 3D Chicago skyline from `@a2f0/skyline` in an iframe,
+  with the viewer's own navigation hidden. The `copy-skyline` script copies
+  the viewer's assets into `public/skyline/`, where the iframe loads them.
+  Presses inside an iframe never reach the window, so the app raises its
+  window when focus moves into the viewer instead.
