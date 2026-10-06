@@ -123,6 +123,41 @@ describe("SVG Resume", () => {
     );
   });
 
+  it("grays selected text in both themes", async () => {
+    await SvgPage.open();
+    await waitForHydration("#svgContainer");
+    const selectionStyle = () =>
+      browser.execute(() => {
+        const text = document.querySelector("#svgContainer text");
+        if (!text) return null;
+        const style = getComputedStyle(text, "::selection");
+        return {
+          background: style.backgroundColor,
+          color: style.color,
+          fill: style.fill,
+        };
+      });
+    expect(await selectionStyle()).toEqual({
+      background: "rgba(255, 255, 255, 0.4)",
+      color: "rgb(255, 255, 255)",
+      fill: "rgb(255, 255, 255)",
+    });
+
+    await SvgPage.viewMenuButton.click();
+    await SvgPage.viewMenuItems.waitForDisplayed();
+    await SvgPage.lightThemeMenuOption.click();
+    await browser.waitUntil(
+      async () =>
+        (await selectionStyle())?.background === "rgba(0, 0, 0, 0.45)",
+      { timeoutMsg: "expected the light theme's selection" },
+    );
+    expect(await selectionStyle()).toEqual({
+      background: "rgba(0, 0, 0, 0.45)",
+      color: "rgb(0, 0, 0)",
+      fill: "rgb(0, 0, 0)",
+    });
+  });
+
   it("should download an svg", async () => {
     await SvgPage.open();
     await expect(SvgPage.fileMenuButton).toBeExisting();
