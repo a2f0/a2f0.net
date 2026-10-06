@@ -14,7 +14,10 @@ window stylesheets cannot restyle each other. Its controls sit in the window's
 toolbar and View menu. The skyline window mounts the viewer from
 [`@a2f0/skyline`](https://www.npmjs.com/package/@a2f0/skyline) in an iframe.
 
-The app uses the published `@tearleads/windowing` package, pinned to `0.2.3`.
+The taskbar along the bottom starts with the windowing package's `StartMenu`,
+which lists every mini-app with its icon, followed by a button per mini-app.
+
+The app uses the published `@tearleads/windowing` package, pinned to `0.2.8`.
 Install from this repository's root:
 
 ```sh

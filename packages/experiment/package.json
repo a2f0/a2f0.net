@@ -21,7 +21,7 @@
     "@a2f0/skyline": "0.1.2",
     "@a2f0/website": "workspace:*",
     "@phosphor-icons/react": "2.1.10",
-    "@tearleads/windowing": "0.2.7",
+    "@tearleads/windowing": "0.2.8",
     "next": "16.3.6",
     "react": "19.3.0",
     "react-dom": "19.3.0"

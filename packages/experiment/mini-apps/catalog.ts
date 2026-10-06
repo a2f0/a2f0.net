@@ -1,14 +1,25 @@
+import { BuildingsIcon } from "@phosphor-icons/react/dist/csr/Buildings";
+import { FileTextIcon } from "@phosphor-icons/react/dist/csr/FileText";
+import { GlobeIcon } from "@phosphor-icons/react/dist/csr/Globe";
+import type { WindowingIcon } from "@tearleads/windowing";
+
 import type { MiniAppId, MiniAppWindowOptions } from "./types";
 
-// Presentation metadata for every mini-app: titles, launch order, and how
-// each window first opens. It imports no mini-app implementation, so code that
-// only labels apps (such as the error boundary) does not load them.
+// Presentation metadata for every mini-app: titles, icons, launch order, and
+// how each window first opens. It imports no mini-app implementation, so code
+// that only labels apps (such as the error boundary) does not load them.
 // registry.ts pairs these titles with the components.
 
 export const MINI_APP_TITLES: Readonly<Record<MiniAppId, string>> = {
   resume: "Resume",
   "ascii-art": "a2f0.net",
   skyline: "Skyline",
+};
+
+export const MINI_APP_ICONS: Readonly<Record<MiniAppId, WindowingIcon>> = {
+  resume: FileTextIcon,
+  "ascii-art": GlobeIcon,
+  skyline: BuildingsIcon,
 };
 
 export const MINI_APP_WINDOWS: Readonly<

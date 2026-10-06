@@ -411,6 +411,32 @@ describe("Experiment desktop", () => {
     ).toBe(true);
   });
 
+  it("opens apps from the start menu", async () => {
+    const start = $(".desktop-taskbar button[aria-label='Menu']");
+    await expect(start).toHaveAttribute("aria-haspopup", "menu");
+    await expect(start).toHaveAttribute("aria-expanded", "false");
+    await skylineWindow().$("button[aria-label='Close window']").click();
+    await expect(skylineWindow()).not.toBeExisting();
+
+    await start.click();
+    await expect(start).toHaveAttribute("aria-expanded", "true");
+    const items = $$(".menu button");
+    expect(await items.map((item) => item.getText())).toEqual([
+      "Resume",
+      "Skyline",
+      "a2f0.net",
+    ]);
+    await expect($$(".menu button svg.menu-item-icon")).toBeElementsArrayOfSize(
+      3,
+    );
+
+    await $(".menu").$("button=Skyline").click();
+    await expect($(".menu")).not.toBeExisting();
+    await expect(start).toHaveAttribute("aria-expanded", "false");
+    await expect(skylineWindow()).toBeExisting();
+    expect(await frontWindowTitle()).toBe("Skyline");
+  });
+
   it("moves, resizes, minimizes, and reopens a window", async () => {
     // The resume opens as tall as the desktop; a taller viewport gives it room
     // to move down and puts its bottom edge clear of the taskbar.
