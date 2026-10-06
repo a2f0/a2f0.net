@@ -25,3 +25,14 @@ resource "googleworkspace_group_member" "owner" {
   email    = var.gsuite_impersonated_user_email
   role     = "OWNER"
 }
+
+resource "googleworkspace_group" "support" {
+  email = "support@a2f0.net"
+  name  = "support@a2f0.net"
+}
+
+resource "googleworkspace_group_member" "support_owner" {
+  group_id = googleworkspace_group.support.email
+  email    = var.gsuite_impersonated_user_email
+  role     = "OWNER"
+}
