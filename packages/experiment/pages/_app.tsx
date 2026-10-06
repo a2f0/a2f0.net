@@ -7,6 +7,7 @@ import "../styles/global.css";
 // stylesheet, kept beside the app, is imported here too.
 import "../mini-apps/MiniApps.css";
 import "../mini-apps/ascii-art/AsciiArt.css";
+import "../mini-apps/dnbm/Dnbm.css";
 import "../mini-apps/resume/Resume.css";
 import "../mini-apps/skyline/Skyline.css";
 
