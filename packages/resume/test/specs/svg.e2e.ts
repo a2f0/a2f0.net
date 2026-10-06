@@ -123,38 +123,76 @@ describe("SVG Resume", () => {
     );
   });
 
-  it("grays selected text in both themes", async () => {
+  it("paints selected text gray in both themes", async () => {
     await SvgPage.open();
     await waitForHydration("#svgContainer");
-    const selectionStyle = () =>
-      browser.execute(() => {
-        const text = document.querySelector("#svgContainer text");
-        if (!text) return null;
-        const style = getComputedStyle(text, "::selection");
-        return {
-          background: style.backgroundColor,
-          color: style.color,
-          fill: style.fill,
-        };
+    // Selects the last name, which is drawn in the highlight color, and
+    // returns the two colors painted most over it. Computed styles would
+    // miss a selection fill that the browser ignores.
+    const paintedSelection = async () => {
+      const area = await browser.execute(() => {
+        const text = document.querySelector("#lastName");
+        const selection = getSelection();
+        if (!text || !selection) return null;
+        const range = document.createRange();
+        range.selectNodeContents(text);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        const { x, y, width, height } = text.getBoundingClientRect();
+        const scale = window.devicePixelRatio;
+        return [x, y, width, height].map((value) => Math.round(value * scale));
       });
-    expect(await selectionStyle()).toEqual({
-      background: "rgba(255, 255, 255, 0.4)",
-      color: "rgb(255, 255, 255)",
-      fill: "rgb(255, 255, 255)",
+      if (!area) return null;
+      const screenshot = await browser.takeScreenshot();
+      return browser.execute(
+        async (png, [x, y, width, height]) => {
+          const image = new Image();
+          image.src = `data:image/png;base64,${png}`;
+          await image.decode();
+          const canvas = document.createElement("canvas");
+          canvas.width = image.width;
+          canvas.height = image.height;
+          const context = canvas.getContext("2d");
+          if (!context) return null;
+          context.drawImage(image, 0, 0);
+          const { data } = context.getImageData(x, y, width, height);
+          const counts = new Map<string, number>();
+          let tinted = 0;
+          for (let i = 0; i < data.length; i += 4) {
+            const channels = [data[i], data[i + 1], data[i + 2]];
+            if (Math.max(...channels) - Math.min(...channels) > 2) tinted++;
+            const color = `#${channels
+              .map((value) => value.toString(16).padStart(2, "0"))
+              .join("")
+              .toUpperCase()}`;
+            counts.set(color, (counts.get(color) ?? 0) + 1);
+          }
+          const [highlight, text] = [...counts]
+            .sort((a, b) => b[1] - a[1])
+            .map(([color]) => color);
+          return { highlight, text, tinted };
+        },
+        screenshot,
+        area,
+      );
+    };
+    expect(await paintedSelection()).toEqual({
+      highlight: "#6F6F6F",
+      text: "#FFFFFF",
+      tinted: 0,
     });
 
     await SvgPage.viewMenuButton.click();
     await SvgPage.viewMenuItems.waitForDisplayed();
     await SvgPage.lightThemeMenuOption.click();
     await browser.waitUntil(
-      async () =>
-        (await selectionStyle())?.background === "rgba(0, 0, 0, 0.45)",
+      async () => (await paintedSelection())?.highlight === "#8C8C8C",
       { timeoutMsg: "expected the light theme's selection" },
     );
-    expect(await selectionStyle()).toEqual({
-      background: "rgba(0, 0, 0, 0.45)",
-      color: "rgb(0, 0, 0)",
-      fill: "rgb(0, 0, 0)",
+    expect(await paintedSelection()).toEqual({
+      highlight: "#8C8C8C",
+      text: "#000000",
+      tinted: 0,
     });
   });
 
