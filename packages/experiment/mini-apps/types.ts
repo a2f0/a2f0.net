@@ -29,6 +29,13 @@ export interface MiniAppWindowOptions {
   x: number;
   y: number;
   /**
+   * The window's size when it opens, as fractions of the desktop surface's
+   * width and height (0.75 for three quarters). The window then moves left
+   * and up as far as it must to stay on the surface. Without it, the window
+   * takes the stylesheet's default size.
+   */
+  relativeSize?: { width: number; height: number };
+  /**
    * Fit the window to its content once the app calls `onLoad`, as View > Fit
    * to Content would. The app reports its size with `useWindowContentSize`.
    */

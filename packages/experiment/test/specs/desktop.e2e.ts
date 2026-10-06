@@ -406,6 +406,41 @@ describe("Experiment desktop", () => {
     expect(await frontWindowTitle()).toBe("a2f0.net");
   });
 
+  it("opens the skyline at three quarters of the desktop", async () => {
+    const skylineGeometry = () =>
+      browser.execute(() => {
+        const surface = document.querySelector(".desktop-surface");
+        const frame = document.querySelector(
+          "section.window:has(.skyline-window)",
+        );
+        if (!surface || !frame) throw new Error("Missing skyline window");
+        const desktop = surface.getBoundingClientRect();
+        const window = frame.getBoundingClientRect();
+        return {
+          width: window.width / desktop.width,
+          height: window.height / desktop.height,
+          onDesktop:
+            window.left >= desktop.left &&
+            window.top >= desktop.top &&
+            window.right <= desktop.right &&
+            window.bottom <= desktop.bottom,
+        };
+      });
+    const expectThreeQuarters = async () => {
+      const { width, height, onDesktop } = await skylineGeometry();
+      expect(width).toBeCloseTo(0.75, 2);
+      expect(height).toBeCloseTo(0.75, 2);
+      expect(onDesktop).toBe(true);
+    };
+    await expectThreeQuarters();
+
+    // On a smaller desktop it keeps the proportion and moves to stay on it.
+    await browser.setViewport({ width: 1100, height: 700 });
+    await browser.refresh();
+    await skylineWindow().waitForExist();
+    await expectThreeQuarters();
+  });
+
   it("raises the skyline window when its frame is pressed", async () => {
     await browser.waitUntil(
       async () => (await skylineFrames()).scene?.canvas === true,
