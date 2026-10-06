@@ -130,7 +130,10 @@ describe("SVG Resume", () => {
     // returns the two colors painted most over it. Computed styles would
     // miss a selection fill that the browser ignores.
     const paintedSelection = async () => {
-      const area = await browser.execute(() => {
+      const area = await browser.execute(async () => {
+        // The font blocks text rendering until it loads, while the
+        // selection highlight paints regardless.
+        await document.fonts.load("400 12pt Arimo");
         const text = document.querySelector("#lastName");
         const selection = getSelection();
         if (!text || !selection) return null;
