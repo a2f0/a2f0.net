@@ -136,6 +136,25 @@ body {
   opacity: var(--opacity-muted);
 }
 
+/* Narrow screens, where windows open maximized, show only the icons: the
+   names stay for assistive technology and in each button's tooltip. */
+@media (max-width: 700px) {
+  .desktop-taskbar {
+    padding: var(--space-sm);
+  }
+
+  .desktop-taskbar-button {
+    padding: 0 var(--space-sm);
+  }
+
+  .desktop-taskbar-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    clip-path: inset(50%);
+  }
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;
