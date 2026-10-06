@@ -4,7 +4,10 @@ const resumeWindow = () => $("section.window:has(.resume-window)");
 const asciiArtWindow = () => $("section.window:has(.ascii-art-window)");
 const skylineWindow = () => $("section.window:has(.skyline-window)");
 const dnbmWindow = () => $("section.window:has(.dnbm-window)");
-const taskbar = (title: string) => $(`.desktop-taskbar-button=${title}`);
+// A taskbar button carries its window's title. A CSS selector, unlike a text
+// selector, finds no match without searching the artwork's shadow root.
+const taskbar = (title: string) =>
+  $(`.desktop-taskbar-button[title="${title}"]`);
 // WebDriver's code for the Shift key.
 const SHIFT = "\uE008";
 
@@ -479,6 +482,7 @@ describe("Experiment desktop", () => {
     await expect(start).toHaveAttribute("aria-expanded", "false");
     await skylineWindow().$("button[aria-label='Close window']").click();
     await expect(skylineWindow()).not.toBeExisting();
+    await expect(taskbar("Skyline")).not.toBeExisting();
 
     await start.click();
     await expect(start).toHaveAttribute("aria-expanded", "true");
@@ -498,9 +502,10 @@ describe("Experiment desktop", () => {
     await expect(start).toHaveAttribute("aria-expanded", "false");
     await expect(skylineWindow()).toBeExisting();
     expect(await frontWindowTitle()).toBe("Skyline");
+    await expect(taskbar("Skyline")).toHaveAttribute("aria-pressed", "true");
   });
 
-  it("marks the front window and muted apps in the taskbar", async () => {
+  it("lists open windows in the taskbar, marking the front one", async () => {
     const taskbarState = () =>
       browser.execute(() =>
         [
@@ -525,6 +530,7 @@ describe("Experiment desktop", () => {
     await skylineWindow().$("button[aria-label='Close window']").click();
     await expect(skylineWindow()).not.toBeExisting();
 
+    // A closed window leaves the taskbar; a minimized one stays, muted.
     const chip = { icon: true, mutedBorder: true };
     expect(await taskbarState()).toEqual([
       { ...chip, title: "dnbm", pressed: "false", state: "open", muted: false },
@@ -533,13 +539,6 @@ describe("Experiment desktop", () => {
         title: "Resume",
         pressed: "false",
         state: "minimized",
-        muted: true,
-      },
-      {
-        ...chip,
-        title: "Skyline",
-        pressed: "false",
-        state: "closed",
         muted: true,
       },
       // Only the front window's button is pressed.
@@ -613,8 +612,11 @@ describe("Experiment desktop", () => {
     await waitForResume();
     await resumeWindow().$("button[aria-label='Close window']").click();
     await expect(resumeWindow()).not.toBeExisting();
-    await taskbar("Resume").click();
+    await expect(taskbar("Resume")).not.toBeExisting();
+    await $(".desktop-taskbar button[aria-label='Menu']").click();
+    await $(".menu").$("button=Resume").click();
     await waitForResume();
+    await expect(taskbar("Resume")).toBeExisting();
     await expect(
       $$(".desktop-surface > section.window"),
     ).toBeElementsArrayOfSize(4);
