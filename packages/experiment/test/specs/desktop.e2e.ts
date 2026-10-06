@@ -4,6 +4,7 @@ const resumeWindow = () => $("section.window:has(.resume-window)");
 const asciiArtWindow = () => $("section.window:has(.ascii-art-window)");
 const skylineWindow = () => $("section.window:has(.skyline-window)");
 const dnbmWindow = () => $("section.window:has(.dnbm-window)");
+const playerWindow = () => $("section.window:has(.dnbm-player-window)");
 // A taskbar button carries its window's title. A CSS selector, unlike a text
 // selector, finds no match without searching the artwork's shadow root.
 const taskbar = (title: string) =>
@@ -115,6 +116,28 @@ const dnbmFrame = () =>
     };
   });
 
+// The dnbm player's frame and the player inside it, read through the
+// same-origin frame the package mounts.
+const playerFrame = () =>
+  browser.execute(() => {
+    const frame = document.querySelector<HTMLIFrameElement>(
+      ".dnbm-player-window iframe",
+    );
+    const app = frame?.contentDocument;
+    const wordmark = app?.querySelector(".bar");
+    return {
+      title: frame?.title,
+      width: frame?.clientWidth ?? 0,
+      app: app && {
+        path: app.location.pathname,
+        query: app.location.search,
+        embedded: app.documentElement.hasAttribute("data-embed"),
+        wordmark: wordmark && getComputedStyle(wordmark).display,
+        tracks: app.querySelectorAll(".track").length,
+      },
+    };
+  });
+
 // The window whose title bar is foremost on the desktop.
 const frontWindowTitle = () =>
   browser.execute(() => {
@@ -144,7 +167,7 @@ describe("Experiment desktop", () => {
   it("renders every app with the published window styles", async () => {
     await expect(
       $$(".desktop-surface > section.window"),
-    ).toBeElementsArrayOfSize(4);
+    ).toBeElementsArrayOfSize(5);
     await expect(resumeWindow().$(".window-titlebar-title")).toHaveText(
       "Resume",
     );
@@ -155,6 +178,9 @@ describe("Experiment desktop", () => {
       "Skyline",
     );
     await expect(dnbmWindow().$(".window-titlebar-title")).toHaveText("dnbm");
+    await expect(playerWindow().$(".window-titlebar-title")).toHaveText(
+      "dnbm player",
+    );
     expect((await siteState()).ascii?.trim().length).toBeGreaterThan(0);
 
     const styles = await browser.execute(() => {
@@ -482,6 +508,40 @@ describe("Experiment desktop", () => {
     ).toBe(true);
   });
 
+  it("embeds the dnbm player from the same assets, and plays a song", async () => {
+    await browser.waitUntil(
+      async () => {
+        const { app, width } = await playerFrame();
+        return (app?.tracks ?? 0) > 0 && width >= 440;
+      },
+      { timeoutMsg: "the dnbm player did not load and fit its playlist" },
+    );
+    const { app, title } = await playerFrame();
+    expect(title).toBe("dnbm player");
+    expect(app).toEqual({
+      path: "/dnbm/player/",
+      query: "?embed=1",
+      embedded: true,
+      // The window's title names the app.
+      wordmark: "none",
+      tracks: expect.any(Number),
+    });
+    // The player opens behind the artwork.
+    expect(await frontWindowTitle()).toBe("a2f0.net");
+
+    // In front, a press on play starts its audio engine: the clock runs.
+    await taskbar("dnbm player").click();
+    await browser.switchFrame($(".dnbm-player-window iframe"));
+    await $(".control.play").click();
+    await browser.waitUntil(
+      async () => (await $(".time").getText()) !== "0:00",
+      { timeoutMsg: "the player's clock did not run" },
+    );
+    await $(".control.stop").click();
+    await expect($(".player")).toHaveAttribute("data-state", "stopped");
+    await browser.switchFrame(null);
+  });
+
   it("embeds the dnbm sequencer from its copied assets, fitted to its layout", async () => {
     // The steps render as the sequencer's document parses; the window fits
     // only on the frame's load event, once its assets have loaded too.
@@ -535,10 +595,11 @@ describe("Experiment desktop", () => {
       "dnbm",
       "Resume",
       "Skyline",
+      "dnbm player",
       "a2f0.net",
     ]);
     await expect($$(".menu button svg.menu-item-icon")).toBeElementsArrayOfSize(
-      4,
+      5,
     );
 
     await $(".menu").$("button=Skyline").click();
@@ -584,6 +645,13 @@ describe("Experiment desktop", () => {
         pressed: "false",
         state: "minimized",
         muted: true,
+      },
+      {
+        ...chip,
+        title: "dnbm player",
+        pressed: "false",
+        state: "open",
+        muted: false,
       },
       // Only the front window's button is pressed.
       {
@@ -663,7 +731,7 @@ describe("Experiment desktop", () => {
     await expect(taskbar("Resume")).toBeExisting();
     await expect(
       $$(".desktop-surface > section.window"),
-    ).toBeElementsArrayOfSize(4);
+    ).toBeElementsArrayOfSize(5);
   });
 
   it("starts maximized on narrow screens and switches apps through the taskbar", async () => {

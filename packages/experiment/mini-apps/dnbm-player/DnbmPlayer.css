@@ -1,0 +1,7 @@
+/* The player draws its own dark skin edge to edge, so it spans the body's
+   padding, on the page's color while it loads. */
+.dnbm-player-window {
+  height: calc(100% + 2 * var(--space-md));
+  margin: calc(-1 * var(--space-md));
+  background: #0a0a0a;
+}
