@@ -85,6 +85,10 @@ const skylineFrames = () =>
       scene: sceneDocument && {
         path: sceneDocument.location.pathname,
         canvas: sceneDocument.querySelector("canvas#building") !== null,
+        controlsOpen:
+          sceneDocument
+            .querySelector("#menu-toggle")
+            ?.getAttribute("aria-expanded") === "true",
       },
     };
   });
@@ -399,8 +403,13 @@ describe("Experiment desktop", () => {
     );
     expect(await skylineFrames()).toEqual({
       title: "Interactive Chicago skyline",
-      viewer: { path: "/skyline/", query: "?embed=1", embedded: "true" },
-      scene: { path: "/skyline/skyline-3d", canvas: true },
+      viewer: {
+        path: "/skyline/",
+        query: "?embed=1&controls=open",
+        embedded: "true",
+      },
+      // The scene's control bar starts open.
+      scene: { path: "/skyline/skyline-3d", canvas: true, controlsOpen: true },
     });
     // The skyline opens behind the artwork, so its frame has no focus yet.
     expect(await frontWindowTitle()).toBe("a2f0.net");
