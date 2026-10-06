@@ -73,10 +73,12 @@ jobs:
           node-version-file: .nvmrc
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6  # v2.2.0
       - run: bun ci
-      - run: bun run build
-      - name: Build experiment
+      - name: Build resume
+        if: github.ref == 'refs/heads/staging'
+        run: bun run build --filter=@resume/site
+      - name: Build all workspaces
         if: github.ref == 'refs/heads/production'
-        run: bun run --cwd packages/experiment build
+        run: bun run build
       - name: Deploy staging
         if: github.ref == 'refs/heads/staging'
         working-directory: packages/resume

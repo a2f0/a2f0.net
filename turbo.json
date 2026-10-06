@@ -1,0 +1,26 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "agentGuidance": false,
+  "tasks": {
+    "transit": {
+      "dependsOn": ["^transit"]
+    },
+    "compile": {
+      "dependsOn": ["transit"]
+    },
+    "unit": {
+      "dependsOn": ["transit"]
+    },
+    "build": {
+      "dependsOn": ["transit"],
+      "outputs": [
+        ".generated/**",
+        ".next/**",
+        "!.next/cache/**",
+        "dist/**",
+        "out/**",
+        "public/a2f0.svg"
+      ]
+    }
+  }
+}
