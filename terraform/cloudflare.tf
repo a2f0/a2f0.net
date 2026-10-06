@@ -58,6 +58,14 @@ resource "cloudflare_workers_custom_domain" "nc" {
   service    = "nc"
 }
 
+# Host for the dnbm drum and bass sequencer, deployed with Wrangler from a2f0/dnbm.
+resource "cloudflare_workers_custom_domain" "dnbm" {
+  account_id = var.cloudflare_account_id
+  zone_id    = data.cloudflare_zone.resume.id
+  hostname   = "dnbm.${var.domain}"
+  service    = "dnbm"
+}
+
 resource "cloudflare_zone_setting" "always_use_https" {
   zone_id    = data.cloudflare_zone.resume.id
   setting_id = "always_use_https"
