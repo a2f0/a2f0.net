@@ -11,9 +11,11 @@ import {
   selectHighlightColor,
   selectScale,
 } from "../lib/resumeConfigSlice";
+import { type SelectionColors, selectionColors } from "../lib/selection";
 
 interface ISvgContainerProps {
   $scale: number;
+  $selection: SelectionColors;
 }
 
 const SvgContainer = styled.div<ISvgContainerProps>`
@@ -31,6 +33,14 @@ const SvgContainer = styled.div<ISvgContainerProps>`
 
   .hoverable:hover {
     fill: #909090;
+  }
+
+  /* Firefox colors selected SVG text with color and Chrome with fill.
+     Chrome ignores a black fill, so fill follows color. */
+  & ::selection {
+    background-color: ${(props) => props.$selection.background};
+    color: ${(props) => props.$selection.text};
+    fill: currentColor;
   }
 `;
 
@@ -135,6 +145,7 @@ export default function SvgResume({ desktopSvg }: SvgResumeProps) {
       className="svg"
       id="svgContainer"
       $scale={scale}
+      $selection={selectionColors(backgroundColor)}
       style={positionSvg}
       // biome-ignore lint/security/noDangerouslySetInnerHtml: The SVG is generated from checked-in resume data during the build.
       dangerouslySetInnerHTML={

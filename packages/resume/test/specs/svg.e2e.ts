@@ -123,6 +123,77 @@ describe("SVG Resume", () => {
     );
   });
 
+  it("paints selected text gray in both themes", async () => {
+    await SvgPage.open();
+    await waitForHydration("#svgContainer");
+    // Selects the last name, which is drawn in the highlight color, and
+    // returns the two colors painted most over it. Computed styles would
+    // miss a selection fill that the browser ignores.
+    const paintedSelection = async () => {
+      const area = await browser.execute(() => {
+        const text = document.querySelector("#lastName");
+        const selection = getSelection();
+        if (!text || !selection) return null;
+        const range = document.createRange();
+        range.selectNodeContents(text);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        const { x, y, width, height } = text.getBoundingClientRect();
+        const scale = window.devicePixelRatio;
+        return [x, y, width, height].map((value) => Math.round(value * scale));
+      });
+      if (!area) return null;
+      const screenshot = await browser.takeScreenshot();
+      return browser.execute(
+        async (png, [x, y, width, height]) => {
+          const image = new Image();
+          image.src = `data:image/png;base64,${png}`;
+          await image.decode();
+          const canvas = document.createElement("canvas");
+          canvas.width = image.width;
+          canvas.height = image.height;
+          const context = canvas.getContext("2d");
+          if (!context) return null;
+          context.drawImage(image, 0, 0);
+          const { data } = context.getImageData(x, y, width, height);
+          // Only the most painted colors are checked; Linux draws text with
+          // subpixel antialiasing, which tints the glyph edges.
+          const counts = new Map<string, number>();
+          for (let i = 0; i < data.length; i += 4) {
+            const channels = [data[i], data[i + 1], data[i + 2]];
+            const color = `#${channels
+              .map((value) => value.toString(16).padStart(2, "0"))
+              .join("")
+              .toUpperCase()}`;
+            counts.set(color, (counts.get(color) ?? 0) + 1);
+          }
+          const [highlight, text] = [...counts]
+            .sort((a, b) => b[1] - a[1])
+            .map(([color]) => color);
+          return { highlight, text };
+        },
+        screenshot,
+        area,
+      );
+    };
+    expect(await paintedSelection()).toEqual({
+      highlight: "#6F6F6F",
+      text: "#FFFFFF",
+    });
+
+    await SvgPage.viewMenuButton.click();
+    await SvgPage.viewMenuItems.waitForDisplayed();
+    await SvgPage.lightThemeMenuOption.click();
+    await browser.waitUntil(
+      async () => (await paintedSelection())?.highlight === "#8C8C8C",
+      { timeoutMsg: "expected the light theme's selection" },
+    );
+    expect(await paintedSelection()).toEqual({
+      highlight: "#8C8C8C",
+      text: "#000000",
+    });
+  });
+
   it("should download an svg", async () => {
     await SvgPage.open();
     await expect(SvgPage.fileMenuButton).toBeExisting();
