@@ -436,9 +436,15 @@ describe("Experiment desktop", () => {
   });
 
   it("embeds the dnbm sequencer from its copied assets, fitted to its layout", async () => {
-    await browser.waitUntil(async () => (await dnbmFrame()).app?.steps, {
-      timeoutMsg: "the dnbm sequencer did not load",
-    });
+    // The steps render as the sequencer's document parses; the window fits
+    // only on the frame's load event, once its assets have loaded too.
+    await browser.waitUntil(
+      async () => {
+        const { app, width } = await dnbmFrame();
+        return app?.steps === true && width >= 1200;
+      },
+      { timeoutMsg: "the dnbm sequencer did not load and fit its layout" },
+    );
     const { width, ...frame } = await dnbmFrame();
     expect(frame).toEqual({
       title: "dnbm drum and bass sequencer",
