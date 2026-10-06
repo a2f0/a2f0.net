@@ -50,8 +50,14 @@ body {
 
 /* A window takes focus when it opens. Ring it over its own border in a mid
    tone of the theme's foreground, rather than the browser's default blue, so
-   it reads as focus without glaring. */
+   it reads as focus without glaring. Only while the keyboard is in use (see
+   components/inputModality.ts): some browsers ring a clicked window on Shift
+   alone. */
 .window:focus-visible {
+  outline: none;
+}
+
+:root[data-input="keyboard"] .window:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--color-dark) 50%, transparent);
   outline-offset: -2px;
 }

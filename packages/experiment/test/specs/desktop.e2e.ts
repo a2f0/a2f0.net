@@ -4,6 +4,8 @@ const resumeWindow = () => $("section.window:has(.resume-window)");
 const asciiArtWindow = () => $("section.window:has(.ascii-art-window)");
 const skylineWindow = () => $("section.window:has(.skyline-window)");
 const taskbar = (title: string) => $(`.desktop-taskbar-button=${title}`);
+// WebDriver's code for the Shift key.
+const SHIFT = "\uE008";
 
 // A scrollbar changes the measured body width, replacing the SVG during
 // layout. Query the current node each time instead of retaining a detached one.
@@ -208,6 +210,7 @@ describe("Experiment desktop", () => {
     );
     await browser.keys("Enter");
     await expect(asciiArtWindow()).toBeExisting();
+    await expect($("html")).toHaveAttribute("data-input", "keyboard");
     await browser.waitUntil(
       async () => (await focusRing()).outline === "solid",
       { timeoutMsg: "the keyboard-opened window showed no focus ring" },
@@ -228,6 +231,12 @@ describe("Experiment desktop", () => {
     // Clicking the window that took focus on load leaves that focus in place,
     // so it must not bring back the load-time ring.
     await asciiArtWindow().$(".window-titlebar-title").click();
+    expect(await focusRing()).toEqual({ title: "a2f0.net", outline: "none" });
+
+    // Shift alone is not keyboard use: some browsers ring the clicked window
+    // on it, so the ring waits for the root to record keyboard input.
+    await browser.action("key").down(SHIFT).up(SHIFT).perform();
+    await expect($("html")).toHaveAttribute("data-input", "pointer");
     expect(await focusRing()).toEqual({ title: "a2f0.net", outline: "none" });
 
     await asciiArtWindow().$("button[aria-label='Minimize window']").click();

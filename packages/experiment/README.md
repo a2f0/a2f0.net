@@ -26,7 +26,7 @@ The dev server listens on port 4003. `dev` and `build` first copy the
 website's `a2f0.svg` into `public/`, and the skyline viewer's assets into
 `public/skyline/`. `build` writes a static export to `out/`,
 `start` serves it through Wrangler on the same port, and `deploy` publishes the
-`experiment` Worker. `unit` runs the mini-app tests under happy-dom. Terraform
+`experiment` Worker. `unit` runs the desktop and mini-app tests under happy-dom. Terraform
 attaches the `experiment.a2f0.net` domain. CI builds and tests the app, then
 deploys it on validated pushes to `production`.
 
