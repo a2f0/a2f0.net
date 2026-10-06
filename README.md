@@ -18,8 +18,8 @@ bun ci
 bun run start-server
 ```
 
-`bun run build` generates the desktop SVG, then Next.js exports the site to
-`packages/resume/out/`.
+`bun run build` builds every workspace. For the resume, it generates the
+desktop SVG, then Next.js exports the site to `packages/resume/out/`.
 Cloudflare Workers serves those files. The desktop SVG is included in the
 exported HTML; local development and mobile layouts still generate it in the
 browser. The SVG uses the bundled Arimo font for consistent build and browser
@@ -83,7 +83,12 @@ Both browser suites include an `a11y.e2e.ts` spec that audits each view with
 and axe's best practices, and drives the menus and toolbar from the keyboard.
 Biome enforces all of its `a11y` lint rules on the TSX and HTML.
 
-`bun run unit` runs the shared, resume, and website unit tests. Agent helper
+`bun run compile`, `bun run unit`, and `bun run build` run each workspace's
+script through [Turborepo](https://turborepo.com), in parallel, and cache the
+results in `.turbo/` on your machine; CI doesn't reuse a cache. A workspace's
+tasks rerun when its files, or those of a workspace it depends on, change.
+Pass `--force` to skip the cache or `--filter=@resume/site` to run one
+workspace, as in `bun run unit --force`. Agent helper
 tests and compilation run in the standalone agent-tool repository's CI.
 Invoke the repository's [`$ship-pr` skill](.agents/skills/ship-pr/SKILL.md) to validate, independently
 review, and squash-merge the current PR. The production branch rule requires

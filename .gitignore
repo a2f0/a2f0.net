@@ -17,6 +17,9 @@ out/
 build/
 dist/
 
+# turborepo
+.turbo
+
 # misc
 .DS_Store
 *.pem
