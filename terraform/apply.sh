@@ -1,2 +1,2 @@
 #!/bin/sh
-terraform apply --var-file=main.tfvars
+terraform apply --var-file=main.tfvars.json

@@ -35,9 +35,6 @@ npm-debug.log*
 .vercel
 .dev.vars
 .dev.vars.*
-/.blackbox/pubring.gpg~
-/.blackbox/pubring.kbx~
-/.blackbox/secring.gpg
 
 # terraform
 **/.terraform/*
@@ -52,7 +49,7 @@ override.tf.json
 *_override.tf.json
 .terraformrc
 terraform.rc
-/terraform/main.tfvars
+/terraform/main.tfvars.json
 
 tempDownload
 
