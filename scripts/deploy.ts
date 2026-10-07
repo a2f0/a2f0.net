@@ -7,7 +7,6 @@ import {
   checkConfiguration,
   checkDomain,
   checkPublicEndpoints,
-  checkRoutes,
   checkSettings,
   DEPLOYMENTS,
   type DeploymentName,
@@ -167,9 +166,9 @@ async function main() {
       ]);
     checkSettings(settings);
     checkPublicEndpoints(subdomain, schedules);
-    const zone = checkDomain(domains, target);
-    const routes = await api(`zones/${zone}/workers/routes`);
-    checkRoutes(routes, target);
+    checkDomain(domains, target);
+    // The validated Wrangler config has no route/routes and workers_dev=false.
+    // Cloudflare documents that this preserves dashboard-managed routes on deploy.
     const versions = record(deployments).deployments;
     if (!Array.isArray(versions) || !versions.length)
       throw new Error("No existing Worker deployment found");
@@ -196,7 +195,6 @@ async function main() {
           settings,
           domains,
           deployments,
-          routes,
           subdomain,
           schedules,
         }),

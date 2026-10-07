@@ -51,9 +51,16 @@ first. The deployment itself repeats the preview and fresh checks.
 
 The guard requires a committed clean tree and scoped Cloudflare credentials.
 Read permissions must cover the existing account's Worker settings,
-deployments, domains, subdomain settings and schedules, and the domain zone's
-Worker routes; publishing additionally requires Workers Scripts Edit. Denied or
-incomplete reads stop before publishing. Never broaden tokens as a workaround.
+deployments, domains, subdomain settings and schedules; publishing additionally
+requires Workers Scripts Edit. Denied or incomplete reads stop before
+publishing. Never broaden tokens as a workaround.
+
+The guard rejects `route`/`routes` and requires `workers_dev=false` for all four
+configs. [Cloudflare documents](https://developers.cloudflare.com/workers/wrangler/configuration/)
+that omitting both route keys with `workers_dev=false` preserves dashboard-managed
+routes on deploy. An authenticated pre-merge zone read found zero Worker routes
+on 2026-10-07; route inventory is a separate review check, not a CI token
+requirement. Adding or changing routing requires a separate migration review.
 
 The four target names and Terraform-owned hostnames are explicit in
 `scripts/deployPolicy.ts`. New resource settings, migrations, alternate Worker

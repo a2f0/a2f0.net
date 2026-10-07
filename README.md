@@ -159,7 +159,7 @@ and deploys only after validation succeeds on pushes to those two branches.
 Pull requests and manual workflow runs validate without deploying.
 
 Every deployment command and CI deployment calls `scripts/deploy.ts`. It reads
-the existing Worker, domain, binding, route, endpoint and version identities,
+the existing Worker, domain, binding, endpoint and version identities,
 runs Wrangler's bundle dry run, then checks the live evidence and the committed
 configuration, installed tool and asset snapshot again before mutation. Missing
 credentials, incomplete evidence, renames, stateful bindings, migration effects
@@ -168,7 +168,7 @@ See [the deployment and dependency gates](docs/dependencies.md).
 
 Use separate tokens: `cloudflare_deploy_api_token` needs Workers Scripts Edit
 and read access to the existing Worker settings, deployments, domains,
-subdomain settings, schedules and the domain zone's Worker routes. The guard
+subdomain settings and schedules. The guard
 fails closed when its reads are denied. It populates the Actions
 `CLOUDFLARE_API_TOKEN` secret. CI exposes it only to the guard and Wrangler,
 after installation and the build finish; the website's local build runs with

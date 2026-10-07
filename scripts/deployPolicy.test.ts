@@ -4,7 +4,6 @@ import {
   checkConfiguration,
   checkDomain,
   checkPublicEndpoints,
-  checkRoutes,
   checkSettings,
   DEPLOYMENTS,
   type DeploymentName,
@@ -48,8 +47,23 @@ for (const name of Object.keys(DEPLOYMENTS) as DeploymentName[]) {
         name,
       ),
     ).toThrow();
-    expect(() => checkRoutes([{ script: target.worker }], name)).toThrow();
-    expect(() => checkRoutes([], name)).not.toThrow();
+    for (const addition of ['"route": "a2f0.net/*"', '"routes": []']) {
+      expect(() =>
+        checkConfiguration(
+          text.replace(
+            '"workers_dev": false,',
+            `"workers_dev": false, ${addition},`,
+          ),
+          name,
+        ),
+      ).toThrow();
+    }
+    expect(() =>
+      checkConfiguration(
+        text.replace('"workers_dev": false', '"workers_dev": true'),
+        name,
+      ),
+    ).toThrow();
   });
 }
 

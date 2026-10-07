@@ -192,17 +192,6 @@ export function checkDomain(domains: unknown, target: DeploymentName) {
   return domain.zone_id;
 }
 
-export function checkRoutes(routes: unknown, target: DeploymentName) {
-  if (
-    !Array.isArray(routes) ||
-    routes.some((route) => record(route).script === DEPLOYMENTS[target].worker)
-  ) {
-    throw new Error(
-      "Existing non-domain routes need a separate migration review",
-    );
-  }
-}
-
 export interface DeploymentChecks {
   snapshot(): Promise<string>;
   inspect(): Promise<string>;
