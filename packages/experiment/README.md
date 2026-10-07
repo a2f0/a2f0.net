@@ -16,7 +16,11 @@ toolbar and View menu. The skyline window renders the viewer from
 windows the sequencer and the player from
 [`@a2f0/dnbm`](https://www.npmjs.com/package/@a2f0/dnbm), in the page itself,
 each inside a shadow root that keeps its styles and the desktop's apart, so a
-press inside any of them reaches its window like any other.
+press inside any of them reaches its window like any other and closes open
+menus. The dnbm windows drive their apps through the package's commands and
+state: the sequencer's file commands sit in its window's File menu, and its
+play, undo, and redo in the toolbar; the player's controls sit in its toolbar
+and View menu. Each window's title names the song.
 
 The taskbar along the bottom starts with the windowing package's `StartMenu`,
 which lists every mini-app with its icon, followed by a button per open window,
@@ -49,5 +53,8 @@ markup, stars, and models from `/skyline/`, and the dnbm apps load their code
 (`mount.js` and `player/mount.js`), stylesheets, AudioWorklet, engine, and songs
 from `/dnbm/`: each from the URL it mounts with. Each package's loader imports
 that code at runtime with an `import()` webpack leaves to the browser, so the
-app's bundle holds only the loaders. The app has no `three` dependency: the
-skyline's scene loads the copy of three.js in its assets when it first needs it.
+app's bundle holds only the loaders. The dnbm commands the windows run live in
+that code too, so the copied assets must match the installed package: an older
+copy runs no command and leaves the windows' chrome disabled. The app has no
+`three` dependency: the skyline's scene loads the copy of three.js in its
+assets when it first needs it.
