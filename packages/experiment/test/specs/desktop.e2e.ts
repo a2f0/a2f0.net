@@ -65,31 +65,22 @@ const siteState = () =>
     };
   });
 
-// The skyline viewer's frame and the 3D scene inside it, read through the
-// same-origin frames the package mounts.
-const skylineFrames = () =>
+// The viewer renders directly in this page, inside its accessible region.
+const skylineState = () =>
   browser.execute(() => {
-    const viewer = document.querySelector<HTMLIFrameElement>(
-      ".skyline-window iframe",
+    const viewer = document.querySelector<HTMLElement>(
+      ".skyline-window [role=region]",
     );
-    const viewerDocument = viewer?.contentDocument;
-    const scene =
-      viewerDocument?.querySelector<HTMLIFrameElement>("#skyline-3d-scene");
-    const sceneDocument = scene?.contentDocument;
+    const root = viewer?.shadowRoot;
     return {
-      title: viewer?.title,
-      viewer: viewerDocument && {
-        path: viewerDocument.location.pathname,
-        query: viewerDocument.location.search,
-        embedded: viewerDocument.documentElement.dataset.embedded,
-      },
-      scene: sceneDocument && {
-        path: sceneDocument.location.pathname,
-        canvas: sceneDocument.querySelector("canvas#building") !== null,
+      title: viewer?.getAttribute("aria-label"),
+      ready: viewer !== null && !viewer?.hasAttribute("aria-busy"),
+      frames: document.querySelectorAll(".skyline-window iframe").length,
+      scene: root && {
+        canvas: root.querySelector("canvas#building") !== null,
         controlsOpen:
-          sceneDocument
-            .querySelector("#menu-toggle")
-            ?.getAttribute("aria-expanded") === "true",
+          root.querySelector("#menu-toggle")?.getAttribute("aria-expanded") ===
+          "true",
       },
     };
   });
@@ -526,23 +517,19 @@ describe("Experiment desktop", () => {
   });
 
   it("embeds the skyline viewer from its copied assets", async () => {
-    // The viewer and its 3D scene load from /skyline/: the trailing slash
-    // keeps the scene's relative URL inside the copied assets.
     await browser.waitUntil(
-      async () => (await skylineFrames()).scene?.canvas === true,
-      { timeoutMsg: "the skyline viewer did not load its 3D scene" },
+      async () =>
+        (await skylineState()).ready &&
+        (await skylineState()).scene?.canvas === true,
+      { timeoutMsg: "the skyline viewer did not draw its first scene frame" },
     );
-    expect(await skylineFrames()).toEqual({
+    expect(await skylineState()).toEqual({
       title: "Interactive Chicago skyline",
-      viewer: {
-        path: "/skyline/",
-        query: "?embed=1&controls=open",
-        embedded: "true",
-      },
-      // The scene's control bar starts open.
-      scene: { path: "/skyline/skyline-3d", canvas: true, controlsOpen: true },
+      ready: true,
+      frames: 0,
+      scene: { canvas: true, controlsOpen: true },
     });
-    // The skyline opens behind the artwork, so its frame has no focus yet.
+    // Loading the viewer does not raise it above the artwork.
     expect(await frontWindowTitle()).toBe("a2f0.net");
   });
 
@@ -581,9 +568,9 @@ describe("Experiment desktop", () => {
     await expectThreeQuarters();
   });
 
-  it("raises the skyline window when its frame is pressed", async () => {
+  it("raises the skyline window when its viewer is pressed", async () => {
     await browser.waitUntil(
-      async () => (await skylineFrames()).scene?.canvas === true,
+      async () => (await skylineState()).scene?.canvas === true,
       { timeoutMsg: "the skyline viewer did not load its 3D scene" },
     );
     // Press the part of the skyline's body that shows right of the artwork.
@@ -605,7 +592,7 @@ describe("Experiment desktop", () => {
       async () => (await frontWindowTitle()) === "Skyline",
       { timeoutMsg: "pressing the skyline did not raise its window" },
     );
-    // Focus went into the viewer's frame, not back to the window.
+    // Shadow-root focus belongs to the viewer's host in this window.
     expect(
       await browser.execute(
         () => document.activeElement?.closest(".skyline-window") !== null,

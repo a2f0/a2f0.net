@@ -10,7 +10,8 @@
     "unit": "bun test ./src",
     "test": "start-server-and-test 'bun run start' http://localhost:4002 'bun run test:served'",
     "test:served": "bun test test/website.test.ts && wdio run wdio.conf.ts",
-    "deploy": "wrangler deploy"
+    "deploy": "bun ../../scripts/deploy.ts website",
+    "preview": "bun ../../scripts/deploy.ts website --dry-run"
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "20.14.5",

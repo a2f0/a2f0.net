@@ -30,8 +30,8 @@ served by Cloudflare Workers. Edit `packages/website/public/a2f0.svg` to refine
 the artwork. Its TypeScript in `packages/website/src` renders the ASCII view,
 the lens, the toolbar's play button animations (a laser etching over the SVG,
 and falling code that writes the ASCII art), and the terminal window that its
-square opens around the art. Wrangler runs `bun run build` before `dev` and
-`deploy`, which bundles it with `public/` into `dist/`. Preview it with
+square opens around the art. Wrangler runs `bun run build` before `dev`. The guarded deployment builds
+once, then previews and publishes that same `dist/` asset tree. Preview it with
 `bun run --cwd packages/website start` on port 4002.
 
 ## Agent tooling
@@ -87,6 +87,8 @@ Biome enforces all of its `a11y` lint rules on the TSX and HTML.
 script through [Turborepo](https://turborepo.com), in parallel, and cache the
 results in `.turbo/` on your machine; CI doesn't reuse a cache. A workspace's
 tasks rerun when its files, or those of a workspace it depends on, change.
+Root script compilation and the safety/compatibility unit tests run before the
+workspace tasks and are never cached.
 Pass `--force` to skip the cache or `--filter=@resume/site` to run one
 workspace, as in `bun run unit --force`. Agent helper
 tests and compilation run in the standalone agent-tool repository's CI.
@@ -156,17 +158,31 @@ local deployments. GitHub Actions uses repository secrets with the same names
 and deploys only after validation succeeds on pushes to those two branches.
 Pull requests and manual workflow runs validate without deploying.
 
-Use separate tokens: `cloudflare_deploy_api_token` needs only Workers Scripts
-Edit on the account and populates the Actions `CLOUDFLARE_API_TOKEN` secret.
-CI exposes it only to Wrangler, after installation and the build finish.
+Every deployment command and CI deployment calls `scripts/deploy.ts`. It reads
+the existing Worker, domain, binding, route, endpoint and version identities,
+runs Wrangler's bundle dry run, then checks the live evidence and the committed
+configuration, installed tool and asset snapshot again before mutation. Missing
+credentials, incomplete evidence, renames, stateful bindings, migration effects
+or drift stop the command. Terraform keeps ownership of custom domains.
+See [the deployment and dependency gates](docs/dependencies.md).
+
+Use separate tokens: `cloudflare_deploy_api_token` needs Workers Scripts Edit
+and read access to the existing Worker settings, deployments, domains,
+subdomain settings, schedules and the domain zone's Worker routes. The guard
+fails closed when its reads are denied. It populates the Actions
+`CLOUDFLARE_API_TOKEN` secret. CI exposes it only to the guard and Wrangler,
+after installation and the build finish; the website's local build runs with
+Cloudflare credentials removed.
 The Terraform provider uses `cloudflare_api_token`, which also needs Workers
 custom-domain access, Zone Read, DNS Edit, and Zone Settings Edit for `a2f0.net`.
 Creating the zone requires additional zone-creation permission; the stack looks
 up a zone created beforehand. Both tokens are stored with SOPS.
 
-Public `workers.dev` and preview URLs are disabled. Each Worker becomes
-publicly reachable when Terraform attaches its custom domain and the zone is
-active. Pass `--env staging` or `--env prod` when deploying the resume Worker.
+Public `workers.dev` and preview URLs are disabled. Each Worker is served
+through its existing Terraform-owned custom domain. Select the explicit target
+with the scripts above; do not pass alternate names or environments to Wrangler.
+Use `preview:staging`, `preview:prod`, `preview:website`, or
+`bun run --cwd packages/experiment preview` for the same guard without mutation.
 
 ## Infrastructure
 
@@ -207,12 +223,17 @@ For the real backend:
 ```sh
 cd terraform
 terraform init -backend-config=terraform.backend
-terraform plan -var-file=main.tfvars.json -out=infrastructure.tfplan
-terraform apply infrastructure.tfplan
+../terraform/apply.sh --dry-run
+../terraform/apply.sh
 ```
 
-Review the plan before applying. The Worker scripts must already exist before
-Terraform creates their custom domains. The website deploys to the existing
+The apply entrypoint reads populated state from the real S3 backend, checks the
+pinned CLI and default workspace, creates a complete saved plan and refuses
+resource deletion or replacement. It checks remote state again before applying
+that exact saved plan. Plan/state JSON stays in a private temporary directory
+and is removed afterward. A missing or empty backend cannot authorize resource
+recreation. Run the dry run first and review its non-destructive actions.
+The existing Worker scripts and domains must remain in place. The website deploys to the existing
 `resume-redirect` Worker, which already owns the apex custom domain.
 
 ### Hosting Retirement
@@ -229,26 +250,23 @@ the AWS provider and the already-applied Vercel migration blocks.
 
 ### Dependency Updates
 
-```sh
-bun update --recursive --latest
-bun install
-bun run compile
-bun run unit
-bun run ci-headless
-bun audit
-```
+Use the shared `update-dependencies` skill when the owning agent-tool pin
+provides it. Older pins use the Matrix workspace's documented plan helper and
+[these repository gates](docs/dependencies.md). Inventory every manifest,
+lockfile, runtime, Action, override, patch and provider before changing a group.
+Check upstream releases and migration notes, update coupled peers together,
+then refresh the lock through Bun and run compilation, unit, browser, build,
+hook and security checks. Record held groups and unavailable evidence.
 
-Keep package versions exact. Bun settings live in `bunfig.toml`, and
-dependency build permissions live in `package.json`. Dependabot groups Bun,
-Actions, and Terraform provider updates. Actions are pinned by commit SHA with
-version comments.
+Keep versions exact and the agent-tool alias pinned to its full Git commit.
+Install both harnesses through `agents:sync` only after Bun resolves that exact
+new source, and commit the pin, lock, managed skills and ownership file together.
+Bun settings live in `bunfig.toml`, and dependency build permissions live in
+`package.json`. Dependabot groups Bun, Actions, and Terraform updates. Actions
+stay pinned by commit SHA with version comments.
 
-Update `terraform/.terraform-version` and the CI Terraform version together.
-Refresh providers and check the real plan:
-
-```sh
-cd terraform
-terraform init -upgrade -backend-config=terraform.backend
-terraform providers lock -platform=darwin_arm64 -platform=linux_amd64
-terraform plan -var-file=main.tfvars.json
-```
+Update `terraform/.terraform-version` and the CI version together. Provider or
+module updates require the authentic existing S3 backend and a complete,
+non-destructive saved plan through `terraform/apply.sh --dry-run`. Validation
+with `-backend=false` and fixture plans are local checks, never production-plan
+evidence. Do not apply infrastructure or deploy to validate an upgrade.

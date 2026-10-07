@@ -85,25 +85,25 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: bunx --no-install wrangler deploy --env staging
+        run: bun ../../scripts/deploy.ts resume-staging
       - name: Deploy production
         if: github.ref == 'refs/heads/production'
         working-directory: packages/resume
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: bunx --no-install wrangler deploy --env prod
+        run: bun ../../scripts/deploy.ts resume-prod
       - name: Deploy website
         if: github.ref == 'refs/heads/production'
         working-directory: packages/website
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: bunx --no-install wrangler deploy
+        run: bun ../../scripts/deploy.ts website
       - name: Deploy experiment
         if: github.ref == 'refs/heads/production'
         working-directory: packages/experiment
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: bunx --no-install wrangler deploy
+        run: bun ../../scripts/deploy.ts experiment

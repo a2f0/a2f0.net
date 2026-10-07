@@ -12,7 +12,10 @@ in the same shape as Tearleads' mini-apps. The artwork window reads
 site's own `mountSite` inside a shadow root, so the site's stylesheet and the
 window stylesheets cannot restyle each other. Its controls sit in the window's
 toolbar and View menu. The skyline window mounts the viewer from
-[`@a2f0/skyline`](https://www.npmjs.com/package/@a2f0/skyline) in an iframe.
+[`@a2f0/skyline`](https://www.npmjs.com/package/@a2f0/skyline) 0.2.1 in an
+HTMLElement with an open shadow root. It waits for `instance.ready` and
+destroys the instance when the window closes. Pointer and keyboard events
+reach the desktop through the host.
 The dnbm windows render the sequencer and the player from
 [`@a2f0/dnbm`](https://www.npmjs.com/package/@a2f0/dnbm) in the page itself,
 each inside a shadow root that keeps its styles and the desktop's apart, so a
@@ -36,7 +39,8 @@ The dev server listens on port 4003. `dev` and `build` first copy the
 website's `a2f0.svg` into `public/`, the skyline viewer's assets into
 `public/skyline/`, and the dnbm sequencer's and player's into `public/dnbm/`. `build` writes a static export to `out/`,
 `start` serves it through Wrangler on the same port, and `deploy` publishes the
-`experiment` Worker. `unit` runs the desktop and mini-app tests under happy-dom. Terraform
+`experiment` Worker after the existing identity and dry-run guard succeeds.
+`preview` runs the same guard without publishing. `unit` runs the desktop and mini-app tests under happy-dom. Terraform
 attaches the `experiment.a2f0.net` domain. CI builds and tests the app, then
 deploys it on validated pushes to `production`.
 
@@ -44,10 +48,12 @@ Next.js builds with webpack (`--webpack`) to import the website's HTML as text
 through the `?raw` resource rule. The windowing package supplies its own CSS
 defaults and uses the app's React through peer dependencies.
 
-The skyline viewer opens `/skyline/index.html` and loads its other pages
-relative to it, so Wrangler serves HTML with `auto-trailing-slash`: it
-redirects that page to `/skyline/`, where `drop-trailing-slash` would redirect
-it to `/skyline` and send the viewer's relative URLs to the root. The dnbm
+The skyline embed imports its code and styles from `/skyline/` and mounts the
+scene into the host's shadow root. Its copied standalone HTML pages remain
+available, so Wrangler keeps `auto-trailing-slash` for their relative URLs.
+`copy-skyline` clears only the dedicated local `public/skyline/` directory before
+copying the published assets, so retired iframe files cannot survive an upgrade.
+Browser tests inspect the rendered host's readiness, controls and canvas. The dnbm
 apps load their code (`mount.js` and `player/mount.js`), stylesheets,
 AudioWorklet, engine, and songs from `/dnbm/`, the URL they mount with. The
 package's loader imports that code at runtime with an `import()` webpack leaves

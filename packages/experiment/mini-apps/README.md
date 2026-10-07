@@ -52,14 +52,14 @@ several apps.
   Both mirror the site's own toolbar, which stays in the shadow root unseen and
   keeps the site's behavior. The site's terminal window is left out, as the
   artwork already sits in a window.
-- `skyline/` mounts the 3D Chicago skyline from `@a2f0/skyline` in an iframe,
-  with the viewer's own navigation hidden. The `copy-skyline` script copies
-  the viewer's assets into `public/skyline/`, where the iframe loads them.
-  Presses inside an iframe never reach the window, so the app raises its
-  window when focus moves into the viewer instead
-  (`shared/useRaiseOnFrameFocus.ts`). Its window opens at three quarters of
-  the desktop's width and height, to give the 3D scene room, with the scene's
-  control bar open.
+- `skyline/` mounts the 3D Chicago skyline from `@a2f0/skyline` into an
+  HTMLElement and open shadow root. The `copy-skyline` script replaces only
+  the dedicated local `public/skyline/` assets; the embed loads its code,
+  styles and models from that base URL. It reports `onLoad` after `ready`
+  settles and always calls `destroy` on unmount, including React Strict Mode's
+  remount. Pointer and keyboard events bubble through the host to its window.
+  Its window opens at three quarters of the desktop's width and height, with
+  the scene's control bar open.
 - `dnbm/` mounts the dnbm drum and bass sequencer from `@a2f0/dnbm`, which
   renders it in the page inside a shadow root, from assets the `copy-dnbm`
   script copies into `public/dnbm/`. Presses inside it reach the window, which
