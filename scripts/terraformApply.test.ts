@@ -71,6 +71,7 @@ test("Terraform entrypoint previews before applying the exact saved plan and fai
     terraform,
     `#!/bin/sh
 set -eu
+[ "$AWS_IGNORE_CONFIGURED_ENDPOINT_URLS" = true ] || exit 9
 printf '%s\\n' "$*" >> "$CALLS"
 case "$1" in
   workspace) echo default ;;
@@ -156,6 +157,9 @@ esac
       { TF_CLI_ARGS: "-refresh=false" },
       { TF_DATA_DIR: "/alternate/backend" },
       { TF_WORKSPACE: "alternate" },
+      { AWS_ENDPOINT_URL: "https://example.invalid" },
+      { AWS_ENDPOINT_URL_S3: "https://example.invalid" },
+      { AWS_S3_ENDPOINT: "https://example.invalid" },
     ];
     for (const inherited of inheritedArguments) {
       const refused = await run(["update"], false, inherited);
@@ -195,6 +199,10 @@ esac
         JSON.stringify({
           data: { external: { unsafe: { program: ["true"] } } },
         }),
+      ],
+      [
+        "commented.tf",
+        'resource "null_resource" "unsafe" { provisioner /* ignored */ "local-exec" { command = "true" } }',
       ],
     ];
     for (const [name, source] of unsafeSources) {

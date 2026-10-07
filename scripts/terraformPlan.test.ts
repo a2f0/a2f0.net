@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import {
   checkTerraformBackend,
+  checkTerraformHcl,
   checkTerraformPlan,
   checkTerraformState,
 } from "./terraformPlan";
@@ -66,6 +67,35 @@ test("requires the initialized real S3 backend rather than local or substituted 
     expect(() =>
       checkTerraformBackend({ backend: { ...backend, ...change } }),
     ).toThrow();
+});
+
+test("HCL source scan sees unsafe blocks across all comment forms", () => {
+  for (const separator of [
+    " ",
+    " /* comment */ ",
+    " # comment\n ",
+    " // comment\n ",
+  ]) {
+    expect(() =>
+      checkTerraformHcl(`provisioner${separator}"local-exec" {}`),
+    ).toThrow();
+    expect(() =>
+      checkTerraformHcl(`data${separator}"external" "unsafe" {}`),
+    ).toThrow();
+  }
+  expect(() =>
+    checkTerraformHcl(String.raw`data "\u0065xternal" "unsafe" {}`),
+  ).toThrow();
+  expect(() =>
+    checkTerraformHcl(
+      'resource "example" "safe" { value = "provisioner \\"local-exec\\"" }',
+    ),
+  ).not.toThrow();
+  expect(() =>
+    checkTerraformHcl('# data "external"\nresource "safe" "ok" {}'),
+  ).not.toThrow();
+  expect(() => checkTerraformHcl("data /* unterminated")).toThrow();
+  expect(() => checkTerraformHcl("value = <<EOF\ntext\nEOF")).toThrow();
 });
 
 test("empty or missing domain state cannot pass as an existing production stack", () => {

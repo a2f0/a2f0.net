@@ -11,10 +11,12 @@ cd "$(dirname "$0")"
 
 # Inherited Terraform arguments can change plan mode or skip provider refresh.
 # This entrypoint owns every flag used for its reviewed saved plan.
-if env | grep -Eq '^(TF_CLI_ARGS(=|_)|TF_DATA_DIR=|TF_WORKSPACE=)'; then
-  echo 'Unset Terraform CLI argument, data-directory and workspace overrides before the guarded plan' >&2
+if env | grep -Eq '^(TF_CLI_ARGS(=|_)|TF_DATA_DIR=|TF_WORKSPACE=|AWS_ENDPOINT_URL(=|_)|AWS_S3_ENDPOINT=)'; then
+  echo 'Unset Terraform CLI, workspace and AWS endpoint overrides before the guarded plan' >&2
   exit 1
 fi
+# The AWS SDK must also ignore endpoint URLs in the selected credentials profile.
+export AWS_IGNORE_CONFIGURED_ENDPOINT_URLS=true
 
 # Use the existing real S3 backend and default workspace, never a local or
 # replacement backend. Missing credentials or state stop before any apply.

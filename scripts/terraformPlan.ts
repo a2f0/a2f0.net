@@ -3,6 +3,64 @@ import { readdir, readFile } from "node:fs/promises";
 import { basename, join } from "node:path";
 import { record } from "./deployPolicy";
 
+/** Tokenize block heads while skipping HCL comments and quoted string bodies. */
+export function checkTerraformHcl(source: string): void {
+  let previous: string | null = null;
+  for (let index = 0; index < source.length; ) {
+    const character = source[index];
+    const next = source[index + 1];
+    if (/\s/.test(character)) {
+      index++;
+      continue;
+    }
+    if (character === "#" || (character === "/" && next === "/")) {
+      index = source.indexOf("\n", index);
+      if (index < 0) return;
+      continue;
+    }
+    if (character === "/" && next === "*") {
+      const end = source.indexOf("*/", index + 2);
+      if (end < 0) throw new Error("Unterminated Terraform block comment");
+      index = end + 2;
+      continue;
+    }
+    if (character === '"') {
+      let end = index + 1;
+      for (; end < source.length; end++) {
+        if (source[end] === "\\") end++;
+        else if (source[end] === '"') break;
+      }
+      if (end >= source.length)
+        throw new Error("Unterminated Terraform string");
+      if (previous === "provisioner")
+        throw new Error("Unreviewed Terraform provisioner");
+      if (previous === "data") {
+        let label: unknown;
+        try {
+          label = JSON.parse(source.slice(index, end + 1));
+        } catch {
+          throw new Error("Unsupported Terraform data block label");
+        }
+        if (label === "external")
+          throw new Error("Unreviewed Terraform external data program");
+      }
+      previous = null;
+      index = end + 1;
+      continue;
+    }
+    if (character === "<" && next === "<")
+      throw new Error("Terraform heredoc source requires a separate review");
+    const identifier = /^[A-Za-z_][A-Za-z0-9_-]*/.exec(source.slice(index));
+    if (identifier) {
+      previous = identifier[0];
+      index += identifier[0].length;
+      continue;
+    }
+    previous = null;
+    index++;
+  }
+}
+
 /** Inspect every Terraform source, including ignored override files and modules. */
 export async function checkTerraformSources(directory: string): Promise<void> {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
@@ -36,9 +94,7 @@ export async function checkTerraformSources(directory: string): Promise<void> {
       };
       if (inspect(input))
         throw new Error("Unreviewed Terraform provisioner or external data");
-    } else if (/\bprovisioner\s*"|\bdata\s*"external"/m.test(source)) {
-      throw new Error("Unreviewed Terraform provisioner or external data");
-    }
+    } else checkTerraformHcl(source);
   }
 }
 
