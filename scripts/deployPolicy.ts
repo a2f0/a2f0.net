@@ -133,7 +133,9 @@ export function checkPublicEndpoints(subdomain: unknown, schedules: unknown) {
       "Existing public endpoint settings differ from the preview",
     );
   }
-  if (!Array.isArray(schedules) || schedules.length) {
+  const triggers = record(schedules);
+  onlyKeys(triggers, ["schedules"]);
+  if (!Array.isArray(triggers.schedules) || triggers.schedules.length) {
     throw new Error(
       "Existing cron triggers require a separate migration review",
     );

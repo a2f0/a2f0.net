@@ -111,20 +111,29 @@ test("a website preview captures the real assets without rerunning its build", a
 
 test("live public endpoints and schedules must match the static-only config", () => {
   expect(() =>
-    checkPublicEndpoints({ enabled: false, previews_enabled: false }, []),
+    checkPublicEndpoints(
+      { enabled: false, previews_enabled: false },
+      { schedules: [] },
+    ),
   ).not.toThrow();
   for (const value of [
     {},
     { enabled: true, previews_enabled: false },
     { enabled: false, previews_enabled: true },
   ]) {
-    expect(() => checkPublicEndpoints(value, [])).toThrow();
+    expect(() => checkPublicEndpoints(value, { schedules: [] })).toThrow();
   }
   expect(() =>
-    checkPublicEndpoints({ enabled: false, previews_enabled: false }, [
-      { cron: "* * * * *" },
-    ]),
+    checkPublicEndpoints(
+      { enabled: false, previews_enabled: false },
+      { schedules: [{ cron: "* * * * *" }] },
+    ),
   ).toThrow();
+  for (const value of [[], {}, { schedules: [], unknown: true }]) {
+    expect(() =>
+      checkPublicEndpoints({ enabled: false, previews_enabled: false }, value),
+    ).toThrow();
+  }
   for (const addition of [
     { migration_tag: "v1" },
     { logpush: true },
