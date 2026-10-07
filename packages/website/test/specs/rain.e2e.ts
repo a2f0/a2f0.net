@@ -266,8 +266,25 @@ describe("Code rain", () => {
       await browser.setWindowSize(900, height);
       await expect($(".rain")).not.toBeExisting();
       await expect(stage()).not.toHaveAttribute("data-raining");
-      expect(await columns()).not.toBe("200");
+      // The page resizing ends the rain before the art renders afresh.
+      await browser.waitUntil(async () => (await columns()) !== "200", {
+        timeoutMsg: "the art never rendered for the new width",
+      });
       expect(ink(await art())).toBeGreaterThan(1000);
+    } finally {
+      await browser.setWindowSize(width, height);
+    }
+  });
+
+  it("ends the rain when the page is resized to a new height", async () => {
+    const { width, height } = await browser.getWindowSize();
+    try {
+      const finished = await openAscii();
+      await play().click();
+      await expect(stage()).toHaveAttribute("data-raining");
+      // The same width keeps the art as it is, so only the page changes.
+      await browser.setWindowSize(width, height - 200);
+      await settled(finished);
     } finally {
       await browser.setWindowSize(width, height);
     }

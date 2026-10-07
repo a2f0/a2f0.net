@@ -61,6 +61,32 @@ interface Scene {
 const cover = (span: number, unit: number) =>
   unit > 0 ? Math.max(Math.ceil(span / unit), 0) : 0;
 
+// The field that covers the canvas, laid out around the art.
+const fieldOf = (
+  grid: Grid,
+  { width, height, left, top, cell, size }: Layout,
+): Field => {
+  const before = { columns: cover(left, cell), rows: cover(top, size) };
+  return {
+    left: before.columns,
+    top: before.rows,
+    columns:
+      before.columns +
+      grid.columns +
+      cover(width - left - grid.columns * cell, cell),
+    rows:
+      before.rows +
+      grid.rows.length +
+      cover(height - top - grid.rows.length * size, size),
+  };
+};
+
+const sameField = (a: Field, b: Field) =>
+  a.left === b.left &&
+  a.top === b.top &&
+  a.columns === b.columns &&
+  a.rows === b.rows;
+
 export class Rain {
   readonly #container: HTMLElement;
   readonly #stage: HTMLElement;
@@ -133,20 +159,7 @@ export class Rain {
     };
     this.#container.append(canvas);
     this.#stage.dataset.raining = "";
-    const { width, height, left, top, cell, size } = this.#layout(canvas, ctx);
-    const before = { columns: cover(left, cell), rows: cover(top, size) };
-    const field = {
-      left: before.columns,
-      top: before.rows,
-      columns:
-        before.columns +
-        grid.columns +
-        cover(width - left - grid.columns * cell, cell),
-      rows:
-        before.rows +
-        grid.rows.length +
-        cover(height - top - grid.rows.length * size, size),
-    };
+    const field = fieldOf(grid, this.#layout(canvas, ctx));
     const columns = schedule(field.columns, field.rows, Math.random);
     return {
       grid,
@@ -195,9 +208,10 @@ export class Rain {
       };
       this.#stop = finish;
       const tick = (now: number) => {
-        // Rendering the art afresh, for a new width, ends the rain.
+        // Rendering the art afresh, for a new width, ends the rain, as does
+        // resizing what it fills, which its drops were planned to cover.
         if (this.#display.grid !== scene.grid) return finish();
-        this.#draw(scene, now - start);
+        if (!this.#draw(scene, now - start)) return finish();
         if (now - start >= scene.end) finish();
         else request = requestAnimationFrame(tick);
       };
@@ -205,16 +219,11 @@ export class Rain {
     });
   }
 
-  #draw({ grid, field, columns, canvas, ctx, colors }: Scene, time: number) {
-    // The rows of the field each writer's trail has passed, which keep their
-    // art.
-    const written = columns.map(({ writer }) => writtenRows(writer, time));
-    this.#display.reveal(
-      written
-        .slice(field.left, field.left + grid.columns)
-        .map((rows) => rows - field.top),
-    );
-
+  // Draws a moment of the rain, unless the field no longer covers the canvas.
+  #draw(
+    { grid, field, columns, canvas, ctx, colors }: Scene,
+    time: number,
+  ): boolean {
     const box = canvas.getBoundingClientRect();
     const ratio = window.devicePixelRatio || 1;
     const [width, height] = [box.width * ratio, box.height * ratio].map(
@@ -224,12 +233,21 @@ export class Rain {
       canvas.width = width;
       canvas.height = height;
     }
+    // The canvas draws on the art's own grid, in its font.
+    const layout = this.#layout(canvas, ctx);
+    if (!sameField(fieldOf(grid, layout), field)) return false;
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     ctx.clearRect(0, 0, box.width, box.height);
 
-    // The canvas draws on the art's own grid, in its font, and the field
-    // follows the art should it move.
-    const layout = this.#layout(canvas, ctx);
+    // The rows of the field each writer's trail has passed, which keep their
+    // art.
+    const written = columns.map(({ writer }) => writtenRows(writer, time));
+    this.#display.reveal(
+      written
+        .slice(field.left, field.left + grid.columns)
+        .map((rows) => rows - field.top),
+    );
+
     const { cell, size } = layout;
     const left = layout.left - field.left * cell;
     const top = layout.top + layout.baseline - field.top * size;
@@ -291,5 +309,6 @@ export class Rain {
       }
     });
     ctx.globalAlpha = 1;
+    return true;
   }
 }
