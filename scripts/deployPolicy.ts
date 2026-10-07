@@ -210,6 +210,56 @@ export function checkDomain(domains: unknown, target: DeploymentName) {
   return domain.zone_id;
 }
 
+/** A paginated or partial identity read cannot authorize a deployment. */
+export function checkApiResult(payload: unknown, completeList: boolean) {
+  const response = record(payload);
+  if (response.success !== true)
+    throw new Error("Cloudflare identity read did not succeed");
+  if (completeList && response.result_info !== undefined) {
+    const pagination = record(response.result_info);
+    if (
+      (pagination.total_pages !== undefined &&
+        (!Number.isInteger(pagination.total_pages) ||
+          pagination.total_pages !== 1)) ||
+      (pagination.total_count !== undefined &&
+        (!Array.isArray(response.result) ||
+          !Number.isInteger(pagination.total_count) ||
+          pagination.total_count !== response.result.length))
+    ) {
+      throw new Error("Cloudflare identity list is incomplete");
+    }
+  }
+  return response.result;
+}
+
+/** The newest existing deployment must route all traffic to one version. */
+export function checkDeployment(deployments: unknown) {
+  const values = record(deployments).deployments;
+  if (!Array.isArray(values) || !values.length)
+    throw new Error("No existing Worker deployment found");
+  const entries = values.map((value) => {
+    const entry = record(value);
+    if (typeof entry.created_on !== "string")
+      throw new Error("Existing Worker deployment dates are incomplete");
+    const timestamp = Date.parse(entry.created_on);
+    if (Number.isNaN(timestamp))
+      throw new Error("Existing Worker deployment dates are incomplete");
+    return { entry, timestamp };
+  });
+  const latest = [...entries].sort((a, b) => b.timestamp - a.timestamp)[0]
+    .entry;
+  const traffic = latest.versions;
+  if (
+    !Array.isArray(traffic) ||
+    traffic.length !== 1 ||
+    record(traffic[0]).percentage !== 100 ||
+    typeof record(traffic[0]).version_id !== "string" ||
+    !record(traffic[0]).version_id
+  )
+    throw new Error("Existing deployment is incomplete or splits live traffic");
+  return record(traffic[0]).version_id;
+}
+
 export interface DeploymentChecks {
   snapshot(): Promise<string>;
   inspect(): Promise<string>;

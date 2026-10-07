@@ -154,6 +154,8 @@ esac
     const inheritedArguments: Record<string, string>[] = [
       { TF_CLI_ARGS_plan: "-refresh=false" },
       { TF_CLI_ARGS: "-refresh=false" },
+      { TF_DATA_DIR: "/alternate/backend" },
+      { TF_WORKSPACE: "alternate" },
     ];
     for (const inherited of inheritedArguments) {
       const refused = await run(["update"], false, inherited);

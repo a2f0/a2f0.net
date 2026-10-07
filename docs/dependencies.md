@@ -100,11 +100,11 @@ existing default workspace. Keep decrypted SOPS variables private. Local
 
 Run `terraform/apply.sh --dry-run`. The entrypoint verifies the initialized
 backend and pinned Terraform CLI, rejects provisioners/external data programs,
-rejects inherited `TF_CLI_ARGS` flags, and requires provider refresh in its
-saved plan. It reads populated remote state with the six existing custom-domain
-resources. It
-matches their hostnames and services to explicit existing production identities
-and their account IDs to the private account variable. A domain migration
+rejects inherited `TF_CLI_ARGS`, `TF_DATA_DIR` and `TF_WORKSPACE` overrides, and
+requires provider refresh in its saved plan. It reads populated remote state
+with the six existing custom-domain resources. It matches their hostnames and
+services to explicit existing production identities and their account IDs to
+the private account variable. A domain migration
 requires a separate guard review. The entrypoint then creates and inspects a
 complete saved plan. Unsupported, deferred,
 errored, failed-check, provider-Action, deletion and replacement effects stop

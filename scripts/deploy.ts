@@ -4,7 +4,9 @@ import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { version as bunVersion, spawn } from "bun";
 import {
+  checkApiResult,
   checkConfiguration,
+  checkDeployment,
   checkDomain,
   checkPublicEndpoints,
   checkSettings,
@@ -137,22 +139,7 @@ async function main() {
     );
     if (!response.ok)
       throw new Error(`Cloudflare identity read failed (${response.status})`);
-    const payload = record(await response.json());
-    if (payload.success !== true)
-      throw new Error("Cloudflare identity read did not succeed");
-    if (completeList && payload.result_info !== undefined) {
-      const pagination = record(payload.result_info);
-      if (
-        (typeof pagination.total_pages === "number" &&
-          pagination.total_pages > 1) ||
-        (typeof pagination.total_count === "number" &&
-          Array.isArray(payload.result) &&
-          pagination.total_count !== payload.result.length)
-      ) {
-        throw new Error("Cloudflare identity list is incomplete");
-      }
-    }
-    return payload.result;
+    return checkApiResult(await response.json(), completeList);
   };
   const inspect = async () => {
     const path = `accounts/${account}/workers/scripts/${specification.worker}`;
@@ -169,24 +156,7 @@ async function main() {
     checkDomain(domains, target);
     // The validated Wrangler config has no route/routes and workers_dev=false.
     // Cloudflare documents that this preserves dashboard-managed routes on deploy.
-    const versions = record(deployments).deployments;
-    if (!Array.isArray(versions) || !versions.length)
-      throw new Error("No existing Worker deployment found");
-    const latest = [...versions]
-      .map(record)
-      .sort((a, b) =>
-        String(b.created_on).localeCompare(String(a.created_on)),
-      )[0];
-    const traffic = latest?.versions;
-    if (
-      !Array.isArray(traffic) ||
-      traffic.length !== 1 ||
-      record(traffic[0]).percentage !== 100 ||
-      typeof record(traffic[0]).version_id !== "string"
-    )
-      throw new Error(
-        "Existing deployment is incomplete or splits live traffic",
-      );
+    checkDeployment(deployments);
     // Fingerprints never expose binding or account response contents.
     return createHash("sha256")
       .update(

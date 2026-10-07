@@ -11,8 +11,8 @@ cd "$(dirname "$0")"
 
 # Inherited Terraform arguments can change plan mode or skip provider refresh.
 # This entrypoint owns every flag used for its reviewed saved plan.
-if env | grep -Eq '^TF_CLI_ARGS(=|_)'; then
-  echo 'Unset TF_CLI_ARGS variables before the guarded Terraform plan' >&2
+if env | grep -Eq '^(TF_CLI_ARGS(=|_)|TF_DATA_DIR=|TF_WORKSPACE=)'; then
+  echo 'Unset Terraform CLI argument, data-directory and workspace overrides before the guarded plan' >&2
   exit 1
 fi
 

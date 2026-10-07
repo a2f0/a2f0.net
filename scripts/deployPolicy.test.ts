@@ -1,7 +1,9 @@
 import { expect, test } from "bun:test";
 import { file } from "bun";
 import {
+  checkApiResult,
   checkConfiguration,
+  checkDeployment,
   checkDomain,
   checkPublicEndpoints,
   checkSettings,
@@ -186,6 +188,66 @@ test("live public endpoints and schedules must match the static-only config", ()
       }),
     ).toThrow();
   }
+});
+
+test("Cloudflare identity reads reject failed, partial and paginated lists", () => {
+  const complete = {
+    success: true,
+    result: [{ id: "existing-domain" }],
+    result_info: { total_pages: 1, total_count: 1 },
+  };
+  expect(checkApiResult(complete, true)).toEqual(complete.result);
+  expect(
+    checkApiResult({ success: true, result: { settings: true } }, true),
+  ).toEqual({ settings: true });
+  expect(() => checkApiResult({ ...complete, success: false }, true)).toThrow();
+  for (const result_info of [
+    { total_pages: 2, total_count: 1 },
+    { total_pages: "2", total_count: 1 },
+    { total_pages: 1, total_count: 2 },
+  ])
+    expect(() => checkApiResult({ ...complete, result_info }, true)).toThrow();
+  expect(checkApiResult(complete, false)).toEqual(complete.result);
+});
+
+test("the newest existing Worker deployment must route all traffic to one version", () => {
+  const newest = {
+    created_on: "2026-10-07T00:00:00.000Z",
+    versions: [{ percentage: 100, version_id: "current-version" }],
+  };
+  const older = {
+    created_on: "2026-09-07T00:00:00.000Z",
+    versions: [{ percentage: 50, version_id: "older-version" }],
+  };
+  expect(checkDeployment({ deployments: [older, newest] })).toBe(
+    "current-version",
+  );
+  expect(checkDeployment({ deployments: [newest, older] })).toBe(
+    "current-version",
+  );
+  expect(
+    checkDeployment({
+      deployments: [
+        { ...newest, created_on: "2026-10-07T00:00:00+05:00" },
+        {
+          ...older,
+          created_on: "2026-10-06T22:00:00Z",
+          versions: [{ percentage: 100, version_id: "later-by-time" }],
+        },
+      ],
+    }),
+  ).toBe("later-by-time");
+  for (const deployments of [
+    [],
+    [
+      older,
+      { ...newest, versions: [{ percentage: 99, version_id: "partial" }] },
+    ],
+    [older, { ...newest, versions: [{ percentage: 100, version_id: "" }] }],
+    [older, { ...newest, versions: [newest.versions[0], older.versions[0]] }],
+    [{ ...newest, created_on: "invalid" }],
+  ])
+    expect(() => checkDeployment({ deployments })).toThrow();
 });
 
 function checks() {
