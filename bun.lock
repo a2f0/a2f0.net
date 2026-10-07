@@ -9,7 +9,7 @@
         "@commitlint/cli": "21.2.3",
         "@commitlint/config-conventional": "21.2.3",
         "@types/bun": "1.4.2",
-        "agent-tool": "github:a2f0/agent-tool#ef1a91300c347ac13a1cb163d85ad734bfe81bf9",
+        "agent-tool": "github:a2f0/agent-tool#1ddee340e4d6e9a62fed9e02580610439f9e88b1",
         "husky": "9.1.7",
         "jsonc-parser": "3.3.1",
         "knip": "6.40.0",
@@ -828,7 +828,7 @@
 
     "agent-base": ["agent-base@7.1.4", "", {}, "sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ=="],
 
-    "agent-tool": ["agent-tool@github:a2f0/agent-tool#ef1a913", { "bin": { "agent-tool": "src/index.ts" } }, "a2f0-agent-tool-ef1a913", "sha512-+8jnTz1SurL0t37b+3Yj8BCjpcdzwX5GZVIOWw6FE6T8/LKZOxWm40BEE6XNcgGLBd472SoBbzjDTvJYy3JVyg=="],
+    "agent-tool": ["@a2f0/agent-tool@github:a2f0/agent-tool#1ddee34", { "bin": { "agent-tool": "src/index.ts" } }, "a2f0-agent-tool-1ddee34", "sha512-vrtXE0d3Vj+usVZLqE4JutLBkdyvDmFFZe5qximeESCNiGbA5cG0wVl5EqBFOyViXiRJd/O+NO3oRrakS5WyIw=="],
 
     "ajv": ["ajv@8.20.0", "", { "dependencies": { "fast-deep-equal": "^3.1.3", "fast-uri": "^3.0.1", "json-schema-traverse": "^1.0.0", "require-from-string": "^2.0.2" } }, "sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA=="],
 
