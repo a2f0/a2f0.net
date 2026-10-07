@@ -261,8 +261,8 @@ Keep versions exact and the agent-tool alias pinned to its full Git commit.
 Install both harnesses through `agents:sync` only after Bun resolves that exact
 new source, and commit the pin, lock, managed skills and ownership file together.
 Bun settings live in `bunfig.toml`, and dependency build permissions live in
-`package.json`. Dependabot groups Bun, Actions, and Terraform updates. Actions
-stay pinned by commit SHA with version comments.
+`package.json`. Dependabot is disabled; dependency updates go through this
+workflow. Actions stay pinned by commit SHA with version comments.
 
 Update `terraform/.terraform-version` and the CI version together. Provider or
 module updates require the authentic existing S3 backend and a complete,
