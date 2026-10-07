@@ -62,15 +62,35 @@ several apps.
   the viewer, which releases its WebGL context.
 - `dnbm/` mounts the dnbm drum and bass sequencer from `@a2f0/dnbm`, which
   renders it in the page inside a shadow root, from assets the `copy-dnbm`
-  script copies into `public/dnbm/`. Presses inside it reach the window, which
-  comes to the front as for any of its content, and its keyboard shortcuts act
-  only while focus is inside it. Its window opens fitted to the sequencer's
-  1200 by 800 desktop layout, within the desktop, behind the other apps, once
-  the instance reports it ready; a smaller window scrolls. Audio starts on the
-  first press inside the app, and the song autosaves to this origin's local
-  storage.
+  script copies into `public/dnbm/`. It mounts with `actions: false`, so the
+  window's chrome takes the place of the sequencer's own buttons: the File menu
+  has New, Open…, Save, Save As…, and Export WAV…; the toolbar has Play (Stop
+  while playing), Undo, and Redo; and the View menu plays or stops too. Each
+  runs the instance's command and is disabled while the sequencer can't take
+  it: until it is ready, and while it asks something in a dialog. The window
+  runs a command inside the press itself, so the file pickers that Open…, Save
+  As…, and a first Save show keep the press's user activation. The window's
+  title names the song, marked with ● while it has unsaved changes, as in
+  "● Undertow — dnbm"; minimized or closed, the window and its taskbar button
+  show "dnbm" again. The sequencer keeps a slim top bar with the song's own
+  fields: its title, play mode, tempo, swing, position, scope, and examples.
+  Presses inside it, steps and knobs included, reach the window, which comes to
+  the front as for any of its content, and open menus close; its keyboard
+  shortcuts act only while focus is inside it. Its window opens fitted to the
+  sequencer's 1200 by 800 desktop layout, within the desktop, behind the other
+  apps, once the instance reports it ready; a smaller window scrolls. Audio
+  starts on the first press inside the app or on Play, and the song autosaves
+  to this origin's local storage.
 - `dnbm-player/` mounts the dnbm player from the same package and copied
   assets the same way; it plays dnbm's example songs as a playlist through the
-  same synthesizer. Its window opens fitted to the player and its whole
-  playlist, between the skyline and the artwork, once the player is ready with
-  its songs. It stores nothing.
+  same synthesizer. Its controls sit in the window's chrome too: the toolbar
+  has Previous, Play (Pause while playing), Next, and Shuffle and Repeat, shown
+  pressed while on; the View menu has Stop, and Shuffle and Repeat, checked
+  while on. The player keeps its display, seek, and volume, and the window's
+  title names the current song. Its window opens fitted to the player and its
+  whole playlist, between the skyline and the artwork, once the player is
+  ready with its songs. It stores nothing.
+
+`shared/useDnbmState.ts` follows a dnbm instance's state for both windows'
+chrome, and `shared/useWindowTitle.ts` names what an app shows in its window's
+title.

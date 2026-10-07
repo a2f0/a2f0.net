@@ -5,10 +5,17 @@ const asciiArtWindow = () => $("section.window:has(.ascii-art-window)");
 const skylineWindow = () => $("section.window:has(.skyline-window)");
 const dnbmWindow = () => $("section.window:has(.dnbm-window)");
 const playerWindow = () => $("section.window:has(.dnbm-player-window)");
+// A window's title is its app's, or names what the app shows before it, as the
+// dnbm windows name their song: "Undertow — dnbm".
+const appTitle = (title: string | null | undefined) =>
+  title?.split(" — ").at(-1);
+const titleOf = (app: string) => new RegExp(`^(.+ — )?${app}$`);
 // A taskbar button carries its window's title. A CSS selector, unlike a text
 // selector, finds no match without searching the artwork's shadow root.
-const taskbar = (title: string) =>
-  $(`.desktop-taskbar-button[title="${title}"]`);
+const taskbar = (app: string) =>
+  $(
+    `.desktop-taskbar-button[title="${app}"], .desktop-taskbar-button[title$=" — ${app}"]`,
+  );
 // WebDriver's code for the Shift key.
 const SHIFT = "\uE008";
 
@@ -144,6 +151,8 @@ const dnbmApp = () =>
       app: root && {
         embedded: root.querySelector(".frame")?.hasAttribute("data-embed"),
         wordmark: wordmark && getComputedStyle(wordmark).display,
+        // The window's menus and toolbar take the place of these buttons.
+        ownActions: root.querySelector(".topbar .play, .files button") !== null,
         steps: root.querySelectorAll(".cell").length > 0,
       },
     };
@@ -164,6 +173,8 @@ const playerApp = () =>
       app: root && {
         embedded: root.querySelector(".frame")?.hasAttribute("data-embed"),
         wordmark: wordmark && getComputedStyle(wordmark).display,
+        // The window's toolbar and View menu take the place of these buttons.
+        ownActions: root.querySelector(".controls button") !== null,
         tracks: root.querySelectorAll(".track").length,
       },
     };
@@ -222,6 +233,61 @@ const pressVisible = async (selector: string) => {
     .perform();
 };
 
+// Presses the first element matching `target` inside a dnbm app where it
+// shows in front of the other windows: a grid cell, say, or a knob.
+const pressInApp = async (selector: string, target: string) => {
+  const { x, y } = await browser.execute(
+    (regionSelector, targetSelector) => {
+      const region = document.querySelector(regionSelector);
+      const root = region?.shadowRoot;
+      if (!region || !root) throw new Error(`Missing ${regionSelector}`);
+      for (const element of root.querySelectorAll(targetSelector)) {
+        const { left, top, width, height } = element.getBoundingClientRect();
+        const x = Math.round(left + width / 2);
+        const y = Math.round(top + height / 2);
+        if (
+          document.elementFromPoint(x, y) === region &&
+          root.elementFromPoint(x, y)?.closest(targetSelector) === element
+        )
+          return { x, y };
+      }
+      throw new Error(`No ${targetSelector} shows in ${regionSelector}`);
+    },
+    selector,
+    target,
+  );
+  await browser
+    .action("pointer")
+    .move({ origin: "viewport", x, y })
+    .down()
+    .up()
+    .perform();
+};
+
+// The sequencer's and the player's actions in their windows' toolbars, by label.
+const dnbmAction = (label: string) =>
+  dnbmWindow().$(`.window-toolbar button[aria-label='${label}']`);
+const playerAction = (label: string) =>
+  playerWindow().$(`.window-toolbar button[aria-label='${label}']`);
+const toolbarState = (frame: ReturnType<typeof $>) =>
+  frame.$$(".window-toolbar-actions button").map(async (button) => ({
+    label: await button.getAttribute("aria-label"),
+    enabled: await button.isEnabled(),
+    pressed: await button.getAttribute("aria-pressed"),
+  }));
+const dnbmTitle = () => dnbmWindow().$(".window-titlebar-title").getText();
+const playerTitle = () => playerWindow().$(".window-titlebar-title").getText();
+
+// The sequencer's File menu: each item, and whether it is enabled. The menu
+// stays open.
+const dnbmFileMenu = async () => {
+  if (!(await dnbmWindow().$(".window-menubar-dropdown").isExisting()))
+    await dnbmWindow().$("button=File").click();
+  return dnbmWindow()
+    .$$(".window-menubar-dropdown button")
+    .map(async (item) => [await item.getText(), await item.isEnabled()]);
+};
+
 // The resume's print frame would open the browser's print dialog. Record the
 // PDF it was asked to print instead.
 const stubFramePrint = () =>
@@ -257,21 +323,23 @@ const printedPdf = () =>
     };
   });
 
-// The window whose title bar is foremost on the desktop.
-const frontWindowTitle = () =>
-  browser.execute(() => {
-    const windows = [
-      ...document.querySelectorAll<HTMLElement>(
-        ".desktop-surface > section.window",
-      ),
-    ];
-    const front = windows.reduce((top, candidate) =>
-      Number(candidate.style.zIndex) > Number(top.style.zIndex)
-        ? candidate
-        : top,
-    );
-    return front.querySelector(".window-titlebar-title")?.textContent;
-  });
+// The app of the window foremost on the desktop.
+const frontWindowApp = async () =>
+  appTitle(
+    await browser.execute(() => {
+      const windows = [
+        ...document.querySelectorAll<HTMLElement>(
+          ".desktop-surface > section.window",
+        ),
+      ];
+      const front = windows.reduce((top, candidate) =>
+        Number(candidate.style.zIndex) > Number(top.style.zIndex)
+          ? candidate
+          : top,
+      );
+      return front.querySelector(".window-titlebar-title")?.textContent;
+    }),
+  );
 
 describe("Experiment desktop", () => {
   beforeEach(async () => {
@@ -282,6 +350,15 @@ describe("Experiment desktop", () => {
       timeoutMsg: "the website did not mount inside its shadow root",
     });
   });
+
+  // The sequencer autosaves its song in this origin's storage. Start each
+  // test from the example song, even after a test that changed it failed.
+  afterEach(() =>
+    browser.execute(() => {
+      localStorage.removeItem("dnbm:song");
+      localStorage.removeItem("dnbm:saved");
+    }),
+  );
 
   it("renders every app with the published window styles", async () => {
     await expect(
@@ -296,9 +373,12 @@ describe("Experiment desktop", () => {
     await expect(skylineWindow().$(".window-titlebar-title")).toHaveText(
       "Skyline",
     );
-    await expect(dnbmWindow().$(".window-titlebar-title")).toHaveText("dnbm");
+    // The dnbm windows name their song once their app is ready.
+    await expect(dnbmWindow().$(".window-titlebar-title")).toHaveText(
+      titleOf("dnbm"),
+    );
     await expect(playerWindow().$(".window-titlebar-title")).toHaveText(
-      "dnbm player",
+      titleOf("dnbm player"),
     );
     expect((await siteState()).ascii?.trim().length).toBeGreaterThan(0);
 
@@ -576,7 +656,7 @@ describe("Experiment desktop", () => {
       },
     });
     // The skyline opens behind the artwork.
-    expect(await frontWindowTitle()).toBe("a2f0.net");
+    expect(await frontWindowApp()).toBe("a2f0.net");
   });
 
   it("opens the skyline at three quarters of the desktop", async () => {
@@ -619,7 +699,7 @@ describe("Experiment desktop", () => {
     // The skyline's scene shows right of the artwork, which is in front.
     await pressSkylineScene();
     await browser.waitUntil(
-      async () => (await frontWindowTitle()) === "Skyline",
+      async () => (await frontWindowApp()) === "Skyline",
       { timeoutMsg: "pressing the skyline did not raise its window" },
     );
     // The press reaches the window from the page itself: no frame takes
@@ -734,24 +814,106 @@ describe("Experiment desktop", () => {
         embedded: true,
         // The window's title names the app.
         wordmark: "none",
+        ownActions: false,
         tracks: expect.any(Number),
       },
     });
     // The player opens behind the artwork.
-    expect(await frontWindowTitle()).toBe("a2f0.net");
+    expect(await frontWindowApp()).toBe("a2f0.net");
 
-    // In front, a press on play starts its audio engine: the clock runs.
+    // In front, Play in the window's toolbar starts its audio engine: the
+    // clock runs.
     await taskbar("dnbm player").click();
-    await playerRegion().shadow$(".control.play").click();
+    await playerAction("Play").click();
     await browser.waitUntil(
       async () => (await playerRegion().shadow$(".time").getText()) !== "0:00",
       { timeoutMsg: "the player's clock did not run" },
     );
-    await playerRegion().shadow$(".control.stop").click();
+    await playerWindow().$("button=View").click();
+    await playerWindow().$("button*=Stop").click();
     await expect(playerRegion().shadow$(".player")).toHaveAttribute(
       "data-state",
       "stopped",
     );
+  });
+
+  it("drives the dnbm player from its window toolbar and View menu", async () => {
+    await waitForDnbmApps();
+    await taskbar("dnbm player").click();
+    const player = () => playerRegion().shadow$(".player");
+    const action = (label: string, pressed: string | null = null) => ({
+      label,
+      enabled: true,
+      pressed,
+    });
+    await browser.waitUntil(
+      async () =>
+        (await toolbarState(playerWindow())).every(({ enabled }) => enabled),
+      { timeoutMsg: "the player's toolbar did not enable" },
+    );
+    expect(await toolbarState(playerWindow())).toEqual([
+      action("Previous"),
+      action("Play"),
+      action("Next"),
+      action("Shuffle", "false"),
+      action("Repeat", "false"),
+    ]);
+    // The window names the playlist's first song.
+    const first = await playerTitle();
+    expect(first).toMatch(titleOf("dnbm player"));
+    expect(first).not.toBe("dnbm player");
+
+    // Stopped at the start, there is nothing to stop.
+    await playerWindow().$("button=View").click();
+    await expect(playerWindow().$("button*=Stop")).toBeDisabled();
+    await playerWindow().$("button=View").click();
+
+    // Next and Previous move through the playlist, and the window names the
+    // current song.
+    await playerAction("Next").click();
+    await browser.waitUntil(async () => (await playerTitle()) !== first, {
+      timeoutMsg: "the window did not name the next song",
+    });
+    expect(await playerTitle()).toMatch(titleOf("dnbm player"));
+    await playerAction("Previous").click();
+    await browser.waitUntil(async () => (await playerTitle()) === first, {
+      timeoutMsg: "the window did not name the previous song",
+    });
+
+    await playerAction("Play").click();
+    await expect(player()).toHaveAttribute("data-state", "playing");
+    await playerAction("Pause").click();
+    await expect(player()).toHaveAttribute("data-state", "paused");
+    await expect(playerAction("Play")).toBeExisting();
+
+    // Shuffle and repeat toggle from the toolbar or the View menu, which
+    // checks them.
+    await playerAction("Shuffle").click();
+    await expect(playerAction("Shuffle")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await playerWindow().$("button=View").click();
+    await expect(playerWindow().$("button*=Shuffle")).toHaveText("✓ Shuffle");
+    await playerWindow().$("button*=Repeat").click();
+    await expect(playerAction("Repeat")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await playerWindow().$("button=View").click();
+    await playerWindow().$("button*=Shuffle").click();
+    await expect(playerAction("Shuffle")).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+
+    // Paused, Stop goes back to the start.
+    await playerWindow().$("button=View").click();
+    await playerWindow().$("button*=Stop").click();
+    await expect(player()).toHaveAttribute("data-state", "stopped");
+    await playerWindow().$("button=View").click();
+    await expect(playerWindow().$("button*=Stop")).toBeDisabled();
+    await playerWindow().$("button=View").click();
   });
 
   it("renders the dnbm sequencer in the page from its copied assets, fitted to its layout", async () => {
@@ -773,21 +935,51 @@ describe("Experiment desktop", () => {
         embedded: true,
         // The window's title names the app.
         wordmark: "none",
+        ownActions: false,
         steps: true,
       },
     });
     // The window opens fitted to the sequencer's 1200px desktop layout.
     expect(width).toBeGreaterThanOrEqual(1200);
     // The sequencer opens behind the other apps.
-    expect(await frontWindowTitle()).toBe("a2f0.net");
+    expect(await frontWindowApp()).toBe("a2f0.net");
+  });
 
-    // In front, a press on play starts its audio engine: the playhead moves.
+  it("plays and stops the dnbm sequencer from its window toolbar and View menu", async () => {
+    await waitForDnbmApps();
     await taskbar("dnbm").click();
-    await dnbmRegion().shadow$(".play").click();
+    await expect(dnbmAction("Play")).toBeEnabled();
+    expect(await toolbarState(dnbmWindow())).toEqual([
+      { label: "Play", enabled: true, pressed: null },
+      // A song just opened has nothing to undo or redo.
+      { label: "Undo", enabled: false, pressed: null },
+      { label: "Redo", enabled: false, pressed: null },
+    ]);
+
+    // Play starts the audio engine: the playhead moves, and the action stops.
+    await dnbmAction("Play").click();
     await dnbmRegion().shadow$(".cell.now").waitForExist({
       timeoutMsg: "the sequencer's playhead did not move",
     });
-    await dnbmRegion().shadow$(".play").click();
+    await dnbmAction("Stop").click();
+    await dnbmRegion().shadow$(".cell.now").waitForExist({
+      reverse: true,
+      timeoutMsg: "the sequencer did not stop",
+    });
+    await expect(dnbmAction("Play")).toBeExisting();
+
+    // The View menu plays and stops too.
+    await dnbmWindow().$("button=View").click();
+    await dnbmWindow().$("button=Play").click();
+    await dnbmRegion().shadow$(".cell.now").waitForExist({
+      timeoutMsg: "the View menu did not play the sequencer",
+    });
+    await dnbmWindow().$("button=View").click();
+    await dnbmWindow().$("button=Stop").click();
+    await dnbmRegion().shadow$(".cell.now").waitForExist({
+      reverse: true,
+      timeoutMsg: "the View menu did not stop the sequencer",
+    });
   });
 
   it("raises a dnbm window on a press inside it", async () => {
@@ -798,7 +990,7 @@ describe("Experiment desktop", () => {
     await taskbar("Resume").click();
     await pressVisible(".dnbm-player-window [role=region]");
     await browser.waitUntil(
-      async () => (await frontWindowTitle()) === "dnbm player",
+      async () => (await frontWindowApp()) === "dnbm player",
       { timeoutMsg: "pressing the dnbm player did not raise its window" },
     );
     // The press reaches the window from the page itself: no frame takes
@@ -814,7 +1006,7 @@ describe("Experiment desktop", () => {
 
     // The sequencer, behind every other window, shows below them.
     await pressVisible(".dnbm-window [role=region]");
-    await browser.waitUntil(async () => (await frontWindowTitle()) === "dnbm", {
+    await browser.waitUntil(async () => (await frontWindowApp()) === "dnbm", {
       timeoutMsg: "pressing the dnbm sequencer did not raise its window",
     });
   });
@@ -848,6 +1040,131 @@ describe("Experiment desktop", () => {
     expect((await dnbmPlayback()).sequencer).toBe(false);
   });
 
+  it("closes open menus on a press on a dnbm grid cell or knob", async () => {
+    await waitForDnbmApps();
+    await taskbar("dnbm").click();
+    const start = $(".desktop-taskbar button[aria-label='Menu']");
+    const windowMenu = () => dnbmWindow().$(".window-menubar-dropdown");
+    const song = (await dnbmTitle()).replace(/^● /, "");
+
+    await start.click();
+    await expect(start).toHaveAttribute("aria-expanded", "true");
+    await pressInApp(".dnbm-window [role=region]", ".control.knob");
+    await expect($(".menu")).not.toBeExisting();
+    await expect(start).toHaveAttribute("aria-expanded", "false");
+
+    await dnbmWindow().$("button=View").click();
+    await expect(windowMenu()).toBeDisplayed();
+    await pressInApp(".dnbm-window [role=region]", ".control.knob");
+    await expect(windowMenu()).not.toBeExisting();
+
+    // A press on a step paints it, and the window marks the song as changed.
+    await start.click();
+    await expect(start).toHaveAttribute("aria-expanded", "true");
+    await pressInApp(".dnbm-window [role=region]", ".grid-row .cell");
+    await expect($(".menu")).not.toBeExisting();
+    await expect(start).toHaveAttribute("aria-expanded", "false");
+    await browser.waitUntil(async () => (await dnbmTitle()) === `● ${song}`, {
+      timeoutMsg: "the window did not mark the painted song as changed",
+    });
+
+    await dnbmWindow().$("button=File").click();
+    await expect(windowMenu()).toBeDisplayed();
+    await pressInApp(".dnbm-window [role=region]", ".grid-row .cell");
+    await expect(windowMenu()).not.toBeExisting();
+
+    // Undo takes both steps back, and the song is as it was.
+    await dnbmAction("Undo").click();
+    await dnbmAction("Undo").click();
+    await browser.waitUntil(async () => (await dnbmTitle()) === song, {
+      timeoutMsg: "undoing the paints did not restore the song",
+    });
+    await expect(dnbmAction("Undo")).toBeDisabled();
+    await expect(dnbmAction("Redo")).toBeEnabled();
+  });
+
+  it("disables the dnbm File menu while the sequencer asks something", async () => {
+    await waitForDnbmApps();
+    await taskbar("dnbm").click();
+    const fileItems = (enabled: boolean) => [
+      ["New", enabled],
+      ["Open…", enabled],
+      ["Save", enabled],
+      ["Save As…", enabled],
+      ["Export WAV…", enabled],
+      ["Close", true],
+    ];
+    await expect(dnbmAction("Play")).toBeEnabled();
+    expect(await dnbmFileMenu()).toEqual(fileItems(true));
+    await dnbmWindow().$("button=File").click();
+
+    // With a change to discard, New asks first, in a dialog over the app,
+    // which takes no command until it is answered.
+    await pressInApp(".dnbm-window [role=region]", ".grid-row .cell");
+    await expect(dnbmAction("Undo")).toBeEnabled();
+    await dnbmWindow().$("button=File").click();
+    await dnbmWindow().$("button=New").click();
+    const dialog = () => dnbmRegion().shadow$("dialog[open]");
+    await expect(dialog()).toBeDisplayed();
+    expect(await dnbmFileMenu()).toEqual(fileItems(false));
+    await dnbmWindow().$("button=File").click();
+    expect(await toolbarState(dnbmWindow())).toEqual([
+      { label: "Play", enabled: false, pressed: null },
+      { label: "Undo", enabled: false, pressed: null },
+      { label: "Redo", enabled: false, pressed: null },
+    ]);
+
+    // Cancelled, the dialog leaves the song as it was, and the menu enabled.
+    await dialog().$("button:not(.dialog-accept)").click();
+    await expect(dialog()).not.toBeExisting();
+    expect(await dnbmFileMenu()).toEqual(fileItems(true));
+    await dnbmWindow().$("button=File").click();
+    await expect(dnbmAction("Undo")).toBeEnabled();
+    await dnbmAction("Undo").click();
+    await expect(dnbmAction("Undo")).toBeDisabled();
+  });
+
+  it("opens the dnbm file pickers inside the menu press", async () => {
+    await waitForDnbmApps();
+    await taskbar("dnbm").click();
+    // Record whether each picker opens with the press's user activation, as
+    // browsers require, and cancel it.
+    await browser.execute(() => {
+      const opened: [string, boolean][] = [];
+      const picker = (name: string) => async () => {
+        opened.push([name, navigator.userActivation.isActive]);
+        throw new DOMException("The user aborted a request.", "AbortError");
+      };
+      Object.assign(window, {
+        dnbmPickers: opened,
+        showOpenFilePicker: picker("open"),
+        showSaveFilePicker: picker("save"),
+      });
+    });
+    const pickers = () =>
+      browser.execute(
+        () =>
+          (window as unknown as { dnbmPickers: [string, boolean][] })
+            .dnbmPickers,
+      );
+    await expect(dnbmAction("Play")).toBeEnabled();
+
+    await dnbmWindow().$("button=File").click();
+    await dnbmWindow().$("button=Open…").click();
+    await browser.waitUntil(async () => (await pickers()).length === 1, {
+      timeoutMsg: "Open… did not open a picker",
+    });
+    await dnbmWindow().$("button=File").click();
+    await dnbmWindow().$("button=Save As…").click();
+    await browser.waitUntil(async () => (await pickers()).length === 2, {
+      timeoutMsg: "Save As… did not open a picker",
+    });
+    expect(await pickers()).toEqual([
+      ["open", true],
+      ["save", true],
+    ]);
+  });
+
   it("opens apps from the start menu", async () => {
     const start = $(".desktop-taskbar button[aria-label='Menu']");
     await expect(start).toHaveAttribute("aria-haspopup", "menu");
@@ -874,7 +1191,7 @@ describe("Experiment desktop", () => {
     await expect($(".menu")).not.toBeExisting();
     await expect(start).toHaveAttribute("aria-expanded", "false");
     await expect(skylineWindow()).toBeExisting();
-    expect(await frontWindowTitle()).toBe("Skyline");
+    expect(await frontWindowApp()).toBe("Skyline");
     await expect(taskbar("Skyline")).toHaveAttribute("aria-pressed", "true");
   });
 
@@ -899,14 +1216,23 @@ describe("Experiment desktop", () => {
           };
         }),
       );
+    await waitForDnbmApps();
     await resumeWindow().$("button[aria-label='Minimize window']").click();
+    await playerWindow().$("button[aria-label='Minimize window']").click();
     await skylineWindow().$("button[aria-label='Close window']").click();
     await expect(skylineWindow()).not.toBeExisting();
 
-    // A closed window leaves the taskbar; a minimized one stays, muted.
+    // A closed window leaves the taskbar; a minimized one stays, muted. The
+    // sequencer's names its song, and the minimized player's only its app.
     const chip = { icon: true, mutedBorder: true };
     expect(await taskbarState()).toEqual([
-      { ...chip, title: "dnbm", pressed: "false", state: "open", muted: false },
+      {
+        ...chip,
+        title: expect.stringMatching(/^.+ — dnbm$/),
+        pressed: "false",
+        state: "open",
+        muted: false,
+      },
       {
         ...chip,
         title: "Resume",
@@ -918,8 +1244,8 @@ describe("Experiment desktop", () => {
         ...chip,
         title: "dnbm player",
         pressed: "false",
-        state: "open",
-        muted: false,
+        state: "minimized",
+        muted: true,
       },
       // Only the front window's button is pressed.
       {
