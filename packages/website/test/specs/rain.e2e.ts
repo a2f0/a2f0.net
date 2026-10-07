@@ -100,6 +100,48 @@ describe("Code rain", () => {
     }
   });
 
+  it("rains over the whole page, around the art as well as on it", async () => {
+    const clock = await freezeClock();
+    try {
+      await openAscii();
+      await play().click();
+      await drawAt(3000);
+      const { page, rain, above, below } = await browser.execute(() => {
+        const canvas = document.querySelector<HTMLCanvasElement>(".rain");
+        const ctx = canvas?.getContext("2d");
+        const main = document.querySelector("main");
+        const ascii = document.querySelector(".ascii");
+        if (!canvas || !ctx || !main || !ascii) throw new Error("No rain");
+        const box = canvas.getBoundingClientRect();
+        const art = ascii.getBoundingClientRect();
+        const scale = canvas.height / box.height;
+        // How many pixels are lit in a band of rows, given in page pixels.
+        const lit = (from: number, to: number) => {
+          const [top, bottom] = [from, to].map((y) =>
+            Math.round((y - box.top) * scale),
+          );
+          if (bottom <= top) return 0;
+          const { data } = ctx.getImageData(0, top, canvas.width, bottom - top);
+          let count = 0;
+          for (let i = 3; i < data.length; i += 4) if (data[i]) count++;
+          return count;
+        };
+        const { width, height } = main.getBoundingClientRect();
+        return {
+          page: [width, height],
+          rain: [box.width, box.height],
+          above: lit(box.top, art.top),
+          below: lit(art.bottom, box.bottom),
+        };
+      });
+      expect(rain).toEqual(page);
+      expect(above).toBeGreaterThan(0);
+      expect(below).toBeGreaterThan(0);
+    } finally {
+      await clock.remove();
+    }
+  });
+
   it("writes each column of the art from the top down", async () => {
     const clock = await freezeClock();
     try {
@@ -224,8 +266,25 @@ describe("Code rain", () => {
       await browser.setWindowSize(900, height);
       await expect($(".rain")).not.toBeExisting();
       await expect(stage()).not.toHaveAttribute("data-raining");
-      expect(await columns()).not.toBe("200");
+      // The page resizing ends the rain before the art renders afresh.
+      await browser.waitUntil(async () => (await columns()) !== "200", {
+        timeoutMsg: "the art never rendered for the new width",
+      });
       expect(ink(await art())).toBeGreaterThan(1000);
+    } finally {
+      await browser.setWindowSize(width, height);
+    }
+  });
+
+  it("ends the rain when the page is resized to a new height", async () => {
+    const { width, height } = await browser.getWindowSize();
+    try {
+      const finished = await openAscii();
+      await play().click();
+      await expect(stage()).toHaveAttribute("data-raining");
+      // The same width keeps the art as it is, so only the page changes.
+      await browser.setWindowSize(width, height - 200);
+      await settled(finished);
     } finally {
       await browser.setWindowSize(width, height);
     }

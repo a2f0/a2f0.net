@@ -12,7 +12,8 @@ import { TerminalWindow } from "./terminal";
 
 /**
  * Wires up the artwork, toolbar, and terminal window inside a container
- * holding index.html's markup. The ASCII is sized to the container's width.
+ * holding index.html's markup. The ASCII is sized to the container's width,
+ * and the code rain fills the container.
  * Returns a function that removes the listeners, stops the animations and
  * observers, and leaves any work still under way from changing the markup.
  */
@@ -43,7 +44,7 @@ export const mountSite = (container: HTMLElement): (() => void) => {
     () => settle(),
   );
   const etcher = new Etcher(stage, graffiti);
-  const rain = new Rain(stage, ascii, display);
+  const rain = new Rain(container, stage, ascii, display);
   const terminal = new TerminalWindow(
     canvas,
     find<HTMLElement>(".window"),
