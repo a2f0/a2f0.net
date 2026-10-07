@@ -43,9 +43,9 @@ stylesheet, and the hooks that register its window chrome
 (`use<Name>Menus.ts`, `use<Name>Toolbar.tsx`). `shared/` holds helpers used by
 several apps.
 
-- `resume/` renders the shared resume as SVG and puts its downloads, theme, and
-  scale in the File and View menus. Its window opens fitted to the page once
-  the SVG has rendered.
+- `resume/` renders the shared resume as SVG and puts its downloads, printing
+  (the PDF, in the light theme), theme, and scale in the File and View menus.
+  Its window opens fitted to the page once the SVG has rendered.
 - `ascii-art/` runs the a2f0.net artwork from `packages/website` inside a
   shadow root. Its controls (the animation, the music player, and the ASCII
   view, with its pressed state) sit in the window's toolbar and its View menu.

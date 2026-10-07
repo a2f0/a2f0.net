@@ -1,5 +1,6 @@
 import { resumeConfiguration } from "@a2f0/shared/configuration";
 import { downloadPdf, downloadSvg } from "@a2f0/shared/downloads";
+import { printResume } from "@a2f0/shared/print";
 import resume from "@a2f0/shared/resume.json";
 import type { ResumeColors } from "@a2f0/shared/resumeConfig";
 import {
@@ -34,7 +35,10 @@ const LIGHT: ResumeColors = {
 export const isDarkTheme = (colors: ResumeColors) =>
   colors.foregroundColor === darkForegroundColor;
 
-/** The resume's File menu downloads and its View menu theme and scale. */
+/**
+ * The resume's File menu downloads and prints it, and its View menu sets its
+ * theme and scale.
+ */
 export function useResumeMenus(
   colors: ResumeColors,
   setColors: (colors: ResumeColors) => void,
@@ -47,7 +51,7 @@ export function useResumeMenus(
   useWindowFileMenuItem({
     id: "download-pdf",
     label: "Download PDF",
-    priority: 20,
+    priority: 30,
     onClick: () => {
       downloadPdf(colors);
       showStatusMessage?.("Downloaded PDF");
@@ -56,11 +60,18 @@ export function useResumeMenus(
   useWindowFileMenuItem({
     id: "download-svg",
     label: "Download SVG",
-    priority: 10,
+    priority: 20,
     onClick: async () => {
       await downloadSvg(colors);
       showStatusMessage?.("Downloaded SVG");
     },
+  });
+  // Prints on white paper in either theme.
+  useWindowFileMenuItem({
+    id: "print",
+    label: "Print",
+    priority: 10,
+    onClick: printResume,
   });
 
   useWindowViewMenuItem({
