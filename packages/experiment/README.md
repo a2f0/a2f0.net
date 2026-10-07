@@ -12,9 +12,11 @@ in the same shape as Tearleads' mini-apps. The artwork window reads
 site's own `mountSite` inside a shadow root, so the site's stylesheet and the
 window stylesheets cannot restyle each other. Its controls sit in the window's
 toolbar and View menu. The skyline window mounts the viewer from
-[`@a2f0/skyline`](https://www.npmjs.com/package/@a2f0/skyline) in an iframe,
-and the dnbm windows mount the sequencer and the player from
-[`@a2f0/dnbm`](https://www.npmjs.com/package/@a2f0/dnbm) the same way.
+[`@a2f0/skyline`](https://www.npmjs.com/package/@a2f0/skyline) in an iframe.
+The dnbm windows render the sequencer and the player from
+[`@a2f0/dnbm`](https://www.npmjs.com/package/@a2f0/dnbm) in the page itself,
+each inside a shadow root that keeps its styles and the desktop's apart, so a
+press inside either reaches its window like any other.
 
 The taskbar along the bottom starts with the windowing package's `StartMenu`,
 which lists every mini-app with its icon, followed by a button per open window,
@@ -46,5 +48,7 @@ The skyline viewer opens `/skyline/index.html` and loads its other pages
 relative to it, so Wrangler serves HTML with `auto-trailing-slash`: it
 redirects that page to `/skyline/`, where `drop-trailing-slash` would redirect
 it to `/skyline` and send the viewer's relative URLs to the root. The dnbm
-sequencer loads its scripts, engine, and songs relative to `/dnbm/` the same
-way, and the player loads them relative to `/dnbm/player/`.
+apps load their code (`mount.js` and `player/mount.js`), stylesheets,
+AudioWorklet, engine, and songs from `/dnbm/`, the URL they mount with. The
+package's loader imports that code at runtime with an `import()` webpack leaves
+to the browser, so the app's bundle holds only the loader.

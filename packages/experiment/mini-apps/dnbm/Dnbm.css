@@ -1,5 +1,6 @@
 /* The sequencer draws its own dark surface edge to edge, so it spans the
-   body's padding, on that surface's color while it loads. */
+   body's padding, on that surface's color while it loads. It fills this
+   element, which needs the explicit height: without one it shows nothing. */
 .dnbm-window {
   height: calc(100% + 2 * var(--space-md));
   margin: calc(-1 * var(--space-md));

@@ -21,7 +21,7 @@
       "name": "@a2f0/experiment",
       "version": "0.1.0",
       "dependencies": {
-        "@a2f0/dnbm": "0.2.0",
+        "@a2f0/dnbm": "0.3.0",
         "@a2f0/shared": "workspace:*",
         "@a2f0/skyline": "0.1.6",
         "@a2f0/website": "workspace:*",
@@ -144,7 +144,7 @@
     "smol-toml": "1.8.0",
   },
   "packages": {
-    "@a2f0/dnbm": ["@a2f0/dnbm@0.2.0", "", {}, "sha512-KE/rgTpCBY9fx3t1f/w7mVBfSMBMONhJRLZn1JvBqdD2syuIwX5r/XVGLebQsF9IF24/cyTPmxc0BhRJ/jycKA=="],
+    "@a2f0/dnbm": ["@a2f0/dnbm@0.3.0", "", {}, "sha512-ZaHxCBERg9+7LTf3D0Hwv8FJFc2YFg1aXHvprRtJKhACvoCQDo3pxxRavQuU436q7dwr5aAmZMpdo0ZjTZhrdA=="],
 
     "@a2f0/experiment": ["@a2f0/experiment@workspace:packages/experiment"],
 
