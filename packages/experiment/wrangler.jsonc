@@ -7,8 +7,6 @@
   // Terraform owns the custom domain (experiment.a2f0.net).
   "assets": {
     "directory": "./out",
-    // Standalone Skyline pages remain reachable in the copied asset tree.
-    // The embedded viewer imports code, CSS and models from /skyline/.
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page"
   }

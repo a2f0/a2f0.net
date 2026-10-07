@@ -11,15 +11,16 @@ in the same shape as Tearleads' mini-apps. The artwork window reads
 `packages/website/public/index.html` for its markup and styles and runs the
 site's own `mountSite` inside a shadow root, so the site's stylesheet and the
 window stylesheets cannot restyle each other. Its controls sit in the window's
-toolbar and View menu. The skyline window mounts the viewer from
-[`@a2f0/skyline`](https://www.npmjs.com/package/@a2f0/skyline) 0.2.1 in an
-HTMLElement with an open shadow root. It waits for `instance.ready` and
-destroys the instance when the window closes. Pointer and keyboard events
-reach the desktop through the host.
-The dnbm windows render the sequencer and the player from
-[`@a2f0/dnbm`](https://www.npmjs.com/package/@a2f0/dnbm) in the page itself,
+toolbar and View menu. The skyline window renders the viewer from
+[`@a2f0/skyline`](https://www.npmjs.com/package/@a2f0/skyline), and the dnbm
+windows the sequencer and the player from
+[`@a2f0/dnbm`](https://www.npmjs.com/package/@a2f0/dnbm), in the page itself,
 each inside a shadow root that keeps its styles and the desktop's apart, so a
-press inside either reaches its window like any other.
+press inside any of them reaches its window like any other and closes open
+menus. The dnbm windows drive their apps through the package's commands and
+state: the sequencer's file commands sit in its window's File menu, and its
+play, undo, and redo in the toolbar; the player's controls sit in its toolbar
+and View menu. Each window's title names the song.
 
 The taskbar along the bottom starts with the windowing package's `StartMenu`,
 which lists every mini-app with its icon, followed by a button per open window,
@@ -39,8 +40,7 @@ The dev server listens on port 4003. `dev` and `build` first copy the
 website's `a2f0.svg` into `public/`, the skyline viewer's assets into
 `public/skyline/`, and the dnbm sequencer's and player's into `public/dnbm/`. `build` writes a static export to `out/`,
 `start` serves it through Wrangler on the same port, and `deploy` publishes the
-`experiment` Worker after the existing identity and dry-run guard succeeds.
-`preview` runs the same guard without publishing. `unit` runs the desktop and mini-app tests under happy-dom. Terraform
+`experiment` Worker. `unit` runs the desktop and mini-app tests under happy-dom. Terraform
 attaches the `experiment.a2f0.net` domain. CI builds and tests the app, then
 deploys it on validated pushes to `production`.
 
@@ -48,13 +48,13 @@ Next.js builds with webpack (`--webpack`) to import the website's HTML as text
 through the `?raw` resource rule. The windowing package supplies its own CSS
 defaults and uses the app's React through peer dependencies.
 
-The skyline embed imports its code and styles from `/skyline/` and mounts the
-scene into the host's shadow root. Its copied standalone HTML pages remain
-available, so Wrangler keeps `auto-trailing-slash` for their relative URLs.
-`copy-skyline` clears only the dedicated local `public/skyline/` directory before
-copying the published assets, so retired iframe files cannot survive an upgrade.
-Browser tests inspect the rendered host's readiness, controls and canvas. The dnbm
-apps load their code (`mount.js` and `player/mount.js`), stylesheets,
-AudioWorklet, engine, and songs from `/dnbm/`, the URL they mount with. The
-package's loader imports that code at runtime with an `import()` webpack leaves
-to the browser, so the app's bundle holds only the loader.
+The skyline viewer loads its code (`skyline-viewer.js`), stylesheets, scene
+markup, stars, and models from `/skyline/`, and the dnbm apps load their code
+(`mount.js` and `player/mount.js`), stylesheets, AudioWorklet, engine, and songs
+from `/dnbm/`: each from the URL it mounts with. Each package's loader imports
+that code at runtime with an `import()` webpack leaves to the browser, so the
+app's bundle holds only the loaders. The dnbm commands the windows run live in
+that code too, so the copied assets must match the installed package: an older
+copy runs no command and leaves the windows' chrome disabled. The app has no
+`three` dependency: the skyline's scene loads the copy of three.js in its
+assets when it first needs it.

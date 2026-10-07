@@ -19,9 +19,9 @@
     "preview": "bun run build && bun ../../scripts/deploy.ts experiment --dry-run"
   },
   "dependencies": {
-    "@a2f0/dnbm": "0.3.0",
+    "@a2f0/dnbm": "0.4.0",
     "@a2f0/shared": "workspace:*",
-    "@a2f0/skyline": "0.2.1",
+    "@a2f0/skyline": "0.2.2",
     "@a2f0/website": "workspace:*",
     "@phosphor-icons/react": "2.1.10",
     "@tearleads/windowing": "0.2.8",
