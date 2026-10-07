@@ -98,7 +98,11 @@ esac
       },
     }),
   );
-  async function run(actions: string[], preview: boolean) {
+  async function run(
+    actions: string[],
+    preview: boolean,
+    extraEnvironment: Record<string, string> = {},
+  ) {
     await writeFile(log, "");
     await writeFile(
       resolve(directory, "plan.json"),
@@ -123,6 +127,7 @@ esac
           GUARD: guard,
           CALLS: log,
           FIXTURE: directory,
+          ...extraEnvironment,
         },
       },
     );
@@ -141,6 +146,20 @@ esac
     const preview = await run(["update"], true);
     expect(preview.status).toBe(0);
     expect(preview.calls.some((call) => call.startsWith("apply"))).toBe(false);
+    expect(
+      preview.calls.some(
+        (call) => call.startsWith("plan ") && call.includes("-refresh=true"),
+      ),
+    ).toBe(true);
+    const inheritedArguments: Record<string, string>[] = [
+      { TF_CLI_ARGS_plan: "-refresh=false" },
+      { TF_CLI_ARGS: "-refresh=false" },
+    ];
+    for (const inherited of inheritedArguments) {
+      const refused = await run(["update"], false, inherited);
+      expect(refused.status).not.toBe(0);
+      expect(refused.calls).toEqual([""]);
+    }
     const mutation = await run(["update"], false);
     expect(mutation.status).toBe(0);
     const saved = mutation.calls
@@ -187,4 +206,4 @@ esac
   } finally {
     await rm(directory, { recursive: true });
   }
-});
+}, 60_000);

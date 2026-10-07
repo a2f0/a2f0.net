@@ -9,6 +9,13 @@ esac
 [ "$#" -le 1 ] || exit 2
 cd "$(dirname "$0")"
 
+# Inherited Terraform arguments can change plan mode or skip provider refresh.
+# This entrypoint owns every flag used for its reviewed saved plan.
+if env | grep -Eq '^TF_CLI_ARGS(=|_)'; then
+  echo 'Unset TF_CLI_ARGS variables before the guarded Terraform plan' >&2
+  exit 1
+fi
+
 # Use the existing real S3 backend and default workspace, never a local or
 # replacement backend. Missing credentials or state stop before any apply.
 bun ../scripts/terraformPlan.ts backend .terraform/terraform.tfstate
@@ -31,7 +38,7 @@ bun ../scripts/terraformPlan.ts version "$plan_directory/version.json"
 # Read actual remote state; a matching backend file alone is insufficient.
 terraform state pull > "$plan_directory/state-before.json"
 bun ../scripts/terraformPlan.ts state "$plan_directory/state-before.json" main.tfvars.json
-terraform plan -input=false -lock=true -var-file=main.tfvars.json -out="$plan_directory/plan"
+terraform plan -input=false -lock=true -refresh=true -var-file=main.tfvars.json -out="$plan_directory/plan"
 terraform show -json "$plan_directory/plan" > "$plan_directory/plan.json"
 bun ../scripts/terraformPlan.ts plan "$plan_directory/plan.json"
 
