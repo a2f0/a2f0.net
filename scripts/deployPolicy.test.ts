@@ -1,0 +1,333 @@
+import { expect, test } from "bun:test";
+import { file } from "bun";
+import {
+  checkApiResult,
+  checkConfiguration,
+  checkDeployment,
+  checkDomain,
+  checkPublicEndpoints,
+  checkSettings,
+  DEPLOYMENTS,
+  type DeploymentName,
+  deploymentConfiguration,
+  runDeployment,
+} from "./deployPolicy";
+
+for (const name of Object.keys(DEPLOYMENTS) as DeploymentName[]) {
+  test(`${name}: validates the real config and requires its existing domain`, async () => {
+    const target = DEPLOYMENTS[name];
+    const text = await file(
+      new URL(`../packages/${target.package}/wrangler.jsonc`, import.meta.url),
+    ).text();
+    expect(checkConfiguration(text, name)).toBe(
+      target.package === "website" ? "./dist" : "./out",
+    );
+    expect(
+      checkDomain(
+        [
+          {
+            id: "existing-domain",
+            zone_id: "existing-zone",
+            service: target.worker,
+            hostname: target.hostname,
+          },
+        ],
+        name,
+      ),
+    ).toBe("existing-zone");
+    expect(() => checkDomain([], name)).toThrow();
+    expect(() =>
+      checkDomain(
+        [
+          {
+            id: "existing-domain",
+            zone_id: "existing-zone",
+            service: "other-worker",
+            hostname: target.hostname,
+          },
+        ],
+        name,
+      ),
+    ).toThrow();
+    for (const addition of ['"route": "a2f0.net/*"', '"routes": []']) {
+      expect(() =>
+        checkConfiguration(
+          text.replace(
+            '"workers_dev": false,',
+            `"workers_dev": false, ${addition},`,
+          ),
+          name,
+        ),
+      ).toThrow();
+    }
+    expect(() =>
+      checkConfiguration(
+        text.replace('"workers_dev": false', '"workers_dev": true'),
+        name,
+      ),
+    ).toThrow();
+  });
+}
+
+test("resource migrations, renames and unknown build commands fail closed", async () => {
+  const text = await file(
+    new URL("../packages/experiment/wrangler.jsonc", import.meta.url),
+  ).text();
+  for (const addition of [
+    '"d1_databases": []',
+    '"migrations": []',
+    '"routes": []',
+    '"build": {"command":"terraform apply"}',
+  ]) {
+    expect(() =>
+      checkConfiguration(
+        text.replace(
+          '"name": "experiment",',
+          `"name": "experiment", ${addition},`,
+        ),
+        "experiment",
+      ),
+    ).toThrow();
+  }
+  expect(() =>
+    checkConfiguration(
+      text.replace('"name": "experiment"', '"name": "new-worker"'),
+      "experiment",
+    ),
+  ).toThrow();
+});
+
+test("missing bindings and existing stateful bindings cannot be cleared", () => {
+  for (const settings of [{}, { bindings: [{ name: "DB", type: "d1" }] }])
+    expect(() => checkSettings(settings)).toThrow();
+  expect(() =>
+    checkSettings({ bindings: [], compatibility_date: "2026-09-16" }),
+  ).not.toThrow();
+});
+
+test("a reviewed compatibility-date transition accepts only the configured and previous live dates", async () => {
+  const text = await file(
+    new URL("../packages/experiment/wrangler.jsonc", import.meta.url),
+  ).text();
+  const transition = { current: "2026-10-07", previous: "2026-09-16" };
+  const candidate = text.replace("2026-09-16", transition.current);
+  expect(checkConfiguration(candidate, "experiment", transition)).toBe("./out");
+  expect(() => checkConfiguration(text, "experiment", transition)).toThrow();
+  for (const date of [transition.current, transition.previous]) {
+    expect(() =>
+      checkSettings({ bindings: [], compatibility_date: date }, transition),
+    ).not.toThrow();
+  }
+  expect(() =>
+    checkSettings(
+      { bindings: [], compatibility_date: "2026-01-01" },
+      transition,
+    ),
+  ).toThrow();
+  expect(() =>
+    checkSettings({ bindings: [], compatibility_date: transition.current }),
+  ).toThrow();
+});
+
+test("a website preview captures the real assets without rerunning its build", async () => {
+  const text = await file(
+    new URL("../packages/website/wrangler.jsonc", import.meta.url),
+  ).text();
+  const config = JSON.parse(
+    deploymentConfiguration(text, "website", "/fixture/website"),
+  );
+  expect(config.name).toBe("resume-redirect");
+  expect(config.assets.directory).toBe("/fixture/website/dist");
+  expect(config.build).toBeUndefined();
+  expect(config.$schema).toBeUndefined();
+  expect(() =>
+    deploymentConfiguration(
+      text.replace('"bun run build"', '"terraform apply"'),
+      "website",
+      "/fixture/website",
+    ),
+  ).toThrow();
+});
+
+test("live public endpoints and schedules must match the static-only config", () => {
+  expect(() =>
+    checkPublicEndpoints(
+      { enabled: false, previews_enabled: false },
+      { schedules: [] },
+    ),
+  ).not.toThrow();
+  for (const value of [
+    {},
+    { enabled: true, previews_enabled: false },
+    { enabled: false, previews_enabled: true },
+  ]) {
+    expect(() => checkPublicEndpoints(value, { schedules: [] })).toThrow();
+  }
+  expect(() =>
+    checkPublicEndpoints(
+      { enabled: false, previews_enabled: false },
+      { schedules: [{ cron: "* * * * *" }] },
+    ),
+  ).toThrow();
+  for (const value of [[], {}, { schedules: [], unknown: true }]) {
+    expect(() =>
+      checkPublicEndpoints({ enabled: false, previews_enabled: false }, value),
+    ).toThrow();
+  }
+  for (const addition of [
+    { migration_tag: "v1" },
+    { logpush: true },
+    { tail_consumers: [{}] },
+    { observability: { enabled: true } },
+  ]) {
+    expect(() =>
+      checkSettings({
+        bindings: [],
+        compatibility_date: "2026-09-16",
+        ...addition,
+      }),
+    ).toThrow();
+  }
+});
+
+test("Cloudflare identity reads reject failed, partial and paginated lists", () => {
+  const complete = {
+    success: true,
+    result: [{ id: "existing-domain" }],
+    result_info: { total_pages: 1, total_count: 1 },
+  };
+  expect(checkApiResult(complete, true)).toEqual(complete.result);
+  expect(
+    checkApiResult({ success: true, result: { settings: true } }, true),
+  ).toEqual({ settings: true });
+  expect(() => checkApiResult({ ...complete, success: false }, true)).toThrow();
+  for (const result_info of [
+    { total_pages: 2, total_count: 1 },
+    { total_pages: "2", total_count: 1 },
+    { total_pages: 1, total_count: 2 },
+  ])
+    expect(() => checkApiResult({ ...complete, result_info }, true)).toThrow();
+  expect(checkApiResult(complete, false)).toEqual(complete.result);
+});
+
+test("the newest existing Worker deployment must route all traffic to one version", () => {
+  const newest = {
+    created_on: "2026-10-07T00:00:00.000Z",
+    versions: [{ percentage: 100, version_id: "current-version" }],
+  };
+  const older = {
+    created_on: "2026-09-07T00:00:00.000Z",
+    versions: [{ percentage: 50, version_id: "older-version" }],
+  };
+  expect(checkDeployment({ deployments: [older, newest] })).toBe(
+    "current-version",
+  );
+  expect(checkDeployment({ deployments: [newest, older] })).toBe(
+    "current-version",
+  );
+  expect(
+    checkDeployment({
+      deployments: [
+        { ...newest, created_on: "2026-10-07T00:00:00+05:00" },
+        {
+          ...older,
+          created_on: "2026-10-06T22:00:00Z",
+          versions: [{ percentage: 100, version_id: "later-by-time" }],
+        },
+      ],
+    }),
+  ).toBe("later-by-time");
+  for (const deployments of [
+    [],
+    [
+      older,
+      { ...newest, versions: [{ percentage: 99, version_id: "partial" }] },
+    ],
+    [older, { ...newest, versions: [{ percentage: 100, version_id: "" }] }],
+    [older, { ...newest, versions: [newest.versions[0], older.versions[0]] }],
+    [{ ...newest, created_on: "invalid" }],
+  ])
+    expect(() => checkDeployment({ deployments })).toThrow();
+});
+
+function checks() {
+  const calls: string[] = [];
+  return {
+    calls,
+    snapshot: async () => {
+      calls.push("snapshot");
+      return "committed-config-assets-tool";
+    },
+    inspect: async () => {
+      calls.push("inspect");
+      return "existing-domain-worker-version";
+    },
+    preview: async () => {
+      calls.push("preview");
+    },
+    apply: async () => {
+      calls.push("apply");
+    },
+  };
+}
+
+test("preview-only checks fresh evidence and performs no mutation", async () => {
+  const run = checks();
+  await runDeployment(run, true);
+  expect(run.calls).toEqual([
+    "snapshot",
+    "inspect",
+    "preview",
+    "snapshot",
+    "inspect",
+  ]);
+});
+
+test("a deployment mutates only after preview and fresh local/remote checks", async () => {
+  const run = checks();
+  await runDeployment(run, false);
+  expect(run.calls).toEqual([
+    "snapshot",
+    "inspect",
+    "preview",
+    "snapshot",
+    "inspect",
+    "apply",
+  ]);
+});
+
+test("failed preview or changed local/remote evidence prevents mutation", async () => {
+  const failed = checks();
+  failed.preview = async () => {
+    throw new Error("Preview failed");
+  };
+  await expect(runDeployment(failed, false)).rejects.toThrow();
+  expect(failed.calls).not.toContain("apply");
+  for (const field of ["snapshot", "inspect"] as const) {
+    const run = checks();
+    let count = 0;
+    run[field] = async () => {
+      return ++count === 1 ? "before" : "changed";
+    };
+    await expect(runDeployment(run, false)).rejects.toThrow();
+    expect(run.calls).not.toContain("apply");
+  }
+});
+
+test("all owned deploy entrypoints use the guard", async () => {
+  for (const folder of ["resume", "website", "experiment"]) {
+    const manifest = await file(
+      new URL(`../packages/${folder}/package.json`, import.meta.url),
+    ).json();
+    for (const [name, command] of Object.entries(manifest.scripts)) {
+      if (name.startsWith("deploy"))
+        expect(command).toContain("scripts/deploy.ts");
+    }
+  }
+  const workflow = await file(
+    new URL("../.github/workflows/main.yml", import.meta.url),
+  ).text();
+  expect(workflow).not.toContain("wrangler deploy");
+  for (const target of Object.keys(DEPLOYMENTS))
+    expect(workflow).toContain(`scripts/deploy.ts ${target}`);
+});

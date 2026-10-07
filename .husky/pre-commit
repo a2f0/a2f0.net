@@ -5,7 +5,7 @@ bunx --no-install lint-staged
 terraform fmt terraform
 tflint --chdir terraform
 
-shellcheck scripts/*.sh
+shellcheck scripts/*.sh terraform/apply.sh
 
 bunx --no-install biome lint
 bunx --no-install biome format

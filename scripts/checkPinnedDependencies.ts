@@ -1,4 +1,4 @@
-#!/usr/bin/env -S bunx --no-install tsx
+#!/usr/bin/env -S node --import tsx
 // Fails when any dependency in package.json uses a range instead of an
 // exact version. Replaces @a2f0/check-for-unpinned-dependencies, which
 // reads package-lock.json and cannot run against this Bun workspace.
