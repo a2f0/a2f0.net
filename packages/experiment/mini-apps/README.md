@@ -60,13 +60,17 @@ several apps.
   (`shared/useRaiseOnFrameFocus.ts`). Its window opens at three quarters of
   the desktop's width and height, to give the 3D scene room, with the scene's
   control bar open.
-- `dnbm/` mounts the dnbm drum and bass sequencer from `@a2f0/dnbm` in an
-  iframe the same way, from assets the `copy-dnbm` script copies into
-  `public/dnbm/`. Its window opens fitted to the sequencer's 1200 by 800
-  desktop layout, within the desktop, behind the other apps; a smaller window
-  scrolls. Audio starts on the first press inside the frame, and the song
-  autosaves to this origin's local storage.
+- `dnbm/` mounts the dnbm drum and bass sequencer from `@a2f0/dnbm`, which
+  renders it in the page inside a shadow root, from assets the `copy-dnbm`
+  script copies into `public/dnbm/`. Presses inside it reach the window, which
+  comes to the front as for any of its content, and its keyboard shortcuts act
+  only while focus is inside it. Its window opens fitted to the sequencer's
+  1200 by 800 desktop layout, within the desktop, behind the other apps, once
+  the instance reports it ready; a smaller window scrolls. Audio starts on the
+  first press inside the app, and the song autosaves to this origin's local
+  storage.
 - `dnbm-player/` mounts the dnbm player from the same package and copied
-  assets, which plays dnbm's example songs as a playlist through the same
-  synthesizer. Its window opens fitted to the player and its whole playlist,
-  between the skyline and the artwork. It stores nothing.
+  assets the same way; it plays dnbm's example songs as a playlist through the
+  same synthesizer. Its window opens fitted to the player and its whole
+  playlist, between the skyline and the artwork, once the player is ready with
+  its songs. It stores nothing.

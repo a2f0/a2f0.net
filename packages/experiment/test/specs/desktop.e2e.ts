@@ -94,49 +94,99 @@ const skylineFrames = () =>
     };
   });
 
-// The dnbm sequencer's frame and the app inside it, read through the
-// same-origin frame the package mounts.
-const dnbmFrame = () =>
+// The dnbm sequencer's region and the app the package renders in its shadow
+// root, in this page rather than in a frame.
+const dnbmApp = () =>
   browser.execute(() => {
-    const frame = document.querySelector<HTMLIFrameElement>(
-      ".dnbm-window iframe",
+    const region = document.querySelector<HTMLElement>(
+      ".dnbm-window [role=region]",
     );
-    const app = frame?.contentDocument;
-    const wordmark = app?.querySelector(".brand");
+    const root = region?.shadowRoot;
+    const wordmark = root?.querySelector(".brand");
     return {
-      title: frame?.title,
-      width: frame?.clientWidth ?? 0,
-      app: app && {
-        path: app.location.pathname,
-        query: app.location.search,
-        embedded: app.documentElement.hasAttribute("data-embed"),
+      frames: document.querySelectorAll(".dnbm-window iframe").length,
+      title: region?.getAttribute("aria-label"),
+      width: region?.clientWidth ?? 0,
+      app: root && {
+        embedded: root.querySelector(".frame")?.hasAttribute("data-embed"),
         wordmark: wordmark && getComputedStyle(wordmark).display,
-        steps: app.querySelectorAll(".cell").length > 0,
+        steps: root.querySelectorAll(".cell").length > 0,
       },
     };
   });
 
-// The dnbm player's frame and the player inside it, read through the
-// same-origin frame the package mounts.
-const playerFrame = () =>
+// The dnbm player's region and the player in its shadow root.
+const playerApp = () =>
   browser.execute(() => {
-    const frame = document.querySelector<HTMLIFrameElement>(
-      ".dnbm-player-window iframe",
+    const region = document.querySelector<HTMLElement>(
+      ".dnbm-player-window [role=region]",
     );
-    const app = frame?.contentDocument;
-    const wordmark = app?.querySelector(".bar");
+    const root = region?.shadowRoot;
+    const wordmark = root?.querySelector(".bar");
     return {
-      title: frame?.title,
-      width: frame?.clientWidth ?? 0,
-      app: app && {
-        path: app.location.pathname,
-        query: app.location.search,
-        embedded: app.documentElement.hasAttribute("data-embed"),
+      frames: document.querySelectorAll(".dnbm-player-window iframe").length,
+      title: region?.getAttribute("aria-label"),
+      width: region?.clientWidth ?? 0,
+      app: root && {
+        embedded: root.querySelector(".frame")?.hasAttribute("data-embed"),
         wordmark: wordmark && getComputedStyle(wordmark).display,
-        tracks: app.querySelectorAll(".track").length,
+        tracks: root.querySelectorAll(".track").length,
       },
     };
   });
+
+const dnbmRegion = () => $(".dnbm-window [role=region]");
+const playerRegion = () => $(".dnbm-player-window [role=region]");
+
+const waitForDnbmApps = () =>
+  browser.waitUntil(
+    async () =>
+      (await dnbmApp()).app?.steps === true &&
+      ((await playerApp()).app?.tracks ?? 0) > 0,
+    { timeoutMsg: "the dnbm sequencer and player did not load" },
+  );
+
+// Whether the sequencer plays (its playhead shows), and the player's state.
+const dnbmPlayback = () =>
+  browser.execute(() => ({
+    sequencer:
+      document
+        .querySelector(".dnbm-window [role=region]")
+        ?.shadowRoot?.querySelector(".cell.now") !== null,
+    player: document
+      .querySelector(".dnbm-player-window [role=region]")
+      ?.shadowRoot?.querySelector(".player")
+      ?.getAttribute("data-state"),
+  }));
+
+// Presses a part of a dnbm app that shows in front of the other windows, off
+// its controls, so the press only focuses the app.
+const pressVisible = async (selector: string) => {
+  const { x, y } = await browser.execute((regionSelector) => {
+    const region = document.querySelector(regionSelector);
+    const root = region?.shadowRoot;
+    if (!region || !root) throw new Error(`Missing ${regionSelector}`);
+    const { left, top, right, bottom } = region.getBoundingClientRect();
+    for (let y = Math.ceil(top) + 4; y < bottom; y += 8) {
+      for (let x = Math.ceil(left) + 4; x < right; x += 8) {
+        const target = root.elementFromPoint(x, y);
+        if (
+          document.elementFromPoint(x, y) === region &&
+          target &&
+          !target.closest("button, input, canvas, svg, .cell, .track")
+        )
+          return { x, y };
+      }
+    }
+    throw new Error(`No part of ${regionSelector} shows`);
+  }, selector);
+  await browser
+    .action("pointer")
+    .move({ origin: "viewport", x, y })
+    .down()
+    .up()
+    .perform();
+};
 
 // The resume's print frame would open the browser's print dialog. Record the
 // PDF it was asked to print instead.
@@ -563,56 +613,59 @@ describe("Experiment desktop", () => {
     ).toBe(true);
   });
 
-  it("embeds the dnbm player from the same assets, and plays a song", async () => {
+  it("renders the dnbm player in the page from the same assets, and plays a song", async () => {
     await browser.waitUntil(
       async () => {
-        const { app, width } = await playerFrame();
+        const { app, width } = await playerApp();
         return (app?.tracks ?? 0) > 0 && width >= 440;
       },
       { timeoutMsg: "the dnbm player did not load and fit its playlist" },
     );
-    const { app, title } = await playerFrame();
-    expect(title).toBe("dnbm player");
-    expect(app).toEqual({
-      path: "/dnbm/player/",
-      query: "?embed=1",
-      embedded: true,
-      // The window's title names the app.
-      wordmark: "none",
-      tracks: expect.any(Number),
+    expect(await playerApp()).toEqual({
+      // The package renders the player in a shadow root, not a frame.
+      frames: 0,
+      title: "dnbm player",
+      width: expect.any(Number),
+      app: {
+        embedded: true,
+        // The window's title names the app.
+        wordmark: "none",
+        tracks: expect.any(Number),
+      },
     });
     // The player opens behind the artwork.
     expect(await frontWindowTitle()).toBe("a2f0.net");
 
     // In front, a press on play starts its audio engine: the clock runs.
     await taskbar("dnbm player").click();
-    await browser.switchFrame($(".dnbm-player-window iframe"));
-    await $(".control.play").click();
+    await playerRegion().shadow$(".control.play").click();
     await browser.waitUntil(
-      async () => (await $(".time").getText()) !== "0:00",
+      async () => (await playerRegion().shadow$(".time").getText()) !== "0:00",
       { timeoutMsg: "the player's clock did not run" },
     );
-    await $(".control.stop").click();
-    await expect($(".player")).toHaveAttribute("data-state", "stopped");
-    await browser.switchFrame(null);
+    await playerRegion().shadow$(".control.stop").click();
+    await expect(playerRegion().shadow$(".player")).toHaveAttribute(
+      "data-state",
+      "stopped",
+    );
   });
 
-  it("embeds the dnbm sequencer from its copied assets, fitted to its layout", async () => {
-    // The steps render as the sequencer's document parses; the window fits
-    // only on the frame's load event, once its assets have loaded too.
+  it("renders the dnbm sequencer in the page from its copied assets, fitted to its layout", async () => {
+    // The window fits once the sequencer is ready: styled, laid out, and
+    // showing its steps.
     await browser.waitUntil(
       async () => {
-        const { app, width } = await dnbmFrame();
+        const { app, width } = await dnbmApp();
         return app?.steps === true && width >= 1200;
       },
       { timeoutMsg: "the dnbm sequencer did not load and fit its layout" },
     );
-    const { width, ...frame } = await dnbmFrame();
-    expect(frame).toEqual({
+    const { width, ...app } = await dnbmApp();
+    expect(app).toEqual({
+      // The package renders the sequencer in a shadow root, not a frame.
+      frames: 0,
       title: "dnbm drum and bass sequencer",
       app: {
-        path: "/dnbm/",
-        query: "?embed=1",
         embedded: true,
         // The window's title names the app.
         wordmark: "none",
@@ -626,13 +679,69 @@ describe("Experiment desktop", () => {
 
     // In front, a press on play starts its audio engine: the playhead moves.
     await taskbar("dnbm").click();
-    await browser.switchFrame($(".dnbm-window iframe"));
-    await $(".play").click();
-    await $(".cell.now").waitForExist({
+    await dnbmRegion().shadow$(".play").click();
+    await dnbmRegion().shadow$(".cell.now").waitForExist({
       timeoutMsg: "the sequencer's playhead did not move",
     });
-    await $(".play").click();
-    await browser.switchFrame(null);
+    await dnbmRegion().shadow$(".play").click();
+  });
+
+  it("raises a dnbm window on a press inside it", async () => {
+    await waitForDnbmApps();
+    // With the artwork minimized and the resume in front, the player shows
+    // to the right of the resume.
+    await asciiArtWindow().$("button[aria-label='Minimize window']").click();
+    await taskbar("Resume").click();
+    await pressVisible(".dnbm-player-window [role=region]");
+    await browser.waitUntil(
+      async () => (await frontWindowTitle()) === "dnbm player",
+      { timeoutMsg: "pressing the dnbm player did not raise its window" },
+    );
+    // The press reaches the window from the page itself: no frame takes
+    // focus, and the app keeps it.
+    expect(
+      await browser.execute(
+        () =>
+          document.activeElement?.matches(
+            ".dnbm-player-window [role=region]",
+          ) ?? false,
+      ),
+    ).toBe(true);
+
+    // The sequencer, behind every other window, shows below them.
+    await pressVisible(".dnbm-window [role=region]");
+    await browser.waitUntil(async () => (await frontWindowTitle()) === "dnbm", {
+      timeoutMsg: "pressing the dnbm sequencer did not raise its window",
+    });
+  });
+
+  it("keeps keys pressed outside a dnbm app out of it", async () => {
+    await waitForDnbmApps();
+    // The artwork window has focus. Space plays either app, and X the player,
+    // but only while focus is inside it.
+    await browser.keys(" ");
+    await browser.keys("x");
+    await browser.pause(500);
+    expect(await dnbmPlayback()).toEqual({
+      sequencer: false,
+      player: "stopped",
+    });
+
+    // Focused by a press, the player takes the same key.
+    await taskbar("dnbm player").click();
+    await pressVisible(".dnbm-player-window [role=region]");
+    await browser.keys("x");
+    await browser.waitUntil(
+      async () => (await dnbmPlayback()).player === "playing",
+      { timeoutMsg: "the focused player did not play on X" },
+    );
+    // V stops it.
+    await browser.keys("v");
+    await browser.waitUntil(
+      async () => (await dnbmPlayback()).player === "stopped",
+      { timeoutMsg: "the focused player did not stop on V" },
+    );
+    expect((await dnbmPlayback()).sequencer).toBe(false);
   });
 
   it("opens apps from the start menu", async () => {

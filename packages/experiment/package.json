@@ -18,7 +18,7 @@
     "deploy": "bun run build && wrangler deploy"
   },
   "dependencies": {
-    "@a2f0/dnbm": "0.2.0",
+    "@a2f0/dnbm": "0.3.0",
     "@a2f0/shared": "workspace:*",
     "@a2f0/skyline": "0.1.6",
     "@a2f0/website": "workspace:*",
