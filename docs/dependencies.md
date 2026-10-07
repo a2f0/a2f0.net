@@ -100,13 +100,17 @@ existing default workspace. Keep decrypted SOPS variables private. Local
 
 Run `terraform/apply.sh --dry-run`. The entrypoint verifies the initialized
 backend and pinned Terraform CLI, rejects provisioners/external data programs,
-reads populated remote state with the six existing custom-domain resources and
-their hostname/service/account identities matching the private variables,
-then creates and inspects a complete saved plan. Unsupported, deferred,
+reads populated remote state with the six existing custom-domain resources. It
+matches their hostnames and services to explicit existing production identities
+and their account IDs to the private account variable. A domain migration
+requires a separate guard review. The entrypoint then creates and inspects a
+complete saved plan. Unsupported, deferred,
 errored, failed-check, provider-Action, deletion and replacement effects stop
 it. It rechecks the same remote state before any apply, which consumes that
 exact saved plan. Missing domain state cannot authorize recreation. Plan/state
 JSON remains in a private temporary directory and is removed afterward.
+The saved-plan guard accepts Terraform JSON format 1.2; review that format when
+updating the pinned Terraform CLI.
 
 `checkTerraformPlan` is a repository-owned read-only JSON guard. It does not
 prove credentials, state identity, provider-internal effects or real production
