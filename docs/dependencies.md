@@ -109,8 +109,9 @@ account IDs to the private account variable. A domain migration
 requires a separate guard review. The entrypoint then creates and inspects a
 complete saved plan. Unsupported, deferred,
 errored, failed-check, provider-Action, deletion and replacement effects stop
-it. It rechecks the same remote state before any apply, which consumes that
-exact saved plan. Missing domain state cannot authorize recreation. Plan/state
+it. Applying requires an interactive terminal, a visible rendering of the exact
+saved plan, and typed `yes`; it rechecks remote state after approval and applies
+only that saved plan. Missing domain state cannot authorize recreation. Plan/state
 JSON remains in a private temporary directory and is removed afterward.
 The saved-plan guard accepts Terraform JSON format 1.2; review that format when
 updating the pinned Terraform CLI.

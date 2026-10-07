@@ -56,6 +56,27 @@ cmp -s "$plan_directory/state-before.json" "$plan_directory/state-after.json" ||
 }
 
 if [ "$preview_only" = false ]; then
-  # Consume the exact inspected saved plan, not a new implicit plan.
+  # A person must review and approve this exact inspected saved plan. Never
+  # allow a CI job or piped input to turn a dry-run into an unattended apply.
+  if [ ! -t 0 ] || [ ! -t 1 ]; then
+    echo 'Applying the saved Terraform plan requires an interactive terminal' >&2
+    exit 1
+  fi
+  terraform show -no-color "$plan_directory/plan"
+  printf 'Type yes to apply this exact saved plan: '
+  IFS= read -r approval || exit 1
+  if [ "$approval" != yes ]; then
+    echo 'Terraform apply cancelled' >&2
+    exit 1
+  fi
+  bun ../scripts/terraformPlan.ts backend .terraform/terraform.tfstate
+  [ "$(terraform workspace show)" = default ] || exit 1
+  terraform state pull > "$plan_directory/state-approved.json"
+  bun ../scripts/terraformPlan.ts state "$plan_directory/state-approved.json" main.tfvars.json
+  cmp -s "$plan_directory/state-before.json" "$plan_directory/state-approved.json" || {
+    echo 'Remote state changed after approval; generate a fresh plan' >&2
+    exit 1
+  }
+  # Consume the exact approved saved plan, not a new implicit plan.
   terraform apply -input=false "$plan_directory/plan"
 fi

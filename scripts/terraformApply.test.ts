@@ -15,7 +15,7 @@ import { spawn } from "bun";
 // These are command fixtures, never production backend/plan evidence. The
 // injected Terraform records calls and the real read-only Bun guard validates
 // fixture JSON, so an unsafe plan cannot reach even the injected apply.
-test("Terraform entrypoint previews before applying the exact saved plan and fails closed", async () => {
+test("Terraform entrypoint inspects saved plans and refuses unattended apply", async () => {
   const directory = await mkdtemp(resolve(tmpdir(), "a2f0-terraform-test-"));
   const folder = resolve(directory, "terraform");
   const binaries = resolve(directory, "bin");
@@ -85,6 +85,23 @@ esac
 `,
   );
   await chmod(terraform, 0o755);
+  const pseudoTerminal = `
+import os, pty, subprocess, sys
+master, slave = pty.openpty()
+child = subprocess.Popen(sys.argv[1:], stdin=slave, stdout=slave, stderr=slave)
+os.close(slave)
+os.write(master, b"yes\\n")
+while True:
+    try:
+        output = os.read(master, 4096)
+    except OSError:
+        break
+    if not output:
+        break
+    os.write(1, output)
+os.close(master)
+sys.exit(child.wait())
+`;
   await mkdir(resolve(folder, ".terraform"));
   await writeFile(
     resolve(folder, ".terraform/terraform.tfstate"),
@@ -103,6 +120,7 @@ esac
     actions: string[],
     preview: boolean,
     extraEnvironment: Record<string, string> = {},
+    interactive = false,
   ) {
     await writeFile(log, "");
     await writeFile(
@@ -114,8 +132,13 @@ esac
         resource_changes: [{ change: { actions } }],
       }),
     );
+    const args = [
+      "sh",
+      resolve(folder, "apply.sh"),
+      ...(preview ? ["--dry-run"] : []),
+    ];
     const child = spawn(
-      ["sh", resolve(folder, "apply.sh"), ...(preview ? ["--dry-run"] : [])],
+      interactive ? ["python3", "-c", pseudoTerminal, ...args] : args,
       {
         cwd: directory,
         stdout: "pipe",
@@ -167,14 +190,27 @@ esac
       expect(refused.calls).toEqual([""]);
     }
     const mutation = await run(["update"], false);
-    expect(mutation.status).toBe(0);
-    const saved = mutation.calls
+    expect(mutation.status).not.toBe(0);
+    expect(mutation.output).toContain("requires an interactive terminal");
+    expect(mutation.calls.some((call) => call.startsWith("plan "))).toBe(true);
+    expect(mutation.calls.some((call) => call.startsWith("apply "))).toBe(
+      false,
+    );
+    expect(mutation.calls.filter((call) => call === "state pull")).toHaveLength(
+      2,
+    );
+    const approved = await run(["update"], false, {}, true);
+    expect(approved.status).toBe(0);
+    expect(
+      approved.calls.some((call) => call.startsWith("show -no-color ")),
+    ).toBe(true);
+    const saved = approved.calls
       .find((call) => call.startsWith("plan "))
       ?.split("-out=")[1];
     expect(saved).toBeDefined();
-    expect(mutation.calls.at(-1)).toBe(`apply -input=false ${saved}`);
-    expect(mutation.calls.filter((call) => call === "state pull")).toHaveLength(
-      2,
+    expect(approved.calls.at(-1)).toBe(`apply -input=false ${saved}`);
+    expect(approved.calls.filter((call) => call === "state pull")).toHaveLength(
+      3,
     );
     for (const actions of [["delete"], ["delete", "create"]]) {
       const unsafe = await run(actions, false);
