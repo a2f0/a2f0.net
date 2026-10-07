@@ -13,9 +13,10 @@ upgrade. Bun owns the lockfile; refresh it through normal manager operations.
   24 runtime; transitive owners may still declare other type versions.
 - Keep `@tearleads/windowing` exact and consume only published releases. Its
   local producer candidate cannot authorize a consumer bump.
-- Skyline 0.2 replaces iframe mounting with an HTMLElement/open shadow root.
-  Wait for `ready`, always destroy on unmount and test actual rendered controls,
-  canvas and focus. Preserve the dedicated local asset-copy cleanup.
+- Skyline 0.2.2 replaces iframe mounting with an HTMLElement/open shadow root.
+  Browser tests wait for the viewer's readiness and inspect its rendered controls,
+  canvas and focus. Always destroy on unmount and preserve the dedicated local
+  asset-copy cleanup.
 - Dnbm's sequencer/player loaders and copied asset API must be checked against
   the actual published tarball before updating its pin.
 - Agent-tool keeps the existing full Git SHA alias policy. Bun must resolve the
