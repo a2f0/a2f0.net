@@ -100,6 +100,48 @@ describe("Code rain", () => {
     }
   });
 
+  it("rains over the whole page, around the art as well as on it", async () => {
+    const clock = await freezeClock();
+    try {
+      await openAscii();
+      await play().click();
+      await drawAt(3000);
+      const { page, rain, above, below } = await browser.execute(() => {
+        const canvas = document.querySelector<HTMLCanvasElement>(".rain");
+        const ctx = canvas?.getContext("2d");
+        const main = document.querySelector("main");
+        const ascii = document.querySelector(".ascii");
+        if (!canvas || !ctx || !main || !ascii) throw new Error("No rain");
+        const box = canvas.getBoundingClientRect();
+        const art = ascii.getBoundingClientRect();
+        const scale = canvas.height / box.height;
+        // How many pixels are lit in a band of rows, given in page pixels.
+        const lit = (from: number, to: number) => {
+          const [top, bottom] = [from, to].map((y) =>
+            Math.round((y - box.top) * scale),
+          );
+          if (bottom <= top) return 0;
+          const { data } = ctx.getImageData(0, top, canvas.width, bottom - top);
+          let count = 0;
+          for (let i = 3; i < data.length; i += 4) if (data[i]) count++;
+          return count;
+        };
+        const { width, height } = main.getBoundingClientRect();
+        return {
+          page: [width, height],
+          rain: [box.width, box.height],
+          above: lit(box.top, art.top),
+          below: lit(art.bottom, box.bottom),
+        };
+      });
+      expect(rain).toEqual(page);
+      expect(above).toBeGreaterThan(0);
+      expect(below).toBeGreaterThan(0);
+    } finally {
+      await clock.remove();
+    }
+  });
+
   it("writes each column of the art from the top down", async () => {
     const clock = await freezeClock();
     try {

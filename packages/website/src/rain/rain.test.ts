@@ -23,10 +23,12 @@ test("leaves the art whole the moment it is stopped", async () => {
     "getContext",
   ).mockReturnValue(blankContext() as never);
   try {
+    const container = document.createElement("div");
     const stage = document.createElement("div");
     const pre = document.createElement("pre");
     stage.append(pre);
-    document.body.replaceChildren(stage);
+    container.append(stage);
+    document.body.replaceChildren(container);
     const row = [{ layer: "face" as const, text: "a2f0a2f0" }];
     const display = new AsciiDisplay(
       pre,
@@ -37,15 +39,15 @@ test("leaves the art whole the moment it is stopped", async () => {
     await display.draw();
     const finished = pre.textContent;
 
-    const rain = new Rain(stage, pre, display);
+    const rain = new Rain(container, stage, pre, display);
     const raining = rain.play();
     expect(rain.playing).toBe(true);
-    expect(stage.querySelector(".rain")).not.toBeNull();
+    expect(container.querySelector(".rain")).not.toBeNull();
 
     rain.stop();
     expect(rain.playing).toBe(false);
     expect(stage.dataset.raining).toBeUndefined();
-    expect(stage.querySelector(".rain")).toBeNull();
+    expect(container.querySelector(".rain")).toBeNull();
     expect(pre.textContent).toBe(finished);
     await raining;
   } finally {

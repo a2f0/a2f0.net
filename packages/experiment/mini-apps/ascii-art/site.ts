@@ -10,6 +10,7 @@ const HOST_CSS = `
   }
 
   .site {
+    position: relative;
     display: grid;
     min-height: 100%;
     place-items: center;

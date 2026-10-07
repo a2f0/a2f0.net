@@ -1,7 +1,8 @@
 // Plays the code rain over the ASCII view. Drops of mirrored code fall down
-// each column of the art, white at the head and fading behind it. The last
-// drop in each column writes the art: the characters it passes stay, cooling
-// from white to their own shade, while the code around them fades away.
+// every column of the container, on the art's own grid, white at the head and
+// fading behind it. The last drop in each column writes the art: the
+// characters it passes stay, cooling from white to their own shade, while the
+// code around them fades away.
 
 import type { AsciiDisplay, Grid } from "../ascii/display";
 import type { Layer } from "../ascii/render";
@@ -18,8 +19,36 @@ import {
 // How bright code is just behind a drop's head, before it fades.
 const TRAIL = 0.7;
 
+/** Where the art's grid sits on the canvas, in CSS pixels. */
+interface Layout {
+  width: number;
+  height: number;
+  /** The left edge and top of the art's first cell. */
+  left: number;
+  top: number;
+  /** How wide and tall each cell is. */
+  cell: number;
+  size: number;
+  /** How far down each cell its baseline sits. */
+  baseline: number;
+}
+
+/**
+ * The cells the rain falls through: the art's grid, extended to the edges of
+ * the canvas.
+ */
+interface Field {
+  /** How many columns lie left of the art, and rows above it. */
+  left: number;
+  top: number;
+  columns: number;
+  rows: number;
+}
+
 interface Scene {
   grid: Grid;
+  field: Field;
+  /** The drops falling down each column of the field. */
   columns: Column[];
   end: number;
   canvas: HTMLCanvasElement;
@@ -28,18 +57,30 @@ interface Scene {
   colors: Record<Layer, string>;
 }
 
+// How many cells it takes to cover a span, partly covering the last.
+const cover = (span: number, unit: number) =>
+  unit > 0 ? Math.max(Math.ceil(span / unit), 0) : 0;
+
 export class Rain {
+  readonly #container: HTMLElement;
   readonly #stage: HTMLElement;
   readonly #pre: HTMLElement;
   readonly #display: AsciiDisplay;
   #stop?: () => void;
 
   /**
-   * @param stage The element the rain plays over.
+   * @param container The element the rain fills.
+   * @param stage The element holding the art, marked while the rain plays.
    * @param pre The ASCII art, which the rain writes.
    * @param display What renders the art into the pre.
    */
-  constructor(stage: HTMLElement, pre: HTMLElement, display: AsciiDisplay) {
+  constructor(
+    container: HTMLElement,
+    stage: HTMLElement,
+    pre: HTMLElement,
+    display: AsciiDisplay,
+  ) {
+    this.#container = container;
     this.#stage = stage;
     this.#pre = pre;
     this.#display = display;
@@ -90,16 +131,56 @@ export class Rain {
       probe.remove();
       return color;
     };
-    const columns = schedule(grid.columns, grid.rows.length, Math.random);
-    this.#stage.append(canvas);
+    this.#container.append(canvas);
     this.#stage.dataset.raining = "";
+    const { width, height, left, top, cell, size } = this.#layout(canvas, ctx);
+    const before = { columns: cover(left, cell), rows: cover(top, size) };
+    const field = {
+      left: before.columns,
+      top: before.rows,
+      columns:
+        before.columns +
+        grid.columns +
+        cover(width - left - grid.columns * cell, cell),
+      rows:
+        before.rows +
+        grid.rows.length +
+        cover(height - top - grid.rows.length * size, size),
+    };
+    const columns = schedule(field.columns, field.rows, Math.random);
     return {
       grid,
+      field,
       columns,
-      end: rainEnd(columns, grid.rows.length),
+      end: rainEnd(columns, field.rows),
       canvas,
       ctx,
       colors: { face: colorOf("face"), side: colorOf("side"), "": colorOf("") },
+    };
+  }
+
+  // Sets the canvas in the art's font and finds where the art sits on it.
+  #layout(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D): Layout {
+    const box = canvas.getBoundingClientRect();
+    const art = this.#pre.getBoundingClientRect();
+    const style = window.getComputedStyle(this.#pre);
+    const size = Number.parseFloat(style.fontSize);
+    ctx.font = `${size}px ${style.fontFamily}`;
+    const {
+      width: cell,
+      fontBoundingBoxAscent: ascent,
+      fontBoundingBoxDescent: descent,
+    } = ctx.measureText("M");
+    return {
+      width: box.width,
+      height: box.height,
+      left: art.left - box.left,
+      top: art.top - box.top,
+      cell,
+      size,
+      // Each line is one font size tall, with its baseline placed as CSS
+      // places it.
+      baseline: (size - ascent - descent) / 2 + ascent,
     };
   }
 
@@ -124,9 +205,15 @@ export class Rain {
     });
   }
 
-  #draw({ grid, columns, canvas, ctx, colors }: Scene, time: number) {
-    const depths = columns.map(({ writer }) => writtenRows(writer, time));
-    this.#display.reveal(depths);
+  #draw({ grid, field, columns, canvas, ctx, colors }: Scene, time: number) {
+    // The rows of the field each writer's trail has passed, which keep their
+    // art.
+    const written = columns.map(({ writer }) => writtenRows(writer, time));
+    this.#display.reveal(
+      written
+        .slice(field.left, field.left + grid.columns)
+        .map((rows) => rows - field.top),
+    );
 
     const box = canvas.getBoundingClientRect();
     const ratio = window.devicePixelRatio || 1;
@@ -140,37 +227,38 @@ export class Rain {
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     ctx.clearRect(0, 0, box.width, box.height);
 
-    // The canvas draws on the art's own grid, in its font: each line is one
-    // font size tall, with its baseline placed as CSS places it.
-    const art = this.#pre.getBoundingClientRect();
-    const style = window.getComputedStyle(this.#pre);
-    const size = Number.parseFloat(style.fontSize);
-    ctx.font = `${size}px ${style.fontFamily}`;
-    const {
-      width: cell,
-      fontBoundingBoxAscent: ascent,
-      fontBoundingBoxDescent: descent,
-    } = ctx.measureText("M");
-    const left = art.left - box.left;
-    const top = art.top - box.top + (size - ascent - descent) / 2 + ascent;
-    const last = grid.rows.length - 1;
+    // The canvas draws on the art's own grid, in its font, and the field
+    // follows the art should it move.
+    const layout = this.#layout(canvas, ctx);
+    const { cell, size } = layout;
+    const left = layout.left - field.left * cell;
+    const top = layout.top + layout.baseline - field.top * size;
+    const last = field.rows - 1;
+    const charAt = (row: number, column: number) =>
+      grid.rows[row - field.top]?.[column - field.left] ?? " ";
 
     // Characters the writers have passed, cooling from white to their shade.
     ctx.textAlign = "left";
-    columns.forEach(({ writer }, column) => {
-      const head = Math.min(Math.floor(headOf(writer, time)), last);
-      for (let row = depths[column]; row <= head; row++) {
-        const char = grid.rows[row][column];
+    const [right, bottom] = [
+      field.left + grid.columns - 1,
+      field.top + grid.rows.length - 1,
+    ];
+    for (let column = field.left; column <= right; column++) {
+      const { writer } = columns[column];
+      const head = Math.min(Math.floor(headOf(writer, time)), bottom);
+      for (let row = Math.max(written[column], field.top); row <= head; row++) {
+        const char = charAt(row, column);
         if (char === " ") continue;
         const [x, y] = [left + column * cell, top + row * size];
         ctx.globalAlpha = 1;
-        ctx.fillStyle = colors[grid.layers[row][column]];
+        ctx.fillStyle =
+          colors[grid.layers[row - field.top][column - field.left]];
         ctx.fillText(char, x, y);
         ctx.globalAlpha = glowOf(writer, row, time);
         ctx.fillStyle = "#fff";
         ctx.fillText(char, x, y);
       }
-    });
+    }
 
     // The code, mirrored as in the film, each glyph flipped in its own cell.
     ctx.setTransform(-ratio, 0, 0, ratio, box.width * ratio, 0);
@@ -185,20 +273,20 @@ export class Rain {
       );
     };
     columns.forEach(({ writer, rain }, column) => {
-      const written = Math.floor(headOf(writer, time));
+      const head = Math.floor(headOf(writer, time));
       // The writer trails code wherever the art is blank.
-      for (let row = depths[column]; row <= Math.min(written, last); row++) {
-        if (grid.rows[row][column] === " ") {
-          code(column, row, glowOf(writer, row, time), written);
+      for (let row = written[column]; row <= Math.min(head, last); row++) {
+        if (charAt(row, column) === " ") {
+          code(column, row, glowOf(writer, row, time), head);
         }
       }
       // The rain falls below the writer's head.
       for (const drop of rain) {
-        const head = headOf(drop, time);
-        const first = Math.max(Math.ceil(head - drop.trail), written + 1, 0);
-        for (let row = first; row <= Math.min(Math.floor(head), last); row++) {
+        const at = headOf(drop, time);
+        const first = Math.max(Math.ceil(at - drop.trail), head + 1, 0);
+        for (let row = first; row <= Math.min(Math.floor(at), last); row++) {
           const glow = glowOf(drop, row, time);
-          if (glow > 0) code(column, row, glow, Math.floor(head));
+          if (glow > 0) code(column, row, glow, Math.floor(at));
         }
       }
     });
