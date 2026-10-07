@@ -11,12 +11,12 @@ in the same shape as Tearleads' mini-apps. The artwork window reads
 `packages/website/public/index.html` for its markup and styles and runs the
 site's own `mountSite` inside a shadow root, so the site's stylesheet and the
 window stylesheets cannot restyle each other. Its controls sit in the window's
-toolbar and View menu. The skyline window mounts the viewer from
-[`@a2f0/skyline`](https://www.npmjs.com/package/@a2f0/skyline) in an iframe.
-The dnbm windows render the sequencer and the player from
-[`@a2f0/dnbm`](https://www.npmjs.com/package/@a2f0/dnbm) in the page itself,
+toolbar and View menu. The skyline window renders the viewer from
+[`@a2f0/skyline`](https://www.npmjs.com/package/@a2f0/skyline), and the dnbm
+windows the sequencer and the player from
+[`@a2f0/dnbm`](https://www.npmjs.com/package/@a2f0/dnbm), in the page itself,
 each inside a shadow root that keeps its styles and the desktop's apart, so a
-press inside either reaches its window like any other.
+press inside any of them reaches its window like any other.
 
 The taskbar along the bottom starts with the windowing package's `StartMenu`,
 which lists every mini-app with its icon, followed by a button per open window,
@@ -44,11 +44,10 @@ Next.js builds with webpack (`--webpack`) to import the website's HTML as text
 through the `?raw` resource rule. The windowing package supplies its own CSS
 defaults and uses the app's React through peer dependencies.
 
-The skyline viewer opens `/skyline/index.html` and loads its other pages
-relative to it, so Wrangler serves HTML with `auto-trailing-slash`: it
-redirects that page to `/skyline/`, where `drop-trailing-slash` would redirect
-it to `/skyline` and send the viewer's relative URLs to the root. The dnbm
-apps load their code (`mount.js` and `player/mount.js`), stylesheets,
-AudioWorklet, engine, and songs from `/dnbm/`, the URL they mount with. The
-package's loader imports that code at runtime with an `import()` webpack leaves
-to the browser, so the app's bundle holds only the loader.
+The skyline viewer loads its code (`skyline-viewer.js`), stylesheets, scene
+markup, stars, and models from `/skyline/`, and the dnbm apps load their code
+(`mount.js` and `player/mount.js`), stylesheets, AudioWorklet, engine, and songs
+from `/dnbm/`: each from the URL it mounts with. Each package's loader imports
+that code at runtime with an `import()` webpack leaves to the browser, so the
+app's bundle holds only the loaders. The app has no `three` dependency: the
+skyline's scene loads the copy of three.js in its assets when it first needs it.

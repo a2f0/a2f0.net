@@ -65,34 +65,68 @@ const siteState = () =>
     };
   });
 
-// The skyline viewer's frame and the 3D scene inside it, read through the
-// same-origin frames the package mounts.
-const skylineFrames = () =>
+// The skyline viewer's region and the viewer the package renders in its shadow
+// root, in this page rather than in a frame.
+const skylineApp = () =>
   browser.execute(() => {
-    const viewer = document.querySelector<HTMLIFrameElement>(
-      ".skyline-window iframe",
+    const region = document.querySelector<HTMLElement>(
+      ".skyline-window [role=region]",
     );
-    const viewerDocument = viewer?.contentDocument;
-    const scene =
-      viewerDocument?.querySelector<HTMLIFrameElement>("#skyline-3d-scene");
-    const sceneDocument = scene?.contentDocument;
+    const root = region?.shadowRoot;
     return {
-      title: viewer?.title,
-      viewer: viewerDocument && {
-        path: viewerDocument.location.pathname,
-        query: viewerDocument.location.search,
-        embedded: viewerDocument.documentElement.dataset.embedded,
-      },
-      scene: sceneDocument && {
-        path: sceneDocument.location.pathname,
-        canvas: sceneDocument.querySelector("canvas#building") !== null,
+      frames: document.querySelectorAll(".skyline-window iframe").length,
+      title: region?.getAttribute("aria-label"),
+      busy: region?.hasAttribute("aria-busy"),
+      viewer: root && {
+        canvas: root.querySelector("canvas#building") !== null,
         controlsOpen:
-          sceneDocument
-            .querySelector("#menu-toggle")
-            ?.getAttribute("aria-expanded") === "true",
+          root.querySelector("#menu-toggle")?.getAttribute("aria-expanded") ===
+          "true",
+        loading: root.querySelector<HTMLElement>("#loading")?.checkVisibility(),
       },
     };
   });
+
+// The viewer is ready once its 3D skyline draws its first frame: the region
+// drops aria-busy. The scene's code, models, and WebGL take a while in CI.
+const waitForSkyline = () =>
+  browser.waitUntil(
+    async () => {
+      const { busy, viewer } = await skylineApp();
+      return busy === false && viewer?.canvas === true;
+    },
+    {
+      timeout: 30000,
+      timeoutMsg: "the skyline viewer did not draw its 3D skyline",
+    },
+  );
+
+// Presses the skyline's 3D scene where it shows in front of the other windows.
+// A press without a drag leaves the camera where it is.
+const pressSkylineScene = async () => {
+  const { x, y } = await browser.execute(() => {
+    const region = document.querySelector(".skyline-window [role=region]");
+    const root = region?.shadowRoot;
+    if (!region || !root) throw new Error("Missing skyline viewer");
+    const { left, top, right, bottom } = region.getBoundingClientRect();
+    for (let y = Math.ceil(top) + 4; y < bottom; y += 8) {
+      for (let x = Math.floor(right) - 4; x > left; x -= 8) {
+        if (
+          document.elementFromPoint(x, y) === region &&
+          root.elementFromPoint(x, y)?.matches("canvas#building")
+        )
+          return { x, y };
+      }
+    }
+    throw new Error("No part of the skyline's scene shows");
+  });
+  await browser
+    .action("pointer")
+    .move({ origin: "viewport", x, y })
+    .down()
+    .up()
+    .perform();
+};
 
 // The dnbm sequencer's region and the app the package renders in its shadow
 // root, in this page rather than in a frame.
@@ -525,24 +559,23 @@ describe("Experiment desktop", () => {
     ).toBeExisting();
   });
 
-  it("embeds the skyline viewer from its copied assets", async () => {
-    // The viewer and its 3D scene load from /skyline/: the trailing slash
-    // keeps the scene's relative URL inside the copied assets.
-    await browser.waitUntil(
-      async () => (await skylineFrames()).scene?.canvas === true,
-      { timeoutMsg: "the skyline viewer did not load its 3D scene" },
-    );
-    expect(await skylineFrames()).toEqual({
+  it("renders the skyline viewer in the page from its copied assets", async () => {
+    // The viewer loads its code, styles, and 3D scene from /skyline/.
+    await waitForSkyline();
+    expect(await skylineApp()).toEqual({
+      // The package renders the viewer in a shadow root, not a frame.
+      frames: 0,
       title: "Interactive Chicago skyline",
+      busy: false,
       viewer: {
-        path: "/skyline/",
-        query: "?embed=1&controls=open",
-        embedded: "true",
+        canvas: true,
+        // The scene's control bar starts open.
+        controlsOpen: true,
+        // The first frame hides the loading silhouette.
+        loading: false,
       },
-      // The scene's control bar starts open.
-      scene: { path: "/skyline/skyline-3d", canvas: true, controlsOpen: true },
     });
-    // The skyline opens behind the artwork, so its frame has no focus yet.
+    // The skyline opens behind the artwork.
     expect(await frontWindowTitle()).toBe("a2f0.net");
   });
 
@@ -581,36 +614,107 @@ describe("Experiment desktop", () => {
     await expectThreeQuarters();
   });
 
-  it("raises the skyline window when its frame is pressed", async () => {
-    await browser.waitUntil(
-      async () => (await skylineFrames()).scene?.canvas === true,
-      { timeoutMsg: "the skyline viewer did not load its 3D scene" },
-    );
-    // Press the part of the skyline's body that shows right of the artwork.
-    const artwork = await asciiArtWindow().getSize();
-    const artworkAt = await asciiArtWindow().getLocation();
-    const skylineAt = await skylineWindow().getLocation();
-    const skylineSize = await skylineWindow().getSize();
-    const x = Math.round(
-      (artworkAt.x + artwork.width + skylineAt.x + skylineSize.width) / 2,
-    );
-    const y = Math.round(skylineAt.y + skylineSize.height / 2);
-    await browser
-      .action("pointer")
-      .move({ origin: "viewport", x, y })
-      .down()
-      .up()
-      .perform();
+  it("raises the skyline window on a press inside it", async () => {
+    await waitForSkyline();
+    // The skyline's scene shows right of the artwork, which is in front.
+    await pressSkylineScene();
     await browser.waitUntil(
       async () => (await frontWindowTitle()) === "Skyline",
       { timeoutMsg: "pressing the skyline did not raise its window" },
     );
-    // Focus went into the viewer's frame, not back to the window.
+    // The press reaches the window from the page itself: no frame takes
+    // focus, and the viewer keeps it.
     expect(
       await browser.execute(
-        () => document.activeElement?.closest(".skyline-window") !== null,
+        () =>
+          document.activeElement?.matches(".skyline-window [role=region]") ??
+          false,
       ),
     ).toBe(true);
+  });
+
+  it("closes open menus on a press inside the skyline", async () => {
+    await waitForSkyline();
+    const start = $(".desktop-taskbar button[aria-label='Menu']");
+    await start.click();
+    await expect(start).toHaveAttribute("aria-expanded", "true");
+    await pressSkylineScene();
+    await expect($(".menu")).not.toBeExisting();
+    await expect(start).toHaveAttribute("aria-expanded", "false");
+
+    // A window's own menu closes too.
+    await taskbar("Resume").click();
+    await resumeWindow().$("button=View").click();
+    await expect(resumeWindow().$("button=Fit to Content")).toBeDisplayed();
+    await pressSkylineScene();
+    await expect(resumeWindow().$("button=Fit to Content")).not.toBeExisting();
+  });
+
+  it("keeps keys pressed outside the skyline out of it", async () => {
+    await waitForSkyline();
+    // The viewer marks the keys it takes as handled. Record them as they
+    // reach the window.
+    await browser.execute(() => {
+      const keys: [string, boolean][] = [];
+      Object.assign(window, { skylineKeys: keys });
+      window.addEventListener("keydown", (event) =>
+        keys.push([event.key, event.defaultPrevented]),
+      );
+    });
+    const takenKeys = () =>
+      browser.execute(() =>
+        (
+          window as unknown as { skylineKeys: [string, boolean][] }
+        ).skylineKeys.splice(0),
+      );
+    // The artwork window has focus. Arrows rotate the skyline and + zooms it,
+    // but only while focus is inside it.
+    await browser.keys(["ArrowLeft", "+"]);
+    expect(await takenKeys()).toEqual([
+      ["ArrowLeft", false],
+      ["+", false],
+    ]);
+
+    // Focused by a press, the viewer takes the same keys.
+    await pressSkylineScene();
+    await browser.keys(["ArrowLeft", "+"]);
+    expect(await takenKeys()).toEqual([
+      ["ArrowLeft", true],
+      ["+", true],
+    ]);
+  });
+
+  it("releases the skyline's WebGL context when its window closes", async () => {
+    await waitForSkyline();
+    // Asked again, the scene's canvas returns the context it draws with.
+    expect(
+      await browser.execute(() => {
+        const canvas = document
+          .querySelector(".skyline-window [role=region]")
+          ?.shadowRoot?.querySelector("canvas#building");
+        if (!(canvas instanceof HTMLCanvasElement)) return false;
+        const context = canvas.getContext("webgl2");
+        Object.assign(window, { skylineContext: context });
+        return context !== null && !context.isContextLost();
+      }),
+    ).toBe(true);
+
+    await skylineWindow().$("button[aria-label='Close window']").click();
+    await expect(skylineWindow()).not.toBeExisting();
+    await browser.waitUntil(
+      () =>
+        browser.execute(() =>
+          (
+            window as unknown as { skylineContext: WebGL2RenderingContext }
+          ).skylineContext.isContextLost(),
+        ),
+      { timeoutMsg: "the closed skyline kept its WebGL context" },
+    );
+
+    // Reopened, a new viewer draws the skyline again.
+    await $(".desktop-taskbar button[aria-label='Menu']").click();
+    await $(".menu").$("button=Skyline").click();
+    await waitForSkyline();
   });
 
   it("renders the dnbm player in the page from the same assets, and plays a song", async () => {
