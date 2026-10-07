@@ -103,6 +103,30 @@ test("missing bindings and existing stateful bindings cannot be cleared", () => 
   ).not.toThrow();
 });
 
+test("a reviewed compatibility-date transition accepts only the configured and previous live dates", async () => {
+  const text = await file(
+    new URL("../packages/experiment/wrangler.jsonc", import.meta.url),
+  ).text();
+  const transition = { current: "2026-10-07", previous: "2026-09-16" };
+  const candidate = text.replace("2026-09-16", transition.current);
+  expect(checkConfiguration(candidate, "experiment", transition)).toBe("./out");
+  expect(() => checkConfiguration(text, "experiment", transition)).toThrow();
+  for (const date of [transition.current, transition.previous]) {
+    expect(() =>
+      checkSettings({ bindings: [], compatibility_date: date }, transition),
+    ).not.toThrow();
+  }
+  expect(() =>
+    checkSettings(
+      { bindings: [], compatibility_date: "2026-01-01" },
+      transition,
+    ),
+  ).toThrow();
+  expect(() =>
+    checkSettings({ bindings: [], compatibility_date: transition.current }),
+  ).toThrow();
+});
+
 test("a website preview captures the real assets without rerunning its build", async () => {
   const text = await file(
     new URL("../packages/website/wrangler.jsonc", import.meta.url),

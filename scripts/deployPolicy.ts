@@ -30,6 +30,15 @@ export const DEPLOYMENTS = {
 
 export type DeploymentName = keyof typeof DEPLOYMENTS;
 
+// A date migration must explicitly name the currently live date as previous.
+// Keep previous null until such a migration is reviewed; remove it afterward.
+export const WORKER_COMPATIBILITY = {
+  current: "2026-09-16",
+  previous: null,
+} satisfies { current: string; previous: string | null };
+
+type CompatibilityPolicy = { current: string; previous: string | null };
+
 export function record(value: unknown): Record<string, unknown> {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
     throw new Error("Expected an object in deployment evidence");
@@ -45,7 +54,11 @@ function onlyKeys(value: Record<string, unknown>, keys: string[]) {
   }
 }
 
-export function checkConfiguration(text: string, target: DeploymentName) {
+export function checkConfiguration(
+  text: string,
+  target: DeploymentName,
+  compatibility: CompatibilityPolicy = WORKER_COMPATIBILITY,
+) {
   const errors: ParseError[] = [];
   const config = record(parse(text, errors));
   if (errors.length) throw new Error("Invalid Wrangler configuration");
@@ -60,7 +73,7 @@ export function checkConfiguration(text: string, target: DeploymentName) {
     "build",
   ]);
   if (
-    config.compatibility_date !== "2026-09-16" ||
+    config.compatibility_date !== compatibility.current ||
     config.workers_dev !== false ||
     config.preview_urls !== false
   ) {
@@ -142,7 +155,10 @@ export function checkPublicEndpoints(subdomain: unknown, schedules: unknown) {
   }
 }
 
-export function checkSettings(settings: unknown) {
+export function checkSettings(
+  settings: unknown,
+  compatibility: CompatibilityPolicy = WORKER_COMPATIBILITY,
+) {
   const value = record(settings);
   if (!Array.isArray(value.bindings) || value.bindings.length !== 0) {
     throw new Error("Existing bindings are unknown or would be removed");
@@ -160,7 +176,9 @@ export function checkSettings(settings: unknown) {
     );
   }
   if (
-    value.compatibility_date !== "2026-09-16" ||
+    (value.compatibility_date !== compatibility.current &&
+      (compatibility.previous === null ||
+        value.compatibility_date !== compatibility.previous)) ||
     (value.compatibility_flags !== undefined &&
       (!Array.isArray(value.compatibility_flags) ||
         value.compatibility_flags.length))

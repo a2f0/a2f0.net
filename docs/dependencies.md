@@ -56,6 +56,12 @@ deployments, domains, subdomain settings and schedules; publishing additionally
 requires Workers Scripts Edit. Denied or incomplete reads stop before
 publishing. Never broaden tokens as a workaround.
 
+For a reviewed compatibility-date bump, change the four Wrangler configs and
+`WORKER_COMPATIBILITY.current` together, and set `previous` to the verified live
+date for the first deployment. The guard then accepts only the configured or
+that explicitly reviewed previous live date. Clear `previous` after the
+transition. Other compatibility flags still require a separate review.
+
 The guard rejects `route`/`routes` and requires `workers_dev=false` for all four
 configs. [Cloudflare documents](https://developers.cloudflare.com/workers/wrangler/configuration/)
 that omitting both route keys with `workers_dev=false` preserves dashboard-managed
