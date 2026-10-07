@@ -92,6 +92,12 @@ test("HCL source scan sees unsafe blocks across all comment forms", () => {
     ),
   ).not.toThrow();
   expect(() =>
+    checkTerraformHcl('output "safe" { value = "${resource.example.id}" }'),
+  ).not.toThrow();
+  expect(() =>
+    checkTerraformHcl('output "unsafe" { value = "${jsonencode("x")}" }'),
+  ).toThrow();
+  expect(() =>
     checkTerraformHcl('# data "external"\nresource "safe" "ok" {}'),
   ).not.toThrow();
   expect(() => checkTerraformHcl("data /* unterminated")).toThrow();

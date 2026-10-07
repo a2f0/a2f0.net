@@ -26,9 +26,23 @@ export function checkTerraformHcl(source: string): void {
     }
     if (character === '"') {
       let end = index + 1;
+      let interpolationDepth = 0;
       for (; end < source.length; end++) {
-        if (source[end] === "\\") end++;
-        else if (source[end] === '"') break;
+        if (source[end] === "\\" && interpolationDepth === 0) end++;
+        else if (
+          (source[end] === "$" || source[end] === "%") &&
+          source[end + 1] === "{"
+        ) {
+          interpolationDepth++;
+          end++;
+        } else if (interpolationDepth > 0) {
+          if (source[end] === "{") interpolationDepth++;
+          else if (source[end] === "}") interpolationDepth--;
+          else if (source[end] === '"')
+            throw new Error(
+              "Quoted Terraform template expressions require a separate review",
+            );
+        } else if (source[end] === '"') break;
       }
       if (end >= source.length)
         throw new Error("Unterminated Terraform string");
