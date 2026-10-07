@@ -1,4 +1,5 @@
 import { downloadPdf, downloadSvg } from "@a2f0/shared/downloads";
+import { printResume } from "@a2f0/shared/print";
 
 import { useAppSelector } from "../../lib/hooks";
 import {
@@ -10,6 +11,7 @@ import { selectScale } from "../../lib/resumeConfigSlice";
 import CheckMark from "./CheckMark";
 import { useDropdownMenu } from "./DropdownMenuContext";
 import MenuAction from "./MenuAction";
+import MenuDivider from "./MenuDivider";
 import MenuLabel from "./MenuLabel";
 
 const FileMenu = () => {
@@ -31,31 +33,52 @@ const FileMenu = () => {
     close();
   };
 
+  const print = () => {
+    close();
+    printResume();
+  };
+
   return (
-    <ul>
-      <li>
-        <MenuAction
-          type="button"
-          id="downloadPdfMenuOption"
-          onClick={downloadPDF}
-          $scale={scale}
-        >
-          <CheckMark $isActive={false} />
-          <MenuLabel>Download PDF</MenuLabel>
-        </MenuAction>
-      </li>
-      <li>
-        <MenuAction
-          type="button"
-          id="downloadSvgMenuOption"
-          onClick={downloadSVG}
-          $scale={scale}
-        >
-          <CheckMark $isActive={false} />
-          <MenuLabel>Download SVG</MenuLabel>
-        </MenuAction>
-      </li>
-    </ul>
+    <>
+      <ul>
+        <li>
+          <MenuAction
+            type="button"
+            id="downloadPdfMenuOption"
+            onClick={downloadPDF}
+            $scale={scale}
+          >
+            <CheckMark $isActive={false} />
+            <MenuLabel>Download PDF</MenuLabel>
+          </MenuAction>
+        </li>
+        <li>
+          <MenuAction
+            type="button"
+            id="downloadSvgMenuOption"
+            onClick={downloadSVG}
+            $scale={scale}
+          >
+            <CheckMark $isActive={false} />
+            <MenuLabel>Download SVG</MenuLabel>
+          </MenuAction>
+        </li>
+      </ul>
+      <MenuDivider />
+      <ul>
+        <li>
+          <MenuAction
+            type="button"
+            id="printMenuOption"
+            onClick={print}
+            $scale={scale}
+          >
+            <CheckMark $isActive={false} />
+            <MenuLabel>Print</MenuLabel>
+          </MenuAction>
+        </li>
+      </ul>
+    </>
   );
 };
 export default FileMenu;

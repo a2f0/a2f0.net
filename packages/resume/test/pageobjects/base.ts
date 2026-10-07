@@ -17,6 +17,9 @@ export default class Base {
   get downloadPdfMenuOption(): ReturnType<WebdriverIO.Browser["$"]> {
     return $("#downloadPdfMenuOption");
   }
+  get printMenuOption(): ReturnType<WebdriverIO.Browser["$"]> {
+    return $("#printMenuOption");
+  }
   open(path: string): ReturnType<WebdriverIO.Browser["url"]> {
     return browser.url(`/${path}`);
   }
