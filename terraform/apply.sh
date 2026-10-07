@@ -17,17 +17,15 @@ bun ../scripts/terraformPlan.ts backend .terraform/terraform.tfstate
   exit 1
 }
 # No provisioners or external data programs are part of the reviewed stack.
-scan_status=0
-rg --quiet 'provisioner\s+"|data\s+"external"' --glob '*.tf' . || scan_status=$?
-case "$scan_status" in
-  1) ;;
-  0) echo 'Unreviewed provisioner or external data program' >&2; exit 1 ;;
-  *) echo 'Could not inspect Terraform executable configuration' >&2; exit 1 ;;
-esac
+# This scans ignored overrides and JSON sources without requiring ripgrep.
+bun ../scripts/terraformPlan.ts sources .
 
 umask 077
 plan_directory=$(mktemp -d "${TMPDIR:-/tmp}/a2f0-terraform.XXXXXX")
-trap 'rm -rf "$plan_directory"' EXIT HUP INT TERM
+trap 'rm -rf "$plan_directory"' EXIT
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
 terraform version -json > "$plan_directory/version.json"
 bun ../scripts/terraformPlan.ts version "$plan_directory/version.json"
 # Read actual remote state; a matching backend file alone is insufficient.

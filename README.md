@@ -250,8 +250,7 @@ the AWS provider and the already-applied Vercel migration blocks.
 
 ### Dependency Updates
 
-Use the shared `update-dependencies` skill when the owning agent-tool pin
-provides it. Older pins use the Matrix workspace's documented plan helper and
+Use the pinned `update-dependencies` skill with
 [these repository gates](docs/dependencies.md). Inventory every manifest,
 lockfile, runtime, Action, override, patch and provider before changing a group.
 Check upstream releases and migration notes, update coupled peers together,

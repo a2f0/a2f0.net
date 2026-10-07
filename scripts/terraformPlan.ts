@@ -1,5 +1,46 @@
 import { file } from "bun";
+import { readdir, readFile } from "node:fs/promises";
+import { basename, join } from "node:path";
 import { record } from "./deployPolicy";
+
+/** Inspect every Terraform source, including ignored override files and modules. */
+export async function checkTerraformSources(directory: string): Promise<void> {
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    if (entry.name === "providers" && basename(directory) === ".terraform")
+      continue;
+    const path = join(directory, entry.name);
+    if (entry.isSymbolicLink())
+      throw new Error("Symlinked Terraform source requires a separate review");
+    if (entry.isDirectory()) {
+      await checkTerraformSources(path);
+      continue;
+    }
+    if (!entry.isFile() || !/\.tf(?:\.json)?$/.test(entry.name)) continue;
+    const source = await readFile(path, "utf8");
+    if (entry.name.endsWith(".tf.json")) {
+      const input: unknown = JSON.parse(source);
+      const inspect = (value: unknown): boolean => {
+        if (!value || typeof value !== "object") return false;
+        if (Array.isArray(value)) return value.some(inspect);
+        const object = value as Record<string, unknown>;
+        if (Object.hasOwn(object, "provisioner")) return true;
+        const data = object.data;
+        if (
+          data &&
+          typeof data === "object" &&
+          !Array.isArray(data) &&
+          Object.hasOwn(data, "external")
+        )
+          return true;
+        return Object.values(object).some(inspect);
+      };
+      if (inspect(input))
+        throw new Error("Unreviewed Terraform provisioner or external data");
+    } else if (/\bprovisioner\s*"|\bdata\s*"external"/m.test(source)) {
+      throw new Error("Unreviewed Terraform provisioner or external data");
+    }
+  }
+}
 
 /** Read-only guard; full real-backend freshness and provider effects remain caller checks. */
 export function checkTerraformPlan(input: unknown) {
@@ -129,32 +170,36 @@ if (import.meta.main) {
     extra.length ||
     (mode !== "state" && variables !== undefined) ||
     (mode === "state" && !variables) ||
-    (mode !== "plan" &&
+    (mode !== "sources" &&
+      mode !== "plan" &&
       mode !== "backend" &&
       mode !== "state" &&
       mode !== "version")
   )
     throw new Error(
-      "Usage: terraformPlan.ts <plan|backend|version> <private-json-file>, or state <private-state-json> <private-variables-json>",
+      "Usage: terraformPlan.ts <sources|plan|backend|version> <path>, or state <private-state-json> <private-variables-json>",
     );
-  const value: unknown = await file(path).json();
-  if (mode === "backend") checkTerraformBackend(value);
-  else if (mode === "state") {
-    if (!variables) throw new Error("Missing existing account variables");
-    checkTerraformState(
-      value,
-      record(await file(variables).json()).cloudflare_account_id,
-    );
-  } else if (mode === "plan") checkTerraformPlan(value);
-  else if (
-    record(value).terraform_version !==
-    (
-      await file(
-        new URL("../terraform/.terraform-version", import.meta.url),
-      ).text()
-    ).trim()
-  ) {
-    throw new Error("Use the repository's pinned Terraform CLI");
+  if (mode === "sources") await checkTerraformSources(path);
+  else {
+    const value: unknown = await file(path).json();
+    if (mode === "backend") checkTerraformBackend(value);
+    else if (mode === "state") {
+      if (!variables) throw new Error("Missing existing account variables");
+      checkTerraformState(
+        value,
+        record(await file(variables).json()).cloudflare_account_id,
+      );
+    } else if (mode === "plan") checkTerraformPlan(value);
+    else if (
+      record(value).terraform_version !==
+      (
+        await file(
+          new URL("../terraform/.terraform-version", import.meta.url),
+        ).text()
+      ).trim()
+    ) {
+      throw new Error("Use the repository's pinned Terraform CLI");
+    }
   }
   console.log(
     "Terraform safety evidence accepted; attribute values are not printed",

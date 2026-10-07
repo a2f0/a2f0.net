@@ -163,6 +163,27 @@ esac
     const empty = await run(["create"], false);
     expect(empty.status).not.toBe(0);
     expect(empty.calls.some((call) => call.startsWith("plan"))).toBe(false);
+    await writeFile(resolve(directory, "state.json"), JSON.stringify(state));
+    const unsafeSources: [string, string][] = [
+      [
+        "override.tf",
+        'resource "null_resource" "unsafe" { provisioner "local-exec" { command = "true" } }',
+      ],
+      [
+        "ignored.tf.json",
+        JSON.stringify({
+          data: { external: { unsafe: { program: ["true"] } } },
+        }),
+      ],
+    ];
+    for (const [name, source] of unsafeSources) {
+      const sourcePath = resolve(folder, name);
+      await writeFile(sourcePath, source);
+      const unsafe = await run(["no-op"], false);
+      expect(unsafe.status).not.toBe(0);
+      expect(unsafe.calls.some((call) => call.startsWith("plan"))).toBe(false);
+      await rm(sourcePath);
+    }
   } finally {
     await rm(directory, { recursive: true });
   }

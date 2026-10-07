@@ -5,10 +5,9 @@ description: Follow the shared dependency-update workflow and this repository's 
 
 # Package Update And Verify
 
-Use `update-dependencies` from the owning agent-tool installation when available.
-For an older pin, read the Matrix workspace's shared skill and documented plan
-helper, plus [the repository dependency gates](../../../docs/dependencies.md).
-Do not install newer managed skill copies alongside an unresolved older pin.
+Use `update-dependencies` from the owning agent-tool installation with
+[the repository dependency gates](../../../docs/dependencies.md). Do not
+install newer managed skill copies alongside an unresolved older pin.
 
 1. Read `AGENTS.md`, README and linked docs; record the clean base and branch.
 2. Inventory all packages, lockfiles, runtimes, Actions, patches, overrides and
