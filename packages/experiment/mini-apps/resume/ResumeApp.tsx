@@ -8,7 +8,7 @@ import {
 import { type RefObject, useEffect, useRef, useState } from "react";
 
 import type { MiniAppProps } from "../types";
-import { DARK, isDarkTheme, useResumeMenus } from "./useResumeMenus";
+import { DARK, useResumeMenus } from "./useResumeMenus";
 
 const { documentHeight, documentWidth, pixelsPerPoint } = resumeConfiguration;
 
@@ -53,17 +53,11 @@ export function ResumeApp({ onLoad }: MiniAppProps) {
   });
 
   // The resume paints its own page, so around it the window shows an
-  // off-color of the page's background and frames it as a sheet.
+  // off-color of the page's background and frames it as a sheet. The theme
+  // stops there: the window's chrome and the rest of the desktop stay dark.
   useWindowBackground(
     `color-mix(in srgb, ${colors.foregroundColor} 10%, ${colors.backgroundColor})`,
   );
-
-  // The window chrome follows the resume theme.
-  useEffect(() => {
-    document.documentElement.dataset.theme = isDarkTheme(colors)
-      ? "dark"
-      : "light";
-  }, [colors]);
 
   useEffect(() => {
     // Wait for the first measurement so the resume is laid out once.

@@ -45,6 +45,8 @@ several apps.
 
 - `resume/` renders the shared resume as SVG and puts its downloads, printing
   (the PDF, in the light theme), theme, and scale in the File and View menus.
+  The theme recolors only the page and the window background around it; the
+  window's chrome and the rest of the desktop keep the desktop's dark theme.
   Its window opens fitted to the page once the SVG has rendered.
 - `ascii-art/` runs the a2f0.net artwork from `packages/website` inside a
   shadow root. Its controls (the animation, the music player, and the ASCII
