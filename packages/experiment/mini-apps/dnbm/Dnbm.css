@@ -1,8 +1,9 @@
-/* The sequencer draws its own dark surface edge to edge, so it spans the
-   body's padding, on that surface's color while it loads. It fills this
+/* The sequencer draws its own dark surface edge to edge, so it spans its
+   host's padding (see --mini-app-bleed in styles/global.css), on that
+   surface's color while it loads. It fills this
    element, which needs the explicit height: without one it shows nothing. */
 .dnbm-window {
-  height: calc(100% + 2 * var(--space-md));
-  margin: calc(-1 * var(--space-md));
+  height: calc(100% + 2 * var(--mini-app-bleed));
+  margin: calc(-1 * var(--mini-app-bleed));
   background: #0a0a0a;
 }

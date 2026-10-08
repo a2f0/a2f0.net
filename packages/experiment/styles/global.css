@@ -152,6 +152,18 @@ body {
   margin-left: auto;
 }
 
+/* How far a mini-app that draws edge to edge reaches past its host's padding
+   (see the artwork, skyline, and dnbm stylesheets): a window's body pads its
+   content, and the routed shell's content pane does not, beyond the screen's
+   safe areas, which the apps keep clear of. */
+.window-body-content-scroll {
+  --mini-app-bleed: var(--space-md);
+}
+
+.routed-pane-main {
+  --mini-app-bleed: 0px;
+}
+
 /* The routed shell, on phones, tablets, and narrow windows, fills the page in
    place of the desktop and taskbar. */
 .desktop > .routed-pane {
