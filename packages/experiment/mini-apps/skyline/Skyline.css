@@ -1,7 +1,8 @@
-/* The viewer draws its night sky edge to edge, so it spans the body's
-   padding, on the sky's black while it loads. */
+/* The viewer draws its night sky edge to edge, so it spans its host's
+   padding (see --mini-app-bleed in styles/global.css), on the sky's black
+   while it loads. */
 .skyline-window {
-  height: calc(100% + 2 * var(--space-md));
-  margin: calc(-1 * var(--space-md));
+  height: calc(100% + 2 * var(--mini-app-bleed));
+  margin: calc(-1 * var(--mini-app-bleed));
   background: #000;
 }

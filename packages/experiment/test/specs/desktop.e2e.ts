@@ -1439,6 +1439,45 @@ describe("Experiment desktop", () => {
     await expect($(".routed-pane-main .resume-window")).toBeExisting();
   });
 
+  it("fills the routed content pane with the edge-to-edge apps, unscrolled", async () => {
+    await browser.setViewport({ width: 1100, height: 800 });
+    await browser.refresh();
+    await $(
+      ".desktop-taskbar-end button[aria-label='Switch to iPad / mobile layout']",
+    ).click();
+    await $("button[aria-label='Expand navigation rail']").click();
+    for (const [app, root] of [
+      ["a2f0.net", ".ascii-art-window"],
+      ["dnbm", ".dnbm-window"],
+      ["Skyline", ".skyline-window"],
+      ["dnbm player", ".dnbm-player-window"],
+    ]) {
+      await $(`.routed-pane-nav-link=${app}`).click();
+      await expect($(`.routed-pane-main ${root}`)).toBeExisting();
+      // Inside a window the app reaches past the body's padding; the routed
+      // pane has none, so the app fills it exactly and nothing scrolls.
+      expect(
+        await browser.execute((selector) => {
+          const main = document.querySelector(".routed-pane-main");
+          const app = document.querySelector(selector);
+          if (!main || !app) throw new Error(`Missing ${selector}`);
+          const pane = main.getBoundingClientRect();
+          const box = app.getBoundingClientRect();
+          return {
+            scrolls:
+              main.scrollWidth > main.clientWidth ||
+              main.scrollHeight > main.clientHeight,
+            fills:
+              Math.round(box.left) === Math.round(pane.left) &&
+              Math.round(box.top) === Math.round(pane.top) &&
+              Math.round(box.width) === main.clientWidth &&
+              Math.round(box.height) === main.clientHeight,
+          };
+        }, root),
+      ).toEqual({ scrolls: false, fills: true });
+    }
+  });
+
   it("opens an app's route directly in the routed shell", async () => {
     await browser.setViewport({ width: 390, height: 844 });
     await browser.url("/app/dnbm-player");
