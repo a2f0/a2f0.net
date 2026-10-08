@@ -39,7 +39,9 @@ Worker serves the page for; the root route shows the artwork. The routed shell
 has no menu bar, so the resume puts its theme, downloads, and printing in the
 app bar's toolbar there, beside the toolbars the other apps already have. The
 switch in the taskbar's corner moves between the two layouts wherever windows
-suit the screen, and the choice persists. Next.js leaves the routed shell's
+suit the screen, and the choice persists. The layout follows the screen the
+page loads on and keeps it as the window resizes, since a switch remounts
+every app; the resume keeps its theme and scale across one. Next.js leaves the routed shell's
 history entries to it.
 
 The app uses the published `@tearleads/windowing` package, pinned to `0.2.12`.

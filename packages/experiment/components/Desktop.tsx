@@ -1,16 +1,19 @@
 import {
+  isWindowedLayoutEligible,
   LauncherNavigationProvider,
+  type NavigationMode,
   NavigationModeOverrideProvider,
   NavigationModeSwitch,
   RoutedPane,
-  useNavigationMode,
+  readNavigationEnvironment,
+  resolveNavigationMode,
   useNavigationModeDocumentAttribute,
   useNavigationModeOverride,
   useWindowStateData,
   WindowStateProvider,
 } from "@tearleads/windowing";
 import { useRouter } from "next/router";
-import { type PropsWithChildren, useEffect } from "react";
+import { type PropsWithChildren, useEffect, useState } from "react";
 
 import { MiniAppBoundary } from "../mini-apps/MiniAppBoundary";
 import { MiniAppWindow } from "../mini-apps/MiniAppWindow";
@@ -53,6 +56,25 @@ function OpenEveryMiniAppOnce() {
   return null;
 }
 
+/**
+ * The layout for the screen the page loaded on, or the visitor's choice where
+ * windows suit that screen. Resizing does not change it, since a switch
+ * remounts every app (stopping audio, for one); the switch does.
+ */
+function useLayout(): NavigationMode {
+  const { override } = useNavigationModeOverride();
+  const [environment] = useState(readNavigationEnvironment);
+  const choice =
+    override === "windowed" && !isWindowedLayoutEligible(environment)
+      ? null
+      : override;
+  return resolveNavigationMode({
+    environment,
+    forcedMode: choice ?? undefined,
+    preferredMode: "windowed",
+  });
+}
+
 const ROUTED_MENU_ICON = <StartIcon className="desktop-start-icon" />;
 const ROUTED_TRAY = <NavigationModeSwitch mode="routed" />;
 
@@ -63,8 +85,7 @@ const ROUTED_TRAY = <NavigationModeSwitch mode="routed" />;
  * wherever windows suit the screen.
  */
 function DesktopLayout() {
-  const { override } = useNavigationModeOverride();
-  const mode = useNavigationMode({ override, preferredMode: "windowed" });
+  const mode = useLayout();
   useNavigationModeDocumentAttribute(mode);
 
   return (

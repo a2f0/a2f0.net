@@ -1503,6 +1503,44 @@ describe("Experiment desktop", () => {
     ]);
   });
 
+  it("keeps its layout and apps when the window resizes", async () => {
+    await taskbar("Resume").click();
+    await resumeWindow().$("button=View").click();
+    await resumeWindow().$("button*=Light Theme").click();
+    await browser.waitUntil(
+      async () => (await resumeTextFills()).includes("#000000"),
+      { timeoutMsg: "the resume did not take the light theme" },
+    );
+
+    // Narrower than windows suit, the page keeps the layout it loaded with:
+    // a switch would remount every app.
+    await browser.setViewport({ width: 900, height: 900 });
+    await browser.pause(500);
+    await expect($(".desktop-taskbar")).toBeDisplayed();
+    await expect($("html")).toHaveAttribute("data-navigation-mode", "windowed");
+    await expect(
+      $$(".desktop-surface > section.window"),
+    ).toBeElementsArrayOfSize(5);
+    expect(await resumeTextFills()).toContain("#000000");
+  });
+
+  it("keeps the resume's theme across a layout switch", async () => {
+    await taskbar("Resume").click();
+    await resumeWindow().$("button=View").click();
+    await resumeWindow().$("button*=Light Theme").click();
+    await $(
+      ".desktop-taskbar-end button[aria-label='Switch to iPad / mobile layout']",
+    ).click();
+    await $("button[aria-label='Expand navigation rail']").click();
+    await $(".routed-pane-nav-link=Resume").click();
+    await waitForResume();
+    // The light theme carried over, so the toolbar offers the dark one.
+    await expect(
+      $(".routed-pane-toolbar button[aria-label='Dark Theme']"),
+    ).toBeDisplayed();
+    expect(await resumeTextFills()).toContain("#000000");
+  });
+
   it("switches between the windowed desktop and the routed shell", async () => {
     const toRouted = () =>
       $(
