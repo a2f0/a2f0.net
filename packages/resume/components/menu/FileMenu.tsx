@@ -1,5 +1,8 @@
 import { downloadPdf, downloadSvg } from "@a2f0/shared/downloads";
 import { printResume } from "@a2f0/shared/print";
+import { FilePdfIcon } from "@phosphor-icons/react/dist/csr/FilePdf";
+import { FileSvgIcon } from "@phosphor-icons/react/dist/csr/FileSvg";
+import { PrinterIcon } from "@phosphor-icons/react/dist/csr/Printer";
 
 import { useAppSelector } from "../../lib/hooks";
 import {
@@ -12,6 +15,7 @@ import CheckMark from "./CheckMark";
 import { useDropdownMenu } from "./DropdownMenuContext";
 import MenuAction from "./MenuAction";
 import MenuDivider from "./MenuDivider";
+import MenuIcon from "./MenuIcon";
 import MenuLabel from "./MenuLabel";
 
 const FileMenu = () => {
@@ -49,6 +53,7 @@ const FileMenu = () => {
             $scale={scale}
           >
             <CheckMark $isActive={false} />
+            <MenuIcon icon={FilePdfIcon} scale={scale} />
             <MenuLabel>Download PDF</MenuLabel>
           </MenuAction>
         </li>
@@ -60,6 +65,7 @@ const FileMenu = () => {
             $scale={scale}
           >
             <CheckMark $isActive={false} />
+            <MenuIcon icon={FileSvgIcon} scale={scale} />
             <MenuLabel>Download SVG</MenuLabel>
           </MenuAction>
         </li>
@@ -74,6 +80,7 @@ const FileMenu = () => {
             $scale={scale}
           >
             <CheckMark $isActive={false} />
+            <MenuIcon icon={PrinterIcon} scale={scale} />
             <MenuLabel>Print</MenuLabel>
           </MenuAction>
         </li>

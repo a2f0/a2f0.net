@@ -1192,28 +1192,38 @@ describe("Experiment desktop", () => {
     const start = $(".desktop-taskbar button[aria-label='Menu']");
     await expect(start).toHaveAttribute("aria-haspopup", "menu");
     await expect(start).toHaveAttribute("aria-expanded", "false");
-    // The button shows the website's graffiti, from the copied art.
-    const logo = start.$("img.desktop-start-logo");
-    await expect(logo).toHaveAttribute("src", "/a2f0.svg");
-    await browser.waitUntil(
-      async () => Number(await logo.getProperty("naturalWidth")) > 0,
-      { timeoutMsg: "the start button's graffiti did not load" },
+    // The button stays square and shows the graffiti restacked into a square
+    // inside it, with the letters painted in its chrome.
+    await expect(start.$("svg.desktop-start-icon")).toHaveAttribute(
+      "aria-hidden",
+      "true",
     );
-    // The button widens to the wordmark rather than clipping it.
     expect(
       await browser.execute(() => {
-        const button = document.querySelector(".desktop-start-button");
-        const image = button?.querySelector("img");
-        if (!button || !image) throw new Error("Missing the start button");
+        const button = document.querySelector(".start-menu-button");
+        const icon = button?.querySelector("svg.desktop-start-icon");
+        const face = icon?.querySelector("use:last-of-type");
+        if (!button || !icon || !face)
+          throw new Error("Missing the start icon");
         const outer = button.getBoundingClientRect();
-        const inner = image.getBoundingClientRect();
-        return (
-          inner.width > outer.height &&
-          inner.left >= outer.left &&
-          inner.right <= outer.right
-        );
+        const inner = icon.getBoundingClientRect();
+        return {
+          squareButton: outer.width === outer.height,
+          squareIcon: inner.width === inner.height && inner.width > 0,
+          inside:
+            inner.left >= outer.left &&
+            inner.right <= outer.right &&
+            inner.top >= outer.top &&
+            inner.bottom <= outer.bottom,
+          chrome: getComputedStyle(face).fill.includes("start-icon-silver"),
+        };
       }),
-    ).toBe(true);
+    ).toEqual({
+      squareButton: true,
+      squareIcon: true,
+      inside: true,
+      chrome: true,
+    });
     await skylineWindow().$("button[aria-label='Close window']").click();
     await expect(skylineWindow()).not.toBeExisting();
     await expect(taskbar("Skyline")).not.toBeExisting();

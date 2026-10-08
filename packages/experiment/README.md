@@ -23,8 +23,9 @@ play, undo, and redo in the toolbar; the player's controls sit in its toolbar
 and View menu. Each window's title names the song.
 
 The taskbar along the bottom starts with the windowing package's `StartMenu`,
-whose button shows the website's graffiti and whose menu lists every mini-app
-with its icon, followed by a button per open window,
+whose button shows the website's graffiti restacked into a square, "a2" over
+"f0", and whose menu lists every mini-app with its icon, followed by a button
+per open window,
 as in Tearleads' pane footer: a button restores its window, the front window's
 button is pressed, and a minimized window's shows its title muted. Closing a
 window removes its button; the start menu opens the app again.
@@ -38,8 +39,8 @@ bun run --cwd packages/experiment dev
 ```
 
 The dev server listens on port 4003. `dev` and `build` first copy the
-website's `a2f0.svg` into `public/`, where the artwork window and the start
-button load it, the skyline viewer's assets into
+website's `a2f0.svg` into `public/`, where the artwork window loads it, the
+skyline viewer's assets into
 `public/skyline/`, and the dnbm sequencer's and player's into `public/dnbm/`. `build` writes a static export to `out/`,
 `start` serves it through Wrangler on the same port, and `deploy` publishes the
 `experiment` Worker. `unit` runs the desktop and mini-app tests under happy-dom. Terraform
