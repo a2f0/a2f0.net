@@ -1,5 +1,4 @@
 import { resumeConfiguration } from "@a2f0/shared/configuration";
-import type { ResumeColors } from "@a2f0/shared/resumeConfig";
 import { renderSvgResume } from "@a2f0/shared/svgResume";
 import {
   useWindowBackground,
@@ -8,7 +7,9 @@ import {
 import { type RefObject, useEffect, useRef, useState } from "react";
 
 import type { MiniAppProps } from "../types";
+import { useResumeSettings } from "./resumeSettings";
 import { DARK, useResumeMenus } from "./useResumeMenus";
+import { useResumeToolbar } from "./useResumeToolbar";
 
 const { documentHeight, documentWidth, pixelsPerPoint } = resumeConfiguration;
 
@@ -39,8 +40,7 @@ function useBodyWidth(containerRef: RefObject<HTMLDivElement | null>) {
  * it and as the single mobile column otherwise.
  */
 export function ResumeApp({ onLoad }: MiniAppProps) {
-  const [colors, setColors] = useState<ResumeColors>(DARK);
-  const [scale, setScale] = useState(1);
+  const { colors, scale, setColors, setScale } = useResumeSettings();
   const containerRef = useRef<HTMLDivElement>(null);
   const bodyWidth = useBodyWidth(containerRef);
   const measured = bodyWidth !== null;
@@ -51,6 +51,7 @@ export function ResumeApp({ onLoad }: MiniAppProps) {
   const layoutWidth = isMobile ? bodyWidth : 0;
 
   useResumeMenus(colors, setColors, scale, setScale);
+  useResumeToolbar(colors, setColors);
   // Fit to Content sizes the window to the desktop page.
   useWindowContentSize({
     width: (documentWidth / pixelsPerPoint) * scale,

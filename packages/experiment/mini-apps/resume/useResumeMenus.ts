@@ -26,13 +26,13 @@ export const DARK: ResumeColors = {
   highlightColor: darkHighlightColor,
 };
 
-const LIGHT: ResumeColors = {
+export const LIGHT: ResumeColors = {
   foregroundColor: lightForegroundColor,
   backgroundColor: lightBackgroundColor,
   highlightColor: lightHighlightColor,
 };
 
-const isDarkTheme = (colors: ResumeColors) =>
+export const isDarkTheme = (colors: ResumeColors) =>
   colors.foregroundColor === darkForegroundColor;
 
 /**

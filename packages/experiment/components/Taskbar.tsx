@@ -1,11 +1,12 @@
 import {
   findTopWindow,
+  NavigationModeSwitch,
   StartMenu,
   type StartMenuItem,
   useWindowActions,
   useWindowStateData,
 } from "@tearleads/windowing";
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
 
 import {
   MINI_APP_ICONS,
@@ -23,22 +24,14 @@ const START_ICON = <StartIcon className="desktop-start-icon" />;
  * in Tearleads' footer. A button restores its window and brings it to the
  * front. The front window's button is pressed, and a minimized window's shows
  * its title muted. Closing a window removes its button; the start menu opens
- * the app again.
+ * the app again. The corner holds the switch to the routed (iPad / phone)
+ * layout.
  */
 export default function Taskbar() {
   const { windows } = useWindowStateData();
   const { restore } = useWindowActions();
   const openMiniApp = useOpenMiniApp();
   const front = findTopWindow(windows, (entry) => !entry.minimized);
-
-  // Open every app once on load; reopening after a close is the start menu's
-  // job.
-  const opened = useRef(false);
-  useEffect(() => {
-    if (opened.current) return;
-    opened.current = true;
-    for (const appId of MINI_APP_LAUNCH_ORDER) openMiniApp(appId);
-  });
 
   const startItems = useMemo(
     () =>
@@ -77,6 +70,9 @@ export default function Taskbar() {
           </button>
         );
       })}
+      <div className="desktop-taskbar-end">
+        <NavigationModeSwitch mode="windowed" />
+      </div>
     </nav>
   );
 }

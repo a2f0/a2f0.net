@@ -1,13 +1,9 @@
 import { useWindowActions, useWindowStateData } from "@tearleads/windowing";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
-import { MINI_APP_WINDOWS } from "./catalog";
-import { MINI_APPS } from "./registry";
+import { MINI_APP_LAUNCH_ORDER, MINI_APP_WINDOWS } from "./catalog";
+import { MINI_APP_LAUNCHER } from "./registry";
 import type { MiniAppId, MiniAppWindowOptions } from "./types";
-
-// Start maximized on touch and narrow screens to keep the content readable.
-const prefersMaximized = () =>
-  window.matchMedia("(pointer: coarse), (max-width: 700px)").matches;
 
 // The surface the windows lay out in, which starts at the viewport's top-left
 // corner and ends at the taskbar.
@@ -42,7 +38,7 @@ function openingGeometry({ relativeSize, x, y }: MiniAppWindowOptions) {
  */
 export function useOpenMiniApp() {
   const { windows } = useWindowStateData();
-  const { bringToFront, create, maximize, restore } = useWindowActions();
+  const { bringToFront, create, restore } = useWindowActions();
 
   return useCallback(
     (appId: MiniAppId) => {
@@ -52,16 +48,30 @@ export function useOpenMiniApp() {
         bringToFront(open.id);
         return;
       }
-      const { component, title } = MINI_APPS[appId];
+      const { createComponent, title } = MINI_APP_LAUNCHER.apps[appId];
       const options = MINI_APP_WINDOWS[appId];
       const { size, x, y } = openingGeometry(options);
-      const id = create(title, x, y, component, {
+      create(title, x, y, createComponent(), {
         appId,
         fitToContent: options.fitToContent,
         size,
       });
-      if (prefersMaximized()) maximize(id);
     },
-    [bringToFront, create, maximize, restore, windows],
+    [bringToFront, create, restore, windows],
   );
+}
+
+/**
+ * Opens every app's window once, in launch order, on load. Reopening after a
+ * close is the start menu's job, so this runs once however often the taskbar
+ * remounts, as when the visitor switches back from the routed shell.
+ */
+export function useOpenEveryMiniAppOnce() {
+  const openMiniApp = useOpenMiniApp();
+  const opened = useRef(false);
+  useEffect(() => {
+    if (opened.current) return;
+    opened.current = true;
+    for (const appId of MINI_APP_LAUNCH_ORDER) openMiniApp(appId);
+  });
 }
