@@ -1,4 +1,4 @@
-import { SquaresFourIcon } from "@phosphor-icons/react/dist/csr/SquaresFour";
+import { ARTWORK_URL } from "@a2f0/website/src/artwork";
 import {
   findTopWindow,
   StartMenu,
@@ -16,7 +16,17 @@ import {
 import { isMiniAppId } from "../mini-apps/types";
 import { useOpenMiniApp } from "../mini-apps/useOpenMiniApp";
 
-const START_ICON = <SquaresFourIcon aria-hidden size={18} />;
+// The website's graffiti, from the copy that copy-art serves where the artwork
+// window loads it, so the start button shares that download.
+const START_ICON = (
+  // biome-ignore lint/performance/noImgElement: The static export serves images unoptimized, so next/image would add only client code.
+  <img
+    className="desktop-start-logo"
+    src={ARTWORK_URL}
+    alt=""
+    draggable={false}
+  />
+);
 
 /**
  * The start menu, which opens any mini-app, then a button per open window, as
@@ -55,7 +65,11 @@ export default function Taskbar() {
 
   return (
     <nav className="desktop-taskbar" aria-label="Windows">
-      <StartMenu icon={START_ICON} items={startItems} />
+      <StartMenu
+        className="start-menu-button desktop-start-button"
+        icon={START_ICON}
+        items={startItems}
+      />
       {windows.map((entry) => {
         const AppIcon = isMiniAppId(entry.appId)
           ? MINI_APP_ICONS[entry.appId]

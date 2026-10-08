@@ -1,7 +1,8 @@
 // Fetches a2f0.svg for the renderers that need its structure: the ASCII view
 // and the etching animation.
 
-const SVG_URL = "/a2f0.svg";
+/** Where the site serves a2f0.svg, the graffiti each view draws from. */
+export const ARTWORK_URL = "/a2f0.svg";
 
 /** The letter faces: the one copy of the lettering drawn without an offset. */
 export const FACES = 'use[href="#word"]:not([transform])';
@@ -9,8 +10,8 @@ export const FACES = 'use[href="#word"]:not([transform])';
 export const LETTERS = 'use[href="#word"]';
 
 export const fetchArtwork = async (): Promise<Document> => {
-  const response = await fetch(SVG_URL);
-  if (!response.ok) throw new Error(`Failed to load ${SVG_URL}`);
+  const response = await fetch(ARTWORK_URL);
+  if (!response.ok) throw new Error(`Failed to load ${ARTWORK_URL}`);
   return new DOMParser().parseFromString(
     await response.text(),
     "image/svg+xml",
@@ -19,7 +20,7 @@ export const fetchArtwork = async (): Promise<Document> => {
 
 export const viewBoxOf = (svg: Document): string => {
   const viewBox = svg.documentElement.getAttribute("viewBox");
-  if (!viewBox) throw new Error(`${SVG_URL} has no viewBox`);
+  if (!viewBox) throw new Error(`${ARTWORK_URL} has no viewBox`);
   return viewBox;
 };
 

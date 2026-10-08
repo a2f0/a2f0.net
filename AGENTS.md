@@ -57,6 +57,7 @@ Primary checks in this repo:
 - `bun run compile`
 - `bun run unit`
 - `bun run ci-headless`
+- `bun run check:architecture`
 - `bun run agents:check`
 
 Pre-commit hook entrypoint:

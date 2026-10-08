@@ -2,16 +2,21 @@ import { createSlice, type PayloadAction, type Slice } from "@reduxjs/toolkit";
 import Color from "color";
 
 import { resumeConfiguration } from "@a2f0/shared/configuration";
-import type { RootState } from "./store";
 
 const { darkForegroundColor, darkBackgroundColor, darkHighlightColor } =
   resumeConfiguration;
 
-export interface ResumeConfigState {
+interface ResumeConfigState {
   foregroundColor: string;
   backgroundColor: string;
   highlightColor: string;
   scale: number;
+}
+
+// The store's state as the selectors read it. The store imports this slice,
+// so naming its RootState here would close an import cycle.
+interface ResumeRootState {
+  resume: ResumeConfigState;
 }
 
 const initialState: ResumeConfigState = {
@@ -21,7 +26,7 @@ const initialState: ResumeConfigState = {
   scale: 1.5,
 };
 
-export const resumeConfigSlice: Slice<ResumeConfigState> = createSlice({
+const resumeConfigSlice: Slice<ResumeConfigState> = createSlice({
   name: "resume",
   initialState,
   reducers: {
@@ -47,19 +52,19 @@ export const {
   setScale,
 } = resumeConfigSlice.actions;
 
-export const selectForegroundColor = (state: RootState) => {
+export const selectForegroundColor = (state: ResumeRootState) => {
   return state.resume.foregroundColor;
 };
 
-export const selectBackgroundColor = (state: RootState) => {
+export const selectBackgroundColor = (state: ResumeRootState) => {
   return state.resume.backgroundColor;
 };
 
-export const selectHighlightColor = (state: RootState) => {
+export const selectHighlightColor = (state: ResumeRootState) => {
   return state.resume.highlightColor;
 };
 
-export const selectScale = (state: RootState) => {
+export const selectScale = (state: ResumeRootState) => {
   return state.resume.scale;
 };
 

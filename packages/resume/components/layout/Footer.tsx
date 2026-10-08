@@ -10,7 +10,7 @@ import FlexContainerColumnPageWidth from "./FlexContainerColumnPageWidth";
 import FlexContainerLeftAlign from "./FlexContainerLeftAlign";
 import FlexContainerRightAlign from "./FlexContainerRightAlign";
 
-export const VersionContainer = styled.div`
+const VersionContainer = styled.div`
   display: flex;
   height: 25px;
   flex-direction: column;
@@ -18,7 +18,7 @@ export const VersionContainer = styled.div`
   justify-content: flex-end;
 `;
 
-export const VersionLink = styled.a`
+const VersionLink = styled.a`
   color: #202020;
   font-size: 12px;
   font-family: Helvetica;
@@ -31,7 +31,7 @@ export const VersionLink = styled.a`
   }
 `;
 
-export const StyledFooter = styled.footer`
+const StyledFooter = styled.footer`
   height: var(--footer-height);
   color: white;
   background-color: #202020;

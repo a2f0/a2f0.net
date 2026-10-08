@@ -87,6 +87,21 @@ body {
   color: var(--color-dark);
 }
 
+/* The start button keeps the windowing package's look, widened from a square
+   to fit the graffiti wordmark at the viewBox's aspect ratio. The package's
+   stylesheet loads after this one, so the taskbar's class outranks its square
+   size. */
+.desktop-taskbar .desktop-start-button {
+  width: auto;
+  padding: 0 var(--space-xs);
+}
+
+.desktop-start-logo {
+  display: block;
+  height: 1.5rem;
+  aspect-ratio: 1300 / 525;
+}
+
 .desktop-taskbar button:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: -3px;

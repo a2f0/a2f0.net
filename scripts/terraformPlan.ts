@@ -76,7 +76,7 @@ export function checkTerraformHcl(source: string): void {
 }
 
 /** Inspect every Terraform source, including ignored override files and modules. */
-export async function checkTerraformSources(directory: string): Promise<void> {
+async function checkTerraformSources(directory: string): Promise<void> {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     if (entry.name === "providers" && basename(directory) === ".terraform")
       continue;

@@ -70,6 +70,7 @@ bun run unit
 bun run ci-headless
 bun run --cwd packages/website test
 bun run lint:md
+bun run check:architecture
 ```
 
 `ci-headless` builds the static export and runs the browser tests against
@@ -82,6 +83,17 @@ Both browser suites include an `a11y.e2e.ts` spec that audits each view with
 [axe-core](https://github.com/dequelabs/axe-core) against WCAG 2.2 A and AA
 and axe's best practices, and drives the menus and toolbar from the keyboard.
 Biome enforces all of its `a11y` lint rules on the TSX and HTML.
+
+`bun run check:architecture` runs
+[dependency-cruiser](https://github.com/sverweij/dependency-cruiser) over every
+source file git doesn't ignore with the rules in `scripts/architecturePolicy.ts`: no
+circular imports, type-only ones included; npm imports declared in the importing
+workspace, as dependencies wherever the apps ship them; no orphaned modules; and
+workspaces importing one another by package name and only down their layers. The
+website and `packages/shared` import no other workspace, the resume imports
+`packages/shared`, and the experiment imports both. The pre-push hook runs it
+after [Knip](https://knip.dev), which reports unused files, dependencies, and
+exports.
 
 `bun run compile`, `bun run unit`, and `bun run build` run each workspace's
 script through [Turborepo](https://turborepo.com), in parallel, and cache the

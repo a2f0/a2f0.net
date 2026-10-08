@@ -1180,6 +1180,28 @@ describe("Experiment desktop", () => {
     const start = $(".desktop-taskbar button[aria-label='Menu']");
     await expect(start).toHaveAttribute("aria-haspopup", "menu");
     await expect(start).toHaveAttribute("aria-expanded", "false");
+    // The button shows the website's graffiti, from the copied art.
+    const logo = start.$("img.desktop-start-logo");
+    await expect(logo).toHaveAttribute("src", "/a2f0.svg");
+    await browser.waitUntil(
+      async () => Number(await logo.getProperty("naturalWidth")) > 0,
+      { timeoutMsg: "the start button's graffiti did not load" },
+    );
+    // The button widens to the wordmark rather than clipping it.
+    expect(
+      await browser.execute(() => {
+        const button = document.querySelector(".desktop-start-button");
+        const image = button?.querySelector("img");
+        if (!button || !image) throw new Error("Missing the start button");
+        const outer = button.getBoundingClientRect();
+        const inner = image.getBoundingClientRect();
+        return (
+          inner.width > outer.height &&
+          inner.left >= outer.left &&
+          inner.right <= outer.right
+        );
+      }),
+    ).toBe(true);
     await skylineWindow().$("button[aria-label='Close window']").click();
     await expect(skylineWindow()).not.toBeExisting();
     await expect(taskbar("Skyline")).not.toBeExisting();

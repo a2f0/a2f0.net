@@ -13,7 +13,7 @@ const HOLD_MIN = 150;
 const HOLD_MAX = 900;
 
 /** Mixes three integers into an unsigned 32-bit hash. */
-export const hash = (a: number, b: number, c: number) => {
+const hash = (a: number, b: number, c: number) => {
   let h = Math.imul(a, 0x27d4eb2d) ^ Math.imul(b, 0x165667b1) ^ c;
   h = Math.imul(h ^ (h >>> 15), 0x85ebca6b);
   h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
