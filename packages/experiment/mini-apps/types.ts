@@ -1,5 +1,3 @@
-import type { ComponentType } from "react";
-
 const MINI_APP_IDS = [
   "resume",
   "ascii-art",
@@ -11,7 +9,9 @@ const MINI_APP_IDS = [
 export type MiniAppId = (typeof MINI_APP_IDS)[number];
 
 // Window state stores an app id as an opaque string; narrow it back here.
-export function isMiniAppId(value: string | undefined): value is MiniAppId {
+export function isMiniAppId(
+  value: string | null | undefined,
+): value is MiniAppId {
   return MINI_APP_IDS.some((appId) => appId === value);
 }
 
@@ -22,11 +22,6 @@ export interface MiniAppProps {
    * `MiniAppWindowOptions`) fits its content then; later calls do nothing.
    */
   onLoad: () => void;
-}
-
-export interface MiniAppDefinition {
-  component: ComponentType;
-  title: string;
 }
 
 /** How a mini-app's window first opens. */

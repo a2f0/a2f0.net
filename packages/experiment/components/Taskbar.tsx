@@ -1,5 +1,6 @@
 import {
   findTopWindow,
+  NavigationModeSwitch,
   StartMenu,
   type StartMenuItem,
   useWindowActions,
@@ -23,7 +24,8 @@ const START_ICON = <StartIcon className="desktop-start-icon" />;
  * in Tearleads' footer. A button restores its window and brings it to the
  * front. The front window's button is pressed, and a minimized window's shows
  * its title muted. Closing a window removes its button; the start menu opens
- * the app again.
+ * the app again. The corner holds the switch to the routed (iPad / phone)
+ * layout.
  */
 export default function Taskbar() {
   const { windows } = useWindowStateData();
@@ -77,6 +79,9 @@ export default function Taskbar() {
           </button>
         );
       })}
+      <div className="desktop-taskbar-end">
+        <NavigationModeSwitch mode="windowed" />
+      </div>
     </nav>
   );
 }

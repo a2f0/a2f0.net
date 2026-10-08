@@ -9,6 +9,7 @@ import { type RefObject, useEffect, useRef, useState } from "react";
 
 import type { MiniAppProps } from "../types";
 import { DARK, useResumeMenus } from "./useResumeMenus";
+import { useResumeToolbar } from "./useResumeToolbar";
 
 const { documentHeight, documentWidth, pixelsPerPoint } = resumeConfiguration;
 
@@ -51,6 +52,7 @@ export function ResumeApp({ onLoad }: MiniAppProps) {
   const layoutWidth = isMobile ? bodyWidth : 0;
 
   useResumeMenus(colors, setColors, scale, setScale);
+  useResumeToolbar(colors, setColors);
   // Fit to Content sizes the window to the desktop page.
   useWindowContentSize({
     width: (documentWidth / pixelsPerPoint) * scale,

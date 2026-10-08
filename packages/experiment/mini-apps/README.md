@@ -12,7 +12,9 @@ hooks. The layout follows Tearleads'
   (where the window first opens, its size as a fraction of the desktop, and
   whether it opens fitted to its content)
   without importing any app, so code that only labels apps stays light.
-- `registry.ts` pairs those titles with the components.
+- `registry.ts` pairs those titles and icons with the components in
+  `MINI_APP_LAUNCHER`, the windowing package's launcher definition, which the
+  routed shell runs and the windows open from.
 - `MiniAppContent.tsx` renders each app with the framework's `MiniAppProps`.
   Its `onLoad` callback tells the window that the app's content has loaded. A
   window that opens with `fitToContent` then fits the size the app reports with
@@ -45,6 +47,8 @@ several apps.
 
 - `resume/` renders the shared resume as SVG and puts its downloads, printing
   (the PDF, in the light theme), theme, and scale in the File and View menus.
+  In the routed shell, which has no menu bar, its theme, downloads, and
+  printing sit in the toolbar instead.
   The theme recolors only the page: as on resume.a2f0.net, the window around
   it stays dark, as do the window's chrome and the rest of the desktop.
   Its window opens fitted to the page once the SVG has rendered.

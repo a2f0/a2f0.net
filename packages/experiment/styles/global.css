@@ -146,23 +146,17 @@ body {
   opacity: var(--opacity-muted);
 }
 
-/* Narrow screens, where windows open maximized, show only the icons: the
-   names stay for assistive technology and in each button's tooltip. */
-@media (max-width: 700px) {
-  .desktop-taskbar {
-    padding: var(--space-sm);
-  }
+/* The corner holds the windowed/routed switch, past the window buttons. */
+.desktop-taskbar-end {
+  display: flex;
+  margin-left: auto;
+}
 
-  .desktop-taskbar-button {
-    padding: 0 var(--space-sm);
-  }
-
-  .desktop-taskbar-label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    clip-path: inset(50%);
-  }
+/* The routed shell, on phones, tablets, and narrow windows, fills the page in
+   place of the desktop and taskbar. */
+.desktop > .routed-pane {
+  flex: 1;
+  min-height: 0;
 }
 
 .visually-hidden {

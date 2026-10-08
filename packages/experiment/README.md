@@ -30,7 +30,19 @@ as in Tearleads' pane footer: a button restores its window, the front window's
 button is pressed, and a minimized window's shows its title muted. Closing a
 window removes its button; the start menu opens the app again.
 
-The app uses the published `@tearleads/windowing` package, pinned to `0.2.8`.
+On phones, tablets, and windows narrower than 1024px, the desktop gives way to
+the windowing package's routed shell, the layout Tearleads uses there: one
+mini-app at a time under an app bar, with a launcher of app tiles behind the
+stacked graffiti in the bottom taskbar (a rail on tablets). Each app has a
+route, `/app/<app id>`, which the browser's Back and Forward walk and which the
+Worker serves the page for; the root route shows the artwork. The routed shell
+has no menu bar, so the resume puts its theme, downloads, and printing in the
+app bar's toolbar there, beside the toolbars the other apps already have. The
+switch in the taskbar's corner moves between the two layouts wherever windows
+suit the screen, and the choice persists. Next.js leaves the routed shell's
+history entries to it.
+
+The app uses the published `@tearleads/windowing` package, pinned to `0.2.12`.
 Install from this repository's root:
 
 ```sh
