@@ -7,7 +7,7 @@ export interface Point {
 }
 
 // A quarter is 24.26 mm across, about 92 CSS pixels.
-export const LENS_RADIUS = 46;
+const LENS_RADIUS = 46;
 const PEEK: KeyframeAnimationOptions = { duration: 180, easing: "ease-out" };
 const FLOOD: KeyframeAnimationOptions = {
   duration: 450,

@@ -1,6 +1,7 @@
 set -e
 
 bunx --no-install knip
+bun run check:architecture
 bun run check:dependencies
 bun run agents:check
 

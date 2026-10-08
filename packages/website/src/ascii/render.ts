@@ -30,7 +30,7 @@ export interface AsciiArt {
   lines: Run[][];
 }
 
-export const mix = (from: number, to: number, amount: number) =>
+const mix = (from: number, to: number, amount: number) =>
   from + (to - from) * amount;
 
 /** Deepens a value relative to a peak, so faint ink falls away first. */

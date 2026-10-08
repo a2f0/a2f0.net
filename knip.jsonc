@@ -1,12 +1,12 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "rules": {
-    "exports": "off",
-    "types": "off"
-  },
+  "treatConfigHintsAsErrors": true,
   "workspaces": {
     ".": {
-      "project": "scripts/**/*.ts"
+      "project": "scripts/**/*.ts",
+      // dependency-cruiser loads swc to parse TypeScript, as TypeScript 7 has
+      // no JavaScript API for it.
+      "ignoreDependencies": ["@swc/core"]
     },
     "packages/resume": {
       "entry": [

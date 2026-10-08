@@ -32,7 +32,7 @@ export type DeploymentName = keyof typeof DEPLOYMENTS;
 
 // A date migration must explicitly name the currently live date as previous.
 // Keep previous null until such a migration is reviewed; remove it afterward.
-export const WORKER_COMPATIBILITY = {
+const WORKER_COMPATIBILITY = {
   current: "2026-09-16",
   previous: null,
 } satisfies { current: string; previous: string | null };

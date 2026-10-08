@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useDispatch } from "react-redux";
 
 import { resumeConfiguration } from "@a2f0/shared/configuration";
-import { useAppSelector } from "../../lib/hooks";
+import { useAppDispatch, useAppSelector } from "../../lib/hooks";
 import {
   selectForegroundColor,
   selectScale,
@@ -30,7 +29,7 @@ const {
 
 const ViewMenu = () => {
   const { close } = useDropdownMenu();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { asPath } = useRouter();
   const foregroundColor = useAppSelector(selectForegroundColor);
   const scale = useAppSelector(selectScale);

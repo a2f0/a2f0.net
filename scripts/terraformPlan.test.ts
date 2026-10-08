@@ -92,9 +92,11 @@ test("HCL source scan sees unsafe blocks across all comment forms", () => {
     ),
   ).not.toThrow();
   expect(() =>
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: Terraform interpolation.
     checkTerraformHcl('output "safe" { value = "${resource.example.id}" }'),
   ).not.toThrow();
   expect(() =>
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: Terraform interpolation.
     checkTerraformHcl('output "unsafe" { value = "${jsonencode("x")}" }'),
   ).toThrow();
   expect(() =>

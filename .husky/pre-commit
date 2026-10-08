@@ -7,7 +7,7 @@ tflint --chdir terraform
 
 shellcheck scripts/*.sh terraform/apply.sh
 
-bunx --no-install biome lint
+bunx --no-install biome lint --error-on-warnings
 bunx --no-install biome format
 packages/resume/lib/scripts/ajv.ts
 
