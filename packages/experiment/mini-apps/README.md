@@ -93,7 +93,8 @@ several apps.
   same synthesizer. Its controls sit in the window's chrome too: the toolbar
   has Previous, Play (Pause while playing), Next, and Shuffle and Repeat, shown
   pressed while on; the View menu has Stop, and Shuffle and Repeat, checked
-  while on. The player keeps its display, seek, and volume, and the window's
+  while on. The routed shell, which has no menu bar, puts Stop in the toolbar
+  after play. The player keeps its display, seek, and volume, and the window's
   title names the current song. Its window opens fitted to the player and its
   whole playlist, between the skyline and the artwork, once the player is
   ready with its songs. It stores nothing.

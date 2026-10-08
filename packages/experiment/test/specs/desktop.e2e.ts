@@ -1446,6 +1446,17 @@ describe("Experiment desktop", () => {
     await expect(
       $(".routed-pane-toolbar button[aria-label='Next']"),
     ).toBeDisplayed();
+    // The View menu's Stop, which the routed shell has no menu bar for, joins
+    // the toolbar after play.
+    await browser.waitUntil(
+      async () =>
+        (
+          await $$(".routed-pane-toolbar button").map((button) =>
+            button.getAttribute("aria-label"),
+          )
+        ).join() === "Previous,Play,Stop,Next,Shuffle,Repeat",
+      { timeoutMsg: "the routed player toolbar lacks Stop after play" },
+    );
   });
 
   it("puts the dnbm file commands in the routed toolbar", async () => {
