@@ -1504,10 +1504,21 @@ describe("Experiment desktop", () => {
   });
 
   it("switches between the windowed desktop and the routed shell", async () => {
+    const toRouted = () =>
+      $(
+        ".desktop-taskbar-end button[aria-label='Switch to iPad / mobile layout']",
+      ).click();
+    const toWindowed = () =>
+      $(
+        ".routed-pane-taskbar-end button[aria-label='Switch to windowed layout']",
+      ).click();
+
+    // A window closed before the switch stays closed after switching back.
+    await skylineWindow().$("button[aria-label='Close window']").click();
+    await expect(skylineWindow()).not.toBeExisting();
+
     // The desktop's corner offers the routed layout.
-    await $(
-      ".desktop-taskbar-end button[aria-label='Switch to iPad / mobile layout']",
-    ).click();
+    await toRouted();
     await expect($(".routed-pane.routed-pane--tablet")).toBeDisplayed();
     await expect($(".routed-pane-title")).toHaveText("a2f0.net");
 
@@ -1517,16 +1528,20 @@ describe("Experiment desktop", () => {
     await expect($(".routed-pane-title")).toHaveText("Resume");
     await waitForResume();
 
-    // The choice survives a reload, and the tray switches back to windows.
-    await browser.url("/");
-    await expect($(".routed-pane")).toBeDisplayed();
-    await $(
-      ".routed-pane-taskbar-end button[aria-label='Switch to windowed layout']",
-    ).click();
+    // The tray switches back to the windows as they were.
+    await toWindowed();
     await expect($(".desktop-taskbar")).toBeDisplayed();
     await expect($("html")).toHaveAttribute("data-navigation-mode", "windowed");
     await expect(
       $$(".desktop-surface > section.window"),
-    ).toBeElementsArrayOfSize(5);
+    ).toBeElementsArrayOfSize(4);
+    await expect(skylineWindow()).not.toBeExisting();
+
+    // The choice survives a reload.
+    await toRouted();
+    await browser.url("/");
+    await expect($(".routed-pane")).toBeDisplayed();
+    await toWindowed();
+    await expect($(".desktop-taskbar")).toBeDisplayed();
   });
 });

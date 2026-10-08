@@ -16,6 +16,7 @@ import { MiniAppBoundary } from "../mini-apps/MiniAppBoundary";
 import { MiniAppWindow } from "../mini-apps/MiniAppWindow";
 import { MINI_APP_LAUNCHER } from "../mini-apps/registry";
 import { isMiniAppId } from "../mini-apps/types";
+import { useOpenEveryMiniAppOnce } from "../mini-apps/useOpenMiniApp";
 import { trackInputModality } from "./inputModality";
 import StartIcon from "./StartIcon";
 import Taskbar from "./Taskbar";
@@ -45,6 +46,13 @@ function RoutedMiniAppBoundary({
   return <MiniAppBoundary appId={appId}>{children}</MiniAppBoundary>;
 }
 
+// Opens the windows once on load, above both layouts, so switching back from
+// the routed shell keeps the windows as the visitor left them.
+function OpenEveryMiniAppOnce() {
+  useOpenEveryMiniAppOnce();
+  return null;
+}
+
 const ROUTED_MENU_ICON = <StartIcon className="desktop-start-icon" />;
 const ROUTED_TRAY = <NavigationModeSwitch mode="routed" />;
 
@@ -62,6 +70,7 @@ function DesktopLayout() {
   return (
     <WindowStateProvider>
       <LauncherNavigationProvider definition={MINI_APP_LAUNCHER} mode={mode}>
+        <OpenEveryMiniAppOnce />
         <main className={`desktop desktop--${mode}`}>
           <h1 className="visually-hidden">a2f0 experiment</h1>
           {mode === "routed" ? (

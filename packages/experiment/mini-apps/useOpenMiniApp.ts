@@ -1,7 +1,7 @@
 import { useWindowActions, useWindowStateData } from "@tearleads/windowing";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
-import { MINI_APP_WINDOWS } from "./catalog";
+import { MINI_APP_LAUNCH_ORDER, MINI_APP_WINDOWS } from "./catalog";
 import { MINI_APP_LAUNCHER } from "./registry";
 import type { MiniAppId, MiniAppWindowOptions } from "./types";
 
@@ -59,4 +59,19 @@ export function useOpenMiniApp() {
     },
     [bringToFront, create, restore, windows],
   );
+}
+
+/**
+ * Opens every app's window once, in launch order, on load. Reopening after a
+ * close is the start menu's job, so this runs once however often the taskbar
+ * remounts, as when the visitor switches back from the routed shell.
+ */
+export function useOpenEveryMiniAppOnce() {
+  const openMiniApp = useOpenMiniApp();
+  const opened = useRef(false);
+  useEffect(() => {
+    if (opened.current) return;
+    opened.current = true;
+    for (const appId of MINI_APP_LAUNCH_ORDER) openMiniApp(appId);
+  });
 }

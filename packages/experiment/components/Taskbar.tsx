@@ -6,7 +6,7 @@ import {
   useWindowActions,
   useWindowStateData,
 } from "@tearleads/windowing";
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
 
 import {
   MINI_APP_ICONS,
@@ -32,15 +32,6 @@ export default function Taskbar() {
   const { restore } = useWindowActions();
   const openMiniApp = useOpenMiniApp();
   const front = findTopWindow(windows, (entry) => !entry.minimized);
-
-  // Open every app once on load; reopening after a close is the start menu's
-  // job.
-  const opened = useRef(false);
-  useEffect(() => {
-    if (opened.current) return;
-    opened.current = true;
-    for (const appId of MINI_APP_LAUNCH_ORDER) openMiniApp(appId);
-  });
 
   const startItems = useMemo(
     () =>
