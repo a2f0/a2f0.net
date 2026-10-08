@@ -1,7 +1,8 @@
 import styled from "styled-components";
 
 const MenuLabel = styled.span`
-  padding-left: 14px;
+  flex: 1 1 auto;
+  min-width: 0;
 `;
 
 export default MenuLabel;

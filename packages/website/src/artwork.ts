@@ -2,7 +2,7 @@
 // and the etching animation.
 
 /** Where the site serves a2f0.svg, the graffiti each view draws from. */
-export const ARTWORK_URL = "/a2f0.svg";
+const ARTWORK_URL = "/a2f0.svg";
 
 /** The letter faces: the one copy of the lettering drawn without an offset. */
 export const FACES = 'use[href="#word"]:not([transform])';

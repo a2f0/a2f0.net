@@ -1,3 +1,12 @@
+import type { Icon } from "@phosphor-icons/react";
+import { BezierCurveIcon } from "@phosphor-icons/react/dist/csr/BezierCurve";
+import { CodeIcon } from "@phosphor-icons/react/dist/csr/Code";
+import { EyeIcon } from "@phosphor-icons/react/dist/csr/Eye";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/csr/MagnifyingGlass";
+import { MagnifyingGlassPlusIcon } from "@phosphor-icons/react/dist/csr/MagnifyingGlassPlus";
+import { MoonIcon } from "@phosphor-icons/react/dist/csr/Moon";
+import { RulerIcon } from "@phosphor-icons/react/dist/csr/Ruler";
+import { SunIcon } from "@phosphor-icons/react/dist/csr/Sun";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
@@ -16,6 +25,7 @@ import CheckMark from "./CheckMark";
 import { useDropdownMenu } from "./DropdownMenuContext";
 import MenuAction from "./MenuAction";
 import MenuDivider from "./MenuDivider";
+import MenuIcon from "./MenuIcon";
 import MenuLabel from "./MenuLabel";
 
 const {
@@ -53,7 +63,7 @@ const ViewMenu = () => {
     close();
   };
 
-  const scaleOption = (factor: number, label: string) => (
+  const scaleOption = (factor: number, icon: Icon, label: string) => (
     <li>
       <MenuAction
         type="button"
@@ -62,12 +72,13 @@ const ViewMenu = () => {
         $scale={scale}
       >
         <CheckMark $isActive={scale === factor} />
+        <MenuIcon icon={icon} scale={scale} />
         <MenuLabel>{label}</MenuLabel>
       </MenuAction>
     </li>
   );
 
-  const pageOption = (path: string, label: string) => (
+  const pageOption = (path: string, icon: Icon, label: string) => (
     <li>
       <MenuAction
         as={Link}
@@ -77,6 +88,7 @@ const ViewMenu = () => {
         $scale={scale}
       >
         <CheckMark $isActive={asPath === path} />
+        <MenuIcon icon={icon} scale={scale} />
         <MenuLabel>{label}</MenuLabel>
       </MenuAction>
     </li>
@@ -94,6 +106,7 @@ const ViewMenu = () => {
             $scale={scale}
           >
             <CheckMark $isActive={foregroundColor === darkForegroundColor} />
+            <MenuIcon icon={MoonIcon} scale={scale} />
             <MenuLabel>Dark Theme</MenuLabel>
           </MenuAction>
         </li>
@@ -106,20 +119,21 @@ const ViewMenu = () => {
             $scale={scale}
           >
             <CheckMark $isActive={foregroundColor === lightForegroundColor} />
+            <MenuIcon icon={SunIcon} scale={scale} />
             <MenuLabel>Light Theme</MenuLabel>
           </MenuAction>
         </li>
       </ul>
       <MenuDivider />
       <ul aria-label="Size">
-        {scaleOption(1.5, "150%")}
-        {scaleOption(1.25, "125%")}
-        {scaleOption(1, "Real Size")}
+        {scaleOption(1.5, MagnifyingGlassPlusIcon, "150%")}
+        {scaleOption(1.25, MagnifyingGlassIcon, "125%")}
+        {scaleOption(1, RulerIcon, "Real Size")}
       </ul>
       <MenuDivider />
       <ul aria-label="Format">
-        {pageOption("/", "SVG")}
-        {pageOption("/pdf", "PDF Preview")}
+        {pageOption("/", BezierCurveIcon, "SVG")}
+        {pageOption("/pdf", EyeIcon, "PDF Preview")}
       </ul>
       <MenuDivider />
       <ul>
@@ -133,6 +147,7 @@ const ViewMenu = () => {
             $scale={scale}
           >
             <CheckMark $isActive={false} />
+            <MenuIcon icon={CodeIcon} scale={scale} />
             <MenuLabel>Source Code</MenuLabel>
           </MenuAction>
         </li>

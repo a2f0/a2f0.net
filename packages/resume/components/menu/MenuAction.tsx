@@ -4,9 +4,14 @@ interface IProps {
   $scale: number;
 }
 
-/** A menu option: a button for actions, or a link when rendered `as` one. */
+/**
+ * A menu option: a button for actions, or a link when rendered `as` one. It
+ * lines up its check mark, icon, and label in a row.
+ */
 const MenuAction = styled.button<IProps>`
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: calc(${(props) => props.$scale} * 8px);
   box-sizing: border-box;
   width: 100%;
   padding: calc(${(props) => props.$scale} * 10px)

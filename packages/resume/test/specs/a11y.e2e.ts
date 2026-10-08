@@ -11,6 +11,14 @@ const openResume = async () => {
   await $("#svgResume").waitForExist();
 };
 
+// Each option shows an icon beside its label, hidden from assistive technology.
+const hasIconPerOption = async (menu: string) => {
+  const options = await $$(`${menu} a, ${menu} button`).length;
+  const icons = await $$(`${menu} :is(a, button) svg[aria-hidden="true"]`)
+    .length;
+  return options > 0 && icons === options;
+};
+
 describe("Accessibility", () => {
   it("has no axe violations on the SVG resume", async () => {
     await openResume();
@@ -21,12 +29,14 @@ describe("Accessibility", () => {
     await openResume();
     await $("#menuButtonFile").click();
     await expect($("#menuItemsFile")).toBeDisplayed();
+    expect(await hasIconPerOption("#menuItemsFile")).toBe(true);
     expect(await axeViolations()).toEqual([]);
 
     await browser.keys("Escape");
     await expect($("#menuItemsFile")).not.toBeDisplayed();
     await $("#menuButtonView").click();
     await expect($("#menuItemsView")).toBeDisplayed();
+    expect(await hasIconPerOption("#menuItemsView")).toBe(true);
     expect(await axeViolations()).toEqual([]);
   });
 
