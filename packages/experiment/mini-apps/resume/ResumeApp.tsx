@@ -12,6 +12,11 @@ import { DARK, useResumeMenus } from "./useResumeMenus";
 
 const { documentHeight, documentWidth, pixelsPerPoint } = resumeConfiguration;
 
+// The theme recolors only the page. Around it the window shows an off-color of
+// the dark page's background in either theme, as resume.a2f0.net keeps its
+// page on a dark backdrop, so a light page reads as a sheet on a dark desk.
+const SURROUND = `color-mix(in srgb, ${DARK.foregroundColor} 10%, ${DARK.backgroundColor})`;
+
 /** The width of the window's scrolling body, inside its padding. */
 function useBodyWidth(containerRef: RefObject<HTMLDivElement | null>) {
   const [width, setWidth] = useState<number | null>(null);
@@ -52,12 +57,7 @@ export function ResumeApp({ onLoad }: MiniAppProps) {
     height: (documentHeight / pixelsPerPoint) * scale,
   });
 
-  // The resume paints its own page, so around it the window shows an
-  // off-color of the page's background and frames it as a sheet. The theme
-  // stops there: the window's chrome and the rest of the desktop stay dark.
-  useWindowBackground(
-    `color-mix(in srgb, ${colors.foregroundColor} 10%, ${colors.backgroundColor})`,
-  );
+  useWindowBackground(SURROUND);
 
   useEffect(() => {
     // Wait for the first measurement so the resume is laid out once.
