@@ -1448,6 +1448,61 @@ describe("Experiment desktop", () => {
     ).toBeDisplayed();
   });
 
+  it("puts the dnbm file commands in the routed toolbar", async () => {
+    await browser.setViewport({ width: 390, height: 844 });
+    await browser.url("/app/dnbm");
+    const routedAction = (label: string) =>
+      $(`.routed-pane-toolbar button[aria-label='${label}']`);
+    await expect(routedAction("Play")).toBeEnabled();
+    expect(
+      await $$(".routed-pane-toolbar button").map((button) =>
+        button.getAttribute("aria-label"),
+      ),
+    ).toEqual([
+      "New",
+      "Open…",
+      "Save",
+      "Save As…",
+      "Export WAV…",
+      "Play",
+      "Undo",
+      "Redo",
+    ]);
+
+    // The pickers open inside the press, with its user activation, as they do
+    // from the desktop window's File menu.
+    await browser.execute(() => {
+      const opened: [string, boolean][] = [];
+      const picker = (name: string) => async () => {
+        opened.push([name, navigator.userActivation.isActive]);
+        throw new DOMException("The user aborted a request.", "AbortError");
+      };
+      Object.assign(window, {
+        dnbmPickers: opened,
+        showOpenFilePicker: picker("open"),
+        showSaveFilePicker: picker("save"),
+      });
+    });
+    const pickers = () =>
+      browser.execute(
+        () =>
+          (window as unknown as { dnbmPickers: [string, boolean][] })
+            .dnbmPickers,
+      );
+    await routedAction("Open…").click();
+    await browser.waitUntil(async () => (await pickers()).length === 1, {
+      timeoutMsg: "Open… did not open a picker",
+    });
+    await routedAction("Save As…").click();
+    await browser.waitUntil(async () => (await pickers()).length === 2, {
+      timeoutMsg: "Save As… did not open a picker",
+    });
+    expect(await pickers()).toEqual([
+      ["open", true],
+      ["save", true],
+    ]);
+  });
+
   it("switches between the windowed desktop and the routed shell", async () => {
     // The desktop's corner offers the routed layout.
     await $(

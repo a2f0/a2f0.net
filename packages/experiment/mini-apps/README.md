@@ -71,7 +71,8 @@ several apps.
   script copies into `public/dnbm/`. It mounts with `actions: false`, so the
   window's chrome takes the place of the sequencer's own buttons: the File menu
   has New, Open…, Save, Save As…, and Export WAV…; the toolbar has Play (Stop
-  while playing), Undo, and Redo; and the View menu plays or stops too. Each
+  while playing), Undo, and Redo; and the View menu plays or stops too. In the
+  routed shell, which has no menu bar, the file commands lead the toolbar. Each
   runs the instance's command and is disabled while the sequencer can't take
   it: until it is ready, and while it asks something in a dialog. The window
   runs a command inside the press itself, so the file pickers that Open…, Save
