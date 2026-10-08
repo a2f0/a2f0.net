@@ -42,10 +42,10 @@ const waitForResume = () =>
     { timeoutMsg: "the current resume SVG did not render visibly" },
   );
 
-const windowBackground = (selector: string) =>
-  browser.execute((frameSelector) => {
-    const frame = document.querySelector(frameSelector);
-    if (!frame) throw new Error(`Missing ${frameSelector}`);
+const backgroundOf = (selector: string) =>
+  browser.execute((target) => {
+    const frame = document.querySelector(target);
+    if (!frame) throw new Error(`Missing ${target}`);
     return getComputedStyle(frame).backgroundColor;
   }, selector);
 
@@ -406,7 +406,7 @@ describe("Experiment desktop", () => {
     });
     // Around its page the resume shows the page's #0F0F0F background with a
     // tenth of its #DCDCDC foreground mixed in.
-    expect(await windowBackground("section.window:has(.resume-window)")).toBe(
+    expect(await backgroundOf("section.window:has(.resume-window)")).toBe(
       "color(srgb 0.139216 0.139216 0.139216)",
     );
 
@@ -506,11 +506,19 @@ describe("Experiment desktop", () => {
     await taskbar("Resume").click();
     await resumeWindow().$("button=View").click();
     await resumeWindow().$("button*=Light Theme").click();
-    await expect($("html")).toHaveAttribute("data-theme", "light");
     // White with a tenth of black.
-    expect(await windowBackground("section.window:has(.resume-window)")).toBe(
+    expect(await backgroundOf("section.window:has(.resume-window)")).toBe(
       "color(srgb 0.9 0.9 0.9)",
     );
+    // The theme is the resume's alone: its window's title bar, the other
+    // windows, and the taskbar stay dark.
+    expect(
+      await backgroundOf("section.window:has(.resume-window) .window-titlebar"),
+    ).toBe("rgb(40, 40, 40)");
+    expect(await backgroundOf("section.window:has(.ascii-art-window)")).toBe(
+      "rgb(22, 22, 22)",
+    );
+    expect(await backgroundOf(".desktop-taskbar")).toBe("rgb(40, 40, 40)");
     await resumeWindow().$("button=View").click();
     await resumeWindow().$("button*=150%").click();
     await resumeWindow().$("button=View").click();
@@ -535,7 +543,10 @@ describe("Experiment desktop", () => {
   it("prints the resume PDF on white in the dark theme", async () => {
     await stubFramePrint();
     await taskbar("Resume").click();
-    await expect($("html")).toHaveAttribute("data-theme", "dark");
+    // The resume's dark page background with a tenth of its foreground.
+    expect(await backgroundOf("section.window:has(.resume-window)")).toBe(
+      "color(srgb 0.139216 0.139216 0.139216)",
+    );
     await resumeWindow().$("button=File").click();
     await resumeWindow().$("button=Print").click();
     await expect(resumeWindow().$("button=Print")).not.toBeExisting();
