@@ -6,7 +6,7 @@
 }
 
 /* The desktop's one theme, a dark one. The resume's theme recolors only its
-   page and the window around it (see mini-apps/resume/ResumeApp.tsx). */
+   page (see mini-apps/resume/ResumeApp.tsx). */
 :root {
   --color-dark: #e5e5e5;
   --color-light: #161616;
