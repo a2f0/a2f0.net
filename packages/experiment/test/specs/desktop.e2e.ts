@@ -49,6 +49,16 @@ const backgroundOf = (selector: string) =>
     return getComputedStyle(frame).backgroundColor;
   }, selector);
 
+// The colors the resume draws its text in, which follow its theme.
+const resumeTextFills = () =>
+  browser.execute(() => [
+    ...new Set(
+      Array.from(document.querySelectorAll(".resume-window svg text"), (text) =>
+        text.getAttribute("fill"),
+      ),
+    ),
+  ]);
+
 // The resume opens fitted once its page renders: at the 900px desktop the
 // window fills the surface's height.
 const waitForResumeFit = () =>
@@ -506,12 +516,17 @@ describe("Experiment desktop", () => {
     await taskbar("Resume").click();
     await resumeWindow().$("button=View").click();
     await resumeWindow().$("button*=Light Theme").click();
-    // White with a tenth of black.
-    expect(await backgroundOf("section.window:has(.resume-window)")).toBe(
-      "color(srgb 0.9 0.9 0.9)",
+    await browser.waitUntil(
+      async () => (await resumeTextFills()).includes("#000000"),
+      { timeoutMsg: "the resume did not redraw in the light theme" },
     );
-    // The theme is the resume's alone: its window's title bar, the other
-    // windows, and the taskbar stay dark.
+    expect(await resumeTextFills()).not.toContain("#DCDCDC");
+    // The theme is the page's alone. As on resume.a2f0.net, the window
+    // around it stays dark, as do its title bar, the other windows, and the
+    // taskbar.
+    expect(await backgroundOf("section.window:has(.resume-window)")).toBe(
+      "color(srgb 0.139216 0.139216 0.139216)",
+    );
     expect(
       await backgroundOf("section.window:has(.resume-window) .window-titlebar"),
     ).toBe("rgb(40, 40, 40)");
@@ -543,10 +558,7 @@ describe("Experiment desktop", () => {
   it("prints the resume PDF on white in the dark theme", async () => {
     await stubFramePrint();
     await taskbar("Resume").click();
-    // The resume's dark page background with a tenth of its foreground.
-    expect(await backgroundOf("section.window:has(.resume-window)")).toBe(
-      "color(srgb 0.139216 0.139216 0.139216)",
-    );
+    expect(await resumeTextFills()).toContain("#DCDCDC");
     await resumeWindow().$("button=File").click();
     await resumeWindow().$("button=Print").click();
     await expect(resumeWindow().$("button=Print")).not.toBeExisting();
