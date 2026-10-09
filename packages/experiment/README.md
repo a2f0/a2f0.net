@@ -44,7 +44,7 @@ page loads on and keeps it as the window resizes, since a switch remounts
 every app; the resume keeps its theme and scale across one. Next.js leaves the routed shell's
 history entries to it.
 
-The app uses the published `@tearleads/windowing` package, pinned to `0.2.12`.
+The app uses the published `@tearleads/windowing` package, pinned to `0.2.13`.
 Install from this repository's root:
 
 ```sh
@@ -63,7 +63,9 @@ deploys it on validated pushes to `production`.
 
 Next.js builds with webpack (`--webpack`) to import the website's HTML as text
 through the `?raw` resource rule. The windowing package supplies its own CSS
-defaults and uses the app's React through peer dependencies.
+defaults and uses the app's React through peer dependencies. Its windows, menus,
+and routed shell draw thin scrollbars whose thumb is the desktop theme's
+foreground at 32% (see `styles/global.css`).
 
 The skyline viewer loads its code (`skyline-viewer.js`), stylesheets, scene
 markup, stars, and models from `/skyline/`, and the dnbm apps load their code
