@@ -1,17 +1,21 @@
 import type { Icon } from "@phosphor-icons/react";
 import styled from "styled-components";
 
+import CheckMark from "./CheckMark";
+
 interface IProps {
   icon: Icon;
   scale: number;
 }
 
-// Sits after the check mark, which overhangs its box once rotated.
+// Clears a preceding check mark, which overhangs its box once rotated.
 const IconSlot = styled.span<{ $scale: number }>`
   display: inline-flex;
   flex: 0 0 auto;
-  margin-left: calc(${(props) => props.$scale} * 4px);
   opacity: 0.6;
+  ${CheckMark} + & {
+    margin-left: calc(${(props) => props.$scale} * 4px);
+  }
 `;
 
 /**

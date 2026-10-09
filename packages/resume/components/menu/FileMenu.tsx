@@ -11,7 +11,6 @@ import {
   selectHighlightColor,
 } from "../../lib/resumeConfigSlice";
 import { selectScale } from "../../lib/resumeConfigSlice";
-import CheckMark from "./CheckMark";
 import { useDropdownMenu } from "./DropdownMenuContext";
 import MenuAction from "./MenuAction";
 import MenuDivider from "./MenuDivider";
@@ -52,7 +51,6 @@ const FileMenu = () => {
             onClick={downloadPDF}
             $scale={scale}
           >
-            <CheckMark $isActive={false} />
             <MenuIcon icon={FilePdfIcon} scale={scale} />
             <MenuLabel>Download PDF</MenuLabel>
           </MenuAction>
@@ -64,7 +62,6 @@ const FileMenu = () => {
             onClick={downloadSVG}
             $scale={scale}
           >
-            <CheckMark $isActive={false} />
             <MenuIcon icon={FileSvgIcon} scale={scale} />
             <MenuLabel>Download SVG</MenuLabel>
           </MenuAction>
@@ -79,7 +76,6 @@ const FileMenu = () => {
             onClick={print}
             $scale={scale}
           >
-            <CheckMark $isActive={false} />
             <MenuIcon icon={PrinterIcon} scale={scale} />
             <MenuLabel>Print</MenuLabel>
           </MenuAction>
