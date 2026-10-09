@@ -1,0 +1,66 @@
+/* The desktop's themes (see components/themes.ts): the windowing package's
+   color tokens, plus the desktop's own background. Graphite, the default,
+   sits in the base :root, so the page shows it before the theme switch's
+   provider stamps <html data-theme>; the others override it there.
+
+   The windowing package derives the window edge (--border-strong-color), the
+   hover and selection chip (--emphasis-*), and --color-hairline from
+   --color-dark, the foreground, unless a theme sets them. Each theme sets them
+   to keep edges, dividers, and chips muted. The resume's own theme recolors
+   only its page (see mini-apps/resume/ResumeApp.tsx), and the artwork,
+   skyline, and dnbm apps keep their black stages in every theme. */
+
+/* Graphite: Tearleads' dark theme on a black desk. */
+:root {
+  --color-dark: #e5e5e5;
+  --color-light: #161616;
+  --color-muted: #282828;
+  --color-danger: #ec7a74;
+  --color-hairline: color-mix(in srgb, var(--color-dark) 12%, transparent);
+  --border-strong-color: #3b3b3b;
+  --emphasis-surface: #3a3a3a;
+  --emphasis-text: #f2f2f2;
+  --tearleads-window-titlebar-background: #282828;
+  --tearleads-window-titlebar-text: #e5e5e5;
+  --app-shadow-surface: 0 0.5rem 2rem rgb(0 0 0 / 32%);
+  --app-shadow-window:
+    0 1rem 3rem rgb(0 0 0 / 28%), 0 0.25rem 0.75rem rgb(0 0 0 / 20%);
+  --desktop-background: #000;
+}
+
+/* Paper: near-black ink on white sheets, over a grey desk. */
+:root[data-theme="paper"] {
+  --color-dark: #1f1f1f;
+  --color-light: #fafafa;
+  --color-muted: #e4e4e4;
+  --color-danger: #b3261e;
+  --color-hairline: color-mix(in srgb, var(--color-dark) 16%, transparent);
+  --border-strong-color: #b4b4b4;
+  --emphasis-surface: #cdcdcd;
+  --emphasis-text: #111;
+  --tearleads-window-titlebar-background: #e4e4e4;
+  --tearleads-window-titlebar-text: #1f1f1f;
+  --app-shadow-surface: 0 0.5rem 2rem rgb(0 0 0 / 14%);
+  --app-shadow-window:
+    0 1rem 3rem rgb(0 0 0 / 14%), 0 0.25rem 0.75rem rgb(0 0 0 / 10%);
+  --desktop-background: #c8c8c8;
+}
+
+/* Skyline: the skyline window's night, navy windows under a sodium-amber
+   glow on the pressed and hovered chips. */
+:root[data-theme="skyline"] {
+  --color-dark: #ece3d3;
+  --color-light: #0f1522;
+  --color-muted: #182134;
+  --color-danger: #ff8f80;
+  --color-hairline: color-mix(in srgb, var(--color-dark) 12%, transparent);
+  --border-strong-color: #2c3a55;
+  --emphasis-surface: #4a3a1e;
+  --emphasis-text: #ffcf7a;
+  --tearleads-window-titlebar-background: #182134;
+  --tearleads-window-titlebar-text: #ece3d3;
+  --app-shadow-surface: 0 0.5rem 2rem rgb(0 0 0 / 40%);
+  --app-shadow-window:
+    0 1rem 3rem rgb(0 0 0 / 36%), 0 0.25rem 0.75rem rgb(0 0 0 / 24%);
+  --desktop-background: linear-gradient(#0b1324, #03050a);
+}

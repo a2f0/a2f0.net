@@ -7,6 +7,8 @@ import {
   RoutedPane,
   readNavigationEnvironment,
   resolveNavigationMode,
+  ThemeProvider,
+  ThemeSwitch,
   useNavigationModeDocumentAttribute,
   useNavigationModeOverride,
   useWindowStateData,
@@ -23,6 +25,11 @@ import { useOpenEveryMiniAppOnce } from "../mini-apps/useOpenMiniApp";
 import { trackInputModality } from "./inputModality";
 import StartIcon from "./StartIcon";
 import Taskbar from "./Taskbar";
+import {
+  DEFAULT_EXPERIMENT_THEME,
+  EXPERIMENT_THEMES,
+  THEME_STORAGE_KEY,
+} from "./themes";
 
 // Where the windowed/routed switch keeps the visitor's choice.
 const NAVIGATION_MODE_STORAGE_KEY = "experiment.navigationMode";
@@ -76,7 +83,14 @@ function useLayout(): NavigationMode {
 }
 
 const ROUTED_MENU_ICON = <StartIcon className="desktop-start-icon" />;
-const ROUTED_TRAY = <NavigationModeSwitch mode="routed" />;
+// The taskbar's corner, as on the desktop: the layout switch, then the theme
+// switch.
+const ROUTED_TRAY = (
+  <>
+    <NavigationModeSwitch mode="routed" />
+    <ThemeSwitch />
+  </>
+);
 
 /**
  * Windows on a desktop wide enough for them, with a mouse: the windowing
@@ -122,8 +136,14 @@ export default function Desktop() {
   useEffect(() => router.beforePopState(() => false), [router]);
 
   return (
-    <NavigationModeOverrideProvider storageKey={NAVIGATION_MODE_STORAGE_KEY}>
-      <DesktopLayout />
-    </NavigationModeOverrideProvider>
+    <ThemeProvider
+      defaultTheme={DEFAULT_EXPERIMENT_THEME}
+      storageKey={THEME_STORAGE_KEY}
+      themes={EXPERIMENT_THEMES}
+    >
+      <NavigationModeOverrideProvider storageKey={NAVIGATION_MODE_STORAGE_KEY}>
+        <DesktopLayout />
+      </NavigationModeOverrideProvider>
+    </ThemeProvider>
   );
 }

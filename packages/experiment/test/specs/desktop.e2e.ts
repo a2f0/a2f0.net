@@ -362,14 +362,16 @@ describe("Experiment desktop", () => {
   });
 
   // The sequencer autosaves its song in this origin's storage, and the layout
-  // switch its choice. Start each test from the example song on the windowed
-  // desktop, even after a test that changed them failed.
+  // and theme switches their choices. Start each test from the example song on
+  // the windowed desktop in the default theme, even after a test that changed
+  // them failed.
   afterEach(() =>
     browser.execute(() => {
       localStorage.removeItem("dnbm:song");
       localStorage.removeItem("dnbm:saved");
       localStorage.removeItem("experiment.navigationMode");
       localStorage.removeItem("experiment.launcherPlacement");
+      localStorage.removeItem("experiment.theme");
     }),
   );
 
@@ -1603,6 +1605,98 @@ describe("Experiment desktop", () => {
       $(".routed-pane-toolbar button[aria-label='Dark Theme']"),
     ).toBeDisplayed();
     expect(await resumeTextFills()).toContain("#000000");
+  });
+
+  it("switches the desktop's theme from the taskbar's lower-right corner", async () => {
+    const themeSwitch = () => $(".desktop-taskbar-end > button:last-child");
+    const themeState = () =>
+      browser.execute(() => {
+        const root = document.documentElement;
+        const control = document.querySelector(
+          ".desktop-taskbar-end > button:last-child",
+        );
+        const taskbar = document.querySelector(".desktop-taskbar");
+        const titlebar = document.querySelector(".window-titlebar");
+        if (!control || !taskbar || !titlebar) {
+          throw new Error("Missing the taskbar, its switch, or a title bar");
+        }
+        const corner = control.getBoundingClientRect();
+        return {
+          theme: root.dataset.theme,
+          scheme: root.dataset.themeScheme,
+          // The switch's gap to the screen's right and bottom edges.
+          corner: [innerWidth - corner.right, innerHeight - corner.bottom],
+          taskbar: getComputedStyle(taskbar).backgroundColor,
+          titlebar: getComputedStyle(titlebar).backgroundColor,
+        };
+      });
+
+    // Graphite, the dark default, with the switch last in the corner, past
+    // the layout switch, offering the next theme.
+    await expect(themeSwitch()).toHaveAttribute(
+      "aria-label",
+      "Switch to Paper theme",
+    );
+    await expect(
+      $(".desktop-taskbar-end > button:first-child"),
+    ).toHaveAttribute("aria-label", "Switch to iPad / mobile layout");
+    const corner = [16, 16];
+    expect(await themeState()).toEqual({
+      theme: "graphite",
+      scheme: "dark",
+      corner,
+      taskbar: "rgb(40, 40, 40)",
+      titlebar: "rgb(40, 40, 40)",
+    });
+
+    // Each click moves to the next theme and recolors the chrome.
+    await themeSwitch().click();
+    expect(await themeState()).toEqual({
+      theme: "paper",
+      scheme: "light",
+      corner,
+      taskbar: "rgb(228, 228, 228)",
+      titlebar: "rgb(228, 228, 228)",
+    });
+    await expect(themeSwitch()).toHaveAttribute(
+      "aria-label",
+      "Switch to Skyline theme",
+    );
+    await themeSwitch().click();
+    expect(await themeState()).toEqual({
+      theme: "skyline",
+      scheme: "dark",
+      corner,
+      taskbar: "rgb(24, 33, 52)",
+      titlebar: "rgb(24, 33, 52)",
+    });
+
+    // The choice survives a reload, and the cycle wraps to the default.
+    await browser.url("/");
+    await waitForResume();
+    expect((await themeState()).theme).toBe("skyline");
+    await expect(themeSwitch()).toHaveAttribute(
+      "aria-label",
+      "Switch to Graphite theme",
+    );
+    await themeSwitch().click();
+    expect((await themeState()).theme).toBe("graphite");
+  });
+
+  it("switches the theme from the routed shell's tray", async () => {
+    await browser.setViewport({ width: 390, height: 844 });
+    await browser.refresh();
+    await expect($(".routed-pane.routed-pane--mobile")).toBeDisplayed();
+
+    // On a phone, without the layout switch, the theme switch is the tray's
+    // one control, in the taskbar's lower-right corner.
+    const tray = $(".routed-pane-taskbar-end");
+    await expect(tray.$$("button")).toBeElementsArrayOfSize(1);
+    await tray.$("button[aria-label='Switch to Paper theme']").click();
+    await expect($("html")).toHaveAttribute("data-theme", "paper");
+    await expect(
+      tray.$("button[aria-label='Switch to Skyline theme']"),
+    ).toBeDisplayed();
   });
 
   it("switches between the windowed desktop and the routed shell", async () => {
