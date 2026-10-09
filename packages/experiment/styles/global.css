@@ -5,27 +5,6 @@
   font-display: block;
 }
 
-/* The desktop's one theme, a dark one. The resume's theme recolors only its
-   page (see mini-apps/resume/ResumeApp.tsx). */
-:root {
-  --color-dark: #e5e5e5;
-  --color-light: #161616;
-  --color-muted: #282828;
-  --tearleads-window-titlebar-background: #282828;
-  --tearleads-window-titlebar-text: #e5e5e5;
-  /* The windowing package derives these from --color-dark, the near-white
-     foreground, unless the theme sets them. Tearleads' dark theme values keep
-     window edges, dividers, and hover chips muted. */
-  --border-strong-color: #3b3b3b;
-  --color-hairline: color-mix(in srgb, var(--color-dark) 12%, transparent);
-  --emphasis-surface: #3a3a3a;
-  --emphasis-text: #f2f2f2;
-  --color-danger: #ec7a74;
-  --app-shadow-surface: 0 0.5rem 2rem rgb(0 0 0 / 32%);
-  --app-shadow-window:
-    0 1rem 3rem rgb(0 0 0 / 28%), 0 0.25rem 0.75rem rgb(0 0 0 / 20%);
-}
-
 html,
 body {
   height: 100%;
@@ -39,7 +18,7 @@ body {
   display: flex;
   flex-direction: column;
   height: 100dvh;
-  background: #000;
+  background: var(--desktop-background);
 }
 
 /* Windows are absolutely positioned and clamp to this element. */
@@ -146,9 +125,12 @@ body {
   opacity: var(--opacity-muted);
 }
 
-/* The corner holds the windowed/routed switch, past the window buttons. */
+/* The corner holds the windowed/routed switch and the theme switch, past the
+   window buttons. */
 .desktop-taskbar-end {
   display: flex;
+  align-items: center;
+  gap: var(--space-xs);
   margin-left: auto;
 }
 

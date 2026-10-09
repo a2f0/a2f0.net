@@ -30,6 +30,16 @@ as in Tearleads' pane footer: a button restores its window, the front window's
 button is pressed, and a minimized window's shows its title muted. Closing a
 window removes its button; the start menu opens the app again.
 
+The taskbar's lower-right corner ends with the windowing package's theme
+switch, as in Tearleads' pane footer. Each click moves to the next of the
+desktop's own themes: Graphite, the dark default, then Paper, a light one, and
+Skyline, navy chrome with amber chips after the skyline's night. The themes are
+listed in [`components/themes.ts`](components/themes.ts) and styled in
+[`styles/themes.css`](styles/themes.css), each a block of the windowing
+package's design tokens plus the desktop's background. The choice persists. The
+themes recolor the desktop and its chrome; the resume keeps its own theme for
+its page, and the artwork, skyline, and dnbm apps keep their black stages.
+
 On phones, tablets, and windows narrower than 1024px, the desktop gives way to
 the windowing package's routed shell, the layout Tearleads uses there: one
 mini-app at a time under an app bar, with a launcher of app tiles behind the
@@ -41,10 +51,11 @@ app bar's toolbar there, beside the toolbars the other apps already have. The
 switch in the taskbar's corner moves between the two layouts wherever windows
 suit the screen, and the choice persists. The layout follows the screen the
 page loads on and keeps it as the window resizes, since a switch remounts
-every app; the resume keeps its theme and scale across one. Next.js leaves the routed shell's
+every app; the resume keeps its theme and scale across one. The theme switch
+sits in the routed taskbar's tray too. Next.js leaves the routed shell's
 history entries to it.
 
-The app uses the published `@tearleads/windowing` package, pinned to `0.2.13`.
+The app uses the published `@tearleads/windowing` package, pinned to `0.2.14`.
 Install from this repository's root:
 
 ```sh
@@ -65,7 +76,7 @@ Next.js builds with webpack (`--webpack`) to import the website's HTML as text
 through the `?raw` resource rule. The windowing package supplies its own CSS
 defaults and uses the app's React through peer dependencies. Its windows, menus,
 and routed shell draw thin scrollbars whose thumb is the desktop theme's
-foreground at 32% (see `styles/global.css`).
+foreground at 32%, so they follow the theme.
 
 The skyline viewer loads its code (`skyline-viewer.js`), stylesheets, scene
 markup, stars, and models from `/skyline/`, and the dnbm apps load their code

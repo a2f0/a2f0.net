@@ -3,6 +3,7 @@ import {
   NavigationModeSwitch,
   StartMenu,
   type StartMenuItem,
+  ThemeSwitch,
   useWindowActions,
   useWindowStateData,
 } from "@tearleads/windowing";
@@ -25,7 +26,7 @@ const START_ICON = <StartIcon className="desktop-start-icon" />;
  * front. The front window's button is pressed, and a minimized window's shows
  * its title muted. Closing a window removes its button; the start menu opens
  * the app again. The corner holds the switch to the routed (iPad / phone)
- * layout.
+ * layout and, last, the theme switch.
  */
 export default function Taskbar() {
   const { windows } = useWindowStateData();
@@ -72,6 +73,7 @@ export default function Taskbar() {
       })}
       <div className="desktop-taskbar-end">
         <NavigationModeSwitch mode="windowed" />
+        <ThemeSwitch />
       </div>
     </nav>
   );
