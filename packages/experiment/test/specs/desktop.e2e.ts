@@ -417,6 +417,20 @@ describe("Experiment desktop", () => {
       radius: "12px",
       background: "rgb(22, 22, 22)",
     });
+    // A window's scroll pane draws the package's thin scrollbar: a thumb of
+    // the theme's #E5E5E5 foreground at 32% over the window, with no track.
+    const scrollbar = await browser.execute(() => {
+      const pane = document.querySelector(
+        "section.window:has(.resume-window) .window-body-content-scroll",
+      );
+      if (!pane) throw new Error("Missing resume scroll pane");
+      const style = getComputedStyle(pane);
+      return { width: style.scrollbarWidth, color: style.scrollbarColor };
+    });
+    expect(scrollbar).toEqual({
+      width: "thin",
+      color: "color(srgb 0.898039 0.898039 0.898039 / 0.32) rgba(0, 0, 0, 0)",
+    });
     // Around its page the resume shows the page's #0F0F0F background with a
     // tenth of its #DCDCDC foreground mixed in.
     expect(await backgroundOf("section.window:has(.resume-window)")).toBe(
