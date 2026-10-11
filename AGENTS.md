@@ -49,6 +49,16 @@ Primary checks in this repo:
 - `bun run check:architecture`
 - `bun run agents:check`
 
+Capture noisy finite checks, builds, setup, and hooks with the pinned harness,
+for example `bun run agent:run --label unit -- bun run unit` or
+`bun run agent:run --label pre-commit -- sh .husky/pre-commit`.
+It preserves the command's exit status and complete private logs while returning
+a compact receipt and a bounded failure excerpt. Use
+`bun run agent-tool logs <log-path>` or a targeted search for more evidence;
+inspect required warnings, timing, and artifacts before accepting a check.
+Keep review verdicts and structured decision output visible. Do not wrap
+interactive tools or persistent servers, or change test scope to reduce output.
+
 Pre-commit hook entrypoint:
 
 - `sh ./.husky/pre-commit`

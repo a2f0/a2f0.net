@@ -19,6 +19,10 @@ install newer managed skill copies alongside an unresolved older pin.
    registry downgrades, hand-written integrity or forced API/peer overrides.
 4. Complete source migrations and meaningful behavior checks. Run documented
    compilation, unit, build, browser, hooks, skill drift and security gates.
+   Capture noisy finite commands with `bun run agent:run --label <check> --
+   <command> [args...]`; inspect bounded logs or targeted searches for required
+   warning, timing, and artifact evidence. Keep review verdicts and structured
+   decision output visible, and run interactive tools directly.
    Record actual warnings, deprecations, unresolved advisories and unavailable
    checks; never describe fixtures as real deployment evidence.
 5. Trace every local and CI mutation entrypoint. Deployment requires existing
