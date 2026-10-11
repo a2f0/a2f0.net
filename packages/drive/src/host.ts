@@ -165,9 +165,6 @@ export async function openDrive(
     const network = createBrowserNetworkStatusSource();
     tearleads.network.setConnectivityAuthoritative(true);
     tearleads.network.setOnline(network.getOnline());
-    cleanup.push(
-      network.subscribe((online) => tearleads.network.setOnline(online)),
-    );
     const contents = tearleads.deviceFirst.open();
     const updateRuntime = () => {
       if (!closed)
@@ -219,6 +216,20 @@ export async function openDrive(
       });
       return connection;
     };
+    cleanup.push(
+      network.subscribe((online) => {
+        tearleads.network.setOnline(online);
+        if (
+          online &&
+          !closed &&
+          current.connect &&
+          !tearleads.session.isAuthenticated
+        )
+          void connect().catch((error) => {
+            if (!closed) reportError(errorMessage(error));
+          });
+      }),
+    );
     const refresh = () => {
       if (
         !closed &&
@@ -258,7 +269,7 @@ export async function openDrive(
     void requestPersistentStorage(PERSISTENT_STORAGE_POLICY).catch(
       () => undefined,
     );
-    if (current.connect)
+    if (current.connect && network.getOnline())
       void connect().catch((error) => {
         if (!closed) reportError(errorMessage(error));
       });

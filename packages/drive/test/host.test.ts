@@ -13,6 +13,8 @@ Object.defineProperty(navigator, "storage", {
 });
 const files = new Map<string, Uint8Array>();
 const clients: FakeClient[] = [];
+let online = true;
+const networkListeners = new Set<(online: boolean) => void>();
 const identity = {
   format: "tearleads.identity-key-package",
   version: 1,
@@ -179,9 +181,10 @@ mock.module("@tearleads/client-sdk", () => ({
     },
   }),
   createBrowserNetworkStatusSource: () => ({
-    getOnline: () => true,
-    subscribe: () => () => {
-      return undefined;
+    getOnline: () => online,
+    subscribe: (listener: (online: boolean) => void) => {
+      networkListeners.add(listener);
+      return () => networkListeners.delete(listener);
     },
   }),
 }));
@@ -215,6 +218,8 @@ const api = "https://api.example.test";
 afterEach(() => {
   files.clear();
   clients.length = 0;
+  online = true;
+  networkListeners.clear();
 });
 
 function persistedProfile() {
@@ -284,4 +289,37 @@ test("disconnect shuts down established sync and persists the choice across reop
   expect(clients[1].session.login).not.toHaveBeenCalled();
   expect(clients[1].session.syncEnabled).toBe(false);
   await reopened?.close();
+});
+
+test("a previously connected drive opened offline reconnects when the network returns", async () => {
+  const host = await openDrive(api, () => undefined, { kind: "create" });
+  if (!host) throw new Error("Host did not open");
+  await host.connect();
+  await host.close();
+  online = false;
+  const errors = mock(() => undefined);
+  const reopened = await openDrive(api, errors);
+  expect(reopened).not.toBeNull();
+  const client = clients[1];
+  expect(client.session.login).not.toHaveBeenCalled();
+  expect(client.session.syncEnabled).toBe(false);
+  const backfill = Promise.withResolvers<void>();
+  client.backfill.mockImplementation(() => {
+    backfill.resolve();
+    return undefined;
+  });
+  online = true;
+  for (const listener of networkListeners) listener(true);
+  await backfill.promise;
+  expect(client.session.login).toHaveBeenCalledTimes(1);
+  expect(client.session.registerIdentity).not.toHaveBeenCalled();
+  expect(client.session.isAuthenticated).toBe(true);
+  expect(client.session.syncEnabled).toBe(true);
+  await reopened?.disconnect();
+  for (const listener of networkListeners) listener(false);
+  for (const listener of networkListeners) listener(true);
+  expect(client.session.login).toHaveBeenCalledTimes(1);
+  expect(client.session.syncEnabled).toBe(false);
+  await reopened?.close();
+  expect(errors).not.toHaveBeenCalled();
 });
