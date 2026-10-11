@@ -323,3 +323,30 @@ test("a previously connected drive opened offline reconnects when the network re
   await reopened?.close();
   expect(errors).not.toHaveBeenCalled();
 });
+
+test("pausing a saved connection while offline prevents login when connectivity returns", async () => {
+  const host = await openDrive(api, () => undefined, { kind: "create" });
+  if (!host) throw new Error("Host did not open");
+  await host.connect();
+  await host.close();
+  online = false;
+  const reopened = await openDrive(api, () => undefined);
+  if (!reopened) throw new Error("Host did not reopen");
+  expect(reopened.connection.getSnapshot()).toBe(true);
+  expect(clients[1].session.isAuthenticated).toBe(false);
+  const changes = mock(() => undefined);
+  const unsubscribe = reopened.connection.subscribe(changes);
+  await reopened.disconnect();
+  expect(changes).toHaveBeenCalled();
+  expect(reopened.connection.getSnapshot()).toBe(false);
+  online = true;
+  for (const listener of networkListeners) listener(true);
+  expect(clients[1].session.login).not.toHaveBeenCalled();
+  expect(clients[1].session.syncEnabled).toBe(false);
+  unsubscribe();
+  await reopened.close();
+  const restored = await openDrive(api, () => undefined);
+  expect(restored?.connection.getSnapshot()).toBe(false);
+  expect(clients[2].session.login).not.toHaveBeenCalled();
+  await restored?.close();
+});

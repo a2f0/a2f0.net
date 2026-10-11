@@ -18,6 +18,10 @@ export interface DriveHost {
   apiBaseUrl: string;
   client: Tearleads;
   contents: DeviceFirstContainerContents;
+  connection: {
+    getSnapshot(): boolean;
+    subscribe(listener: () => void): () => void;
+  };
   connect(): Promise<void>;
   disconnect(): Promise<void>;
   close(): Promise<void>;
@@ -176,6 +180,11 @@ export async function openDrive(
     updateRuntime();
     let connection: Promise<void> | null = null;
     let wantsConnection = false;
+    const connectionListeners = new Set<() => void>();
+    const notifyConnection = () => {
+      for (const listener of connectionListeners) listener();
+    };
+    cleanup.push(() => connectionListeners.clear());
     const connectOnce = async () => {
       if (closed)
         throw new Error("This drive has closed. Reload to reopen it.");
@@ -211,6 +220,7 @@ export async function openDrive(
     };
     const connect = () => {
       wantsConnection = true;
+      notifyConnection();
       connection ??= connectOnce().finally(() => {
         connection = null;
       });
@@ -277,11 +287,19 @@ export async function openDrive(
       apiBaseUrl,
       client: tearleads,
       contents,
+      connection: {
+        getSnapshot: () => wantsConnection || current.connect,
+        subscribe(listener) {
+          connectionListeners.add(listener);
+          return () => connectionListeners.delete(listener);
+        },
+      },
       connect,
       close,
       async disconnect() {
         wantsConnection = false;
         current.connect = false;
+        notifyConnection();
         tearleads.session.setSyncEnabled(false);
         tearleads.session.logout();
         await persist();

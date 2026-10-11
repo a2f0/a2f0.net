@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { Dialog } from "./Dialog";
 import type { DriveHost } from "./host";
 import { errorMessage } from "./profile";
@@ -16,11 +16,15 @@ export function AccountPanel({
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const { client } = host;
-  const connect = async () => {
+  const connectionRequested = useSyncExternalStore(
+    host.connection.subscribe,
+    host.connection.getSnapshot,
+  );
+  const connect = async (enabled: boolean) => {
     setBusy(true);
     try {
-      if (client.session.isAuthenticated) await host.disconnect();
-      else await host.connect();
+      if (enabled) await host.connect();
+      else await host.disconnect();
     } catch (error) {
       reportError(errorMessage(error));
     } finally {
@@ -80,7 +84,9 @@ export function AccountPanel({
       <h3>
         {client.session.isAuthenticated
           ? "Connected to Tearleads"
-          : "Connect your drive"}
+          : connectionRequested
+            ? "Waiting to connect"
+            : "Connect your drive"}
       </h3>
       <p>
         Connecting registers a new identity or signs in to your existing one.
@@ -89,15 +95,27 @@ export function AccountPanel({
       <button
         type="button"
         className="drive-primary"
-        disabled={busy}
-        onClick={() => void connect()}
+        disabled={busy && !connectionRequested}
+        onClick={() => void connect(!connectionRequested)}
       >
-        {busy
-          ? "Working…"
-          : client.session.isAuthenticated
+        {connectionRequested
+          ? client.session.isAuthenticated
             ? "Disconnect"
+            : "Pause connection"
+          : busy
+            ? "Working…"
             : "Connect to Tearleads"}
       </button>
+      {connectionRequested && !client.session.isAuthenticated && (
+        <button
+          type="button"
+          className="drive-text-button"
+          disabled={busy}
+          onClick={() => void connect(true)}
+        >
+          Retry connection
+        </button>
+      )}
       <p className="drive-hint">
         Disconnecting pauses remote sync. Your encrypted drive stays available
         to this browser profile. Clearing site data removes local files.
