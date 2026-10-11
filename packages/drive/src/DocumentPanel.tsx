@@ -32,6 +32,12 @@ export function DocumentPanel({
   const [downloading, setDownloading] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   useEffect(() => {
+    if (draft === null) return;
+    const preventLoss = (event: BeforeUnloadEvent) => event.preventDefault();
+    window.addEventListener("beforeunload", preventLoss);
+    return () => window.removeEventListener("beforeunload", preventLoss);
+  }, [draft]);
+  useEffect(() => {
     const update = () =>
       store.updateRuntime(
         host.client.documents.workflowRuntime(document.containerId),

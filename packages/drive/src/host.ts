@@ -10,6 +10,7 @@ import {
   PERSISTENT_STORAGE_POLICY,
   requestPersistentStorage,
 } from "@tearleads/client-sdk/sqlite";
+import { authenticateDrive } from "./authentication";
 import { acquireDriveLock } from "./browserLock";
 import { errorMessage, readProfile, restoreSession } from "./profile";
 
@@ -181,16 +182,13 @@ export async function openDrive(
     const connectOnce = async () => {
       if (closed)
         throw new Error("This drive has closed. Reload to reopen it.");
-      // An imported or acknowledged identity only logs in. A failed login must
-      // never silently create a different account.
-      let challenge: string | undefined;
-      if (!current.imported && !tearleads.session.userIdAcknowledged) {
-        const registration = await tearleads.session.registerIdentity();
-        if (registration && "challenge" in registration)
-          challenge = registration.challenge;
-      }
-      if (closed || !wantsConnection) return;
-      if (!(await tearleads.session.login(challenge)))
+      const authenticated = await authenticateDrive(
+        tearleads.session,
+        current.imported,
+        () => closed || !wantsConnection,
+      );
+      if (authenticated === null) return;
+      if (!authenticated)
         throw new Error(
           "Could not connect to Tearleads. Check your connection and try again.",
         );
