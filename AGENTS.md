@@ -58,6 +58,7 @@ a compact receipt and a bounded failure excerpt. Use
 inspect required warnings, timing, and artifacts before accepting a check.
 Keep review verdicts and structured decision output visible. Do not wrap
 interactive tools or persistent servers, or change test scope to reduce output.
+Logs may contain secrets; keep them private and remove them when finished.
 
 Pre-commit hook entrypoint:
 
