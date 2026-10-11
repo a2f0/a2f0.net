@@ -1,27 +1,51 @@
 # Dependency and deployment gates
 
-Keep a dated inventory of direct pins, workspace edges, all lock resolutions,
-runtimes, CI Actions, native binaries, provider versions, overrides and patches.
-Use official release/migration notes and actual registry publication/artifact
-proof. A source branch or stale cache's `latest` tag cannot prove a published
-upgrade. Bun owns the lockfile; refresh it through normal manager operations.
+Use the pinned `update-dependencies` skill with this repository's gates. Keep
+reusable procedures and active constraints here; put each upgrade's dated version
+inventory, migration results, audit/test/preview evidence, and skipped groups in
+its PR. Update or remove guidance when a constraint changes instead of appending
+upgrade journals. Past findings need their PR provenance and fresh verification
+before they describe current upstream or production state.
+
+Inventory direct pins, workspace edges, all lock resolutions, runtimes, CI
+Actions, native binaries, provider versions, overrides and patches. Use official
+release/migration notes and actual registry publication/artifact proof. A source
+branch or stale cache's `latest` tag cannot prove a published upgrade. Bun owns
+the lockfile; refresh it through normal manager operations.
+
+## Pins and agent tooling
+
+Keep versions exact and Actions pinned by commit SHA with version comments.
+Bun settings live in `bunfig.toml`, and dependency build permissions live in
+`package.json`. Dependabot is disabled; upgrades go through this workflow.
+Update `terraform/.terraform-version` and the CI version together. Provider or
+module changes require the authentic S3 backend and a complete non-destructive
+saved plan through `terraform/apply.sh --dry-run`. Local validation and fixture
+plans are never production-plan evidence. Do not apply infrastructure or deploy
+to validate an upgrade.
+
+Agent-tool is installed directly from GitHub at the full commit SHA in
+`package.json` and `bun.lock`; its source CLI runs on the pinned Bun version.
+After reviewing an upstream change, update that SHA and run `bun install` so
+Bun resolves the exact source. Then run `bun run agents:sync` to install both
+harnesses and commit the pin, lockfile, managed skills, and
+`.agent-tool-skills.json` together. Do not edit managed skill copies or lock
+integrity manually. `bun run agents:check` is the read-only hook and CI drift
+gate. See [AGENTS.md](../AGENTS.md) for title, review, and shipping policy.
 
 ## Coupled packages and migrations
 
 - React, React DOM, types and the Next.js/third-parties pair move together with
-  the actual export, browser and peer checks. Node types follow the pinned Node
-  24 runtime; transitive owners may still declare other type versions.
+  the actual export, browser and peer checks. Node types follow the runtime in
+  [`.nvmrc`](../.nvmrc); transitive owners may declare other type versions.
 - Keep `@tearleads/windowing` exact and consume only published releases. Its
   local producer candidate cannot authorize a consumer bump.
-- Skyline 0.2.2 replaces iframe mounting with an HTMLElement/open shadow root.
+- Skyline mounts in an HTMLElement/open shadow root.
   Browser tests wait for the viewer's readiness and inspect its rendered controls,
   canvas and focus. Always destroy on unmount and preserve the dedicated local
   asset-copy cleanup.
 - Dnbm's sequencer/player loaders and copied asset API must be checked against
   the actual published tarball before updating its pin.
-- Agent-tool keeps the existing full Git SHA alias policy. Bun must resolve the
-  exact producer commit before the installer updates both harnesses and the
-  ownership file. Do not manually edit managed skill copies or lock integrity.
 - Wrangler, Miniflare, workerd, Sharp and native image libraries form one owning
   group. A patched Sharp resolution requires native ABI and offline Miniflare
   SVG-to-PNG behavior proof, plus the authenticated deployment preview.
@@ -34,6 +58,8 @@ Markdownlint 0.41.1 otherwise drops nested TOML rule options through an
 while preserving options, `enabled` and warning `severity`. The real CLI
 regression is `scripts/markdownlintCompatibility.test.ts`. Remove the patch only
 when an upstream owning Markdownlint release passes that regression unpatched.
+Remove the parser override when its owner naturally resolves a fixed parser and
+that same regression passes; confirm the resulting graph with a fresh audit.
 Keep `serialize-javascript` exact until the owning package supports the fixed
 version naturally and the relevant rendering/escaping tests pass.
 
@@ -41,8 +67,10 @@ The existing `basic-ftp` override still needs its owning Puppeteer/extract-zip
 integration checked before a major-version replacement. A retained pin is not
 an advisory remediation. Report advisory exposure, fixed-version availability
 and actual final graph coverage separately; never silently suppress a warning or
-invent a fixed Braces release. Run `bun audit` on the installed candidate when
-the registry is available and retain its dated report.
+claim an unverified fixed release. Run `bun audit` on the installed candidate
+when the registry is available and put its dated report in the upgrade PR.
+[PR #1188](https://github.com/a2f0/a2f0.net/pull/1188) records the prior audit and
+held owner groups; it does not establish today's exposure or available fixes.
 
 ## Worker preview
 
@@ -65,9 +93,10 @@ transition. Other compatibility flags still require a separate review.
 The guard rejects `route`/`routes` and requires `workers_dev=false` for all four
 configs. [Cloudflare documents](https://developers.cloudflare.com/workers/wrangler/configuration/)
 that omitting both route keys with `workers_dev=false` preserves dashboard-managed
-routes on deploy. An authenticated pre-merge zone read found zero Worker routes
-on 2026-10-07; route inventory is a separate review check, not a CI token
-requirement. Adding or changing routing requires a separate migration review.
+routes on deploy. Route inventory is a separate review check, not a CI token
+requirement; verify it for the proposed migration. The authenticated route
+inventory in [PR #1188](https://github.com/a2f0/a2f0.net/pull/1188) is historical
+evidence. Adding or changing routing requires a separate migration review.
 
 The four target names and Terraform-owned hostnames are explicit in
 `scripts/deployPolicy.ts`. New resource settings, migrations, alternate Worker

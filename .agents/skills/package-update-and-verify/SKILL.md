@@ -19,6 +19,10 @@ install newer managed skill copies alongside an unresolved older pin.
    registry downgrades, hand-written integrity or forced API/peer overrides.
 4. Complete source migrations and meaningful behavior checks. Run documented
    compilation, unit, build, browser, hooks, skill drift and security gates.
+   Capture noisy finite commands with `bun run agent:run --label <check> --
+   <command> [args...]`; inspect bounded logs or targeted searches for required
+   warning, timing, and artifact evidence. Keep review verdicts and structured
+   decision output visible, and run interactive tools directly.
    Record actual warnings, deprecations, unresolved advisories and unavailable
    checks; never describe fixtures as real deployment evidence.
 5. Trace every local and CI mutation entrypoint. Deployment requires existing
@@ -28,4 +32,9 @@ install newer managed skill copies alongside an unresolved older pin.
    replace or recreate infrastructure to make an upgrade pass.
 6. Follow `ship-pr` only after all required validation and safety gates pass,
    including a signed commit and independent review of its exact HEAD. Keep a
-   ledger for each dependency decision, check, preview and shipping gate.
+   ledger in the upgrade PR for each dependency decision, check, preview and
+   shipping gate. Keep reusable procedures and active constraints, override
+   rationale, and removal conditions in `docs/dependencies.md`; update or remove
+   them as constraints change. Keep README to a short maintenance link, and do
+   not turn the maintenance document into a run journal. Attribute past findings
+   to their PR and recheck them before claiming current status.

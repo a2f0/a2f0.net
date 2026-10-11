@@ -49,6 +49,17 @@ Primary checks in this repo:
 - `bun run check:architecture`
 - `bun run agents:check`
 
+Capture noisy finite checks, builds, setup, and hooks with the pinned harness,
+for example `bun run agent:run --label unit -- bun run unit` or
+`bun run agent:run --label pre-commit -- sh .husky/pre-commit`.
+It preserves the command's exit status and complete private logs while returning
+a compact receipt and a bounded failure excerpt. Use
+`bun run agent-tool logs <log-path>` or a targeted search for more evidence;
+inspect required warnings, timing, and artifacts before accepting a check.
+Keep review verdicts and structured decision output visible. Do not wrap
+interactive tools or persistent servers, or change test scope to reduce output.
+Logs may contain secrets; keep them private and remove them when finished.
+
 Pre-commit hook entrypoint:
 
 - `sh ./.husky/pre-commit`
@@ -80,6 +91,17 @@ After merging to `production`, wait for the `CI` deployment for that merge commi
 and smoke-test `resume.a2f0.net`, `a2f0.net`, and `experiment.a2f0.net`. If using an
 isolated worktree, clean up that worktree without modifying the user's checkout.
 Report the independent reviewer, fallback, verdict, repairs, merge, and deploy.
+
+## Upgrade documentation
+
+Read [dependency maintenance](docs/dependencies.md) before upgrading. Keep the
+root README focused on purpose, setup, and essential safe usage, with a short
+link to that document. Reusable procedures and active constraints, override
+rationale, and removal conditions belong there. Put each upgrade's version
+inventory, migrations, audit/test/preview results, and skipped groups in its PR,
+not README or an accumulating documentation journal. Attribute historical
+findings to their PR and recheck them before claiming current status. Update or
+remove maintenance guidance when constraints change.
 
 ## Markdown Linting
 
