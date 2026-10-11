@@ -72,10 +72,12 @@ bun run --cwd packages/drive test
 The browser test serves the production export through Wrangler. It exercises
 real SDK identity creation, SQLite persistence across reload, folder and note
 writes, attachment upload and verified local download, single-tab ownership,
-search, renaming from All drives, and mobile layout. It creates no production accounts. Unit tests cover
-session acknowledgment restoration, API namespace isolation, navigation, and
-React startup/teardown races. Root compile, unit, architecture, dependency,
-Markdown, and hook checks include this workspace.
+search, renaming from All drives, recovery form errors, dialog errors, and mobile
+layout. It creates no production accounts. Unit tests cover session acknowledgment
+restoration, API namespace isolation, navigation, login failure, and React
+startup/teardown races. Isolated host tests cover pending-login cancellation and
+disconnect persistence across reopening. Root compile, unit, architecture,
+dependency, Markdown, and hook checks include this workspace.
 
 For the optional sync and identity-recovery test, start the API from a prepared
 Tearleads checkout (with its dependencies and SDK built):

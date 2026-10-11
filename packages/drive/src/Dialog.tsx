@@ -1,5 +1,6 @@
 import { XIcon } from "@phosphor-icons/react";
 import { type ReactNode, useEffect, useRef } from "react";
+import { ErrorNotice } from "./ErrorNotice";
 
 export function Dialog({
   title,
@@ -39,6 +40,7 @@ export function Dialog({
           <XIcon size={20} />
         </button>
       </div>
+      <ErrorNotice />
       {children}
     </dialog>
   );

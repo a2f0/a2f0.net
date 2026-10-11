@@ -14,7 +14,7 @@
     "build": "bun run copy-sdk && next build --webpack",
     "start": "wrangler dev --port 4004 --local",
     "compile": "tsc",
-    "unit": "bun test ./src",
+    "unit": "bun test ./src && bun test ./test/host.test.ts",
     "test": "bun run build && start-server-and-test 'bun run start' http://localhost:4004 'bun run test:served'",
     "test:served": "wdio run wdio.conf.ts",
     "test:integration": "wdio run wdio.conf.ts --spec ./test/integration/connection.e2e.ts",

@@ -1,6 +1,19 @@
 import { $, browser, expect } from "@wdio/globals";
 
 describe("Drive with the published Tearleads SDK", () => {
+  it("keeps an invalid recovery phrase available for correction", async () => {
+    await browser.url("/");
+    await expect($("button=Use an existing identity")).toBeEnabled();
+    await $("button=Use an existing identity").click();
+    await $("#drive-recovery").setValue("an invalid recovery phrase");
+    await $("button=Open my drive").click();
+    await expect($(".drive-error")).toBeDisplayed();
+    await expect($("#drive-recovery")).toHaveValue(
+      "an invalid recovery phrase",
+    );
+    await expect($("#drive-recovery")).toBeEnabled();
+    await $("button=Back").click();
+  });
   it("creates a local identity, folders, documents and files, then restores them after reload", async () => {
     await browser.url("/");
     await expect($("button=Create a drive")).toBeDisplayed();
@@ -130,5 +143,27 @@ describe("Drive with the published Tearleads SDK", () => {
     await expect($(".drive-table .drive-file-name")).toHaveText(
       "Personal files",
     );
+  });
+
+  it("shows connection errors inside the active dialog", async () => {
+    await browser.execute(() => {
+      const original = window.fetch.bind(window);
+      window.fetch = Object.assign(
+        async (input: RequestInfo | URL, init?: RequestInit) => {
+          const url = input instanceof Request ? input.url : String(input);
+          if (url.startsWith("https://api.tearleads.com"))
+            throw new Error("Simulated connection failure");
+          return original(input, init);
+        },
+        window.fetch,
+      );
+    });
+    await $("button=Your identity").click();
+    await $("button=Connect to Tearleads").click();
+    await expect($(".drive-dialog .drive-error")).toBeDisplayed();
+    await $(".drive-dialog button[aria-label='Dismiss message']").click();
+    await expect($(".drive-dialog .drive-error")).not.toBeExisting();
+    await $("button[aria-label='Close dialog']").click();
+    await browser.refresh();
   });
 });

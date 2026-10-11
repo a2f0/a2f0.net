@@ -4,7 +4,6 @@ import {
   HardDrivesIcon,
   KeyIcon,
   LockKeyIcon,
-  XIcon,
 } from "@phosphor-icons/react";
 import {
   useCallback,
@@ -14,6 +13,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { AccountPanel } from "./AccountPanel";
+import { DriveErrorContext, ErrorNotice } from "./ErrorNotice";
 import { Explorer } from "./Explorer";
 import { type DriveHost, type OpenDriveInput, openDrive } from "./host";
 import { folderName, rootFolders } from "./model";
@@ -97,65 +97,56 @@ function DriveSession({ apiBaseUrl }: { apiBaseUrl: string }) {
     await pending;
   };
   return (
-    <div className="drive-app">
-      {error && (
-        <div className="drive-error" role="alert">
-          <span>{error}</span>
-          <button
-            type="button"
-            onClick={() => setError(null)}
-            aria-label="Dismiss message"
-          >
-            <XIcon size={18} />
-          </button>
-        </div>
-      )}
-      {host ? (
-        <Workspace host={host} reportError={reportError} />
-      ) : (
-        <>
-          <aside className="drive-sidebar">
-            <Brand />
-            <div className="drive-sidebar-intro">
-              <span className="drive-sidebar-label">
-                A NEW HOME FOR YOUR FILES
-              </span>
-              <p>
-                Less noise.
-                <br />
-                More room.
-              </p>
-            </div>
-            <div className="drive-sidebar-bottom">
-              <LockKeyIcon size={18} />
-              <span>Powered by Tearleads</span>
-            </div>
-          </aside>
-          <main className="drive-onboarding">
-            {loading ? (
-              <p role="status">Opening your drive…</p>
-            ) : failed ? (
-              <div className="drive-welcome">
-                <h1>Let’s try again.</h1>
-                <p>Your saved data has been kept.</p>
-                <button
-                  type="button"
-                  className="drive-primary"
-                  onClick={() => {
-                    setError(null);
-                    setOpenRequest({ apiBaseUrl });
-                  }}
-                >
-                  Retry opening Drive
-                </button>
+    <DriveErrorContext
+      value={{ message: error, dismiss: () => setError(null) }}
+    >
+      <div className="drive-app">
+        <ErrorNotice />
+        {host ? (
+          <Workspace host={host} reportError={reportError} />
+        ) : (
+          <>
+            <aside className="drive-sidebar">
+              <Brand />
+              <div className="drive-sidebar-intro">
+                <span className="drive-sidebar-label">
+                  A NEW HOME FOR YOUR FILES
+                </span>
+                <p>
+                  Less noise.
+                  <br />
+                  More room.
+                </p>
               </div>
-            ) : (
-              <Welcome busy={loading} onOpen={(input) => void start(input)} />
-            )}
-          </main>
-        </>
-      )}
-    </div>
+              <div className="drive-sidebar-bottom">
+                <LockKeyIcon size={18} />
+                <span>Powered by Tearleads</span>
+              </div>
+            </aside>
+            <main className="drive-onboarding">
+              {failed ? (
+                <div className="drive-welcome">
+                  <h1>Let’s try again.</h1>
+                  <p>Your saved data has been kept.</p>
+                  <button
+                    type="button"
+                    className="drive-primary"
+                    onClick={() => {
+                      setError(null);
+                      setOpenRequest({ apiBaseUrl });
+                    }}
+                  >
+                    Retry opening Drive
+                  </button>
+                </div>
+              ) : (
+                <Welcome busy={loading} onOpen={(input) => void start(input)} />
+              )}
+            </main>
+          </>
+        )}
+      </div>
+    </DriveErrorContext>
   );
 }
 

@@ -492,6 +492,14 @@ body:has(> #__next .drive-app) {
   color: inherit;
   border: 0;
 }
+.drive-dialog .drive-error {
+  position: static;
+  transform: none;
+  margin-bottom: 20px;
+}
+.drive-app:has(.drive-dialog[open]) > .drive-error {
+  display: none;
+}
 .drive-onboarding {
   flex: 1;
   min-width: 0;
