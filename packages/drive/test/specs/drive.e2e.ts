@@ -121,4 +121,14 @@ describe("Drive with the published Tearleads SDK", () => {
     ).toBe(true);
     await browser.setWindowSize(1440, 900);
   });
+
+  it("renames a drive from All drives", async () => {
+    await $("button[aria-label='All drives']").click();
+    await $("button[aria-label='Rename My drive']").click();
+    await $("#drive-item-name").setValue("Personal files");
+    await $("button=Rename").click();
+    await expect($(".drive-table .drive-file-name")).toHaveText(
+      "Personal files",
+    );
+  });
 });

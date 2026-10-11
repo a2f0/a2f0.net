@@ -50,6 +50,24 @@ export function Explorer({
     host.contents.reconciler.setActiveContainer(activeId);
     setSearch("");
   }, [host, activeId]);
+  useEffect(() => {
+    // Remote listings contain encrypted document shells. Opening the current
+    // folder's documents hydrates their titles and makes them searchable.
+    const update = () => {
+      if (!activeId) return;
+      for (const document of snapshot.documentSummariesByContainerId.get(
+        activeId,
+      ) ?? []) {
+        host.client.documents.open({
+          localId: document.id,
+          documentId: document.documentId,
+          containerId: activeId,
+        });
+      }
+    };
+    update();
+    return host.client.runtime.subscribe(update);
+  }, [activeId, host, snapshot.documentSummariesByContainerId]);
   const run = async (operation: () => Promise<void>) => {
     setBusy(true);
     try {
@@ -65,14 +83,16 @@ export function Explorer({
     setDialog(kind);
   };
   const create = async () => {
-    if (!activeId || !dialog || !name.trim()) return;
+    if (!dialog || !name.trim()) return;
     const title = name.trim();
     if (dialog === "folder") {
+      if (!activeId) return;
       if (!(await host.contents.containerStore.createChild(activeId, title)))
         throw new Error(
           "This folder could not be created. Check your access and try again.",
         );
     } else if (dialog === "note") {
+      if (!activeId) return;
       const localId = crypto.randomUUID();
       const store = host.client.documents.open({
         localId,

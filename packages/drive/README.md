@@ -72,17 +72,26 @@ bun run --cwd packages/drive test
 The browser test serves the production export through Wrangler. It exercises
 real SDK identity creation, SQLite persistence across reload, folder and note
 writes, attachment upload and verified local download, single-tab ownership,
-search, and mobile layout. It creates no production accounts. Unit tests cover
+search, renaming from All drives, and mobile layout. It creates no production accounts. Unit tests cover
 session acknowledgment restoration, API namespace isolation, navigation, and
 React startup/teardown races. Root compile, unit, architecture, dependency,
 Markdown, and hook checks include this workspace.
 
-For the optional registration and identity-recovery test, run an isolated local
-Tearleads API with an in-memory database, then start Drive with the local API
-URL shown above. Run `bun run --cwd packages/drive test:integration` in a third
+For the optional sync and identity-recovery test, start the API from a prepared
+Tearleads checkout (with its dependencies and SDK built):
+
+```sh
+cd ~/github/tearleads6/packages/api
+API_DATABASE=memory API_PORT=4005 BLOB_OBJECT_STORE=memory \
+  API_PUBLIC_ORIGIN=http://127.0.0.1:4005 \
+  API_CORS_ORIGINS=http://localhost:4004 NODE_ENV=development bun src/index.ts
+```
+
+Then start Drive with the local API URL shown above. Run `bun run --cwd packages/drive test:integration` in a third
 terminal. This test refuses non-loopback API addresses before registration,
-creates a disposable identity, then recovers it in a fresh browser. It does
-not change production accounts or require the Tearleads checkout in CI.
+creates a disposable identity and local sync trial, then recovers that identity,
+a folder, note text, and attachment bytes in a fresh browser. It does not change
+production accounts or require the Tearleads checkout in CI.
 
 ## Hosting
 
