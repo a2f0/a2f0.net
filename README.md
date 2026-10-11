@@ -40,6 +40,23 @@ once, then previews and publishes that same `dist/` asset tree. Preview it with
 See [AGENTS.md](AGENTS.md) for review, hook, title, and shipping requirements, and
 [dependency maintenance](docs/dependencies.md) for updating the tooling.
 
+For agent sessions, capture noisy finite commands with the pinned harness:
+
+```sh
+bun run agent:run --label unit -- bun run unit
+bun run agent:run --label browsers -- bun run ci-headless
+bun run agent:run --label pre-push -- sh .husky/pre-push
+bun run agent-tool logs <log-path> --max-bytes 8192 --tail-lines 80
+```
+
+Successful commands return a compact receipt with their exit status, elapsed time,
+output size, and private log path. Failures include a bounded diagnostic excerpt;
+the full output remains in the log. Inspect required warnings, timings, and
+artifacts with bounded log reads or targeted searches before accepting a check.
+Keep review verdicts and structured decision output visible, and run interactive
+tools and persistent servers directly. Test scope and ordinary scripts stay the
+same. Logs may contain secrets; keep them private and remove them when finished.
+
 ## Testing
 
 ```sh
