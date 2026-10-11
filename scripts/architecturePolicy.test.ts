@@ -12,6 +12,7 @@ import {
 } from "./architecturePolicy";
 
 const MANIFESTS = new Map<string, WorkspaceManifest>([
+  ["drive", { name: "@a2f0/drive" }],
   [
     "experiment",
     {

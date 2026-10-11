@@ -13,6 +13,7 @@ import type {
  * experiment, so no import between packages can close a cycle.
  */
 const WORKSPACE_LAYERS = {
+  drive: [],
   experiment: ["shared", "website"],
   resume: ["shared"],
   shared: [],

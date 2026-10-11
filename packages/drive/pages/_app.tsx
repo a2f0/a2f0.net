@@ -1,0 +1,20 @@
+import type { AppProps } from "next/app";
+import Head from "next/head";
+import "../src/drive.css";
+
+export default function App({ Component, pageProps }: AppProps) {
+  return (
+    <>
+      <Head>
+        <title>Drive · a2f0</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+          name="description"
+          content="A little space for your files, powered by Tearleads."
+        />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+      </Head>
+      <Component {...pageProps} />
+    </>
+  );
+}

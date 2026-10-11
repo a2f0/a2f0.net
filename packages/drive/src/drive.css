@@ -1,0 +1,845 @@
+.drive-app {
+  --drive-ink: #252b31;
+  --drive-muted: #798087;
+  --drive-line: #e4e6df;
+  --drive-accent: #baf27d;
+  --drive-paper: #f9faf6;
+  display: flex;
+  position: relative;
+  min-height: 100dvh;
+  color: var(--drive-ink);
+  background: var(--drive-paper);
+  font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: left;
+}
+.drive-app *,
+.drive-app *::before,
+.drive-app *::after {
+  box-sizing: border-box;
+}
+body:has(> #__next .drive-app) {
+  margin: 0;
+}
+:where(.drive-app) button,
+:where(.drive-app) input,
+:where(.drive-app) textarea {
+  font: inherit;
+}
+.drive-app button {
+  cursor: pointer;
+}
+.drive-app button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+.drive-app button,
+.drive-app a,
+.drive-app input,
+.drive-app textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+.drive-app :focus-visible {
+  outline: 2px solid #629b38;
+  outline-offset: 4px;
+}
+.drive-app h1,
+.drive-app h2,
+.drive-app h3,
+.drive-app p {
+  margin-top: 0;
+}
+.drive-sidebar {
+  background: #1e252a;
+  color: #d4d9d9;
+  width: 250px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 35px 22px 24px;
+}
+.drive-brand {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 32px;
+  font-weight: 750;
+  letter-spacing: -1.5px;
+  padding: 0 10px 47px;
+  color: #fff;
+}
+.drive-brand-icon {
+  background: var(--drive-accent);
+  color: #273020;
+  width: 37px;
+  height: 37px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+}
+.drive-brand-dot {
+  color: var(--drive-accent);
+}
+.drive-brand-by {
+  margin-left: auto;
+  color: #abb4b2;
+  letter-spacing: 0;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #47504f;
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+.drive-sidebar-label {
+  display: block;
+  color: #98a4a7;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 1.6px;
+  padding: 0 12px 12px;
+}
+.drive-sidebar :where(nav) > button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  padding: 11px 13px;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  color: #c6cece;
+  border-radius: 7px;
+  margin-bottom: 4px;
+}
+.drive-sidebar :where(nav > button) svg {
+  flex-shrink: 0;
+}
+.drive-sidebar :where(nav) > button:hover {
+  background: #30393d;
+}
+.drive-sidebar :where(nav) > button.is-active {
+  color: var(--drive-accent);
+  background: #354334;
+}
+.drive-nav-count {
+  margin-left: auto;
+  font-size: 11px;
+}
+.drive-nav-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.drive-folders-label {
+  padding-top: 31px;
+}
+.drive-sidebar-intro {
+  padding: 50px 10px;
+}
+.drive-sidebar-intro .drive-sidebar-label {
+  padding: 0 0 20px;
+  font-size: 9px;
+}
+.drive-sidebar-intro p {
+  font-size: 28px;
+  letter-spacing: -1px;
+  font-weight: 300;
+  color: #eef2e9;
+}
+.drive-sidebar-bottom {
+  margin-top: auto;
+  padding: 35px 8px 0;
+  font-size: 12px;
+}
+.drive-sidebar-bottom > a {
+  display: inline-block;
+  color: #aab7b4;
+  text-decoration: none;
+  margin-top: 20px;
+  font-size: 11px;
+}
+.drive-sidebar-bottom > svg {
+  margin-right: 7px;
+  vertical-align: middle;
+}
+.drive-connection {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-top: 1px solid #3b4447;
+  padding-top: 21px;
+}
+.drive-connection > svg {
+  flex-shrink: 0;
+  color: var(--drive-accent);
+}
+.drive-connection strong {
+  color: #e6eae5;
+  font-size: 10px;
+  font-weight: 600;
+}
+.drive-connection p {
+  color: #a6b0b0;
+  font-size: 10px;
+  margin: 4px 0 0;
+}
+.drive-status-dot {
+  flex-shrink: 0;
+  margin-left: auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #84908b;
+}
+.drive-status-dot.is-online {
+  background: var(--drive-accent);
+}
+.drive-account-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #d8dfd8;
+  background: transparent;
+  border: 1px solid #45504d;
+  border-radius: 7px;
+  padding: 10px 12px;
+  margin-top: 20px;
+  width: 100%;
+  text-align: left;
+}
+.drive-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0 46px;
+}
+.drive-topbar {
+  min-height: 93px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 1px solid var(--drive-line);
+}
+.drive-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+.drive-breadcrumbs > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.drive-breadcrumbs button {
+  background: transparent;
+  border: 0;
+  padding: 5px;
+  color: #717b7b;
+  display: inline-flex;
+  align-items: center;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.drive-breadcrumbs button[aria-current] {
+  color: var(--drive-ink);
+  font-weight: 600;
+}
+.drive-search {
+  border: 1px solid var(--drive-line);
+  border-radius: 7px;
+  color: #81898a;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 11px;
+  width: 245px;
+  flex-shrink: 0;
+}
+.drive-search input {
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--drive-ink);
+  font-size: 12px;
+}
+.drive-search:focus-within {
+  outline: 2px solid #629b38;
+}
+.drive-main-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 43px 0 31px;
+}
+.drive-eyebrow {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  color: #727b72;
+  margin-bottom: 10px;
+}
+.drive-main-heading h1 {
+  font-size: 33px;
+  font-weight: 650;
+  letter-spacing: -1.2px;
+  line-height: 1.2;
+  margin-bottom: 10px;
+  overflow-wrap: anywhere;
+}
+.drive-main-heading p:last-child {
+  color: var(--drive-muted);
+  font-size: 12px;
+  margin: 0;
+}
+.drive-primary,
+.drive-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border-radius: 7px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  font-weight: 600;
+  font-size: 12px;
+}
+.drive-primary {
+  background: var(--drive-accent);
+  color: #24371c;
+}
+.drive-primary:not(:disabled):hover {
+  background: #ace269;
+}
+.drive-secondary {
+  background: #fff;
+  color: #505b5b;
+  border-color: var(--drive-line);
+}
+.drive-secondary:not(:disabled):hover {
+  background: #eef2e9;
+}
+.drive-tools {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.drive-tools > div {
+  display: flex;
+  gap: 9px;
+}
+.drive-icon-button {
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  width: 33px;
+  height: 33px;
+  border-radius: 6px;
+  background: transparent;
+  color: #828e88;
+}
+.drive-icon-button:not(:disabled):hover {
+  background: #e9eee3;
+  color: #394b34;
+}
+.drive-table-wrap {
+  overflow-x: auto;
+}
+.drive-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 12px;
+  text-align: left;
+}
+.drive-table th {
+  font-size: 10px;
+  font-weight: 500;
+  color: #78817f;
+  border-bottom: 1px solid var(--drive-line);
+  padding: 11px 12px;
+}
+.drive-table td {
+  border-bottom: 1px solid var(--drive-line);
+  padding: 9px 12px;
+  color: #7b8580;
+}
+.drive-table th:first-child {
+  width: 57%;
+}
+.drive-table td:nth-child(2),
+.drive-table td:nth-child(3) {
+  white-space: nowrap;
+}
+.drive-table tr:hover td {
+  background: #f0f4eb;
+}
+.drive-file-name {
+  width: 100%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  text-align: left;
+  color: var(--drive-ink);
+  border: 0;
+  background: transparent;
+}
+.drive-file-name > span:last-child {
+  overflow-wrap: anywhere;
+}
+.drive-file-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 37px;
+  height: 37px;
+  border-radius: 9px;
+  background: #e8efee;
+  color: #74968f;
+}
+.drive-folder-icon {
+  background: #edf1dc;
+  color: #889959;
+}
+.drive-empty {
+  flex: 1;
+  min-height: 370px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 30px;
+}
+.drive-empty-icon {
+  width: 100px;
+  height: 100px;
+  border-radius: 30px;
+  background: #eff3e6;
+  display: grid;
+  place-items: center;
+  color: #93a879;
+  margin-bottom: 26px;
+  transform: rotate(-6deg);
+}
+.drive-empty h2 {
+  font-size: 22px;
+  font-weight: 550;
+  letter-spacing: -0.6px;
+  margin-bottom: 8px;
+}
+.drive-empty p {
+  max-width: 295px;
+  color: var(--drive-muted);
+  font-size: 12px;
+}
+.drive-text-button {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  background: none;
+  border: 0;
+  color: #547b35;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 10px 0;
+}
+.drive-main-footer {
+  margin-top: auto;
+  padding: 24px 0;
+  display: flex;
+  justify-content: space-between;
+  color: #8a938c;
+  font-size: 10px;
+  letter-spacing: 0.2px;
+}
+.drive-error {
+  position: fixed;
+  z-index: 50;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  max-width: min(650px, 94vw);
+  padding: 15px 20px;
+  background: #fff2e5;
+  border: 1px solid #e4c39f;
+  color: #7c4c27;
+  border-radius: 9px;
+  box-shadow: 0 6px 20px #20202015;
+}
+.drive-error button {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: transparent;
+  color: inherit;
+  border: 0;
+}
+.drive-onboarding {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 55px;
+}
+.drive-welcome {
+  max-width: 480px;
+  width: 100%;
+}
+.drive-welcome-art {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  color: #849b62;
+  margin-bottom: 25px;
+}
+.drive-welcome-art span {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #6b7b64;
+  max-width: 145px;
+  line-height: 1.9;
+}
+.drive-welcome h1 {
+  font-size: clamp(44px, 5vw, 64px);
+  line-height: 1.05;
+  letter-spacing: -3px;
+  font-weight: 600;
+  margin-bottom: 25px;
+}
+.drive-welcome :where(h1) span {
+  color: #788b64;
+}
+.drive-welcome > p {
+  color: #758077;
+  line-height: 1.8;
+  max-width: 380px;
+}
+.drive-welcome-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 30px;
+}
+.drive-welcome-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  color: #83907f;
+  margin-top: 35px;
+}
+.drive-dialog {
+  --drive-ink: #252b31;
+  --drive-line: #e4e6df;
+  --drive-accent: #baf27d;
+  color: var(--drive-ink);
+  border: 1px solid var(--drive-line);
+  background: #f9faf6;
+  border-radius: 15px;
+  box-shadow: 0 20px 70px #0003;
+  width: min(460px, calc(100vw - 32px));
+  max-height: 90dvh;
+  padding: 28px;
+  font:
+    14px / 1.5 "Avenir Next",
+    Avenir,
+    "Segoe UI",
+    sans-serif;
+}
+.drive-dialog::backdrop {
+  background: #1d282666;
+  backdrop-filter: blur(3px);
+}
+.drive-dialog-wide {
+  width: min(780px, calc(100vw - 32px));
+}
+.drive-dialog-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+.drive-dialog-heading h2 {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.drive-dialog p {
+  color: #748077;
+  font-size: 12px;
+}
+.drive-dialog h3 {
+  font-size: 14px;
+  margin: 20px 0 8px;
+}
+.drive-dialog label,
+.drive-welcome label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.drive-dialog input,
+.drive-welcome textarea {
+  width: 100%;
+  padding: 11px 13px;
+  background: #fff;
+  border: 1px solid #d5ddcc;
+  border-radius: 7px;
+  color: #253123;
+}
+.drive-dialog-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 25px;
+}
+.drive-dialog-actions > span {
+  margin-right: auto;
+  color: #7b8a73;
+  font-size: 11px;
+}
+.drive-dialog hr {
+  border: 0;
+  border-top: 1px solid var(--drive-line);
+  margin-top: 25px;
+}
+.drive-hint {
+  font-size: 11px;
+  color: #7b8778;
+  line-height: 1.6;
+  margin-top: 15px;
+}
+.drive-identity {
+  background: #edf1e8;
+  padding: 14px;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+.drive-identity span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 10px;
+  color: #75826c;
+}
+.drive-identity code {
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+.drive-recovery > code {
+  display: block;
+  padding: 18px;
+  border: 1px dashed #a5b58f;
+  border-radius: 8px;
+  line-height: 1.9;
+  font-size: 13px;
+}
+.drive-document-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #788673;
+  margin-bottom: 15px;
+}
+.drive-note-editor {
+  resize: vertical;
+  width: 100%;
+  min-height: 270px;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #e2e7dd;
+  border-radius: 8px;
+  color: var(--drive-ink);
+  line-height: 1.8;
+}
+.drive-fields {
+  overflow-wrap: anywhere;
+}
+.drive-fields dt {
+  font-weight: 600;
+}
+.drive-fields dd {
+  margin: 0 0 12px;
+}
+.drive-attachment {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px;
+  background: #eef1e9;
+  border-radius: 8px;
+  margin-top: 8px;
+}
+.drive-attachment > div {
+  flex: 1;
+  min-width: 0;
+}
+.drive-attachment strong {
+  display: block;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.drive-attachment span {
+  font-size: 10px;
+  color: #7a8a73;
+}
+.drive-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+@media (max-width: 1050px) {
+  .drive-sidebar {
+    width: 215px;
+    padding-inline: 15px;
+  }
+  .drive-main {
+    padding-inline: 25px;
+  }
+  .drive-search {
+    width: 195px;
+  }
+  .drive-main-heading h1 {
+    font-size: 28px;
+  }
+}
+@media (max-width: 700px) {
+  .drive-app {
+    flex-direction: column;
+  }
+  .drive-sidebar {
+    width: 100%;
+    padding: 15px 18px;
+  }
+  .drive-brand {
+    font-size: 27px;
+    padding: 0;
+    gap: 8px;
+  }
+  .drive-brand-icon {
+    width: 32px;
+    height: 32px;
+  }
+  .drive-brand-by {
+    margin-left: 5px;
+  }
+  .drive-sidebar nav {
+    display: flex;
+    gap: 7px;
+    overflow-x: auto;
+    margin-top: 16px;
+  }
+  .drive-sidebar :where(nav) > button {
+    width: auto;
+    flex-shrink: 0;
+    padding: 8px 12px;
+    font-size: 12px;
+    margin: 0;
+  }
+  .drive-sidebar-label,
+  .drive-sidebar-intro,
+  .drive-connection,
+  .drive-sidebar-bottom > a,
+  .drive-sidebar-bottom > span,
+  .drive-sidebar-bottom > svg {
+    display: none;
+  }
+  .drive-sidebar-bottom {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    padding: 0;
+  }
+  .drive-account-button {
+    margin: 0;
+    padding: 7px 10px;
+    width: auto;
+  }
+  .drive-main {
+    padding-inline: 20px;
+    min-height: calc(100dvh - 118px);
+  }
+  .drive-topbar {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 19px 0;
+  }
+  .drive-search {
+    width: 100%;
+  }
+  .drive-main-heading {
+    margin-top: 28px;
+    align-items: flex-start;
+  }
+  .drive-main-heading h1 {
+    font-size: 26px;
+  }
+  .drive-eyebrow {
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+  .drive-main-heading > .drive-primary {
+    padding: 9px;
+    font-size: 10px;
+    margin-top: 23px;
+  }
+  .drive-main-heading p:last-child {
+    font-size: 11px;
+    max-width: 175px;
+  }
+  .drive-table th:nth-child(3),
+  .drive-table td:nth-child(3) {
+    display: none;
+  }
+  .drive-table th:first-child {
+    width: 70%;
+  }
+  .drive-table th,
+  .drive-table td {
+    padding-inline: 5px;
+  }
+  .drive-empty {
+    min-height: 320px;
+    padding-inline: 0;
+  }
+  .drive-onboarding {
+    padding: 50px 28px;
+    min-height: calc(100dvh - 62px);
+  }
+  .drive-dialog {
+    padding: 22px;
+  }
+  .drive-error {
+    font-size: 12px;
+    width: calc(100vw - 32px);
+    bottom: 15px;
+  }
+}

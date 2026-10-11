@@ -5,6 +5,7 @@ import {
   checkConfiguration,
   checkDeployment,
   checkDomain,
+  checkDriveBootstrap,
   checkPublicEndpoints,
   checkSettings,
   DEPLOYMENTS,
@@ -12,6 +13,40 @@ import {
   deploymentConfiguration,
   runDeployment,
 } from "./deployPolicy";
+
+test("Drive bootstrap requires an absent Worker and custom domain", () => {
+  expect(() => checkDriveBootstrap([], [], "drive")).not.toThrow();
+  expect(() =>
+    checkDriveBootstrap(
+      [{ id: "experiment" }],
+      [{ hostname: "experiment.a2f0.net", service: "experiment" }],
+      "drive",
+    ),
+  ).not.toThrow();
+  expect(() => checkDriveBootstrap([{ id: "drive" }], [], "drive")).toThrow(
+    "already exists",
+  );
+  expect(() =>
+    checkDriveBootstrap(
+      [],
+      [{ hostname: "drive.a2f0.net", service: "unexpected" }],
+      "drive",
+    ),
+  ).toThrow("already exists");
+  expect(() =>
+    checkDriveBootstrap(
+      [],
+      [{ hostname: "other.a2f0.net", service: "drive" }],
+      "drive",
+    ),
+  ).toThrow("already exists");
+  expect(() => checkDriveBootstrap([], [], "experiment")).toThrow(
+    "only supported",
+  );
+  expect(() => checkDriveBootstrap({}, [], "drive")).toThrow();
+  expect(() => checkDriveBootstrap([{}], [], "drive")).toThrow("Incomplete");
+  expect(() => checkDriveBootstrap([], [{}], "drive")).toThrow("Incomplete");
+});
 
 for (const name of Object.keys(DEPLOYMENTS) as DeploymentName[]) {
   test(`${name}: validates the real config and requires its existing domain`, async () => {
@@ -315,7 +350,7 @@ test("failed preview or changed local/remote evidence prevents mutation", async 
 });
 
 test("all owned deploy entrypoints use the guard", async () => {
-  for (const folder of ["resume", "website", "experiment"]) {
+  for (const folder of ["resume", "website", "experiment", "drive"]) {
     const manifest = await file(
       new URL(`../packages/${folder}/package.json`, import.meta.url),
     ).json();

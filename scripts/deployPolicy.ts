@@ -2,6 +2,12 @@ import { resolve } from "node:path";
 import { type ParseError, parse } from "jsonc-parser";
 
 export const DEPLOYMENTS = {
+  drive: {
+    package: "drive",
+    environment: undefined,
+    worker: "drive",
+    hostname: "drive.a2f0.net",
+  },
   "resume-staging": {
     package: "resume",
     environment: "staging",
@@ -29,6 +35,36 @@ export const DEPLOYMENTS = {
 } as const;
 
 export type DeploymentName = keyof typeof DEPLOYMENTS;
+
+/** The first Drive publish is explicit and may only create an absent service. */
+export function checkDriveBootstrap(
+  scripts: unknown,
+  domains: unknown,
+  target: DeploymentName,
+) {
+  if (target !== "drive" || !Array.isArray(scripts) || !Array.isArray(domains))
+    throw new Error("Bootstrap is only supported for the new Drive Worker");
+  const services = scripts.map(record);
+  const hosts = domains.map(record);
+  if (
+    services.some((service) => typeof service.id !== "string") ||
+    hosts.some(
+      (domain) =>
+        typeof domain.hostname !== "string" ||
+        typeof domain.service !== "string",
+    )
+  )
+    throw new Error("Incomplete Worker or domain inventory");
+  if (
+    services.some((service) => service.id === DEPLOYMENTS.drive.worker) ||
+    hosts.some(
+      (domain) =>
+        domain.hostname === DEPLOYMENTS.drive.hostname ||
+        domain.service === DEPLOYMENTS.drive.worker,
+    )
+  )
+    throw new Error("Drive already exists; use the normal deployment guard");
+}
 
 // A date migration must explicitly name the currently live date as previous.
 // Keep previous null until such a migration is reviewed; remove it afterward.

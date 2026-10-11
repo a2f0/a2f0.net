@@ -10,7 +10,10 @@ commit-pinned [agent-tool repository](https://github.com/a2f0/agent-tool).
 The resume data, layout, and SVG
 and PDF factories live in [`packages/shared`](packages/shared/README.md), and
 [`packages/experiment`](packages/experiment/README.md) opens the resume and
-website artwork in desktop windows. Run the commands below from the repository root.
+website artwork in desktop windows.
+[`packages/drive`](packages/drive/README.md) is an independently styled file explorer
+built on the published Tearleads client SDK, hosted at `drive.a2f0.net`.
+Run the commands below from the repository root.
 
 ```sh
 nvm use
@@ -153,6 +156,7 @@ is served using Cloudflare's
 | `production` | `bun run deploy:prod` | `resume-prod` | `resume.a2f0.net` |
 | `production` | `bun run deploy:website` | `resume-redirect` | `a2f0.net` |
 | `production` | `bun run --cwd packages/experiment deploy` | `experiment` | `experiment.a2f0.net` |
+| `production` | `bun run --cwd packages/drive deploy` | `drive` | `drive.a2f0.net` |
 
 The experiment uses the published, pinned `@tearleads/windowing` package and
 deploys alongside the resume and website after production validation succeeds.

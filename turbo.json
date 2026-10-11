@@ -13,6 +13,7 @@
     },
     "build": {
       "dependsOn": ["transit"],
+      "env": ["NEXT_PUBLIC_TEARLEADS_API_URL"],
       "outputs": [
         ".generated/**",
         ".next/**",
@@ -20,7 +21,10 @@
         "dist/**",
         "out/**",
         "public/a2f0.svg",
-        "public/skyline/**"
+        "public/skyline/**",
+        "public/worker.js",
+        "public/sqlite3.wasm",
+        "public/sqlite3-licenses.md"
       ]
     }
   }
