@@ -1,6 +1,12 @@
 import { ArrowDownIcon, PaperclipIcon } from "@phosphor-icons/react";
 import type { DocumentSummary } from "@tearleads/client-sdk";
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { Dialog } from "./Dialog";
 import type { DriveHost } from "./host";
 import { formatBytes } from "./model";
@@ -28,6 +34,7 @@ export function DocumentPanel({
   );
   const snapshot = useSyncExternalStore(store.subscribe, store.getSnapshot);
   const [draft, setDraft] = useState<string | null>(null);
+  const draftBase = useRef<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -47,10 +54,18 @@ export function DocumentPanel({
   }, [host, store, document.containerId]);
   const save = async () => {
     if (draft === null) return;
+    if (
+      store.getSnapshot().text !== draftBase.current &&
+      !window.confirm(
+        "This note changed while you were editing. Replace the updated note with your draft? Cancel to keep your draft without changing the saved note.",
+      )
+    )
+      return;
     setSaving(true);
     try {
       await store.setText(draft);
       setDraft(null);
+      draftBase.current = null;
       setSaved(true);
     } catch (error) {
       reportError(errorMessage(error));
@@ -137,6 +152,7 @@ export function DocumentPanel({
                 className="drive-note-editor"
                 value={draft ?? snapshot.text}
                 onChange={(event) => {
+                  if (draft === null) draftBase.current = snapshot.text;
                   setDraft(event.target.value);
                   setSaved(false);
                 }}

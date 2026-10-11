@@ -232,7 +232,7 @@ export async function openDrive(
         if (
           online &&
           !closed &&
-          current.connect &&
+          (current.connect || wantsConnection) &&
           !tearleads.session.isAuthenticated
         )
           void connect().catch((error) => {

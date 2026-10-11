@@ -350,3 +350,25 @@ test("pausing a saved connection while offline prevents login when connectivity 
   expect(clients[2].session.login).not.toHaveBeenCalled();
   await restored?.close();
 });
+
+test("a first failed connection retries when online without registering again", async () => {
+  online = false;
+  const host = await openDrive(api, () => undefined, { kind: "create" });
+  if (!host) throw new Error("Host did not open");
+  const client = clients[0];
+  client.session.login.mockRejectedValueOnce(new Error("Offline"));
+  await expect(host.connect()).rejects.toThrow("Offline");
+  expect(host.connection.getSnapshot()).toBe(true);
+  const backfill = Promise.withResolvers<void>();
+  client.backfill.mockImplementation(() => {
+    backfill.resolve();
+    return undefined;
+  });
+  online = true;
+  for (const listener of networkListeners) listener(true);
+  await backfill.promise;
+  expect(client.session.registerIdentity).toHaveBeenCalledTimes(1);
+  expect(client.session.login).toHaveBeenCalledTimes(2);
+  expect(client.session.syncEnabled).toBe(true);
+  await host.close();
+});
