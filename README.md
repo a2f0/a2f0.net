@@ -36,31 +36,9 @@ once, then previews and publishes that same `dist/` asset tree. Preview it with
 
 ## Agent tooling
 
-`bun ci` installs agent-tool directly from GitHub at the full commit SHA in
-`package.json` and `bun.lock`; no published npm package or local build is needed.
-The source CLI runs with the repository's pinned Bun version. Update that SHA
-after reviewing an upstream change, then run `bun install` to refresh the lock.
-`agent-tool.json` configures the 100-character title limit, the required `build`
-check in workflow `CI`, and PR branding restrictions. Commit hooks validate local
-commits; the shipping skills explicitly validate the PR title with the complete
-commitlint configuration before GitHub generates the squash commit.
-
-```sh
-bun run agent-tool --help
-bun run agent-tool review claude
-bun run agent-tool review codex
-bun run agent-tool pr open 'feat: describe the change' < /tmp/pr-body.md
-PR_TITLE=$(gh pr view "$PR_NUMBER" -R "$REPO" --json title -q .title)
-printf '%s\n' "$PR_TITLE" | bunx --no-install commitlint && \
-  node_modules/.bin/agent-tool pr merge '' "$REVIEWED_SHA" "$REVIEW_BASE_REF"
-```
-
-Invoke the installed executable directly for merging because `bun run` drops
-empty positional arguments. The shipping skills come from the pinned shared package in `.agents/skills`
-and `.claude/skills`; project checks and rules stay in `AGENTS.md`. After updating
-the dependency pin, run `bun install` and `bun run agents:sync`, then commit the
-lockfile, skills, and `.agent-tool-skills.json` together. `bun run agents:check`
-is a read-only hook and CI gate that rejects missing or stale managed skills.
+`bun ci` installs the commit-pinned agent-tool CLI.
+See [AGENTS.md](AGENTS.md) for review, hook, title, and shipping requirements, and
+[dependency maintenance](docs/dependencies.md) for updating the tooling.
 
 ## Testing
 
@@ -170,13 +148,11 @@ local deployments. GitHub Actions uses repository secrets with the same names
 and deploys only after validation succeeds on pushes to those two branches.
 Pull requests and manual workflow runs validate without deploying.
 
-Every deployment command and CI deployment calls `scripts/deploy.ts`. It reads
-the existing Worker, domain, binding, endpoint and version identities,
-runs Wrangler's bundle dry run, then checks the live evidence and the committed
-configuration, installed tool and asset snapshot again before mutation. Missing
-credentials, incomplete evidence, renames, stateful bindings, migration effects
-or drift stop the command. Terraform keeps ownership of custom domains.
-See [the deployment and dependency gates](docs/dependencies.md).
+Every deployment command and CI deployment uses the guard in `scripts/deploy.ts`.
+It verifies existing identities and a complete preview before publishing; missing
+credentials, unsafe changes, or drift stop the command. Never bypass it with a
+direct Wrangler deployment. Terraform keeps ownership of custom domains. See
+[the deployment and dependency gates](docs/dependencies.md).
 
 Use separate tokens: `cloudflare_deploy_api_token` needs Workers Scripts Edit
 and read access to the existing Worker settings, deployments, domains,
@@ -239,45 +215,15 @@ terraform init -backend-config=terraform.backend
 ../terraform/apply.sh
 ```
 
-The apply entrypoint reads populated state from the real S3 backend, checks the
-pinned CLI and default workspace, creates a complete saved plan and refuses
-resource deletion or replacement. It checks remote state again before applying
-that exact saved plan. Plan/state JSON stays in a private temporary directory
-and is removed afterward. A missing or empty backend cannot authorize resource
-recreation. Run the dry run first and review its non-destructive actions.
-The existing Worker scripts and domains must remain in place. The website deploys to the existing
-`resume-redirect` Worker, which already owns the apex custom domain.
-
-### Hosting Retirement
-
-The Cloudflare cutover and legacy hosting retirement completed on 2026-09-16.
-Both domains serve Workers, and Cloudflare holds the Google mail and
-verification records. The old Vercel project, Route 53 hosted zone, `VERCEL_*`
-Actions secrets, and unused `DOMAIN_STAGING` Actions secret were removed after
-verifying the production deployment, DNS delegation, HTTPS, and mail records.
-Terraform now manages only the active Cloudflare, GitHub, and Google Workspace
-resources; its S3 backend is independent of the retired Route 53 DNS service.
-The retirement was applied and the legacy state entries removed before dropping
-the AWS provider and the already-applied Vercel migration blocks.
+Run the dry run first and review its non-destructive actions. The apply
+entrypoint requires the real populated backend and applies only the inspected
+saved plan after approval and a fresh state check. Deletions, replacements, and
+missing domain state stop it. Keep the existing Worker scripts and domains;
+the website uses `resume-redirect`, which owns the apex custom domain. See
+[the Terraform gates](docs/dependencies.md#terraform-preview) for details.
 
 ### Dependency Updates
 
-Use the pinned `update-dependencies` skill with
-[these repository gates](docs/dependencies.md). Inventory every manifest,
-lockfile, runtime, Action, override, patch and provider before changing a group.
-Check upstream releases and migration notes, update coupled peers together,
-then refresh the lock through Bun and run compilation, unit, browser, build,
-hook and security checks. Record held groups and unavailable evidence.
-
-Keep versions exact and the agent-tool alias pinned to its full Git commit.
-Install both harnesses through `agents:sync` only after Bun resolves that exact
-new source, and commit the pin, lock, managed skills and ownership file together.
-Bun settings live in `bunfig.toml`, and dependency build permissions live in
-`package.json`. Dependabot is disabled; dependency updates go through this
-workflow. Actions stay pinned by commit SHA with version comments.
-
-Update `terraform/.terraform-version` and the CI version together. Provider or
-module updates require the authentic existing S3 backend and a complete,
-non-destructive saved plan through `terraform/apply.sh --dry-run`. Validation
-with `-backend=false` and fixture plans are local checks, never production-plan
-evidence. Do not apply infrastructure or deploy to validate an upgrade.
+Follow [dependency maintenance](docs/dependencies.md) for upgrade procedures,
+active compatibility constraints, overrides, and validation. Do not apply
+infrastructure or deploy to validate an upgrade.

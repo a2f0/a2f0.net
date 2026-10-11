@@ -81,6 +81,17 @@ and smoke-test `resume.a2f0.net`, `a2f0.net`, and `experiment.a2f0.net`. If usin
 isolated worktree, clean up that worktree without modifying the user's checkout.
 Report the independent reviewer, fallback, verdict, repairs, merge, and deploy.
 
+## Upgrade documentation
+
+Read [dependency maintenance](docs/dependencies.md) before upgrading. Keep the
+root README focused on purpose, setup, and essential safe usage, with a short
+link to that document. Reusable procedures and active constraints, override
+rationale, and removal conditions belong there. Put each upgrade's version
+inventory, migrations, audit/test/preview results, and skipped groups in its PR,
+not README or an accumulating documentation journal. Attribute historical
+findings to their PR and recheck them before claiming current status. Update or
+remove maintenance guidance when constraints change.
+
 ## Markdown Linting
 
 Markdown lint is enforced in CI and hooks:
