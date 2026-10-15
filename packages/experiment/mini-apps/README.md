@@ -56,8 +56,9 @@ several apps.
   shadow root. Its controls (the animation and the ASCII view, with its pressed
   state) sit in the window's toolbar and its View menu.
   Both mirror the site's own toolbar, which stays in the shadow root unseen and
-  keeps the site's behavior. The site's terminal window is left out, as the
-  artwork already sits in a window.
+  keeps the site's behavior. The unavailable music player is omitted from
+  Experiment, as is the terminal control because the artwork already sits in a
+  window.
 - `skyline/` mounts the 3D Chicago skyline from `@a2f0/skyline`, which
   renders the viewer in the page inside a shadow root, from assets the
   `copy-skyline` script copies into `public/skyline/`. Presses inside it reach

@@ -14,10 +14,9 @@ const STOP_ICON = <StopIcon aria-hidden size={18} weight="fill" />;
 const ASCII_ICON = <HashIcon aria-hidden size={18} />;
 
 /**
- * The site's toolbar, in the window's toolbar row and in the site's order:
- * the animation, then the ASCII view. The site's terminal
- * window is left out, as the artwork already sits in a window. The window lays
- * the actions out from the highest priority.
+ * The animation and ASCII view, in the site's order. The unavailable music
+ * player is omitted, as is the terminal control because the artwork already
+ * sits in a window. The window lays the actions out from the highest priority.
  */
 export function useAsciiArtToolbar(
   state: SiteControlsState | null,
