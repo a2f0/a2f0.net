@@ -1754,6 +1754,19 @@ describe("Experiment desktop", () => {
     await expect(dnbmAction("Undo")).toBeEnabled();
     await taskbar("dnbm player").click();
     await playerAction("Pause").click();
+
+    // Saved Paper must also survive the packages' asynchronous first load.
+    await themeSwitch().click();
+    await browser.refresh();
+    await waitForDnbmApps();
+    await waitForSkyline();
+    expect(await palettes()).toEqual({
+      sequencer: { background: "rgb(245, 245, 245)", color: "rgb(36, 36, 36)" },
+      player: { background: "rgb(245, 245, 245)", color: "rgb(36, 36, 36)" },
+      artwork: "invert(1)",
+      skylineColour: "true",
+    });
+    expect(await resumeTextFills()).toContain("#000000");
   });
 
   it("switches the theme from the routed shell's tray", async () => {

@@ -1,4 +1,12 @@
-import { afterAll, beforeAll, beforeEach, expect, mock, test } from "bun:test";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  expect,
+  mock,
+  test,
+} from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import { ThemeProvider, ThemeSwitch } from "@tearleads/windowing";
 import { act, StrictMode } from "react";
@@ -40,6 +48,11 @@ beforeAll(() => {
 });
 
 afterAll(() => GlobalRegistrator.unregister());
+afterEach(() => {
+  localStorage.removeItem("skyline-test.theme");
+  document.documentElement.removeAttribute("data-theme");
+  document.documentElement.removeAttribute("data-theme-scheme");
+});
 
 beforeEach(() => {
   viewers = [];
@@ -110,6 +123,5 @@ test("Paper mounts a colour skyline and switching back releases that viewer", as
   expect(viewers[1]?.container.childElementCount).toBe(1);
   await act(() => root.unmount());
   container.remove();
-  localStorage.removeItem("skyline-test.theme");
   expect(viewers[1]?.destroyed).toBe(true);
 });

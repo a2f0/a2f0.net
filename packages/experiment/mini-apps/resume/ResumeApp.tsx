@@ -1,7 +1,6 @@
 import { resumeConfiguration } from "@a2f0/shared/configuration";
 import { renderSvgResume } from "@a2f0/shared/svgResume";
 import {
-  useOptionalTheme,
   useWindowBackground,
   useWindowContentSize,
 } from "@tearleads/windowing";
@@ -17,6 +16,7 @@ const { documentHeight, documentWidth, pixelsPerPoint } = resumeConfiguration;
 // Graphite keeps the resume site's dark desk. Paper uses a pale surround,
 // independent of a page-theme override selected from the resume's own menu.
 const SURROUND = `color-mix(in srgb, ${DARK.foregroundColor} 10%, ${DARK.backgroundColor})`;
+const LIGHT_SURROUND = "#e7e7e7";
 
 /** The width of the window's scrolling body, inside its padding. */
 function useBodyWidth(containerRef: RefObject<HTMLDivElement | null>) {
@@ -40,8 +40,7 @@ function useBodyWidth(containerRef: RefObject<HTMLDivElement | null>) {
  * it and as the single mobile column otherwise.
  */
 export function ResumeApp({ onLoad }: MiniAppProps) {
-  const { colors, scale, setColors, setScale } = useResumeSettings();
-  const light = useOptionalTheme()?.activeTheme.scheme === "light";
+  const { colors, scale, setColors, setScale, scheme } = useResumeSettings();
   const containerRef = useRef<HTMLDivElement>(null);
   const bodyWidth = useBodyWidth(containerRef);
   const measured = bodyWidth !== null;
@@ -59,7 +58,7 @@ export function ResumeApp({ onLoad }: MiniAppProps) {
     height: (documentHeight / pixelsPerPoint) * scale,
   });
 
-  useWindowBackground(light ? "#e7e7e7" : SURROUND);
+  useWindowBackground(scheme === "light" ? LIGHT_SURROUND : SURROUND);
 
   useEffect(() => {
     // Wait for the first measurement so the resume is laid out once.
