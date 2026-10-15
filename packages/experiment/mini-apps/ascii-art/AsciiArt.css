@@ -5,3 +5,9 @@
   margin: calc(-1 * var(--mini-app-bleed));
   background: #000;
 }
+
+/* The monochrome artwork becomes an ink drawing on white paper, including
+   its SVG lens, code rain, and etching. Its window controls stay unfiltered. */
+:root[data-theme-scheme="light"] .ascii-art-window {
+  filter: invert(1);
+}

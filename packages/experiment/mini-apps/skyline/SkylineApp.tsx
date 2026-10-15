@@ -1,4 +1,5 @@
 import { mountSkyline } from "@a2f0/skyline";
+import { useOptionalTheme } from "@tearleads/windowing";
 import { useEffect, useRef } from "react";
 
 // The viewer's assets, copied into public/ by the copy-skyline script.
@@ -15,6 +16,7 @@ const SKYLINE_ASSETS_URL = "/skyline/";
  */
 export function SkylineApp() {
   const hostRef = useRef<HTMLDivElement>(null);
+  const colour = useOptionalTheme()?.activeTheme.scheme === "light";
 
   useEffect(() => {
     const host = hostRef.current;
@@ -22,9 +24,10 @@ export function SkylineApp() {
     const skyline = mountSkyline(host, {
       assetsUrl: SKYLINE_ASSETS_URL,
       controls: "open",
+      colour,
     });
     return () => skyline.destroy();
-  }, []);
+  }, [colour]);
 
   return <div ref={hostRef} className="skyline-window" />;
 }

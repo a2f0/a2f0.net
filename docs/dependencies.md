@@ -51,7 +51,9 @@ gate. See [AGENTS.md](../AGENTS.md) for title, review, and shipping policy.
 - Skyline mounts in an HTMLElement/open shadow root.
   Browser tests wait for the viewer's readiness and inspect its rendered controls,
   canvas and focus. Always destroy on unmount and preserve the dedicated local
-  asset-copy cleanup.
+  asset-copy cleanup. Its `colour` mount option selects the sunny-day view for
+  Paper; changing the desktop scheme destroys and remounts the viewer because
+  the published instance has no live colour setter.
 - Dnbm's sequencer/player loaders and copied asset API must be checked against
   the actual published tarball before updating its pin.
 - Wrangler, Miniflare, workerd, Sharp and native image libraries form one owning

@@ -6,3 +6,7 @@
   margin: calc(-1 * var(--mini-app-bleed));
   background: #000;
 }
+
+:root[data-theme-scheme="light"] .skyline-window {
+  background: #dce8ef;
+}

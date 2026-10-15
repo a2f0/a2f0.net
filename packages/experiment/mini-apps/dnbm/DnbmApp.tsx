@@ -9,6 +9,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { MINI_APP_TITLES } from "../catalog";
 import { useDnbmState } from "../shared/useDnbmState";
+import { useDnbmTheme } from "../shared/useDnbmTheme";
 import { useWindowTitle } from "../shared/useWindowTitle";
 import type { MiniAppProps } from "../types";
 import { useDnbmMenus } from "./useDnbmMenus";
@@ -38,6 +39,7 @@ export function DnbmApp({ onLoad }: MiniAppProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [dnbm, setDnbm] = useState<DnbmSequencerInstance | null>(null);
   const state = useDnbmState(dnbm);
+  useDnbmTheme(dnbm);
   const run = useCallback(
     (command: DnbmSequencerCommand) => {
       dnbm?.run(command);

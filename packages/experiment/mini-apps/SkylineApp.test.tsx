@@ -1,7 +1,10 @@
 import { afterAll, beforeAll, beforeEach, expect, mock, test } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
+import { ThemeProvider, ThemeSwitch } from "@tearleads/windowing";
 import { act, StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+
+import { EXPERIMENT_THEMES } from "../components/themes";
 
 // A stand-in for one mounted skyline viewer.
 interface FakeViewer {
@@ -62,11 +65,51 @@ test("the skyline mounts its viewer with open controls and destroys it on unmoun
   expect(second.destroyed).toBe(false);
   expect(second.container).toBe(first.container);
   expect(second.container.className).toBe("skyline-window");
-  expect(second.options).toEqual({ assetsUrl: "/skyline/", controls: "open" });
+  expect(second.options).toEqual({
+    assetsUrl: "/skyline/",
+    controls: "open",
+    colour: false,
+  });
   // Only the live viewer's element stays in the host.
   expect(second.container.childElementCount).toBe(1);
 
   await act(() => root.unmount());
   container.remove();
   expect(second.destroyed).toBe(true);
+});
+
+test("Paper mounts a colour skyline and switching back releases that viewer", async () => {
+  const container = document.createElement("div");
+  document.body.append(container);
+  const root = createRoot(container);
+  await act(() =>
+    root.render(
+      <ThemeProvider
+        themes={EXPERIMENT_THEMES}
+        defaultTheme="paper"
+        storageKey="skyline-test.theme"
+      >
+        <SkylineApp />
+        <ThemeSwitch />
+      </ThemeProvider>,
+    ),
+  );
+  expect(viewers[0]?.options).toEqual({
+    assetsUrl: "/skyline/",
+    controls: "open",
+    colour: true,
+  });
+  await act(() => container.querySelector("button")?.click());
+  expect(viewers).toHaveLength(2);
+  expect(viewers[0]?.destroyed).toBe(true);
+  expect(viewers[1]?.options).toEqual({
+    assetsUrl: "/skyline/",
+    controls: "open",
+    colour: false,
+  });
+  expect(viewers[1]?.container.childElementCount).toBe(1);
+  await act(() => root.unmount());
+  container.remove();
+  localStorage.removeItem("skyline-test.theme");
+  expect(viewers[1]?.destroyed).toBe(true);
 });

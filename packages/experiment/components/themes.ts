@@ -5,7 +5,7 @@ export type ExperimentThemeId = "graphite" | "paper";
 /**
  * The desktop's themes, in the order the taskbar's switch cycles them. Each is
  * a block of the windowing package's design tokens in styles/themes.css:
- * Graphite in its base `:root`, the others under `:root[data-theme]`.
+ * Graphite in its base `:root`, Paper under `:root[data-theme]`.
  */
 export const EXPERIMENT_THEMES: readonly ThemeDefinition<ExperimentThemeId>[] =
   [

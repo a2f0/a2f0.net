@@ -8,6 +8,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { MINI_APP_TITLES } from "../catalog";
 import { useDnbmState } from "../shared/useDnbmState";
+import { useDnbmTheme } from "../shared/useDnbmTheme";
 import { useWindowTitle } from "../shared/useWindowTitle";
 import type { MiniAppProps } from "../types";
 import { useDnbmPlayerMenus } from "./useDnbmPlayerMenus";
@@ -34,6 +35,7 @@ export function DnbmPlayerApp({ onLoad }: MiniAppProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [player, setPlayer] = useState<DnbmPlayerInstance | null>(null);
   const state = useDnbmState(player);
+  useDnbmTheme(player);
   const run = useCallback(
     (command: DnbmPlayerCommand) => {
       player?.run(command);

@@ -49,8 +49,10 @@ several apps.
   (the PDF, in the light theme), theme, and scale in the File and View menus.
   In the routed shell, which has no menu bar, its theme, downloads, and
   printing sit in the toolbar instead.
-  The theme recolors only the page: as on resume.a2f0.net, the window around
-  it stays dark, as do the window's chrome and the rest of the desktop.
+  Its page follows the desktop's light/dark scheme by default. The resume's
+  own theme controls override the page within that desktop scheme; the choice
+  and scale survive layout switches. Paper gives it a pale surround, while
+  Graphite keeps the resume site's dark desk.
   Its window opens fitted to the page once the SVG has rendered.
 - `ascii-art/` runs the a2f0.net artwork from `packages/website` inside a
   shadow root. Its controls (the animation and the ASCII view, with its pressed
@@ -58,15 +60,20 @@ several apps.
   Both mirror the site's own toolbar, which stays in the shadow root unseen and
   keeps the site's behavior. The unavailable music player is omitted from
   Experiment, as is the terminal control because the artwork already sits in a
-  window.
+  window. Paper inverts the monochrome stage, including its lens and animations,
+  into an ink-on-white drawing; its window controls use the desktop palette.
 - `skyline/` mounts the 3D Chicago skyline from `@a2f0/skyline`, which
   renders the viewer in the page inside a shadow root, from assets the
   `copy-skyline` script copies into `public/skyline/`. Presses inside it reach
   the window, which comes to the front as for any of its content, and open
   menus close; its keys act only while focus is inside it. Its window opens at
   three quarters of the desktop's width and height, to give the 3D scene room,
-  with the scene's control bar open. Closing or minimizing the window destroys
-  the viewer, which releases its WebGL context.
+  with the scene's control bar open. Paper starts the native sunny-day colour
+  mode; Graphite starts in greyscale. The viewer's own colour toggle still works.
+  Changing the desktop scheme remounts the viewer with that starting mode and
+  resets its camera: the package exposes colour as a mount option, not a live
+  setter. The old viewer is destroyed first, releasing its WebGL context, as
+  when its window closes or minimizes.
 - `dnbm/` mounts the dnbm drum and bass sequencer from `@a2f0/dnbm`, which
   renders it in the page inside a shadow root, from assets the `copy-dnbm`
   script copies into `public/dnbm/`. It mounts with `actions: false`, so the
@@ -102,4 +109,7 @@ several apps.
 
 `shared/useDnbmState.ts` follows a dnbm instance's state for both windows'
 chrome, and `shared/useWindowTitle.ts` names what an app shows in its window's
-title.
+title. `shared/useDnbmTheme.ts` gives both music apps a pale neutral palette in
+Paper, including their dialogs, inputs, waveform, and spectrum. It adopts a
+stylesheet inside each app's shadow root without remounting, so changing themes
+preserves the song, undo history, playback, and position.

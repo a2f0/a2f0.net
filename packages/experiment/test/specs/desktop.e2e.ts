@@ -1671,6 +1671,91 @@ describe("Experiment desktop", () => {
     expect((await themeState()).theme).toBe("graphite");
   });
 
+  it("recolors every mini-app while preserving music playback and edits", async () => {
+    await waitForDnbmApps();
+    await waitForSkyline();
+    await taskbar("dnbm").click();
+    await pressInApp(".dnbm-window [role=region]", ".grid-row .cell");
+    await expect(dnbmAction("Undo")).toBeEnabled();
+    await taskbar("dnbm player").click();
+    await playerAction("Play").click();
+    const player = () => playerRegion().shadow$(".player");
+    await expect(player()).toHaveAttribute("data-state", "playing");
+
+    const themeSwitch = () => $(".desktop-taskbar-end > button:last-child");
+    const palettes = () =>
+      browser.execute(() => {
+        const frameStyle = (selector: string) => {
+          const frame = document
+            .querySelector(`${selector} [role=region]`)
+            ?.shadowRoot?.querySelector(".frame");
+          if (!frame) throw new Error(`Missing ${selector}'s frame`);
+          const style = getComputedStyle(frame);
+          return { background: style.backgroundColor, color: style.color };
+        };
+        const art = document.querySelector(".ascii-art-window");
+        if (!art) throw new Error("Missing the artwork");
+        return {
+          sequencer: frameStyle(".dnbm-window"),
+          player: frameStyle(".dnbm-player-window"),
+          artwork: getComputedStyle(art).filter,
+          skylineColour: document
+            .querySelector(".skyline-window [role=region]")
+            ?.shadowRoot?.querySelector("#colour")
+            ?.getAttribute("aria-pressed"),
+        };
+      });
+
+    await themeSwitch().click();
+    await waitForSkyline();
+    await browser.waitUntil(
+      async () => (await resumeTextFills()).includes("#000000"),
+      { timeoutMsg: "Paper did not give the resume its light page" },
+    );
+    expect(await palettes()).toEqual({
+      sequencer: { background: "rgb(245, 245, 245)", color: "rgb(36, 36, 36)" },
+      player: { background: "rgb(245, 245, 245)", color: "rgb(36, 36, 36)" },
+      artwork: "invert(1)",
+      skylineColour: "true",
+    });
+    expect(await backgroundOf("section.window:has(.resume-window)")).toBe(
+      "rgb(231, 231, 231)",
+    );
+    await expect(player()).toHaveAttribute("data-state", "playing");
+    await expect(dnbmAction("Undo")).toBeEnabled();
+
+    // Dialogs live beside the sequencer's frame in its shadow root, so they
+    // need the same palette as the editor. Cancel preserves the unsaved edit.
+    await taskbar("dnbm").click();
+    await dnbmWindow().$("button=File").click();
+    await dnbmWindow().$("button=New").click();
+    const dialog = () => dnbmRegion().shadow$("dialog[open]");
+    await expect(dialog()).toBeDisplayed();
+    expect(
+      await browser.execute(() => {
+        const layer = document
+          .querySelector(".dnbm-window [role=region]")
+          ?.shadowRoot?.querySelector(".dialog-layer");
+        if (!layer) throw new Error("Missing the dialog palette");
+        return getComputedStyle(layer).colorScheme;
+      }),
+    ).toBe("light");
+    await dialog().$("button:not(.dialog-accept)").click();
+
+    await themeSwitch().click();
+    await waitForSkyline();
+    expect(await palettes()).toEqual({
+      sequencer: { background: "rgb(10, 10, 10)", color: "rgb(226, 226, 226)" },
+      player: { background: "rgb(10, 10, 10)", color: "rgb(226, 226, 226)" },
+      artwork: "none",
+      skylineColour: "false",
+    });
+    await expect(player()).toHaveAttribute("data-state", "playing");
+    await expect(dnbmAction("Undo")).toBeEnabled();
+    await taskbar("dnbm player").click();
+    await playerAction("Pause").click();
+  });
+
   it("switches the theme from the routed shell's tray", async () => {
     await browser.setViewport({ width: 390, height: 844 });
     await browser.refresh();
@@ -1685,6 +1770,17 @@ describe("Experiment desktop", () => {
     await expect(
       tray.$("button[aria-label='Switch to Graphite theme']"),
     ).toBeDisplayed();
+    expect(
+      await browser.execute(() => {
+        const art = document.querySelector(".ascii-art-window");
+        return art && getComputedStyle(art).filter;
+      }),
+    ).toBe("invert(1)");
+    // A directly opened route and a reload both keep Paper for the app's
+    // contents, not only the tray and toolbar.
+    await browser.url("/app/resume");
+    await waitForResume();
+    expect(await resumeTextFills()).toContain("#000000");
   });
 
   it("switches between the windowed desktop and the routed shell", async () => {
