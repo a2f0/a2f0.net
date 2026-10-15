@@ -39,6 +39,15 @@ use the default URL unless an explicit override is supplied.
 
 ## Identity and persistence
 
+Upgrading from SDK `0.1.26` to `0.1.45` requires fresh browser storage: the SDK
+rejects the older SQLite schema and does not migrate it. Before upgrading, save
+your recovery phrase and download any local-only files or notes you need. Close
+all Drive tabs, clear site data for `drive.a2f0.net` in your browser settings,
+then reopen Drive and import your recovery phrase or create a new drive. This
+deletes that browser's local identity, keys, and files. A recovery phrase restores
+the identity and permits downloading synced data; it cannot recover unsynced
+files. Drive never clears site data automatically.
+
 Creating a drive generates an identity and root folder locally. It makes no
 API requests until **Your identity → Connect to Tearleads**. Importing a recovery
 phrase attempts to sign in to that existing identity. A failed imported login
