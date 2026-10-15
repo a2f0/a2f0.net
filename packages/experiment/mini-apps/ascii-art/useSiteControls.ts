@@ -3,11 +3,10 @@ import { useCallback, useEffect, useState } from "react";
 /** The state of the site's toolbar, as its buttons announce it. */
 export interface SiteControlsState {
   ascii: boolean;
-  music: { disabled: boolean; label: string };
   play: { label: string; playing: boolean };
 }
 
-export type SiteControl = ".music-toggle" | ".play-toggle" | ".view-toggle";
+export type SiteControl = ".play-toggle" | ".view-toggle";
 
 /**
  * Follows the site's own toolbar, which `mountSite` drives, so the window's
@@ -26,10 +25,6 @@ export function useSiteControls(root: ShadowRoot | null) {
     const read = () =>
       setState({
         ascii: attribute(".view-toggle", "aria-pressed") === "true",
-        music: {
-          disabled: attribute(".music-toggle", "aria-disabled") === "true",
-          label: attribute(".music-toggle", "title") ?? "Music player",
-        },
         play: {
           label: attribute(".play-toggle", "aria-label") ?? "Play animation",
           playing: attribute(".play-toggle", "data-playing") !== null,
@@ -39,13 +34,7 @@ export function useSiteControls(root: ShadowRoot | null) {
     const observer = new MutationObserver(read);
     observer.observe(toolbar, {
       attributes: true,
-      attributeFilter: [
-        "aria-disabled",
-        "aria-label",
-        "aria-pressed",
-        "data-playing",
-        "title",
-      ],
+      attributeFilter: ["aria-label", "aria-pressed", "data-playing"],
       subtree: true,
     });
     return () => observer.disconnect();

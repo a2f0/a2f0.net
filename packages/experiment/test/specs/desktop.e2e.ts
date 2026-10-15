@@ -660,12 +660,7 @@ describe("Experiment desktop", () => {
     const labels = await toolbar
       .$$("button")
       .map((button) => button.getAttribute("aria-label"));
-    expect(labels).toEqual([
-      "Play code rain animation",
-      "Music player (coming soon)",
-      "ASCII view",
-    ]);
-    await expect(toolbar.$("button[aria-label^='Music']")).toBeDisabled();
+    expect(labels).toEqual(["Play code rain animation", "ASCII view"]);
     // The resume has no toolbar actions, so its window has no toolbar row.
     await expect(resumeWindow().$(".window-toolbar")).not.toBeExisting();
 
