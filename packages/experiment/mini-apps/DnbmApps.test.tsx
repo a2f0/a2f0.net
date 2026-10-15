@@ -1,6 +1,8 @@
 import { afterAll, beforeAll, beforeEach, expect, mock, test } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import {
+  ThemeProvider,
+  ThemeSwitch,
   useWindowActions,
   useWindowStateData,
   type WindowEntry,
@@ -10,6 +12,10 @@ import {
 import { act, type ComponentType, StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
+import {
+  EXPERIMENT_THEMES,
+  type ExperimentThemeId,
+} from "../components/themes";
 import { MiniAppWindow } from "./MiniAppWindow";
 import { EM_SPACE } from "./shared/menuLabels";
 import type { MiniAppId, MiniAppProps } from "./types";
@@ -25,6 +31,7 @@ type State = Readonly<{
 // state, and reads the commands the window ran.
 interface FakeInstance {
   container: HTMLElement;
+  element: HTMLElement;
   options: Record<string, unknown>;
   destroyed: boolean;
   listeners: Set<() => void>;
@@ -112,8 +119,11 @@ const mountFake =
   (idle: State) =>
   (container: HTMLElement, options: Record<string, unknown>) => {
     const { promise, resolve, reject } = Promise.withResolvers<void>();
+    const element = document.createElement("div");
+    element.attachShadow({ mode: "open" });
     const instance: FakeInstance = {
       container,
+      element,
       options,
       destroyed: false,
       listeners: new Set(),
@@ -127,7 +137,6 @@ const mountFake =
       reject,
     };
     instances.push(instance);
-    const element = document.createElement("div");
     container.append(element);
     return {
       element,
@@ -189,6 +198,7 @@ const render = async (
   App: ComponentType<MiniAppProps>,
   appId: MiniAppId,
   title: string,
+  theme: ExperimentThemeId = "graphite",
 ) => {
   const onLoad = mock(ignore);
   let actions: WindowStateActions | undefined;
@@ -209,9 +219,16 @@ const render = async (
   await act(() =>
     root.render(
       <StrictMode>
-        <WindowStateProvider>
-          <Desktop />
-        </WindowStateProvider>
+        <ThemeProvider
+          themes={EXPERIMENT_THEMES}
+          defaultTheme={theme}
+          storageKey="dnbm-test.theme"
+        >
+          <WindowStateProvider>
+            <Desktop />
+          </WindowStateProvider>
+          <ThemeSwitch />
+        </ThemeProvider>
       </StrictMode>,
     ),
   );
@@ -289,6 +306,10 @@ const render = async (
     press,
     publish,
     restore: () => act(() => restore(id)),
+    switchTheme: () =>
+      act(() =>
+        container.querySelector<HTMLButtonElement>(":scope > button")?.click(),
+      ),
     title: () => windows.find((entry) => entry.id === id)?.title,
     titleBar: () =>
       section().querySelector(".window-titlebar-title")?.textContent,
@@ -298,6 +319,9 @@ const render = async (
     unmount: async () => {
       await act(() => root.unmount());
       container.remove();
+      localStorage.removeItem("dnbm-test.theme");
+      document.documentElement.removeAttribute("data-theme");
+      document.documentElement.removeAttribute("data-theme-scheme");
     },
   };
 };
@@ -320,6 +344,31 @@ beforeEach(() => {
 });
 
 for (const [name, appId, title, App] of APPS) {
+  test(`the ${name} recolors without remounting and removes only its own palette`, async () => {
+    const { switchTheme, unmount } = await render(App, appId, title, "paper");
+    const instance = current();
+    const root = instance.element.shadowRoot;
+    if (!root) throw new Error("The app has no shadow root");
+    try {
+      expect(root.adoptedStyleSheets).toHaveLength(1);
+      const unrelated = new CSSStyleSheet();
+      root.adoptedStyleSheets = [...root.adoptedStyleSheets, unrelated];
+      instance.resolve();
+      await settle();
+      await switchTheme();
+      expect(current()).toBe(instance);
+      expect(instance.destroyed).toBe(false);
+      expect(root.adoptedStyleSheets).toEqual([unrelated]);
+      await switchTheme();
+      expect(current()).toBe(instance);
+      expect(root.adoptedStyleSheets).toHaveLength(2);
+      expect(root.adoptedStyleSheets).toContain(unrelated);
+    } finally {
+      await unmount();
+    }
+    expect(root.adoptedStyleSheets).toHaveLength(1);
+  });
+
   test(`the ${name} mounts without its own action buttons and reports loaded once ready`, async () => {
     const { onLoad, unmount } = await render(App, appId, title);
 

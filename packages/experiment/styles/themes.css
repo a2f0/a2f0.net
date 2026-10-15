@@ -1,14 +1,13 @@
 /* The desktop's themes (see components/themes.ts): the windowing package's
    color tokens, plus the desktop's own background. Graphite, the default,
    sits in the base :root, so the page shows it before the theme switch's
-   provider stamps <html data-theme>; the others override it there.
+   provider stamps <html data-theme>; Paper overrides it there.
 
    The windowing package derives the window edge (--border-strong-color), the
    hover and selection chip (--emphasis-*), and --color-hairline from
    --color-dark, the foreground, unless a theme sets them. Each theme sets them
-   to keep edges, dividers, and chips muted. The resume's own theme recolors
-   only its page (see mini-apps/resume/ResumeApp.tsx), and the artwork,
-   skyline, and dnbm apps keep their black stages in every theme. */
+   to keep edges, dividers, and chips muted. Mini-apps follow the theme's
+   light/dark scheme with their own content palettes. */
 
 /* Graphite: Tearleads' dark theme on a black desk. */
 :root {

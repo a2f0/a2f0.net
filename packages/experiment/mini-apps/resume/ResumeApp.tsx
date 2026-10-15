@@ -13,10 +13,10 @@ import { useResumeToolbar } from "./useResumeToolbar";
 
 const { documentHeight, documentWidth, pixelsPerPoint } = resumeConfiguration;
 
-// The theme recolors only the page. Around it the window shows an off-color of
-// the dark page's background in either theme, as resume.a2f0.net keeps its
-// page on a dark backdrop, so a light page reads as a sheet on a dark desk.
+// Graphite keeps the resume site's dark desk. Paper uses a pale surround,
+// independent of a page-theme override selected from the resume's own menu.
 const SURROUND = `color-mix(in srgb, ${DARK.foregroundColor} 10%, ${DARK.backgroundColor})`;
+const LIGHT_SURROUND = "#e7e7e7";
 
 /** The width of the window's scrolling body, inside its padding. */
 function useBodyWidth(containerRef: RefObject<HTMLDivElement | null>) {
@@ -40,7 +40,7 @@ function useBodyWidth(containerRef: RefObject<HTMLDivElement | null>) {
  * it and as the single mobile column otherwise.
  */
 export function ResumeApp({ onLoad }: MiniAppProps) {
-  const { colors, scale, setColors, setScale } = useResumeSettings();
+  const { colors, scale, setColors, setScale, scheme } = useResumeSettings();
   const containerRef = useRef<HTMLDivElement>(null);
   const bodyWidth = useBodyWidth(containerRef);
   const measured = bodyWidth !== null;
@@ -58,7 +58,7 @@ export function ResumeApp({ onLoad }: MiniAppProps) {
     height: (documentHeight / pixelsPerPoint) * scale,
   });
 
-  useWindowBackground(SURROUND);
+  useWindowBackground(scheme === "light" ? LIGHT_SURROUND : SURROUND);
 
   useEffect(() => {
     // Wait for the first measurement so the resume is laid out once.

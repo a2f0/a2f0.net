@@ -51,9 +51,14 @@ gate. See [AGENTS.md](../AGENTS.md) for title, review, and shipping policy.
 - Skyline mounts in an HTMLElement/open shadow root.
   Browser tests wait for the viewer's readiness and inspect its rendered controls,
   canvas and focus. Always destroy on unmount and preserve the dedicated local
-  asset-copy cleanup.
+  asset-copy cleanup. Its `colour` mount option selects the sunny-day view for
+  Paper; changing the desktop scheme destroys and remounts the viewer because
+  the published instance has no live colour setter.
 - Dnbm's sequencer/player loaders and copied asset API must be checked against
-  the actual published tarball before updating its pin.
+  the actual published tarball before updating its pin. Paper's palette also
+  relies on the private `.frame`, `.dialog-layer`, and `.failure` selectors and
+  CSS tokens in `useDnbmTheme.ts`. Recheck those tokens and the shadow-root
+  stylesheet cascade against the tarball, including a saved-Paper cold load.
 - Wrangler, Miniflare, workerd, Sharp and native image libraries form one owning
   group. A patched Sharp resolution requires native ABI and offline Miniflare
   SVG-to-PNG behavior proof, plus the authenticated deployment preview.

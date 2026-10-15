@@ -7,3 +7,7 @@
   margin: calc(-1 * var(--mini-app-bleed));
   background: #0a0a0a;
 }
+
+:root[data-theme-scheme="light"] .dnbm-player-window {
+  background: #f5f5f5;
+}
