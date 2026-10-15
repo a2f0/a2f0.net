@@ -92,7 +92,7 @@ For the optional sync and identity-recovery test, start the API from a prepared
 Tearleads checkout (with its dependencies and SDK built):
 
 ```sh
-cd ~/github/tearleads6/packages/api
+cd <tearleads-checkout>/packages/api
 API_DATABASE=memory API_PORT=4005 BLOB_OBJECT_STORE=memory \
   API_PUBLIC_ORIGIN=http://127.0.0.1:4005 \
   API_CORS_ORIGINS=http://localhost:4004 NODE_ENV=development bun src/index.ts
@@ -110,8 +110,14 @@ The Worker is named `drive`. Terraform owns `drive.a2f0.net`; CI builds, tests,
 and deploys the package on validated pushes to `production`. Current Tearleads
 APIs allow Drive and future Experiment hosts without a separate CORS change.
 
-Initial provisioning from a reviewed, committed checkout uses the repository’s
-Cloudflare credentials and guarded deploy entrypoint:
+Before merging a branch that first enables Drive in production CI, provision
+the Worker and attach its custom domain from the reviewed, committed PR head.
+The normal CI deployment requires both identities and a prior Worker deployment;
+it cannot perform initial provisioning. Skip bootstrap when those identities
+already exist, and verify them with the normal `preview` command instead.
+
+Initial provisioning uses the repository’s Cloudflare credentials and guarded
+deploy entrypoint:
 
 ```sh
 bun run --cwd packages/drive build

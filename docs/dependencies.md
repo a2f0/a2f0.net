@@ -40,6 +40,14 @@ gate. See [AGENTS.md](../AGENTS.md) for title, review, and shipping policy.
   [`.nvmrc`](../.nvmrc); transitive owners may declare other type versions.
 - Keep `@tearleads/windowing` exact and consume only published releases. Its
   local producer candidate cannot authorize a consumer bump.
+- Keep `@tearleads/client-sdk` exact and verify its published tarball before
+  upgrading Drive. Check the public API and existing browser database schema;
+  the SDK can reject older schemas without migrating them. Agree on preserving
+  local data or requiring fresh browser storage before shipping an incompatible
+  upgrade, and document the recovery steps. Never clear browser data silently.
+  Copy the worker, SQLite WASM, and license from that same installed SDK with
+  Drive's `copy-sdk` script, then verify persistence and attachments in its
+  browser suite.
 - Skyline mounts in an HTMLElement/open shadow root.
   Browser tests wait for the viewer's readiness and inspect its rendered controls,
   canvas and focus. Always destroy on unmount and preserve the dedicated local
@@ -98,7 +106,7 @@ requirement; verify it for the proposed migration. The authenticated route
 inventory in [PR #1188](https://github.com/a2f0/a2f0.net/pull/1188) is historical
 evidence. Adding or changing routing requires a separate migration review.
 
-The four target names and Terraform-owned hostnames are explicit in
+The five target names and Terraform-owned hostnames are explicit in
 `scripts/deployPolicy.ts`. New resource settings, migrations, alternate Worker
 names, stateful bindings, enabled public endpoints, cron schedules and split
 live traffic require a separate migration review. The guard reads existing
@@ -117,7 +125,7 @@ routing files, and rejects symlinks. Temporary configuration and logs are
 removed afterward. Never run direct Wrangler deploy to bypass the guard.
 
 After a production merge, wait for the actual merge commit's successful
-deployment and smoke-test resume, apex and experiment URLs, as `AGENTS.md`
+deployment and smoke-test resume, apex, experiment and Drive URLs, as `AGENTS.md`
 requires. A bundle preview alone does not prove live identity or route safety.
 
 ## Terraform preview
@@ -167,6 +175,7 @@ sh .husky/pre-push
 bun run ci-headless
 bun run --cwd packages/website test
 bun run --cwd packages/experiment test
+bun run --cwd packages/drive test
 bun audit
 ```
 

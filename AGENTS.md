@@ -88,7 +88,8 @@ base, PR base, and head before merging.
 Verify merge ancestry and branch identities before deleting shipped branches.
 
 After merging to `production`, wait for the `CI` deployment for that merge commit
-and smoke-test `resume.a2f0.net`, `a2f0.net`, and `experiment.a2f0.net`. If using an
+and smoke-test `resume.a2f0.net`, `a2f0.net`, `experiment.a2f0.net`, and
+`drive.a2f0.net`. If using an
 isolated worktree, clean up that worktree without modifying the user's checkout.
 Report the independent reviewer, fallback, verdict, repairs, merge, and deploy.
 
