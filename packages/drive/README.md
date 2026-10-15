@@ -1,7 +1,7 @@
 # Drive
 
 A standalone file explorer at `drive.a2f0.net`, and this repository’s first
-consumer of the published `@tearleads/client-sdk`. Version `0.1.26` is pinned
+consumer of the published `@tearleads/client-sdk`. Version `0.1.45` is pinned
 in the manifest and lockfile. Nothing imports the Tearleads application or a
 neighboring checkout.
 
@@ -32,8 +32,8 @@ NEXT_PUBLIC_TEARLEADS_API_URL=http://127.0.0.1:4005 \
   bun run --cwd packages/drive dev
 ```
 
-The local API must allow `http://localhost:4004` in its CORS configuration.
-Production allows the deployed HTTPS origin, not the local development origin.
+Current Tearleads APIs allow browser SDK clients from any origin using bearer
+authentication, without cookie credentials or a host-specific CORS allowlist.
 The API URL also selects a separate local storage namespace. Production builds
 use the default URL unless an explicit override is supplied.
 
@@ -98,10 +98,8 @@ production accounts or require the Tearleads checkout in CI.
 ## Hosting
 
 The Worker is named `drive`. Terraform owns `drive.a2f0.net`; CI builds, tests,
-and deploys the package on validated pushes to `production`. Tearleads’
-`ansible/playbooks/server.yml` adds the Drive and future Experiment HTTPS
-origins to the production allowlist. Apply that server configuration before
-testing a live login; an explicit `API_CORS_ORIGINS` overrides the defaults.
+and deploys the package on validated pushes to `production`. Current Tearleads
+APIs allow Drive and future Experiment hosts without a separate CORS change.
 
 Initial provisioning from a reviewed, committed checkout uses the repository’s
 Cloudflare credentials and guarded deploy entrypoint:
