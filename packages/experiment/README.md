@@ -32,9 +32,8 @@ window removes its button; the start menu opens the app again.
 
 The taskbar's lower-right corner ends with the windowing package's theme
 switch, as in Tearleads' pane footer. Each click moves to the next of the
-desktop's own themes: Graphite, the dark default, then Paper, a light one, and
-Skyline, navy chrome with amber chips after the skyline's night. The themes are
-listed in [`components/themes.ts`](components/themes.ts) and styled in
+desktop's own themes: Graphite, the dark default, and Paper, a light one. The
+themes are listed in [`components/themes.ts`](components/themes.ts) and styled in
 [`styles/themes.css`](styles/themes.css), each a block of the windowing
 package's design tokens plus the desktop's background. The choice persists. The
 themes recolor the desktop and its chrome; the resume keeps its own theme for

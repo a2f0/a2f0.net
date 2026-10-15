@@ -45,22 +45,3 @@
     0 1rem 3rem rgb(0 0 0 / 14%), 0 0.25rem 0.75rem rgb(0 0 0 / 10%);
   --desktop-background: #c8c8c8;
 }
-
-/* Skyline: the skyline window's night, navy windows under a sodium-amber
-   glow on the pressed and hovered chips. */
-:root[data-theme="skyline"] {
-  --color-dark: #ece3d3;
-  --color-light: #0f1522;
-  --color-muted: #182134;
-  --color-danger: #ff8f80;
-  --color-hairline: color-mix(in srgb, var(--color-dark) 12%, transparent);
-  --border-strong-color: #2c3a55;
-  --emphasis-surface: #4a3a1e;
-  --emphasis-text: #ffcf7a;
-  --tearleads-window-titlebar-background: #182134;
-  --tearleads-window-titlebar-text: #ece3d3;
-  --app-shadow-surface: 0 0.5rem 2rem rgb(0 0 0 / 40%);
-  --app-shadow-window:
-    0 1rem 3rem rgb(0 0 0 / 36%), 0 0.25rem 0.75rem rgb(0 0 0 / 24%);
-  --desktop-background: linear-gradient(#0b1324, #03050a);
-}

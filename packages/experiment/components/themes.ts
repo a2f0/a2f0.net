@@ -1,6 +1,6 @@
 import type { ThemeDefinition } from "@tearleads/windowing";
 
-export type ExperimentThemeId = "graphite" | "paper" | "skyline";
+export type ExperimentThemeId = "graphite" | "paper";
 
 /**
  * The desktop's themes, in the order the taskbar's switch cycles them. Each is
@@ -11,7 +11,6 @@ export const EXPERIMENT_THEMES: readonly ThemeDefinition<ExperimentThemeId>[] =
   [
     { id: "graphite", label: "Graphite", scheme: "dark" },
     { id: "paper", label: "Paper", scheme: "light" },
-    { id: "skyline", label: "Skyline", scheme: "dark" },
   ];
 
 /** The theme until the visitor picks one, whatever the OS prefers. */
