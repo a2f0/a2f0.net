@@ -1,0 +1,7 @@
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+/worker.js
+  Cache-Control: no-cache
+/sqlite3.wasm
+  Cache-Control: no-cache

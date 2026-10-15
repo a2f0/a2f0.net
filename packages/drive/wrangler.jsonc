@@ -1,0 +1,9 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "drive",
+  "compatibility_date": "2026-09-16",
+  "workers_dev": false,
+  "preview_urls": false,
+  // Terraform owns drive.a2f0.net.
+  "assets": { "directory": "./out", "html_handling": "auto-trailing-slash" }
+}

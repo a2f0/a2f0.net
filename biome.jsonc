@@ -13,6 +13,7 @@
       "!**/.turbo/**/*",
       "!packages/experiment/public/skyline/**/*",
       "!packages/experiment/public/dnbm/**/*",
+      "!packages/drive/public/worker.js",
       "!terraform/*.json"
     ]
   },

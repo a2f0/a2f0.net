@@ -2,6 +2,18 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "treatConfigHintsAsErrors": true,
   "workspaces": {
+    "packages/drive": {
+      "entry": [
+        "pages/**/*.tsx",
+        "test/**/*.e2e.ts",
+        "test/**/*.test.ts",
+        "test/**/*.test.tsx",
+        "src/**/*.test.ts",
+        "src/**/*.test.tsx"
+      ],
+      "project": ["**/*.{ts,tsx}"],
+      "ignoreDependencies": ["@types/mocha", "@wdio/local-runner"]
+    },
     ".": {
       "project": "scripts/**/*.ts",
       // dependency-cruiser loads swc to parse TypeScript, as TypeScript 7 has

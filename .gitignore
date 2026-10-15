@@ -17,6 +17,11 @@ out/
 build/
 dist/
 
+# Runtime assets from the pinned Tearleads SDK
+packages/drive/public/worker.js
+packages/drive/public/sqlite3.wasm
+packages/drive/public/sqlite3-licenses.md
+
 # turborepo
 .turbo
 

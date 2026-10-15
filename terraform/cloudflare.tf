@@ -50,6 +50,14 @@ resource "cloudflare_workers_custom_domain" "experiment" {
   service    = "experiment"
 }
 
+# Host for the Tearleads SDK drive, deployed from production CI.
+resource "cloudflare_workers_custom_domain" "drive" {
+  account_id = var.cloudflare_account_id
+  zone_id    = data.cloudflare_zone.resume.id
+  hostname   = "drive.${var.domain}"
+  service    = "drive"
+}
+
 # Host for the Noise Connoisseur web app, deployed with Wrangler from a2f0/nc.
 resource "cloudflare_workers_custom_domain" "nc" {
   account_id = var.cloudflare_account_id

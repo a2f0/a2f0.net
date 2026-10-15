@@ -8,6 +8,7 @@ import {
   checkConfiguration,
   checkDeployment,
   checkDomain,
+  checkDriveBootstrap,
   checkPublicEndpoints,
   checkSettings,
   DEPLOYMENTS,
@@ -44,14 +45,19 @@ async function main() {
   if (
     !name ||
     !Object.hasOwn(DEPLOYMENTS, name) ||
-    (mode !== undefined && mode !== "--dry-run") ||
+    (mode !== undefined &&
+      !["--dry-run", "--bootstrap", "--bootstrap-dry-run"].includes(mode)) ||
     extra.length
   ) {
     throw new Error(
-      "Usage: bun scripts/deploy.ts <resume-staging|resume-prod|website|experiment> [--dry-run]",
+      "Usage: bun scripts/deploy.ts <target> [--dry-run]; drive also accepts --bootstrap or --bootstrap-dry-run",
     );
   }
   const target = name as DeploymentName;
+  const bootstrap = mode === "--bootstrap" || mode === "--bootstrap-dry-run";
+  if (bootstrap && target !== "drive")
+    throw new Error("Only Drive supports initial provisioning");
+  const previewOnly = mode === "--dry-run" || mode === "--bootstrap-dry-run";
   const specification = DEPLOYMENTS[target];
   const directory = resolve(root, "packages", specification.package);
   const executable = resolve(directory, "node_modules", ".bin", "wrangler");
@@ -142,6 +148,16 @@ async function main() {
     return checkApiResult(await response.json(), completeList);
   };
   const inspect = async () => {
+    if (bootstrap) {
+      const [scripts, domains] = await Promise.all([
+        api(`accounts/${account}/workers/scripts`),
+        api(`accounts/${account}/workers/domains`),
+      ]);
+      checkDriveBootstrap(scripts, domains, target);
+      return createHash("sha256")
+        .update(JSON.stringify({ account, scripts, domains }))
+        .digest("hex");
+    }
     const path = `accounts/${account}/workers/scripts/${specification.worker}`;
     const [settings, domains, deployments, subdomain, schedules] =
       await Promise.all([
@@ -242,15 +258,17 @@ async function main() {
           await command(args, directory, wranglerEnvironment);
         },
       },
-      mode === "--dry-run",
+      previewOnly,
     );
   } finally {
     await rm(temporary, { recursive: true });
   }
   console.log(
-    mode === "--dry-run"
-      ? "Deployment preview and existing identities verified"
-      : "Previewed deployment completed",
+    previewOnly
+      ? "Deployment preview and remote identities verified"
+      : bootstrap
+        ? "Drive Worker created; attach its custom domain through Terraform"
+        : "Previewed deployment completed",
   );
 }
 
