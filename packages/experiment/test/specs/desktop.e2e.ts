@@ -660,12 +660,7 @@ describe("Experiment desktop", () => {
     const labels = await toolbar
       .$$("button")
       .map((button) => button.getAttribute("aria-label"));
-    expect(labels).toEqual([
-      "Play code rain animation",
-      "Music player (coming soon)",
-      "ASCII view",
-    ]);
-    await expect(toolbar.$("button[aria-label^='Music']")).toBeDisabled();
+    expect(labels).toEqual(["Play code rain animation", "ASCII view"]);
     // The resume has no toolbar actions, so its window has no toolbar row.
     await expect(resumeWindow().$(".window-toolbar")).not.toBeExisting();
 
@@ -1608,6 +1603,12 @@ describe("Experiment desktop", () => {
   });
 
   it("switches the desktop's theme from the taskbar's lower-right corner", async () => {
+    // A saved choice for the removed blue theme falls back to Graphite.
+    await browser.execute(() => {
+      localStorage.setItem("experiment.theme", "skyline");
+    });
+    await browser.refresh();
+    await waitForResume();
     const themeSwitch = () => $(".desktop-taskbar-end > button:last-child");
     const themeState = () =>
       browser.execute(() => {
@@ -1658,23 +1659,10 @@ describe("Experiment desktop", () => {
       taskbar: "rgb(228, 228, 228)",
       titlebar: "rgb(228, 228, 228)",
     });
-    await expect(themeSwitch()).toHaveAttribute(
-      "aria-label",
-      "Switch to Skyline theme",
-    );
-    await themeSwitch().click();
-    expect(await themeState()).toEqual({
-      theme: "skyline",
-      scheme: "dark",
-      corner,
-      taskbar: "rgb(24, 33, 52)",
-      titlebar: "rgb(24, 33, 52)",
-    });
-
     // The choice survives a reload, and the cycle wraps to the default.
     await browser.url("/");
     await waitForResume();
-    expect((await themeState()).theme).toBe("skyline");
+    expect((await themeState()).theme).toBe("paper");
     await expect(themeSwitch()).toHaveAttribute(
       "aria-label",
       "Switch to Graphite theme",
@@ -1695,7 +1683,7 @@ describe("Experiment desktop", () => {
     await tray.$("button[aria-label='Switch to Paper theme']").click();
     await expect($("html")).toHaveAttribute("data-theme", "paper");
     await expect(
-      tray.$("button[aria-label='Switch to Skyline theme']"),
+      tray.$("button[aria-label='Switch to Graphite theme']"),
     ).toBeDisplayed();
   });
 

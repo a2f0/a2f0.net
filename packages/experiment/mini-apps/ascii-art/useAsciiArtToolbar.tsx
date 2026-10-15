@@ -1,5 +1,4 @@
 import { HashIcon } from "@phosphor-icons/react/dist/csr/Hash";
-import { MusicNotesIcon } from "@phosphor-icons/react/dist/csr/MusicNotes";
 import { PlayIcon } from "@phosphor-icons/react/dist/csr/Play";
 import { StopIcon } from "@phosphor-icons/react/dist/csr/Stop";
 import { useWindowTitleBarAction } from "@tearleads/windowing";
@@ -12,14 +11,12 @@ import type { SiteControl, SiteControlsState } from "./useSiteControls";
 // stop are filled, as on the site.
 const PLAY_ICON = <PlayIcon aria-hidden size={18} weight="fill" />;
 const STOP_ICON = <StopIcon aria-hidden size={18} weight="fill" />;
-const MUSIC_ICON = <MusicNotesIcon aria-hidden size={18} />;
 const ASCII_ICON = <HashIcon aria-hidden size={18} />;
 
 /**
- * The site's toolbar, in the window's toolbar row and in the site's order:
- * the animation, the music player, then the ASCII view. The site's terminal
- * window is left out, as the artwork already sits in a window. The window lays
- * the actions out from the highest priority.
+ * The animation and ASCII view, in the site's order. The unavailable music
+ * player is omitted, as is the terminal control because the artwork already
+ * sits in a window. The window lays the actions out from the highest priority.
  */
 export function useAsciiArtToolbar(
   state: SiteControlsState | null,
@@ -34,20 +31,6 @@ export function useAsciiArtToolbar(
           label: state.play.label,
           onClick: () => press(".play-toggle"),
           priority: 40,
-        },
-      [press, state],
-    ),
-  );
-  useWindowTitleBarAction(
-    useMemo(
-      () =>
-        state && {
-          disabled: state.music.disabled,
-          icon: MUSIC_ICON,
-          id: "music",
-          label: state.music.label,
-          onClick: () => press(".music-toggle"),
-          priority: 30,
         },
       [press, state],
     ),
