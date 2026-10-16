@@ -82,6 +82,7 @@ test("the skyline mounts its viewer with open controls and destroys it on unmoun
     assetsUrl: "/skyline/",
     controls: "open",
     colour: false,
+    theme: "dark",
   });
   // Only the live viewer's element stays in the host.
   expect(second.container.childElementCount).toBe(1);
@@ -111,6 +112,7 @@ test("Paper mounts a colour skyline and switching back releases that viewer", as
     assetsUrl: "/skyline/",
     controls: "open",
     colour: true,
+    theme: "light",
   });
   await act(() => container.querySelector("button")?.click());
   expect(viewers).toHaveLength(2);
@@ -119,6 +121,7 @@ test("Paper mounts a colour skyline and switching back releases that viewer", as
     assetsUrl: "/skyline/",
     controls: "open",
     colour: false,
+    theme: "dark",
   });
   expect(viewers[1]?.container.childElementCount).toBe(1);
   await act(() => root.unmount());

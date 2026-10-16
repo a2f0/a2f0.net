@@ -53,7 +53,8 @@ gate. See [AGENTS.md](../AGENTS.md) for title, review, and shipping policy.
   canvas and focus. Always destroy on unmount and preserve the dedicated local
   asset-copy cleanup. Its `colour` mount option selects the sunny-day view for
   Paper; changing the desktop scheme destroys and remounts the viewer because
-  the published instance has no live colour setter.
+  the published instance has no live colour setter. Pass the same scheme through
+  `theme` so the loading backdrop matches before the scene or its styles arrive.
 - Dnbm's sequencer/player loaders and copied asset API must be checked against
   the actual published tarball before updating its pin. Paper's palette also
   relies on the private `.frame`, `.dialog-layer`, and `.failure` selectors and

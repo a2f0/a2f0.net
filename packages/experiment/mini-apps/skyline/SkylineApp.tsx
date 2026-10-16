@@ -25,6 +25,7 @@ export function SkylineApp() {
       assetsUrl: SKYLINE_ASSETS_URL,
       controls: "open",
       colour,
+      theme: colour ? "light" : "dark",
     });
     return () => skyline.destroy();
   }, [colour]);

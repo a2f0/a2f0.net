@@ -1695,10 +1695,14 @@ describe("Experiment desktop", () => {
         };
         const art = document.querySelector(".ascii-art-window");
         if (!art) throw new Error("Missing the artwork");
+        const skyline = document.querySelector(".skyline-window [role=region]");
+        if (!skyline) throw new Error("Missing the skyline");
         return {
           sequencer: frameStyle(".dnbm-window"),
           player: frameStyle(".dnbm-player-window"),
           artwork: getComputedStyle(art).filter,
+          skylineBackdrop: getComputedStyle(skyline).backgroundColor,
+          skylineScheme: getComputedStyle(skyline).colorScheme,
           skylineColour: document
             .querySelector(".skyline-window [role=region]")
             ?.shadowRoot?.querySelector("#colour")
@@ -1717,6 +1721,8 @@ describe("Experiment desktop", () => {
       player: { background: "rgb(245, 245, 245)", color: "rgb(36, 36, 36)" },
       artwork: "invert(1)",
       skylineColour: "true",
+      skylineBackdrop: "rgb(245, 245, 245)",
+      skylineScheme: "light",
     });
     expect(await backgroundOf("section.window:has(.resume-window)")).toBe(
       "rgb(231, 231, 231)",
@@ -1749,6 +1755,8 @@ describe("Experiment desktop", () => {
       player: { background: "rgb(10, 10, 10)", color: "rgb(226, 226, 226)" },
       artwork: "none",
       skylineColour: "false",
+      skylineBackdrop: "rgb(0, 0, 0)",
+      skylineScheme: "dark",
     });
     await expect(player()).toHaveAttribute("data-state", "playing");
     await expect(dnbmAction("Undo")).toBeEnabled();
@@ -1765,6 +1773,8 @@ describe("Experiment desktop", () => {
       player: { background: "rgb(245, 245, 245)", color: "rgb(36, 36, 36)" },
       artwork: "invert(1)",
       skylineColour: "true",
+      skylineBackdrop: "rgb(245, 245, 245)",
+      skylineScheme: "light",
     });
     expect(await resumeTextFills()).toContain("#000000");
   });
