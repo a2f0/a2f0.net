@@ -178,17 +178,21 @@ Use `preview:staging`, `preview:prod`, `preview:website`, or
 
 ## Infrastructure
 
-Terraform uses the existing S3 state backend and manages Cloudflare custom
-domains, HTTPS redirects, Google Workspace DNS records, and GitHub secrets.
-Google Workspace account resources remain in the same stack. Domain
-registration remains with AWS and delegates to the Cloudflare nameservers.
+Terraform keeps state in the Cloudflare R2 bucket `a2f0-net-terraform-state`
+and manages Cloudflare custom domains, HTTPS redirects, Google Workspace DNS
+records, and GitHub secrets. Google Workspace account resources remain in the
+same stack. Domain registration remains with AWS and delegates to the Cloudflare
+nameservers.
 
 ### Setup
 
 1. Install Terraform using the version in `terraform/.terraform-version`.
 2. Install [SOPS](https://github.com/getsops/sops) and GnuPG.
 3. Run `terraform/decrypt.sh` with the GPG key listed in `.sops.yaml`.
-4. Configure AWS credentials for the S3 backend, plus a GitHub
+4. Link the gitignored `.secrets` to `../matrix-secrets/a2f0.net`, which the
+   [matrix repository](https://github.com/a2f0/matrix/blob/main/docs/secrets.md)
+   manages and backs up. The Terraform scripts read the R2 state key from
+   `.secrets/prod/app.env`; no AWS credentials are needed. Provide a GitHub
    token through `GITHUB_TOKEN` or the sensitive `github_token` variable.
 5. Check `terraform/main.tfvars.json`: it includes `cloudflare_account_id` and
    `cloudflare_api_token` plus the separate `cloudflare_deploy_api_token`.
@@ -213,11 +217,14 @@ tflint --chdir terraform
 For the real backend:
 
 ```sh
-cd terraform
-terraform init -backend-config=terraform.backend
-../terraform/apply.sh --dry-run
-../terraform/apply.sh
+terraform/init.sh
+terraform/apply.sh --dry-run
+terraform/apply.sh
 ```
+
+A clone initialized for the former S3 backend runs
+`terraform/init.sh -reconfigure` once; the state already lives in R2, so never
+migrate it.
 
 Run the dry run first and review its non-destructive actions. The apply
 entrypoint requires the real populated backend and applies only the inspected

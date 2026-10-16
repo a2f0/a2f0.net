@@ -162,22 +162,40 @@ export function checkTerraformPlan(input: unknown) {
   }
 }
 
+/** The Cloudflare R2 bucket and object that hold this stack's state. */
+const terraformStateBackend = {
+  bucket: "a2f0-net-terraform-state",
+  key: "terraform.tfstate",
+  region: "auto",
+  endpoint: "https://0be508e6c4caa573595c5f94e11900e4.r2.cloudflarestorage.com",
+} as const;
+
+const unset = (value: unknown) =>
+  value === undefined || value === null || value === "";
+
 export function checkTerraformBackend(input: unknown) {
   const backend = record(record(input).backend);
   const configuration = record(backend.config);
+  const endpoints = record(configuration.endpoints ?? {});
   if (
     backend.type !== "s3" ||
-    configuration.bucket !== "resume-terraform" ||
-    configuration.key !== "resume/terraform.tfstate" ||
-    configuration.region !== "us-east-1" ||
+    configuration.bucket !== terraformStateBackend.bucket ||
+    configuration.key !== terraformStateBackend.key ||
+    configuration.region !== terraformStateBackend.region ||
+    configuration.use_path_style !== true ||
+    configuration.use_lockfile !== true ||
     configuration.insecure === true ||
-    (configuration.endpoint !== undefined &&
-      configuration.endpoint !== null &&
-      configuration.endpoint !== "") ||
-    (configuration.endpoints !== undefined && configuration.endpoints !== null)
+    // The R2 S3 endpoint is the only service endpoint this backend may use.
+    endpoints.s3 !== terraformStateBackend.endpoint ||
+    Object.entries(endpoints).some(
+      ([service, value]) => service !== "s3" && !unset(value),
+    ) ||
+    ["endpoint", "dynamodb_endpoint", "iam_endpoint", "sts_endpoint"].some(
+      (field) => !unset(configuration[field]),
+    )
   ) {
     throw new Error(
-      "Initialize the existing production S3 backend before planning",
+      "Initialize the existing production R2 state backend before planning",
     );
   }
 }

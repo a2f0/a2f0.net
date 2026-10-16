@@ -93,6 +93,18 @@ and smoke-test `resume.a2f0.net`, `a2f0.net`, `experiment.a2f0.net`, and
 isolated worktree, clean up that worktree without modifying the user's checkout.
 Report the independent reviewer, fallback, verdict, repairs, merge, and deploy.
 
+## Terraform state
+
+Terraform state lives in the Cloudflare R2 bucket `a2f0-net-terraform-state`;
+no AWS credentials are needed. `terraform/init.sh`, `upgrade.sh`, and
+`apply.sh` read its key, `TF_STATE_ACCESS_KEY_ID` and
+`TF_STATE_SECRET_ACCESS_KEY`, from `.secrets/prod/app.env` and give it to
+Terraform alone. `.secrets` is a gitignored link to `../matrix-secrets/a2f0.net`,
+managed and backed up from a2f0/matrix (see its `docs/secrets.md`). Never commit
+it, print its values, or edit its files. Preview with
+`terraform/apply.sh --dry-run`; see
+[the Terraform gates](docs/dependencies.md#terraform-preview).
+
 ## Upgrade documentation
 
 Read [dependency maintenance](docs/dependencies.md) before upgrading. Keep the
