@@ -32,6 +32,10 @@ packages/drive/public/sqlite3-licenses.md
 # debug
 npm-debug.log*
 
+# Link to this project's matrix-secrets folder (no trailing slash: it matches
+# the symlink itself)
+.secrets
+
 # local env files
 .env.local
 .env.development.local

@@ -24,10 +24,23 @@ test("Terraform entrypoint inspects saved plans and refuses unattended apply", a
   const realBun = process.execPath;
   await mkdir(folder);
   await mkdir(binaries);
-  await copyFile(
-    new URL("../terraform/apply.sh", import.meta.url),
-    resolve(folder, "apply.sh"),
+  for (const script of ["apply.sh", "credentials.sh"])
+    await copyFile(
+      new URL(`../terraform/${script}`, import.meta.url),
+      resolve(folder, script),
+    );
+  // Fixture R2 state key in the .secrets layout; shared.env loads first, so
+  // app.env's value wins and nothing else from the tier files is exported.
+  const secrets = resolve(directory, ".secrets/prod");
+  await mkdir(secrets, { recursive: true });
+  await writeFile(
+    resolve(secrets, "shared.env"),
+    "TF_STATE_ACCESS_KEY_ID=shared-access\nFIXTURE_TIER_VALUE=unexported\n",
   );
+  const appEnvironment = resolve(secrets, "app.env");
+  const stateKey =
+    "TF_STATE_ACCESS_KEY_ID=fixture-access\nTF_STATE_SECRET_ACCESS_KEY=fixture-secret\n";
+  await writeFile(appEnvironment, stateKey);
   await writeFile(resolve(folder, "main.tf"), "# fixture only\n");
   const state = {
     version: 4,
@@ -72,6 +85,10 @@ test("Terraform entrypoint inspects saved plans and refuses unattended apply", a
     `#!/bin/sh
 set -eu
 [ "$AWS_IGNORE_CONFIGURED_ENDPOINT_URLS" = true ] || exit 9
+[ "$AWS_ACCESS_KEY_ID" = fixture-access ] || exit 9
+[ "$AWS_SECRET_ACCESS_KEY" = fixture-secret ] || exit 9
+[ -z "\${AWS_PROFILE+set}\${AWS_SESSION_TOKEN+set}" ] || exit 9
+[ -z "\${TF_STATE_ACCESS_KEY_ID+set}\${FIXTURE_TIER_VALUE+set}" ] || exit 9
 printf '%s\\n' "$*" >> "$CALLS"
 case "$1" in
   workspace) echo default ;;
@@ -109,9 +126,14 @@ sys.exit(child.wait())
       backend: {
         type: "s3",
         config: {
-          bucket: "resume-terraform",
-          key: "resume/terraform.tfstate",
-          region: "us-east-1",
+          bucket: "a2f0-net-terraform-state",
+          key: "terraform.tfstate",
+          region: "auto",
+          endpoints: {
+            s3: "https://0be508e6c4caa573595c5f94e11900e4.r2.cloudflarestorage.com",
+          },
+          use_lockfile: true,
+          use_path_style: true,
         },
       },
     }),
@@ -151,6 +173,12 @@ sys.exit(child.wait())
           GUARD: guard,
           CALLS: log,
           FIXTURE: directory,
+          AWS_PROFILE: "ambient",
+          AWS_SESSION_TOKEN: "ambient",
+          AWS_ACCESS_KEY_ID: "ambient",
+          AWS_SECRET_ACCESS_KEY: "ambient",
+          TF_STATE_ACCESS_KEY_ID: "ambient",
+          TF_STATE_SECRET_ACCESS_KEY: "ambient",
           ...extraEnvironment,
         },
       },
@@ -189,6 +217,19 @@ sys.exit(child.wait())
       expect(refused.status).not.toBe(0);
       expect(refused.calls).toEqual([""]);
     }
+    for (const contents of [
+      null,
+      "TF_STATE_ACCESS_KEY_ID=fixture-access\n",
+      "TF_STATE_ACCESS_KEY_ID=fixture-access\nTF_STATE_SECRET_ACCESS_KEY=\n",
+    ]) {
+      if (contents === null) await rm(appEnvironment);
+      else await writeFile(appEnvironment, contents);
+      const missing = await run(["update"], true);
+      expect(missing.status).not.toBe(0);
+      expect(missing.output).toContain(".secrets/prod/app.env");
+      expect(missing.calls).toEqual([""]);
+    }
+    await writeFile(appEnvironment, stateKey);
     const mutation = await run(["update"], false);
     expect(mutation.status).not.toBe(0);
     expect(mutation.output).toContain("requires an interactive terminal");
@@ -249,6 +290,82 @@ sys.exit(child.wait())
       expect(unsafe.calls.some((call) => call.startsWith("plan"))).toBe(false);
       await rm(sourcePath);
     }
+  } finally {
+    await rm(directory, { recursive: true });
+  }
+}, 60_000);
+
+// Command fixtures: an injected Terraform records its arguments and checks the
+// environment, so init and upgrade never reach the real backend here.
+test("init and upgrade entrypoints give Terraform only the R2 state key", async () => {
+  const directory = await mkdtemp(resolve(tmpdir(), "a2f0-terraform-init-"));
+  const folder = resolve(directory, "terraform");
+  const binaries = resolve(directory, "bin");
+  const log = resolve(directory, "calls");
+  await mkdir(folder);
+  await mkdir(binaries);
+  for (const script of ["init.sh", "upgrade.sh", "credentials.sh"])
+    await copyFile(
+      new URL(`../terraform/${script}`, import.meta.url),
+      resolve(folder, script),
+    );
+  const terraform = resolve(binaries, "terraform");
+  await writeFile(
+    terraform,
+    `#!/bin/sh
+set -eu
+[ -f credentials.sh ] || exit 9
+[ "$AWS_ACCESS_KEY_ID" = fixture-access ] || exit 9
+[ "$AWS_SECRET_ACCESS_KEY" = fixture-secret ] || exit 9
+[ -z "\${AWS_PROFILE+set}\${AWS_SESSION_TOKEN+set}\${TF_STATE_ACCESS_KEY_ID+set}" ] || exit 9
+printf '%s\\n' "$*" >> "$CALLS"
+`,
+  );
+  await chmod(terraform, 0o755);
+  async function run(script: string, ...args: string[]) {
+    await writeFile(log, "");
+    const child = spawn(["sh", resolve(folder, script), ...args], {
+      cwd: directory,
+      stdout: "pipe",
+      stderr: "pipe",
+      env: {
+        ...process.env,
+        PATH: `${binaries}:${process.env.PATH}`,
+        CALLS: log,
+        AWS_PROFILE: "ambient",
+        AWS_SESSION_TOKEN: "ambient",
+        TF_STATE_ACCESS_KEY_ID: "ambient",
+      },
+    });
+    const [stdout, stderr, status] = await Promise.all([
+      new Response(child.stdout).text(),
+      new Response(child.stderr).text(),
+      child.exited,
+    ]);
+    return {
+      status,
+      output: stdout + stderr,
+      calls: (await readFile(log, "utf8")).trim().split("\n"),
+    };
+  }
+  try {
+    for (const script of ["init.sh", "upgrade.sh"]) {
+      const missing = await run(script);
+      expect(missing.status).not.toBe(0);
+      expect(missing.output).toContain(".secrets/prod/app.env");
+      expect(missing.calls).toEqual([""]);
+    }
+    await mkdir(resolve(directory, ".secrets/prod"), { recursive: true });
+    await writeFile(
+      resolve(directory, ".secrets/prod/app.env"),
+      "TF_STATE_ACCESS_KEY_ID=fixture-access\nTF_STATE_SECRET_ACCESS_KEY=fixture-secret\n",
+    );
+    const init = await run("init.sh", "-reconfigure");
+    expect(init.status).toBe(0);
+    expect(init.calls).toEqual(["init -reconfigure"]);
+    const upgrade = await run("upgrade.sh");
+    expect(upgrade.status).toBe(0);
+    expect(upgrade.calls).toEqual(["init -upgrade"]);
   } finally {
     await rm(directory, { recursive: true });
   }

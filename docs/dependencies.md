@@ -19,8 +19,8 @@ Keep versions exact and Actions pinned by commit SHA with version comments.
 Bun settings live in `bunfig.toml`, and dependency build permissions live in
 `package.json`. Dependabot is disabled; upgrades go through this workflow.
 Update `terraform/.terraform-version` and the CI version together. Provider or
-module changes require the authentic S3 backend and a complete non-destructive
-saved plan through `terraform/apply.sh --dry-run`. Local validation and fixture
+module changes require the authentic R2 state backend and a complete
+non-destructive saved plan through `terraform/apply.sh --dry-run`. Local validation and fixture
 plans are never production-plan evidence. Do not apply infrastructure or deploy
 to validate an upgrade.
 
@@ -137,17 +137,32 @@ requires. A bundle preview alone does not prove live identity or route safety.
 
 ## Terraform preview
 
-Initialize the documented existing S3 backend (`resume-terraform`,
-`resume/terraform.tfstate`, `us-east-1`) with authentic AWS credentials and the
-existing default workspace. Keep decrypted SOPS variables private. Local
-`init -backend=false`/validation never substitute for the actual backend plan.
+State lives in the Cloudflare R2 bucket `a2f0-net-terraform-state` at key
+`terraform.tfstate`, through the S3 backend in `terraform/main.tf` with R2's
+endpoint, path-style addressing, and lockfile locking. Initialize it with
+`terraform/init.sh` and use the existing default workspace. Keep decrypted SOPS
+variables private. Local `init -backend=false`/validation never substitute for
+the actual backend plan.
 
-Run `terraform/apply.sh --dry-run`. The entrypoint verifies the initialized
-backend and pinned Terraform CLI, rejects provisioners/external data programs,
-rejects inherited `TF_CLI_ARGS`, `TF_DATA_DIR`, `TF_WORKSPACE`, and AWS S3 endpoint
-overrides. The selected AWS profile's custom endpoints are ignored. It requires
-provider refresh in its saved plan and reads populated remote state with the
-six existing custom-domain resources. It matches their
+The bucket's key, `TF_STATE_ACCESS_KEY_ID` and `TF_STATE_SECRET_ACCESS_KEY`, is
+in `.secrets/prod/app.env`. `.secrets` is the gitignored link to
+`../matrix-secrets/a2f0.net`, managed and backed up from the
+[matrix repository](https://github.com/a2f0/matrix/blob/main/docs/secrets.md).
+`terraform/init.sh`, `upgrade.sh`, and `apply.sh` read `shared.env`, when
+present, and then `app.env` in a subshell. They give Terraform only those two
+values, as `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`, unset `AWS_PROFILE`
+and `AWS_SESSION_TOKEN`, and stop when either value is missing. No AWS account
+credentials are involved, and no provider in the stack uses AWS. A provider that
+did would receive the R2 key, so adding one requires separating the backend
+credentials first.
+
+Run `terraform/apply.sh --dry-run`. The entrypoint verifies that the
+initialized backend is that bucket and key on the R2 endpoint alone, and that
+the Terraform CLI is the pinned version. It rejects provisioners/external data
+programs, and inherited `TF_CLI_ARGS`, `TF_DATA_DIR`, `TF_WORKSPACE`, and AWS S3
+endpoint overrides. Endpoints in shared AWS configuration are ignored. It
+requires provider refresh in its saved plan and reads populated remote state
+with the six existing custom-domain resources. It matches their
 hostnames and services to explicit existing production identities and their
 account IDs to the private account variable. A domain migration
 requires a separate guard review. The entrypoint then creates and inspects a

@@ -15,10 +15,14 @@ if env | grep -Eq '^(TF_CLI_ARGS(=|_)|TF_DATA_DIR=|TF_WORKSPACE=|AWS_ENDPOINT_UR
   echo 'Unset Terraform CLI, workspace and AWS endpoint overrides before the guarded plan' >&2
   exit 1
 fi
-# The AWS SDK must also ignore endpoint URLs in the selected credentials profile.
+# The AWS SDK must also ignore endpoint URLs in shared AWS configuration.
 export AWS_IGNORE_CONFIGURED_ENDPOINT_URLS=true
+# Only the R2 state key from .secrets authenticates the backend.
+# shellcheck source=terraform/credentials.sh
+. ./credentials.sh
+load_state_credentials
 
-# Use the existing real S3 backend and default workspace, never a local or
+# Use the existing R2 state backend and default workspace, never a local or
 # replacement backend. Missing credentials or state stop before any apply.
 bun ../scripts/terraformPlan.ts backend .terraform/terraform.tfstate
 [ "$(terraform workspace show)" = default ] || {

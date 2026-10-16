@@ -27,9 +27,9 @@ install newer managed skill copies alongside an unresolved older pin.
    checks; never describe fixtures as real deployment evidence.
 5. Trace every local and CI mutation entrypoint. Deployment requires existing
    account/Worker/domain/binding identities and a meaningful dry run with fresh
-   evidence immediately before mutation. Terraform requires the real S3 backend
-   and a complete saved plan through `terraform/apply.sh --dry-run`. Never delete,
-   replace or recreate infrastructure to make an upgrade pass.
+   evidence immediately before mutation. Terraform requires the real R2 state
+   backend and a complete saved plan through `terraform/apply.sh --dry-run`.
+   Never delete, replace or recreate infrastructure to make an upgrade pass.
 6. Follow `ship-pr` only after all required validation and safety gates pass,
    including a signed commit and independent review of its exact HEAD. Keep a
    ledger in the upgrade PR for each dependency decision, check, preview and

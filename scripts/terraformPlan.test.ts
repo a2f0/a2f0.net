@@ -48,21 +48,56 @@ test("rejects unsupported, incomplete, errored, deferred and failed-check eviden
   }
 });
 
-test("requires the initialized real S3 backend rather than local or substituted state", () => {
+test("requires the initialized R2 state backend rather than local or substituted state", () => {
+  const r2 =
+    "https://0be508e6c4caa573595c5f94e11900e4.r2.cloudflarestorage.com";
+  // The shape Terraform writes to .terraform/terraform.tfstate after init.
   const backend = {
     type: "s3",
     config: {
-      bucket: "resume-terraform",
-      key: "resume/terraform.tfstate",
-      region: "us-east-1",
+      bucket: "a2f0-net-terraform-state",
+      key: "terraform.tfstate",
+      region: "auto",
+      endpoint: null,
+      endpoints: { dynamodb: null, iam: null, s3: r2, sso: null, sts: null },
+      insecure: null,
+      use_lockfile: true,
+      use_path_style: true,
     },
   };
   expect(() => checkTerraformBackend({ backend })).not.toThrow();
+  const { endpoints } = backend.config;
   for (const change of [
     { type: "local" },
     { config: { ...backend.config, bucket: "empty-test" } },
     { config: { ...backend.config, key: "other.tfstate" } },
+    { config: { ...backend.config, region: "us-east-1" } },
+    { config: { ...backend.config, endpoints: null } },
     { config: { ...backend.config, endpoints: {} } },
+    {
+      config: {
+        ...backend.config,
+        endpoints: { ...endpoints, s3: "https://example.invalid" },
+      },
+    },
+    {
+      config: {
+        ...backend.config,
+        endpoints: { ...endpoints, sts: "https://example.invalid" },
+      },
+    },
+    { config: { ...backend.config, endpoint: "https://example.invalid" } },
+    { config: { ...backend.config, sts_endpoint: "https://example.invalid" } },
+    { config: { ...backend.config, use_lockfile: null } },
+    { config: { ...backend.config, use_path_style: false } },
+    { config: { ...backend.config, insecure: true } },
+    {
+      config: {
+        bucket: "resume-terraform",
+        key: "resume/terraform.tfstate",
+        region: "us-east-1",
+      },
+    },
   ])
     expect(() =>
       checkTerraformBackend({ backend: { ...backend, ...change } }),

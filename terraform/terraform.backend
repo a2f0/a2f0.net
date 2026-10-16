@@ -1,3 +1,0 @@
-bucket = "resume-terraform"
-key    = "resume/terraform.tfstate"
-region = "us-east-1"
