@@ -55,7 +55,7 @@
       "dependencies": {
         "@a2f0/dnbm": "0.4.0",
         "@a2f0/shared": "workspace:*",
-        "@a2f0/skyline": "0.2.23",
+        "@a2f0/skyline": "0.2.24",
         "@a2f0/website": "workspace:*",
         "@phosphor-icons/react": "2.1.10",
         "@tearleads/windowing": "0.2.16",
@@ -188,7 +188,7 @@
 
     "@a2f0/shared": ["@a2f0/shared@workspace:packages/shared"],
 
-    "@a2f0/skyline": ["@a2f0/skyline@0.2.23", "", { "dependencies": { "@types/three": "0.186.0" }, "peerDependencies": { "three": "~0.186.0" }, "optionalPeers": ["three"] }, "sha512-0Zg8xPSpe/Kx+5q0cMb0gsEb4o0Fk3lbLDk/hXGCuConnTJn2Nnjvlh0pf8EmqerMdQIP+EkSjL2hnWtrSGLUQ=="],
+    "@a2f0/skyline": ["@a2f0/skyline@0.2.24", "", { "dependencies": { "@types/three": "0.186.0" }, "peerDependencies": { "three": "~0.186.0" }, "optionalPeers": ["three"] }, "sha512-O/MunM7TsCyxHLqdOZ03Bni33+aA4g34CPIEfgqTqtTW/kBQanNkk5RZZtDpQPDlRRkXatYjNoke5jF3oIcAxA=="],
 
     "@a2f0/website": ["@a2f0/website@workspace:packages/website"],
 

@@ -1697,12 +1697,18 @@ describe("Experiment desktop", () => {
         if (!art) throw new Error("Missing the artwork");
         const skyline = document.querySelector(".skyline-window [role=region]");
         if (!skyline) throw new Error("Missing the skyline");
+        const controls = skyline.shadowRoot?.querySelector(".control-bar");
+        if (!controls) throw new Error("Missing the skyline controls");
         return {
           sequencer: frameStyle(".dnbm-window"),
           player: frameStyle(".dnbm-player-window"),
           artwork: getComputedStyle(art).filter,
           skylineBackdrop: getComputedStyle(skyline).backgroundColor,
           skylineScheme: getComputedStyle(skyline).colorScheme,
+          skylineControls: {
+            background: getComputedStyle(controls).backgroundColor,
+            scheme: getComputedStyle(controls).colorScheme,
+          },
           skylineColour: document
             .querySelector(".skyline-window [role=region]")
             ?.shadowRoot?.querySelector("#colour")
@@ -1723,6 +1729,7 @@ describe("Experiment desktop", () => {
       skylineColour: "true",
       skylineBackdrop: "rgb(245, 245, 245)",
       skylineScheme: "light",
+      skylineControls: { background: "rgb(245, 245, 245)", scheme: "light" },
     });
     expect(await backgroundOf("section.window:has(.resume-window)")).toBe(
       "rgb(231, 231, 231)",
@@ -1757,6 +1764,7 @@ describe("Experiment desktop", () => {
       skylineColour: "false",
       skylineBackdrop: "rgb(0, 0, 0)",
       skylineScheme: "dark",
+      skylineControls: { background: "rgb(8, 8, 8)", scheme: "dark" },
     });
     await expect(player()).toHaveAttribute("data-state", "playing");
     await expect(dnbmAction("Undo")).toBeEnabled();
@@ -1775,6 +1783,7 @@ describe("Experiment desktop", () => {
       skylineColour: "true",
       skylineBackdrop: "rgb(245, 245, 245)",
       skylineScheme: "light",
+      skylineControls: { background: "rgb(245, 245, 245)", scheme: "light" },
     });
     expect(await resumeTextFills()).toContain("#000000");
   });
