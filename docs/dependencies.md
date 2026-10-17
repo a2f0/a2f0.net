@@ -37,7 +37,14 @@ gate. See [AGENTS.md](../AGENTS.md) for title, review, and shipping policy.
 
 - React, React DOM, types and the Next.js/third-parties pair move together with
   the actual export, browser and peer checks. Node types follow the runtime in
-  [`.nvmrc`](../.nvmrc); transitive owners may declare other type versions.
+  [`.nvmrc`](../.nvmrc). The published
+  [Bun types](https://www.npmjs.com/package/@types/bun/v/1.4.3) and
+  [Happy DOM](https://www.npmjs.com/package/@happy-dom/global-registrator/v/21.0.3)
+  request newer Node declarations, while WebdriverIO requests Node 22 types.
+  The root `@types/node` override keeps all ambient Node declarations on the
+  supported Node 24 runtime line. Verify full compilation and runtime tests when
+  changing it; remove the override when owners resolve that line naturally or
+  the repository deliberately changes its supported runtime.
 - Keep `@tearleads/windowing` exact and consume only published releases. Its
   local producer candidate cannot authorize a consumer bump.
 - Keep `@tearleads/client-sdk` exact and verify its published tarball before
@@ -75,17 +82,31 @@ regression is `scripts/markdownlintCompatibility.test.ts`. Remove the patch only
 when an upstream owning Markdownlint release passes that regression unpatched.
 Remove the parser override when its owner naturally resolves a fixed parser and
 that same regression passes; confirm the resulting graph with a fresh audit.
-Keep `serialize-javascript` exact until the owning package supports the fixed
-version naturally and the relevant rendering/escaping tests pass.
+Mocha's own compatible range now resolves the fixed `serialize-javascript`
+7.1.2, so it needs no override. Recheck that resolution when changing Mocha.
 
-The existing `basic-ftp` override still needs its owning Puppeteer/extract-zip
-integration checked before a major-version replacement. A retained pin is not
-an advisory remediation. Report advisory exposure, fixed-version availability
-and actual final graph coverage separately; never silently suppress a warning or
-claim an unverified fixed release. Run `bun audit` on the installed candidate
-when the registry is available and put its dated report in the upgrade PR.
+WebdriverIO 10 uses Puppeteer browser downloads without the former `basic-ftp`
+and `extract-zip` dependency path. Puppeteer's downloader uses the system `unzip`
+on macOS/Linux; its optional `yauzl` peer is only a fallback. Verify a fresh
+`WEBDRIVER_CACHE_DIR` when changing this owner group and ensure `unzip` exists
+on development machines and CI. Follow the
+[WebdriverIO migration guide](https://webdriver.io/docs/v10-migration) for
+strict selectors and explicit browsing contexts. Run `bun audit` on the installed
+candidate when the registry is available and put its dated report in the upgrade PR.
 [PR #1188](https://github.com/a2f0/a2f0.net/pull/1188) records the prior audit and
 held owner groups; it does not establish today's exposure or available fixes.
+
+The remaining advisory constraints need their owning packages updated:
+
+- `markdownlint-cli2` still owns Markdownlint 0.41.1 and
+  `micromark-extension-math` with KaTeX 0.16. KaTeX's
+  [prototype-pollution gadget fix](https://github.com/advisories/GHSA-238p-pmpm-9mq7)
+  starts at 0.18.2. Revisit when that owner accepts the fixed release; verify
+  the real Markdownlint CLI and its TOML regression before removing its patch.
+- `micromatch` still owns `braces` 3.0.3. The
+  [nested-pattern stack exhaustion advisory](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
+  has no published fixed version. Recheck its owning release and advisory,
+  then run the lint, architecture and browser discovery checks.
 
 ## Worker preview
 
@@ -98,6 +119,13 @@ Read permissions must cover the existing account's Worker settings,
 deployments, domains, subdomain settings and schedules; publishing additionally
 requires Workers Scripts Edit. Denied or incomplete reads stop before
 publishing. Never broaden tokens as a workaround.
+
+For local previews, an audited wrapper can pass an existing Wrangler credential
+to the guard through its child process environment. Capture the official
+`wrangler auth token --json` result only in memory, with `WRANGLER_WRITE_LOGS=false`
+and `WRANGLER_SEND_METRICS=false`; never print or save that result. Verify the
+account against the existing Terraform identity and run every unchanged guard.
+An unset shell environment alone does not establish that these checks are blocked.
 
 For a reviewed compatibility-date bump, change the four Wrangler configs and
 `WORKER_COMPATIBILITY.current` together, and set `previous` to the verified live
