@@ -9,8 +9,8 @@ import {
 } from "./deploySnapshot";
 
 test("declared runtime/tool versions must match the actual deployment path", () => {
-  const pins = { bun: "bun@1.4.3", node: "=24.22.0", wrangler: "4.132.0" };
-  const actual = { bun: "1.4.3", node: "24.22.0", wrangler: "4.132.0" };
+  const pins = { bun: "bun@1.4.3", node: "=24.22.0", wrangler: "4.151.1" };
+  const actual = { bun: "1.4.3", node: "24.22.0", wrangler: "4.151.1" };
   expect(() => checkToolVersions(pins, actual)).not.toThrow();
   for (const change of [
     { bun: "1.3.11" },

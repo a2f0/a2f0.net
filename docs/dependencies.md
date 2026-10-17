@@ -107,14 +107,6 @@ The remaining advisory constraints need their owning packages updated:
   [nested-pattern stack exhaustion advisory](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
   has no published fixed version. Recheck its owning release and advisory,
   then run the lint, architecture and browser discovery checks.
-- Wrangler's pinned Miniflare owns Sharp 0.35.4 and Undici 7.29.0. Their
-  [Sharp](https://github.com/advisories/GHSA-wq5f-xc86-pv6w) and
-  [Undici](https://github.com/advisories/GHSA-w293-vg96-wgc3) fixes require
-  the owning Wrangler/Miniflare group to move. Keep it held until scoped
-  Cloudflare credentials permit all five authenticated deployment previews;
-  a local bundle and the Terraform token do not verify deployment permissions.
-  Cheerio's separate Undici 7.30.1 resolution is outside the affected range;
-  it does not remediate Miniflare's exact 7.29.0 pin.
 
 ## Worker preview
 
@@ -127,6 +119,13 @@ Read permissions must cover the existing account's Worker settings,
 deployments, domains, subdomain settings and schedules; publishing additionally
 requires Workers Scripts Edit. Denied or incomplete reads stop before
 publishing. Never broaden tokens as a workaround.
+
+For local previews, an audited wrapper can pass an existing Wrangler credential
+to the guard through its child process environment. Capture the official
+`wrangler auth token --json` result only in memory, with `WRANGLER_WRITE_LOGS=false`
+and `WRANGLER_SEND_METRICS=false`; never print or save that result. Verify the
+account against the existing Terraform identity and run every unchanged guard.
+An unset shell environment alone does not establish that these checks are blocked.
 
 For a reviewed compatibility-date bump, change the four Wrangler configs and
 `WORKER_COMPATIBILITY.current` together, and set `previous` to the verified live

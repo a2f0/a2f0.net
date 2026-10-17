@@ -42,6 +42,6 @@
     "@wdio/spec-reporter": "10.0.1",
     "start-server-and-test": "3.0.13",
     "typescript": "7.0.2",
-    "wrangler": "4.132.0"
+    "wrangler": "4.151.1"
   }
 }
