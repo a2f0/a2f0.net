@@ -78,14 +78,32 @@ that same regression passes; confirm the resulting graph with a fresh audit.
 Keep `serialize-javascript` exact until the owning package supports the fixed
 version naturally and the relevant rendering/escaping tests pass.
 
-The existing `basic-ftp` override still needs its owning Puppeteer/extract-zip
-integration checked before a major-version replacement. A retained pin is not
-an advisory remediation. Report advisory exposure, fixed-version availability
-and actual final graph coverage separately; never silently suppress a warning or
-claim an unverified fixed release. Run `bun audit` on the installed candidate
-when the registry is available and put its dated report in the upgrade PR.
+WebdriverIO 10 uses Puppeteer browser downloads without the former `basic-ftp`
+and `extract-zip` dependency path; keep its browser suite on that owning line
+instead of restoring the obsolete FTP override. Follow the
+[WebdriverIO migration guide](https://webdriver.io/docs/v10-migration) for
+strict selectors and explicit browsing contexts. Run `bun audit` on the installed
+candidate when the registry is available and put its dated report in the upgrade PR.
 [PR #1188](https://github.com/a2f0/a2f0.net/pull/1188) records the prior audit and
 held owner groups; it does not establish today's exposure or available fixes.
+
+The remaining advisory constraints need their owning packages updated:
+
+- `markdownlint-cli2` still owns Markdownlint 0.41.1 and
+  `micromark-extension-math` with KaTeX 0.16. KaTeX's
+  [prototype-pollution gadget fix](https://github.com/advisories/GHSA-238p-pmpm-9mq7)
+  starts at 0.18.2. Revisit when that owner accepts the fixed release; verify
+  the real Markdownlint CLI and its TOML regression before removing its patch.
+- `micromatch` still owns `braces` 3.0.3. The
+  [nested-pattern stack exhaustion advisory](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
+  has no published fixed version. Recheck its owning release and advisory,
+  then run the lint, architecture and browser discovery checks.
+- Wrangler's pinned Miniflare owns Sharp 0.35.4 and Undici 7.29.0. Their
+  [Sharp](https://github.com/advisories/GHSA-wq5f-xc86-pv6w) and
+  [Undici](https://github.com/nodejs/undici/security/advisories) fixes require
+  the owning Wrangler/Miniflare group to move. Keep it held until scoped
+  Cloudflare credentials permit all five authenticated deployment previews;
+  a local bundle and the Terraform token do not verify deployment permissions.
 
 ## Worker preview
 
