@@ -71,5 +71,6 @@ tempDownload
 chrome
 chromedriver
 
-# wdio videos
+# Videos the retired wdio video reporter left in older clones; keep ignoring
+# them until they are deleted.
 _results_

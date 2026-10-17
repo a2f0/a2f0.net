@@ -1,4 +1,3 @@
-import video from "wdio-video-reporter";
 import { chromeCapabilities, config as sharedConfig } from "./wdio.shared.conf";
 
 const headlessChromeCapabilities = {
@@ -14,20 +13,11 @@ const headlessChromeCapabilities = {
   },
 };
 
+// Keep the shared spec reporter alone. A reporter that takes screenshots
+// without waiting for them, as wdio-video-reporter does after clicks and at
+// the end of each test, undoes viewport changes: when Chrome finishes a
+// screenshot it restores the viewport it had when the screenshot began.
 export const config: WebdriverIO.Config = {
   ...sharedConfig,
-  ...{
-    capabilities: [headlessChromeCapabilities],
-  },
-  reporters: [
-    "spec",
-    [
-      video,
-      {
-        saveAllVideos: true,
-        videoSlowdownMultiplier: 3,
-        outputDir: "_results_",
-      },
-    ],
-  ],
+  capabilities: [headlessChromeCapabilities],
 };

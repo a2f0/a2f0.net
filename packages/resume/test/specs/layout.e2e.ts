@@ -10,17 +10,13 @@ const SCALES = [
   { scale: 1, label: "Real Size" },
 ];
 
-// Resize only once the page has loaded, as the other specs do. Chrome on the
-// Linux CI runner can revert a viewport change made just after a click, so
-// set it again until the page has kept the new width for a moment.
+// Resize only once the page has loaded, as the other specs do, then wait for
+// the page to report the new width.
 const setWidth = async (width: number, height = 900) => {
   const innerWidth = () => browser.execute(() => window.innerWidth);
+  await browser.setViewport({ width, height });
   try {
-    await browser.waitUntil(async () => {
-      await browser.setViewport({ width, height });
-      await browser.pause(500);
-      return (await innerWidth()) === width;
-    });
+    await browser.waitUntil(async () => (await innerWidth()) === width);
   } catch {
     throw new Error(
       `expected a ${width}px viewport, got ${await innerWidth()}px`,
