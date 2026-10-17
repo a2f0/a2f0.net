@@ -1,6 +1,13 @@
+locals {
+  # The service-account key in .secrets, the gitignored link to this project's
+  # matrix-secrets folder. apply.sh refuses to plan without it; the fallback
+  # only lets validation run where .secrets is absent.
+  google_credentials_file = "${path.module}/../.secrets/prod/google-credentials.json"
+}
+
 provider "googleworkspace" {
   customer_id             = var.gsuite_customer_id
-  credentials             = fileexists("${path.module}/google-credentials.json") ? file("${path.module}/google-credentials.json") : null
+  credentials             = fileexists(local.google_credentials_file) ? file(local.google_credentials_file) : null
   impersonated_user_email = var.gsuite_impersonated_user_email
   oauth_scopes = [
     "https://www.googleapis.com/auth/admin.directory.group",

@@ -140,9 +140,8 @@ requires. A bundle preview alone does not prove live identity or route safety.
 State lives in the Cloudflare R2 bucket `a2f0-net-terraform-state` at key
 `terraform.tfstate`, through the S3 backend in `terraform/main.tf` with R2's
 endpoint, path-style addressing, and lockfile locking. Initialize it with
-`terraform/init.sh` and use the existing default workspace. Keep decrypted SOPS
-variables private. Local `init -backend=false`/validation never substitute for
-the actual backend plan.
+`terraform/init.sh` and use the existing default workspace. Local
+`init -backend=false`/validation never substitute for the actual backend plan.
 
 The bucket's key, `TF_STATE_ACCESS_KEY_ID` and `TF_STATE_SECRET_ACCESS_KEY`, is
 in `.secrets/prod/app.env`. `.secrets` is the gitignored link to
@@ -155,6 +154,14 @@ and `AWS_SESSION_TOKEN`, and stop when either value is missing. No AWS account
 credentials are involved, and no provider in the stack uses AWS. A provider that
 did would receive the R2 key, so adding one requires separating the backend
 credentials first.
+
+Terraform's inputs live in the same tier and stay private there:
+`apply.sh` passes `.secrets/prod/main.tfvars.json` as its variables file, and
+`gsuite.tf` reads the Google Workspace key from
+`.secrets/prod/google-credentials.json`. The entrypoint stops before running
+Terraform when either is missing. The provider leaves its credentials unset
+without that file only so that `init -backend=false` validation runs without
+`.secrets`.
 
 Run `terraform/apply.sh --dry-run`. The entrypoint verifies that the
 initialized backend is that bucket and key on the R2 endpoint alone, and that

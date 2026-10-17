@@ -99,7 +99,9 @@ Terraform state lives in the Cloudflare R2 bucket `a2f0-net-terraform-state`;
 no AWS credentials are needed. `terraform/init.sh`, `upgrade.sh`, and
 `apply.sh` read its key, `TF_STATE_ACCESS_KEY_ID` and
 `TF_STATE_SECRET_ACCESS_KEY`, from `.secrets/prod/app.env` and give it to
-Terraform alone. `.secrets` is a gitignored link to `../matrix-secrets/a2f0.net`,
+Terraform alone. `apply.sh` also requires `.secrets/prod/main.tfvars.json`, its
+variables file, and `.secrets/prod/google-credentials.json`, which `gsuite.tf`
+reads. `.secrets` is a gitignored link to `../matrix-secrets/a2f0.net`,
 managed and backed up from a2f0/matrix (see its `docs/secrets.md`). Never commit
 it, print its values, or edit its files. Preview with
 `terraform/apply.sh --dry-run`; see

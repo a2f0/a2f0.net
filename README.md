@@ -168,7 +168,8 @@ Cloudflare credentials removed.
 The Terraform provider uses `cloudflare_api_token`, which also needs Workers
 custom-domain access, Zone Read, DNS Edit, and Zone Settings Edit for `a2f0.net`.
 Creating the zone requires additional zone-creation permission; the stack looks
-up a zone created beforehand. Both tokens are stored with SOPS.
+up a zone created beforehand. Both tokens live in `.secrets/prod/main.tfvars.json`;
+see [Setup](#setup).
 
 Public `workers.dev` and preview URLs are disabled. Each Worker is served
 through its existing Terraform-owned custom domain. Select the explicit target
@@ -187,23 +188,21 @@ nameservers.
 ### Setup
 
 1. Install Terraform using the version in `terraform/.terraform-version`.
-2. Install [SOPS](https://github.com/getsops/sops) and GnuPG.
-3. Run `terraform/decrypt.sh` with the GPG key listed in `.sops.yaml`.
-4. Link the gitignored `.secrets` to `../matrix-secrets/a2f0.net`, which the
+2. Link the gitignored `.secrets` to `../matrix-secrets/a2f0.net`, which the
    [matrix repository](https://github.com/a2f0/matrix/blob/main/docs/secrets.md)
    manages and backs up. The Terraform scripts read the R2 state key from
    `.secrets/prod/app.env`; no AWS credentials are needed. Provide a GitHub
    token through `GITHUB_TOKEN` or the sensitive `github_token` variable.
-5. Check `terraform/main.tfvars.json`: it includes `cloudflare_account_id` and
+3. The same folder holds Terraform's inputs. `terraform/apply.sh` passes
+   `.secrets/prod/main.tfvars.json`, which includes `cloudflare_account_id` and
    `cloudflare_api_token` plus the separate `cloudflare_deploy_api_token`.
-   The Google Workspace service-account credentials
-   are encrypted separately as `terraform/google-credentials.sops.json`.
+   `terraform/gsuite.tf` reads the Google Workspace service-account key from
+   `.secrets/prod/google-credentials.json`. The entrypoint stops before
+   planning when either file is missing.
 
-To change encrypted variables, run `sops edit terraform/main.tfvars.sops.json`,
-then rerun `terraform/decrypt.sh`. Commit only the encrypted `.sops.json` files.
-To add a recipient, add its key to `.sops.yaml` and run `sops updatekeys` on
-each encrypted file. Terraform plan files also contain secrets and are ignored
-by Git.
+Change these values in the matrix-secrets folder and back it up from the matrix
+repository; never commit them here. Terraform plan files also contain secrets
+and are ignored by Git.
 
 ### Validation and Provisioning
 

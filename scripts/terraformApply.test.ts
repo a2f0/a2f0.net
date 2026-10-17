@@ -72,10 +72,16 @@ test("Terraform entrypoint inspects saved plans and refuses unattended apply", a
     ),
   };
   await writeFile(resolve(directory, "state.json"), JSON.stringify(state));
-  await writeFile(
-    resolve(folder, "main.tfvars.json"),
-    JSON.stringify({ cloudflare_account_id: "a".repeat(32) }),
-  );
+  // Terraform's inputs sit in the same tier under the names its tooling reads.
+  const terraformInputs = [
+    [
+      "main.tfvars.json",
+      JSON.stringify({ cloudflare_account_id: "a".repeat(32) }),
+    ],
+    ["google-credentials.json", "{}\n"],
+  ] as const;
+  for (const [name, contents] of terraformInputs)
+    await writeFile(resolve(secrets, name), contents);
   const bun = resolve(binaries, "bun");
   await writeFile(bun, '#!/bin/sh\nshift\nexec "$REAL_BUN" "$GUARD" "$@"\n');
   await chmod(bun, 0o755);
@@ -200,7 +206,10 @@ sys.exit(child.wait())
     expect(preview.calls.some((call) => call.startsWith("apply"))).toBe(false);
     expect(
       preview.calls.some(
-        (call) => call.startsWith("plan ") && call.includes("-refresh=true"),
+        (call) =>
+          call.startsWith("plan ") &&
+          call.includes("-refresh=true") &&
+          call.includes("-var-file=../.secrets/prod/main.tfvars.json"),
       ),
     ).toBe(true);
     const inheritedArguments: Record<string, string>[] = [
@@ -230,6 +239,14 @@ sys.exit(child.wait())
       expect(missing.calls).toEqual([""]);
     }
     await writeFile(appEnvironment, stateKey);
+    for (const [name, contents] of terraformInputs) {
+      await rm(resolve(secrets, name));
+      const missing = await run(["update"], true);
+      expect(missing.status).not.toBe(0);
+      expect(missing.output).toContain(`Missing .secrets/prod/${name}`);
+      expect(missing.calls).toEqual([""]);
+      await writeFile(resolve(secrets, name), contents);
+    }
     const mutation = await run(["update"], false);
     expect(mutation.status).not.toBe(0);
     expect(mutation.output).toContain("requires an interactive terminal");

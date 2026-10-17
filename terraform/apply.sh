@@ -17,10 +17,12 @@ if env | grep -Eq '^(TF_CLI_ARGS(=|_)|TF_DATA_DIR=|TF_WORKSPACE=|AWS_ENDPOINT_UR
 fi
 # The AWS SDK must also ignore endpoint URLs in shared AWS configuration.
 export AWS_IGNORE_CONFIGURED_ENDPOINT_URLS=true
-# Only the R2 state key from .secrets authenticates the backend.
+# Only the R2 state key from .secrets authenticates the backend, and the
+# variables and Google Workspace key come from the same tier.
 # shellcheck source=terraform/credentials.sh
 . ./credentials.sh
 load_state_credentials
+require_terraform_inputs
 
 # Use the existing R2 state backend and default workspace, never a local or
 # replacement backend. Missing credentials or state stop before any apply.
@@ -43,8 +45,8 @@ terraform version -json > "$plan_directory/version.json"
 bun ../scripts/terraformPlan.ts version "$plan_directory/version.json"
 # Read actual remote state; a matching backend file alone is insufficient.
 terraform state pull > "$plan_directory/state-before.json"
-bun ../scripts/terraformPlan.ts state "$plan_directory/state-before.json" main.tfvars.json
-terraform plan -input=false -lock=true -refresh=true -var-file=main.tfvars.json -out="$plan_directory/plan"
+bun ../scripts/terraformPlan.ts state "$plan_directory/state-before.json" "$terraform_variables"
+terraform plan -input=false -lock=true -refresh=true -var-file="$terraform_variables" -out="$plan_directory/plan"
 terraform show -json "$plan_directory/plan" > "$plan_directory/plan.json"
 bun ../scripts/terraformPlan.ts plan "$plan_directory/plan.json"
 
@@ -53,7 +55,7 @@ bun ../scripts/terraformPlan.ts backend .terraform/terraform.tfstate
 terraform version -json > "$plan_directory/version.json"
 bun ../scripts/terraformPlan.ts version "$plan_directory/version.json"
 terraform state pull > "$plan_directory/state-after.json"
-bun ../scripts/terraformPlan.ts state "$plan_directory/state-after.json" main.tfvars.json
+bun ../scripts/terraformPlan.ts state "$plan_directory/state-after.json" "$terraform_variables"
 cmp -s "$plan_directory/state-before.json" "$plan_directory/state-after.json" || {
   echo 'Remote state changed during preview; generate a fresh plan' >&2
   exit 1
@@ -76,7 +78,7 @@ if [ "$preview_only" = false ]; then
   bun ../scripts/terraformPlan.ts backend .terraform/terraform.tfstate
   [ "$(terraform workspace show)" = default ] || exit 1
   terraform state pull > "$plan_directory/state-approved.json"
-  bun ../scripts/terraformPlan.ts state "$plan_directory/state-approved.json" main.tfvars.json
+  bun ../scripts/terraformPlan.ts state "$plan_directory/state-approved.json" "$terraform_variables"
   cmp -s "$plan_directory/state-before.json" "$plan_directory/state-approved.json" || {
     echo 'Remote state changed after approval; generate a fresh plan' >&2
     exit 1

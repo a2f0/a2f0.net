@@ -14,7 +14,9 @@
       "!packages/experiment/public/skyline/**/*",
       "!packages/experiment/public/dnbm/**/*",
       "!packages/drive/public/worker.js",
-      "!terraform/*.json"
+      // The gitignored link to matrix-secrets: Biome follows symlinks, and
+      // this configuration does not read .gitignore.
+      "!.secrets"
     ]
   },
   "formatter": { "enabled": true, "indentStyle": "space" },
