@@ -131,7 +131,7 @@ assets between them. The guard hashes file boundaries and paths, including
 routing files, and rejects symlinks. Temporary configuration and logs are
 removed afterward. Never run direct Wrangler deploy to bypass the guard.
 
-After a production merge, wait for the actual merge commit's successful
+After a merge to `main`, wait for the actual merge commit's successful
 deployment and smoke-test resume, apex, experiment and Drive URLs, as `AGENTS.md`
 requires. A bundle preview alone does not prove live identity or route safety.
 

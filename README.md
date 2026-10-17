@@ -86,7 +86,7 @@ Pass `--force` to skip the cache or `--filter=@resume/site` to run one
 workspace, as in `bun run unit --force`. Agent helper
 tests and compilation run in the standalone agent-tool repository's CI.
 Invoke the repository's [`$ship-pr` skill](.agents/skills/ship-pr/SKILL.md) to validate, independently
-review, and squash-merge the current PR. The production branch rule requires
+review, and squash-merge the current PR. The `main` ruleset requires
 the stable `build` CI check with the branch up to date before merging.
 
 To develop browser tests, run these in separate terminals:
@@ -131,10 +131,10 @@ is served using Cloudflare's
 | Branch | Command | Worker | Domain |
 | --- | --- | --- | --- |
 | `staging` | `bun run deploy:staging` | `resume-staging` | `staging.a2f0.net` |
-| `production` | `bun run deploy:prod` | `resume-prod` | `resume.a2f0.net` |
-| `production` | `bun run deploy:website` | `resume-redirect` | `a2f0.net` |
-| `production` | `bun run --cwd packages/experiment deploy` | `experiment` | `experiment.a2f0.net` |
-| `production` | `bun run --cwd packages/drive deploy` | `drive` | `drive.a2f0.net` |
+| `main` | `bun run deploy:prod` | `resume-prod` | `resume.a2f0.net` |
+| `main` | `bun run deploy:website` | `resume-redirect` | `a2f0.net` |
+| `main` | `bun run --cwd packages/experiment deploy` | `experiment` | `experiment.a2f0.net` |
+| `main` | `bun run --cwd packages/drive deploy` | `drive` | `drive.a2f0.net` |
 
 The experiment uses the published, pinned `@tearleads/windowing` package and
 deploys alongside the resume and website after production validation succeeds.
