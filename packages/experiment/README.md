@@ -71,7 +71,7 @@ skyline viewer's assets into
 `start` serves it through Wrangler on the same port, and `deploy` publishes the
 `experiment` Worker. `unit` runs the desktop and mini-app tests under happy-dom. Terraform
 attaches the `experiment.a2f0.net` domain. CI builds and tests the app, then
-deploys it on validated pushes to `production`.
+deploys it on validated pushes to `main`.
 
 Next.js builds with webpack (`--webpack`) to import the website's HTML as text
 through the `?raw` resource rule. The windowing package supplies its own CSS

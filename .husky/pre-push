@@ -5,8 +5,8 @@ bun run check:architecture
 bun run check:dependencies
 bun run agents:check
 
-# Lint the commits being pushed. Skipped when origin/production is not
+# Lint the commits being pushed. Skipped when origin/main is not
 # available (e.g. shallow CI checkouts).
-if git rev-parse --verify origin/production >/dev/null 2>&1; then
-  bunx --no-install commitlint --from "$(git merge-base HEAD origin/production)" --to HEAD
+if git rev-parse --verify origin/main >/dev/null 2>&1; then
+  bunx --no-install commitlint --from "$(git merge-base HEAD origin/main)" --to HEAD
 fi

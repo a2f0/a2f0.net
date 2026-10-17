@@ -107,7 +107,7 @@ production accounts or require the Tearleads checkout in CI.
 ## Hosting
 
 The Worker is named `drive`. Terraform owns `drive.a2f0.net`; CI builds, tests,
-and deploys the package on validated pushes to `production`. Current Tearleads
+and deploys the package on validated pushes to `main`. Current Tearleads
 APIs allow Drive and future Experiment hosts without a separate CORS change.
 
 Before merging a branch that first enables Drive in production CI, provision

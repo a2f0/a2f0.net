@@ -82,12 +82,12 @@ Then invoke
 because `bun run` drops empty arguments.
 
 Per `agent-tool.json`, the merge helper requires `build` in workflow `CI` on the
-reviewed head and refuses to merge unless the `production` ruleset enforces
+reviewed head and refuses to merge unless the `main` ruleset enforces
 strict status checks that the merging account cannot bypass. Recheck the live
 base, PR base, and head before merging.
 Verify merge ancestry and branch identities before deleting shipped branches.
 
-After merging to `production`, wait for the `CI` deployment for that merge commit
+After merging to `main`, wait for the `CI` deployment for that merge commit
 and smoke-test `resume.a2f0.net`, `a2f0.net`, `experiment.a2f0.net`, and
 `drive.a2f0.net`. If using an
 isolated worktree, clean up that worktree without modifying the user's checkout.
