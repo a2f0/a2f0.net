@@ -202,7 +202,9 @@ nameservers.
 
 Change these values in the matrix-secrets folder and back it up from the matrix
 repository; never commit them here. Terraform plan files also contain secrets
-and are ignored by Git.
+and are ignored by Git. Clones that used the former SOPS decryption may still
+hold plaintext `terraform/main.tfvars.json` and `terraform/google-credentials.json`.
+Nothing reads them now and Git still ignores them; delete them.
 
 ### Validation and Provisioning
 

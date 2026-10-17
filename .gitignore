@@ -61,6 +61,10 @@ override.tf.json
 *_override.tf.json
 .terraformrc
 terraform.rc
+# Plaintext the retired SOPS decryption left in older clones. Terraform now
+# reads these from .secrets/prod; keep ignoring them until they are deleted.
+/terraform/main.tfvars.json
+/terraform/google-credentials.json
 
 tempDownload
 

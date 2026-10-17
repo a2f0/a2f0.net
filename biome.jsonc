@@ -14,9 +14,11 @@
       "!packages/experiment/public/skyline/**/*",
       "!packages/experiment/public/dnbm/**/*",
       "!packages/drive/public/worker.js",
-      // The gitignored link to matrix-secrets: Biome follows symlinks, and
-      // this configuration does not read .gitignore.
-      "!.secrets"
+      // Secret JSON stays out of Biome's diffs, which this configuration does
+      // not filter through .gitignore: the matrix-secrets link, which Biome
+      // follows, and plaintext the retired SOPS decryption left in old clones.
+      "!.secrets",
+      "!terraform/*.json"
     ]
   },
   "formatter": { "enabled": true, "indentStyle": "space" },
