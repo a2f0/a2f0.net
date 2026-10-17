@@ -8,6 +8,7 @@
     "packages/*"
   ],
   "overrides": {
+    "@types/node": "24.19.2",
     "smol-toml": "1.9.1"
   },
   "trustedDependencies": [

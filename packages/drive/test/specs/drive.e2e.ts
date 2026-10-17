@@ -106,9 +106,11 @@ describe("Drive with the published Tearleads SDK", () => {
   it("keeps a second tab from opening a competing identity host", async () => {
     if (!browser.isBidi)
       throw new Error("The tab-lock test requires a WebDriver BiDi session");
-    const tab = (await browser.newWindow(await browser.getUrl(), {
+    const tab = await browser.newWindow(await browser.getUrl(), {
       type: "tab",
-    })) as WebdriverIO.BrowsingContext;
+    });
+    if (!("$" in tab))
+      throw new Error("The BiDi session did not return a browsing context");
     try {
       await expect(tab.$(".drive-error[role='alert']")).toHaveText(
         expect.stringContaining("already open in another tab"),

@@ -40,11 +40,11 @@ gate. See [AGENTS.md](../AGENTS.md) for title, review, and shipping policy.
   [`.nvmrc`](../.nvmrc). The published
   [Bun types](https://www.npmjs.com/package/@types/bun/v/1.4.3) and
   [Happy DOM](https://www.npmjs.com/package/@happy-dom/global-registrator/v/21.0.3)
-  currently bring Node 26 declarations
-  alongside that direct Node 24 pin. `skipLibCheck` does not prove runtime API
-  support: avoid Node 26-only APIs and run checks on the pinned Node 24 runtime.
-  Revisit when those owners let their ambient declarations match Node 24; verify
-  their actual resolution and compile/runtime checks before adding an override.
+  request newer Node declarations, while WebdriverIO requests Node 22 types.
+  The root `@types/node` override keeps all ambient Node declarations on the
+  supported Node 24 runtime line. Verify full compilation and runtime tests when
+  changing it; remove the override when owners resolve that line naturally or
+  the repository deliberately changes its supported runtime.
 - Keep `@tearleads/windowing` exact and consume only published releases. Its
   local producer candidate cannot authorize a consumer bump.
 - Keep `@tearleads/client-sdk` exact and verify its published tarball before
@@ -86,8 +86,10 @@ Mocha's own compatible range now resolves the fixed `serialize-javascript`
 7.1.2, so it needs no override. Recheck that resolution when changing Mocha.
 
 WebdriverIO 10 uses Puppeteer browser downloads without the former `basic-ftp`
-and `extract-zip` dependency path; keep its browser suite on that owning line
-instead of restoring the obsolete FTP override. Follow the
+and `extract-zip` dependency path. Puppeteer's downloader uses the system `unzip`
+on macOS/Linux; its optional `yauzl` peer is only a fallback. Verify a fresh
+`WEBDRIVER_CACHE_DIR` when changing this owner group and ensure `unzip` exists
+on development machines and CI. Follow the
 [WebdriverIO migration guide](https://webdriver.io/docs/v10-migration) for
 strict selectors and explicit browsing contexts. Run `bun audit` on the installed
 candidate when the registry is available and put its dated report in the upgrade PR.

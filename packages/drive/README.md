@@ -1,8 +1,8 @@
 # Drive
 
 A standalone file explorer at `drive.a2f0.net`, and this repository’s first
-consumer of the published `@tearleads/client-sdk`. Version `0.1.50` is pinned
-in the manifest and lockfile. Nothing imports the Tearleads application or a
+consumer of the published `@tearleads/client-sdk`, using the exact version pinned
+in `package.json` and the lockfile. Nothing imports the Tearleads application or a
 neighboring checkout.
 
 Drive creates an encrypted local workspace, or imports an existing Tearleads
