@@ -37,7 +37,14 @@ gate. See [AGENTS.md](../AGENTS.md) for title, review, and shipping policy.
 
 - React, React DOM, types and the Next.js/third-parties pair move together with
   the actual export, browser and peer checks. Node types follow the runtime in
-  [`.nvmrc`](../.nvmrc); transitive owners may declare other type versions.
+  [`.nvmrc`](../.nvmrc). The published
+  [Bun types](https://www.npmjs.com/package/@types/bun/v/1.4.3) and
+  [Happy DOM](https://www.npmjs.com/package/@happy-dom/global-registrator/v/21.0.3)
+  currently bring Node 26 declarations
+  alongside that direct Node 24 pin. `skipLibCheck` does not prove runtime API
+  support: avoid Node 26-only APIs and run checks on the pinned Node 24 runtime.
+  Revisit when those owners let their ambient declarations match Node 24; verify
+  their actual resolution and compile/runtime checks before adding an override.
 - Keep `@tearleads/windowing` exact and consume only published releases. Its
   local producer candidate cannot authorize a consumer bump.
 - Keep `@tearleads/client-sdk` exact and verify its published tarball before
@@ -75,8 +82,8 @@ regression is `scripts/markdownlintCompatibility.test.ts`. Remove the patch only
 when an upstream owning Markdownlint release passes that regression unpatched.
 Remove the parser override when its owner naturally resolves a fixed parser and
 that same regression passes; confirm the resulting graph with a fresh audit.
-Keep `serialize-javascript` exact until the owning package supports the fixed
-version naturally and the relevant rendering/escaping tests pass.
+Mocha's own compatible range now resolves the fixed `serialize-javascript`
+7.1.2, so it needs no override. Recheck that resolution when changing Mocha.
 
 WebdriverIO 10 uses Puppeteer browser downloads without the former `basic-ftp`
 and `extract-zip` dependency path; keep its browser suite on that owning line
@@ -100,10 +107,12 @@ The remaining advisory constraints need their owning packages updated:
   then run the lint, architecture and browser discovery checks.
 - Wrangler's pinned Miniflare owns Sharp 0.35.4 and Undici 7.29.0. Their
   [Sharp](https://github.com/advisories/GHSA-wq5f-xc86-pv6w) and
-  [Undici](https://github.com/nodejs/undici/security/advisories) fixes require
+  [Undici](https://github.com/advisories/GHSA-w293-vg96-wgc3) fixes require
   the owning Wrangler/Miniflare group to move. Keep it held until scoped
   Cloudflare credentials permit all five authenticated deployment previews;
   a local bundle and the Terraform token do not verify deployment permissions.
+  Cheerio's separate Undici 7.30.1 resolution is outside the affected range;
+  it does not remediate Miniflare's exact 7.29.0 pin.
 
 ## Worker preview
 

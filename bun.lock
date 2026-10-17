@@ -169,7 +169,6 @@
     "markdownlint@0.41.1": "patches/markdownlint@0.41.1.patch",
   },
   "overrides": {
-    "serialize-javascript": "7.1.2",
     "smol-toml": "1.9.1",
   },
   "packages": {

@@ -8,7 +8,6 @@
     "packages/*"
   ],
   "overrides": {
-    "serialize-javascript": "7.1.2",
     "smol-toml": "1.9.1"
   },
   "trustedDependencies": [
