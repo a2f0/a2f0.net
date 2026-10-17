@@ -114,23 +114,11 @@ Every owned deployment script and CI deployment runs `scripts/deploy.ts`.
 Use the matching `preview:*` root script or the experiment's `preview` script
 first. The deployment itself repeats the preview and fresh checks.
 
-The guard requires a committed clean tree. Deployments require scoped Cloudflare credentials.
+The guard requires a committed clean tree and scoped Cloudflare credentials.
 Read permissions must cover the existing account's Worker settings,
 deployments, domains, subdomain settings and schedules; publishing additionally
 requires Workers Scripts Edit. Denied or incomplete reads stop before
 publishing. Never broaden tokens as a workaround.
-
-For local read-only previews only, an audited wrapper may use an already
-authorized Wrangler credential. It must invoke the guard with an explicit
-`--dry-run` and allow only audited GET requests and local bundling; it must never
-publish, invoke bootstrap, or fall back to a mutating command. Capture the
-official `wrangler auth token --json` result only in memory, with
-`WRANGLER_WRITE_LOGS=false` and `WRANGLER_SEND_METRICS=false`, then pass it only in
-the preview child's environment. Never print or save that result, request broader
-token permissions, or substitute this preview path for deployment-scoped
-credentials. Verify the account against the existing Terraform identity and run
-every unchanged guard. Missing credentials or denied/incomplete reads still stop
-the preview; an unset shell variable alone does not prove credentials are absent.
 
 For a reviewed compatibility-date bump, change the four Wrangler configs and
 `WORKER_COMPATIBILITY.current` together, and set `previous` to the verified live
