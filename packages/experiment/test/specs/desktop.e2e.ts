@@ -1426,7 +1426,7 @@ describe("Experiment desktop", () => {
 
     // A tile navigates: the resume shows in the column layout, with its menu
     // actions in the toolbar, and Back returns to the artwork.
-    await $(".routed-pane-sheet-tile=Resume").click();
+    await $(".routed-pane-sheet-tile[href='/app/resume']").click();
     await expect($(".routed-pane-sheet")).toHaveAttribute("data-open", "false");
     await browser.waitUntil(
       async () => (await browser.getUrl()).endsWith("/app/resume"),
@@ -1457,13 +1457,15 @@ describe("Experiment desktop", () => {
       ".desktop-taskbar-end button[aria-label='Switch to iPad / mobile layout']",
     ).click();
     await $("button[aria-label='Expand navigation rail']").click();
-    for (const [app, root] of [
-      ["a2f0.net", ".ascii-art-window"],
-      ["dnbm", ".dnbm-window"],
-      ["Skyline", ".skyline-window"],
-      ["dnbm player", ".dnbm-player-window"],
+    for (const [app, title, root] of [
+      ["ascii-art", "a2f0.net", ".ascii-art-window"],
+      ["dnbm", "dnbm", ".dnbm-window"],
+      ["skyline", "Skyline", ".skyline-window"],
+      ["dnbm-player", "dnbm player", ".dnbm-player-window"],
     ]) {
-      await $(`.routed-pane-nav-link=${app}`).click();
+      const link = $(`.routed-pane-nav-link[href='/app/${app}']`);
+      await expect(link).toHaveText(title);
+      await link.click();
       await expect($(`.routed-pane-main ${root}`)).toBeExisting();
       // Inside a window the app reaches past the body's padding; the routed
       // pane has none, so the app fills it exactly and nothing scrolls.
@@ -1593,7 +1595,7 @@ describe("Experiment desktop", () => {
       ".desktop-taskbar-end button[aria-label='Switch to iPad / mobile layout']",
     ).click();
     await $("button[aria-label='Expand navigation rail']").click();
-    await $(".routed-pane-nav-link=Resume").click();
+    await $(".routed-pane-nav-link[href='/app/resume']").click();
     await waitForResume();
     // The light theme carried over, so the toolbar offers the dark one.
     await expect(
@@ -1836,7 +1838,7 @@ describe("Experiment desktop", () => {
 
     // The tablet rail lists every app; a link opens it.
     await $("button[aria-label='Expand navigation rail']").click();
-    await $(".routed-pane-nav-link=Resume").click();
+    await $(".routed-pane-nav-link[href='/app/resume']").click();
     await expect($(".routed-pane-title")).toHaveText("Resume");
     await waitForResume();
 

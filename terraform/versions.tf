@@ -6,12 +6,12 @@ terraform {
     }
     cloudflare = {
       source  = "cloudflare/cloudflare"
-      version = "~> 5.25"
+      version = "~> 5.28"
     }
     github = {
       source  = "integrations/github"
       version = "~> 6.13"
     }
   }
-  required_version = ">= 1.16.2, < 2.0"
+  required_version = ">= 1.16.6, < 2.0"
 }
