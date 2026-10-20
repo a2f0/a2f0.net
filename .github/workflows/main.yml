@@ -22,6 +22,12 @@ jobs:
         with:
           version: 2026.10.13
           install_args: bun node
+      - name: Verify runtime pins before building
+        run: |
+          test "bun@$(bun --version)" = "$(bun -p 'require("./package.json").packageManager')"
+          test "$(bun --version)" = "$(bun -p 'Bun.TOML.parse(await Bun.file(".mise.toml").text()).tools.bun')"
+          test "$(node --version)" = "$(cat .nvmrc)"
+          test "=$(node -p process.versions.node)" = "$(bun -p 'require("./package.json").engines.node')"
       - run: bun ci
       - name: Verify installed agent CLI
         run: |

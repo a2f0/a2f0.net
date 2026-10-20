@@ -12,7 +12,7 @@ open as read-only structured fields. The interface has its own styling.
 
 ## Development
 
-Use the Node version in `.nvmrc` and Bun version in the root manifest:
+Use mise to install Node from the root `.nvmrc` and Bun from `.mise.toml`:
 
 ```sh
 bun ci
