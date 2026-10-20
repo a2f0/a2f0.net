@@ -2,8 +2,8 @@
 
 ## Quick Start
 
-Use the Node version in `.nvmrc` and the Bun version in `package.json`.
-[Install Bun](https://bun.com/docs/installation) before running these commands.
+[mise](https://mise.jdx.dev/) installs Node from `.nvmrc` and Bun from
+`.mise.toml`. CI uses the same configuration.
 The resume app lives in [`packages/resume`](packages/resume), the apex website
 lives in [`packages/website`](packages/website), and PR helpers come from the
 commit-pinned [agent-tool repository](https://github.com/a2f0/agent-tool).
@@ -16,7 +16,7 @@ built on the published Tearleads client SDK, hosted at `drive.a2f0.net`.
 Run the commands below from the repository root.
 
 ```sh
-nvm use
+mise install
 bun ci
 bun run start-server
 ```

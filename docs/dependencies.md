@@ -16,6 +16,9 @@ the lockfile; refresh it through normal manager operations.
 ## Pins and agent tooling
 
 Keep versions exact and Actions pinned by commit SHA with version comments.
+mise reads Node from `.nvmrc` and Bun from `.mise.toml` for local setup and CI.
+Keep `package.json`'s `engines.node` and `packageManager` aligned with those
+pins. Preserve `.nvmrc`: the deployment snapshot guard also reads it.
 Bun settings live in `bunfig.toml`, and dependency build permissions live in
 `package.json`. Dependabot is disabled; upgrades go through this workflow.
 Update `terraform/.terraform-version` and the CI version together. Provider or
