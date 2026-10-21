@@ -24,13 +24,7 @@ const page = await readFile(
 let fetchSpy: Mock<typeof fetch>;
 let errorSpy: Mock<typeof console.error>;
 
-beforeAll(() => {
-  // Reduced motion keeps the terminal window from animating, which
-  // happy-dom does not support.
-  GlobalRegistrator.register({
-    settings: { device: { prefersReducedMotion: "reduce" } },
-  });
-});
+beforeAll(() => GlobalRegistrator.register());
 afterAll(() => GlobalRegistrator.unregister());
 
 beforeEach(() => {
@@ -54,11 +48,11 @@ const render = (): HTMLElement => {
 
 const settled = () => new Promise((resolve) => setTimeout(resolve, 20));
 
-const windowPressed = (container: HTMLElement) =>
-  container.querySelector(".window-toggle")?.getAttribute("aria-pressed");
+const asciiPressed = (container: HTMLElement) =>
+  container.querySelector(".view-toggle")?.getAttribute("aria-pressed");
 
-const pressWindow = (container: HTMLElement) =>
-  container.querySelector<HTMLButtonElement>(".window-toggle")?.click();
+const pressAscii = (container: HTMLElement) =>
+  container.querySelector<HTMLButtonElement>(".view-toggle")?.click();
 
 test("falls back to the SVG when the artwork cannot load", async () => {
   const container = render();
@@ -77,11 +71,11 @@ test("falls back to the SVG when the artwork cannot load", async () => {
 test("ignores its controls once unmounted", async () => {
   const container = render();
   const unmount = mountSite(container);
-  pressWindow(container);
-  expect(windowPressed(container)).toBe("true");
+  pressAscii(container);
+  expect(asciiPressed(container)).toBe("false");
   unmount();
-  pressWindow(container);
-  expect(windowPressed(container)).toBe("true");
+  pressAscii(container);
+  expect(asciiPressed(container)).toBe("false");
   await settled();
 });
 
@@ -89,10 +83,10 @@ test("handles each control once when mounted again", async () => {
   const container = render();
   mountSite(container)();
   const unmount = mountSite(container);
-  pressWindow(container);
-  expect(windowPressed(container)).toBe("true");
-  pressWindow(container);
-  expect(windowPressed(container)).toBe("false");
+  pressAscii(container);
+  expect(asciiPressed(container)).toBe("false");
+  pressAscii(container);
+  expect(asciiPressed(container)).toBe("true");
   unmount();
   await settled();
 });

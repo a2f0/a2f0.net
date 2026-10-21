@@ -1,7 +1,6 @@
 import { $, browser, expect } from "@wdio/globals";
 
 const toggle = () => $(".view-toggle");
-const music = () => $(".music-toggle");
 const play = () => $(".play-toggle");
 const stage = () => $(".stage");
 const graffiti = () => $(".graffiti");
@@ -216,9 +215,7 @@ describe("ASCII graffiti view", () => {
   it("puts square tools in the canvas's top-right corner", async () => {
     await browser.url("/");
     await expect($(".play-toggle")).toBeDisplayed();
-    await expect(music()).toBeDisplayed();
     await expect(toggle()).toBeDisplayed();
-    await expect($(".window-toggle")).toBeDisplayed();
     const layout = await browser.execute(() => {
       const rect = (selector: string) => {
         const element = document.querySelector(selector);
@@ -227,12 +224,7 @@ describe("ASCII graffiti view", () => {
       };
       const canvas = rect(".canvas");
       const stage = rect(".stage");
-      const tools = [
-        ".play-toggle",
-        ".music-toggle",
-        ".view-toggle",
-        ".window-toggle",
-      ].map(rect);
+      const tools = [".play-toggle", ".view-toggle"].map(rect);
       const last = tools[tools.length - 1];
       return {
         canvas: [canvas.width, canvas.height],
@@ -258,14 +250,6 @@ describe("ASCII graffiti view", () => {
       aligned: true,
       squares: true,
     });
-  });
-
-  it("leaves the music player as a placeholder", async () => {
-    await opened();
-    await expect(music()).toHaveAttribute("aria-disabled", "true");
-    await music().click();
-    await expectView("ascii");
-    expect(await browser.getUrl()).not.toContain("#");
   });
 
   it("peeks at the SVG through a lens under the pointer", async () => {

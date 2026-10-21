@@ -58,10 +58,9 @@ several apps.
   shadow root. Its controls (the animation and the ASCII view, with its pressed
   state) sit in the window's toolbar and its View menu.
   Both mirror the site's own toolbar, which stays in the shadow root unseen and
-  keeps the site's behavior. The unavailable music player is omitted from
-  Experiment, as is the terminal control because the artwork already sits in a
-  window. Paper inverts the monochrome stage, including its lens and animations,
-  into an ink-on-white drawing; its window controls use the desktop palette.
+  keeps the site's behavior. Paper inverts the monochrome stage, including its
+  lens and animations, into an ink-on-white drawing; its window controls use
+  the desktop palette.
 - `skyline/` mounts the 3D Chicago skyline from `@a2f0/skyline`, which
   renders the viewer in the page inside a shadow root, from assets the
   `copy-skyline` script copies into `public/skyline/`. Presses inside it reach
