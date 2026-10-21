@@ -2,18 +2,17 @@
 // it renders, or on the SVG if it cannot. A lens that follows the pointer
 // reveals the view underneath, and clicking floods the lens to swap.
 // The play button animates the view on show: a laser etches the SVG in, and
-// falling code writes the ASCII. The square opens a terminal window around it.
+// falling code writes the ASCII.
 
 import { AsciiDisplay } from "./ascii/display";
 import { Etcher } from "./etch/etcher";
 import { Lens, type Point } from "./lens";
 import { Rain } from "./rain/rain";
-import { TerminalWindow } from "./terminal";
 
 /**
- * Wires up the artwork, toolbar, and terminal window inside a container
- * holding index.html's markup. The ASCII is sized to the container's width,
- * and the code rain fills the container.
+ * Wires up the artwork and toolbar inside a container holding index.html's
+ * markup. The ASCII is sized to the container's width, and the code rain
+ * fills the container.
  * Returns a function that removes the listeners, stops the animations and
  * observers, and leaves any work still under way from changing the markup.
  */
@@ -28,13 +27,11 @@ export const mountSite = (container: HTMLElement): (() => void) => {
     return element;
   };
 
-  const canvas = find<HTMLElement>(".canvas");
   const stage = find<HTMLElement>(".stage");
   const graffiti = find<HTMLImageElement>(".graffiti");
   const ascii = find<HTMLPreElement>(".ascii");
   const toggle = find<HTMLButtonElement>(".view-toggle");
   const play = find<HTMLButtonElement>(".play-toggle");
-  const windowToggle = find<HTMLButtonElement>(".window-toggle");
 
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const lens = new Lens(stage, reducedMotion);
@@ -45,11 +42,6 @@ export const mountSite = (container: HTMLElement): (() => void) => {
   );
   const etcher = new Etcher(stage, graffiti);
   const rain = new Rain(container, stage, ascii, display);
-  const terminal = new TerminalWindow(
-    canvas,
-    find<HTMLElement>(".window"),
-    reducedMotion,
-  );
 
   let pointer: Point | undefined;
   let flooding = false;
@@ -193,21 +185,6 @@ export const mountSite = (container: HTMLElement): (() => void) => {
     { signal },
   );
   play.hidden = false;
-
-  // The window zooms out of, and back into, the square drawn on its toggle.
-  windowToggle.addEventListener(
-    "click",
-    () => {
-      const open = windowToggle.getAttribute("aria-pressed") !== "true";
-      windowToggle.setAttribute("aria-pressed", String(open));
-      const square = windowToggle.querySelector("rect") ?? windowToggle;
-      (open ? terminal.open(square) : terminal.close(square)).catch(
-        console.error,
-      );
-    },
-    { signal },
-  );
-  windowToggle.hidden = false;
   // The SVG stays hidden until the first view is settled.
   show(true).finally(() => {
     if (mounted()) stage.dataset.ready = "";
@@ -223,6 +200,5 @@ export const mountSite = (container: HTMLElement): (() => void) => {
     delete play.dataset.playing;
     labelPlay();
     lens.snap(0);
-    terminal.cancel();
   };
 };
