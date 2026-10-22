@@ -64,8 +64,8 @@ jobs:
         run: bun run ci-headless
       - name: Test apex website with Cloudflare Workers
         run: bun run --cwd packages/website test
-      - name: Test experiment with Cloudflare Workers
-        run: bun run --cwd packages/experiment test
+      - name: Test demo with Cloudflare Workers
+        run: bun run --cwd packages/demo test
       - name: Test drive with Cloudflare Workers
         run: bun run --cwd packages/drive test
 
@@ -115,13 +115,13 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: bun ../../scripts/deploy.ts website
-      - name: Deploy experiment
+      - name: Deploy demo
         if: github.ref == 'refs/heads/main'
-        working-directory: packages/experiment
+        working-directory: packages/demo
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: bun ../../scripts/deploy.ts experiment
+        run: bun ../../scripts/deploy.ts demo
       - name: Deploy drive
         if: github.ref == 'refs/heads/main'
         working-directory: packages/drive

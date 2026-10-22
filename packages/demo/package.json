@@ -1,0 +1,29 @@
+{
+  "name": "@a2f0/demo",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "build": "rm -rf dist && cp -R public dist && bun build src/main.ts --outdir dist --entry-naming graffiti.[ext] --target browser --minify --sourcemap=linked",
+    "start": "wrangler dev --port 4002 --local",
+    "compile": "tsc",
+    "unit": "bun test ./src",
+    "test": "start-server-and-test 'bun run start' http://localhost:4002 'bun run test:served'",
+    "test:served": "bun test test/demo.test.ts && wdio run wdio.conf.ts",
+    "deploy": "bun ../../scripts/deploy.ts demo",
+    "preview": "bun ../../scripts/deploy.ts demo --dry-run"
+  },
+  "devDependencies": {
+    "@happy-dom/global-registrator": "21.0.4",
+    "@types/bun": "1.4.3",
+    "@wdio/cli": "10.1.0",
+    "@wdio/globals": "10.1.0",
+    "@wdio/local-runner": "10.1.0",
+    "@wdio/mocha-framework": "10.1.0",
+    "@wdio/spec-reporter": "10.1.0",
+    "axe-core": "4.14.0",
+    "start-server-and-test": "3.0.13",
+    "typescript": "7.0.2",
+    "wrangler": "4.151.3"
+  }
+}

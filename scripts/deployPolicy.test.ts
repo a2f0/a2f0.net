@@ -5,7 +5,7 @@ import {
   checkConfiguration,
   checkDeployment,
   checkDomain,
-  checkDriveBootstrap,
+  checkBootstrap,
   checkPublicEndpoints,
   checkSettings,
   DEPLOYMENTS,
@@ -14,38 +14,43 @@ import {
   runDeployment,
 } from "./deployPolicy";
 
-test("Drive bootstrap requires an absent Worker and custom domain", () => {
-  expect(() => checkDriveBootstrap([], [], "drive")).not.toThrow();
+test("bootstrap requires an absent Worker and custom domain", () => {
+  expect(() => checkBootstrap([], [], "demo")).not.toThrow();
   expect(() =>
-    checkDriveBootstrap(
-      [{ id: "experiment" }],
-      [{ hostname: "experiment.a2f0.net", service: "experiment" }],
-      "drive",
+    checkBootstrap(
+      [{ id: "drive" }],
+      [{ hostname: "drive.a2f0.net", service: "drive" }],
+      "demo",
     ),
   ).not.toThrow();
-  expect(() => checkDriveBootstrap([{ id: "drive" }], [], "drive")).toThrow(
+  expect(() => checkBootstrap([{ id: "demo" }], [], "demo")).toThrow(
     "already exists",
   );
   expect(() =>
-    checkDriveBootstrap(
+    checkBootstrap(
       [],
-      [{ hostname: "drive.a2f0.net", service: "unexpected" }],
-      "drive",
+      [{ hostname: "demo.a2f0.net", service: "unexpected" }],
+      "demo",
     ),
   ).toThrow("already exists");
   expect(() =>
-    checkDriveBootstrap(
+    checkBootstrap(
       [],
-      [{ hostname: "other.a2f0.net", service: "drive" }],
-      "drive",
+      [{ hostname: "other.a2f0.net", service: "demo" }],
+      "demo",
     ),
   ).toThrow("already exists");
-  expect(() => checkDriveBootstrap([], [], "experiment")).toThrow(
-    "only supported",
-  );
-  expect(() => checkDriveBootstrap({}, [], "drive")).toThrow();
-  expect(() => checkDriveBootstrap([{}], [], "drive")).toThrow("Incomplete");
-  expect(() => checkDriveBootstrap([], [{}], "drive")).toThrow("Incomplete");
+  // An existing target keeps its normal guard.
+  expect(() =>
+    checkBootstrap(
+      [{ id: "resume-redirect" }],
+      [{ hostname: "a2f0.net", service: "resume-redirect" }],
+      "website",
+    ),
+  ).toThrow("already exists");
+  expect(() => checkBootstrap({}, [], "demo")).toThrow();
+  expect(() => checkBootstrap([{}], [], "demo")).toThrow("Incomplete");
+  expect(() => checkBootstrap([], [{}], "demo")).toThrow("Incomplete");
 });
 
 for (const name of Object.keys(DEPLOYMENTS) as DeploymentName[]) {
@@ -55,7 +60,7 @@ for (const name of Object.keys(DEPLOYMENTS) as DeploymentName[]) {
       new URL(`../packages/${target.package}/wrangler.jsonc`, import.meta.url),
     ).text();
     expect(checkConfiguration(text, name)).toBe(
-      target.package === "website" ? "./dist" : "./out",
+      target.package === "demo" ? "./dist" : "./out",
     );
     expect(
       checkDomain(
@@ -106,7 +111,7 @@ for (const name of Object.keys(DEPLOYMENTS) as DeploymentName[]) {
 
 test("resource migrations, renames and unknown build commands fail closed", async () => {
   const text = await file(
-    new URL("../packages/experiment/wrangler.jsonc", import.meta.url),
+    new URL("../packages/website/wrangler.jsonc", import.meta.url),
   ).text();
   for (const addition of [
     '"d1_databases": []',
@@ -117,17 +122,17 @@ test("resource migrations, renames and unknown build commands fail closed", asyn
     expect(() =>
       checkConfiguration(
         text.replace(
-          '"name": "experiment",',
-          `"name": "experiment", ${addition},`,
+          '"name": "resume-redirect",',
+          `"name": "resume-redirect", ${addition},`,
         ),
-        "experiment",
+        "website",
       ),
     ).toThrow();
   }
   expect(() =>
     checkConfiguration(
-      text.replace('"name": "experiment"', '"name": "new-worker"'),
-      "experiment",
+      text.replace('"name": "resume-redirect"', '"name": "new-worker"'),
+      "website",
     ),
   ).toThrow();
 });
@@ -142,12 +147,12 @@ test("missing bindings and existing stateful bindings cannot be cleared", () => 
 
 test("a reviewed compatibility-date transition accepts only the configured and previous live dates", async () => {
   const text = await file(
-    new URL("../packages/experiment/wrangler.jsonc", import.meta.url),
+    new URL("../packages/website/wrangler.jsonc", import.meta.url),
   ).text();
   const transition = { current: "2026-10-07", previous: "2026-09-16" };
   const candidate = text.replace("2026-09-16", transition.current);
-  expect(checkConfiguration(candidate, "experiment", transition)).toBe("./out");
-  expect(() => checkConfiguration(text, "experiment", transition)).toThrow();
+  expect(checkConfiguration(candidate, "website", transition)).toBe("./out");
+  expect(() => checkConfiguration(text, "website", transition)).toThrow();
   for (const date of [transition.current, transition.previous]) {
     expect(() =>
       checkSettings({ bindings: [], compatibility_date: date }, transition),
@@ -164,22 +169,22 @@ test("a reviewed compatibility-date transition accepts only the configured and p
   ).toThrow();
 });
 
-test("a website preview captures the real assets without rerunning its build", async () => {
+test("a demo preview captures the real assets without rerunning its build", async () => {
   const text = await file(
-    new URL("../packages/website/wrangler.jsonc", import.meta.url),
+    new URL("../packages/demo/wrangler.jsonc", import.meta.url),
   ).text();
   const config = JSON.parse(
-    deploymentConfiguration(text, "website", "/fixture/website"),
+    deploymentConfiguration(text, "demo", "/fixture/demo"),
   );
-  expect(config.name).toBe("resume-redirect");
-  expect(config.assets.directory).toBe("/fixture/website/dist");
+  expect(config.name).toBe("demo");
+  expect(config.assets.directory).toBe("/fixture/demo/dist");
   expect(config.build).toBeUndefined();
   expect(config.$schema).toBeUndefined();
   expect(() =>
     deploymentConfiguration(
       text.replace('"bun run build"', '"terraform apply"'),
-      "website",
-      "/fixture/website",
+      "demo",
+      "/fixture/demo",
     ),
   ).toThrow();
 });
@@ -350,7 +355,7 @@ test("failed preview or changed local/remote evidence prevents mutation", async 
 });
 
 test("all owned deploy entrypoints use the guard", async () => {
-  for (const folder of ["resume", "website", "experiment", "drive"]) {
+  for (const folder of ["resume", "website", "demo", "drive"]) {
     const manifest = await file(
       new URL(`../packages/${folder}/package.json`, import.meta.url),
     ).json();

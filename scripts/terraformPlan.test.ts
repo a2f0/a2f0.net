@@ -141,47 +141,63 @@ test("HCL source scan sees unsafe blocks across all comment forms", () => {
   expect(() => checkTerraformHcl("value = <<EOF\ntext\nEOF")).toThrow();
 });
 
-test("empty or missing domain state cannot pass as an existing production stack", () => {
-  const resources = [
-    "website",
-    "resume",
-    "staging",
-    "experiment",
-    "nc",
-    "dnbm",
-  ].map((name) => ({
-    mode: "managed",
-    type: "cloudflare_workers_custom_domain",
-    name,
-    instances: [
-      {
-        attributes: {
-          id: `fixture-${name}`,
-          account_id: "a".repeat(32),
-          hostname: name === "website" ? "a2f0.net" : `${name}.a2f0.net`,
-          service:
-            name === "website"
-              ? "resume-redirect"
-              : name === "resume"
-                ? "resume-prod"
-                : name === "staging"
-                  ? "resume-staging"
-                  : name,
-        },
+const account = "a".repeat(32);
+
+/** A custom-domain resource as remote state records it. */
+const domainResource = (name: string, hostname: string, service: string) => ({
+  mode: "managed",
+  type: "cloudflare_workers_custom_domain",
+  name,
+  instances: [
+    {
+      attributes: {
+        id: `fixture-${name}`,
+        account_id: account,
+        hostname,
+        service,
       },
-    ],
-  }));
-  const state = {
-    version: 4,
-    serial: 1,
-    lineage: "00000000-0000-0000-0000-000000000001",
-    resources,
-  };
-  expect(() => checkTerraformState(state, "a".repeat(32))).not.toThrow();
+    },
+  ],
+});
+
+const domainResources = [
+  domainResource("website", "a2f0.net", "resume-redirect"),
+  domainResource("resume", "resume.a2f0.net", "resume-prod"),
+  domainResource("staging", "staging.a2f0.net", "resume-staging"),
+  domainResource("demo", "demo.a2f0.net", "demo"),
+  domainResource("nc", "nc.a2f0.net", "nc"),
+  domainResource("dnbm", "dnbm.a2f0.net", "dnbm"),
+];
+
+const domainState = <T>(resources: T[]) => ({
+  version: 4,
+  serial: 1,
+  lineage: "00000000-0000-0000-0000-000000000001",
+  resources,
+});
+
+const noMigration = { adding: [], retiring: {} };
+const migration = {
+  adding: ["demo"],
+  retiring: {
+    experiment: ["experiment.a2f0.net", "experiment"] as const,
+  },
+};
+const experiment = domainResource(
+  "experiment",
+  "experiment.a2f0.net",
+  "experiment",
+);
+
+test("empty or missing domain state cannot pass as an existing production stack", () => {
+  const resources = domainResources;
+  const state = domainState(resources);
+  expect(() => checkTerraformState(state, account)).not.toThrow();
+  expect(() => checkTerraformState(state, account, noMigration)).not.toThrow();
   expect(() => checkTerraformState(state, "b".repeat(32))).toThrow();
   const wrongDomain = structuredClone(state);
   wrongDomain.resources[0].instances[0].attributes.hostname = "other.example";
-  expect(() => checkTerraformState(wrongDomain, "a".repeat(32))).toThrow();
+  expect(() => checkTerraformState(wrongDomain, account)).toThrow();
   for (const change of [
     { resources: [] },
     { lineage: "" },
@@ -189,7 +205,88 @@ test("empty or missing domain state cannot pass as an existing production stack"
     { serial: -1 },
   ]) {
     expect(() =>
-      checkTerraformState({ ...state, ...change }, "a".repeat(32)),
+      checkTerraformState({ ...state, ...change }, account),
     ).toThrow();
   }
+});
+
+test("a reviewed domain migration lets its domains be absent but never misidentified", () => {
+  const before = domainState([
+    ...domainResources.filter(({ name }) => name !== "demo"),
+    experiment,
+  ]);
+  expect(() => checkTerraformState(before, account, migration)).not.toThrow();
+  expect(() => checkTerraformState(before, account, noMigration)).toThrow();
+  const after = domainState(domainResources);
+  expect(() => checkTerraformState(after, account, migration)).not.toThrow();
+  const misidentified = [
+    domainState([
+      ...domainResources,
+      domainResource("experiment", "experiment.a2f0.net", "other"),
+    ]),
+    domainState([
+      ...domainResources.filter(({ name }) => name !== "demo"),
+      domainResource("demo", "demo.a2f0.net", "other"),
+    ]),
+  ];
+  for (const state of misidentified)
+    expect(() => checkTerraformState(state, account, migration)).toThrow();
+});
+
+test("a reviewed domain migration deletes only the domain it retires", () => {
+  const deletion = (change: Record<string, unknown> = {}) => ({
+    format_version: "1.2",
+    complete: true,
+    errored: false,
+    resource_changes: [
+      {
+        address: "cloudflare_workers_custom_domain.experiment",
+        mode: "managed",
+        type: "cloudflare_workers_custom_domain",
+        name: "experiment",
+        change: {
+          actions: ["delete"],
+          before: { hostname: "experiment.a2f0.net", service: "experiment" },
+          after: null,
+        },
+        ...change,
+      },
+    ],
+  });
+  expect(() => checkTerraformPlan(deletion(), migration)).not.toThrow();
+  expect(() => checkTerraformPlan(deletion(), noMigration)).toThrow();
+  for (const change of [
+    { name: "website", address: "cloudflare_workers_custom_domain.website" },
+    { address: 'cloudflare_workers_custom_domain.experiment["x"]' },
+    { type: "cloudflare_dns_record" },
+    {
+      change: {
+        actions: ["delete"],
+        before: { hostname: "a2f0.net", service: "experiment" },
+        after: null,
+      },
+    },
+    {
+      change: {
+        actions: ["delete", "create"],
+        before: { hostname: "experiment.a2f0.net", service: "experiment" },
+        after: { hostname: "experiment.a2f0.net", service: "experiment" },
+      },
+    },
+    { change: { actions: ["delete"], before: null, after: null } },
+  ]) {
+    expect(() => checkTerraformPlan(deletion(change), migration)).toThrow();
+  }
+  // Drift is never a reviewed deletion.
+  const drift = deletion();
+  expect(() =>
+    checkTerraformPlan(
+      {
+        ...drift,
+        resource_changes: [],
+        resource_drift: drift.resource_changes,
+      },
+      migration,
+    ),
+  ).toThrow();
 });

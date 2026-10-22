@@ -10,8 +10,8 @@ output "staging_url" {
   value = "https://${cloudflare_workers_custom_domain.staging.hostname}"
 }
 
-output "experiment_url" {
-  value = "https://${cloudflare_workers_custom_domain.experiment.hostname}"
+output "demo_url" {
+  value = "https://${cloudflare_workers_custom_domain.demo.hostname}"
 }
 
 output "nc_url" {

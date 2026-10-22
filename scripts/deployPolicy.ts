@@ -26,24 +26,25 @@ export const DEPLOYMENTS = {
     worker: "resume-redirect",
     hostname: "a2f0.net",
   },
-  experiment: {
-    package: "experiment",
+  demo: {
+    package: "demo",
     environment: undefined,
-    worker: "experiment",
-    hostname: "experiment.a2f0.net",
+    worker: "demo",
+    hostname: "demo.a2f0.net",
   },
 } as const;
 
 export type DeploymentName = keyof typeof DEPLOYMENTS;
 
-/** The first Drive publish is explicit and may only create an absent service. */
-export function checkDriveBootstrap(
+/** A target's first publish is explicit and may only create an absent service. */
+export function checkBootstrap(
   scripts: unknown,
   domains: unknown,
   target: DeploymentName,
 ) {
-  if (target !== "drive" || !Array.isArray(scripts) || !Array.isArray(domains))
-    throw new Error("Bootstrap is only supported for the new Drive Worker");
+  if (!Array.isArray(scripts) || !Array.isArray(domains))
+    throw new Error("Incomplete Worker or domain inventory");
+  const { hostname, worker } = DEPLOYMENTS[target];
   const services = scripts.map(record);
   const hosts = domains.map(record);
   if (
@@ -56,14 +57,14 @@ export function checkDriveBootstrap(
   )
     throw new Error("Incomplete Worker or domain inventory");
   if (
-    services.some((service) => service.id === DEPLOYMENTS.drive.worker) ||
+    services.some((service) => service.id === worker) ||
     hosts.some(
-      (domain) =>
-        domain.hostname === DEPLOYMENTS.drive.hostname ||
-        domain.service === DEPLOYMENTS.drive.worker,
+      (domain) => domain.hostname === hostname || domain.service === worker,
     )
   )
-    throw new Error("Drive already exists; use the normal deployment guard");
+    throw new Error(
+      "The Worker or its domain already exists; use the normal deployment guard",
+    );
 }
 
 // A date migration must explicitly name the currently live date as previous.
@@ -120,14 +121,14 @@ export function checkConfiguration(
   const assets = record(config.assets);
   onlyKeys(assets, ["directory", "html_handling", "not_found_handling"]);
   const expectedDirectory =
-    DEPLOYMENTS[target].package === "website" ? "./dist" : "./out";
+    DEPLOYMENTS[target].package === "demo" ? "./dist" : "./out";
   if (assets.directory !== expectedDirectory)
     throw new Error("Unexpected asset directory");
   if (config.build !== undefined) {
     const build = record(config.build);
     onlyKeys(build, ["command", "watch_dir"]);
     if (
-      target !== "website" ||
+      target !== "demo" ||
       build.command !== "bun run build" ||
       JSON.stringify(build.watch_dir) !== JSON.stringify(["src", "public"])
     )

@@ -19,7 +19,7 @@ const IconSlot = styled.span<{ $scale: number }>`
 `;
 
 /**
- * An option's icon, drawn as the experiment's start menu draws its own: a
+ * An option's icon, drawn as the website's start menu draws its own: a
  * 16px Phosphor icon in the text color, dimmed beside the label.
  */
 const MenuIcon = ({ icon: OptionIcon, scale }: IProps) => (

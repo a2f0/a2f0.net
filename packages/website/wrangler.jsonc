@@ -4,13 +4,12 @@
   "compatibility_date": "2026-09-16",
   "workers_dev": false,
   "preview_urls": false,
-  // Keep the existing Worker name so its apex custom domain stays attached.
-  // Bundles src/ and copies public/ into dist/ before dev and deploy.
-  "build": {
-    "command": "bun run build",
-    "watch_dir": ["src", "public"]
-  },
+  // Keep the existing Worker name so its apex custom domain (a2f0.net), which
+  // Terraform owns, stays attached.
   "assets": {
-    "directory": "./dist"
+    "directory": "./out",
+    "html_handling": "auto-trailing-slash",
+    // The routed shell's routes (/app/<app id>) load the one page.
+    "not_found_handling": "single-page-application"
   }
 }

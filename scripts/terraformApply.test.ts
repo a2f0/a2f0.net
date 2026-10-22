@@ -46,7 +46,7 @@ test("Terraform entrypoint inspects saved plans and refuses unattended apply", a
     version: 4,
     serial: 1,
     lineage: "00000000-0000-0000-0000-000000000001",
-    resources: ["website", "resume", "staging", "experiment", "nc", "dnbm"].map(
+    resources: ["website", "resume", "staging", "demo", "nc", "dnbm"].map(
       (name) => ({
         mode: "managed",
         type: "cloudflare_workers_custom_domain",

@@ -112,8 +112,66 @@ async function checkTerraformSources(directory: string): Promise<void> {
   }
 }
 
+type DomainIdentity = readonly [hostname: string, service: string];
+
+/** Each Terraform-owned Worker custom domain, by resource name. */
+const DOMAINS: Readonly<Record<string, DomainIdentity>> = {
+  website: ["a2f0.net", "resume-redirect"],
+  resume: ["resume.a2f0.net", "resume-prod"],
+  staging: ["staging.a2f0.net", "resume-staging"],
+  demo: ["demo.a2f0.net", "demo"],
+  nc: ["nc.a2f0.net", "nc"],
+  dnbm: ["dnbm.a2f0.net", "dnbm"],
+};
+
+export interface DomainMigration {
+  /** Names in DOMAINS that may still be absent from state. */
+  adding: readonly string[];
+  /** Domains leaving DOMAINS, which may remain in state and be deleted. */
+  retiring: Readonly<Record<string, DomainIdentity>>;
+}
+
+// A reviewed domain migration. While it is applied, the domains it adds may
+// still be absent from state, and the domains it retires may remain there and
+// be deleted, each only with exactly the identity named. Keep both empty until
+// a migration is reviewed, and empty them again once it is applied.
+const DOMAIN_MIGRATION: DomainMigration = {
+  adding: ["demo"],
+  retiring: { experiment: ["experiment.a2f0.net", "experiment"] },
+};
+
+// Whether a planned change deletes a domain the migration retires, still
+// identified as the migration names it, with nothing created in its place.
+function retiresDomain(
+  resource: Record<string, unknown>,
+  change: Record<string, unknown>,
+  migration: DomainMigration,
+) {
+  const name = resource.name;
+  if (
+    resource.mode !== "managed" ||
+    resource.type !== "cloudflare_workers_custom_domain" ||
+    typeof name !== "string" ||
+    !Object.hasOwn(migration.retiring, name) ||
+    resource.address !== `cloudflare_workers_custom_domain.${name}` ||
+    !Array.isArray(change.actions) ||
+    change.actions.length !== 1 ||
+    change.actions[0] !== "delete" ||
+    change.after !== null ||
+    typeof change.before !== "object" ||
+    change.before === null
+  )
+    return false;
+  const [hostname, service] = migration.retiring[name];
+  const before = record(change.before);
+  return before.hostname === hostname && before.service === service;
+}
+
 /** Read-only guard; full real-backend freshness and provider effects remain caller checks. */
-export function checkTerraformPlan(input: unknown) {
+export function checkTerraformPlan(
+  input: unknown,
+  migration: DomainMigration = DOMAIN_MIGRATION,
+) {
   const plan = record(input);
   if (
     plan.format_version !== "1.2" ||
@@ -141,6 +199,11 @@ export function checkTerraformPlan(input: unknown) {
     for (const value of changes) {
       const resource = record(value);
       const change = record(resource.change);
+      if (
+        field === "resource_changes" &&
+        retiresDomain(resource, change, migration)
+      )
+        continue;
       if (
         !Array.isArray(change.actions) ||
         change.actions.length !== 1 ||
@@ -201,7 +264,11 @@ export function checkTerraformBackend(input: unknown) {
 }
 
 /** Require populated remote state for this existing stack before planning. */
-export function checkTerraformState(input: unknown, account: unknown) {
+export function checkTerraformState(
+  input: unknown,
+  account: unknown,
+  migration: DomainMigration = DOMAIN_MIGRATION,
+) {
   const state = record(input);
   if (
     typeof account !== "string" ||
@@ -215,14 +282,7 @@ export function checkTerraformState(input: unknown, account: unknown) {
   ) {
     throw new Error("Remote state identity is absent or unsupported");
   }
-  const domains = {
-    website: ["a2f0.net", "resume-redirect"],
-    resume: ["resume.a2f0.net", "resume-prod"],
-    staging: ["staging.a2f0.net", "resume-staging"],
-    experiment: ["experiment.a2f0.net", "experiment"],
-    nc: ["nc.a2f0.net", "nc"],
-    dnbm: ["dnbm.a2f0.net", "dnbm"],
-  };
+  const domains = { ...DOMAINS, ...migration.retiring };
   for (const [name, [hostname, service]] of Object.entries(domains)) {
     const matching = state.resources
       .map(record)
@@ -232,6 +292,14 @@ export function checkTerraformState(input: unknown, account: unknown) {
           resource.type === "cloudflare_workers_custom_domain" &&
           resource.name === name,
       );
+    // A domain the migration adds or retires may be absent, but one in state
+    // must still have exactly its identity.
+    if (
+      !matching.length &&
+      (migration.adding.includes(name) ||
+        Object.hasOwn(migration.retiring, name))
+    )
+      continue;
     const resource = matching[0];
     if (
       matching.length !== 1 ||

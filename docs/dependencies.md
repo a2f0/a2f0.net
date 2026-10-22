@@ -115,8 +115,7 @@ The remaining advisory constraints need their owning packages updated:
 ## Worker preview
 
 Every owned deployment script and CI deployment runs `scripts/deploy.ts`.
-Use the matching `preview:*` root script or the experiment's `preview` script
-first. The deployment itself repeats the preview and fresh checks.
+Use the matching `preview:*` root script or Drive's `preview` script first. The deployment itself repeats the preview and fresh checks.
 
 The guard requires a committed clean tree and scoped Cloudflare credentials.
 Read permissions must cover the existing account's Worker settings,
@@ -141,7 +140,12 @@ evidence. Adding or changing routing requires a separate migration review.
 The five target names and Terraform-owned hostnames are explicit in
 `scripts/deployPolicy.ts`. New resource settings, migrations, alternate Worker
 names, stateful bindings, enabled public endpoints, cron schedules and split
-live traffic require a separate migration review. The guard reads existing
+live traffic require a separate migration review. A new target's Worker is
+created once with `bun scripts/deploy.ts <target> --bootstrap`, after
+`--bootstrap-dry-run`, from the reviewed PR head before merging; it refuses when
+the Worker or its hostname already exists. Terraform then attaches the
+hostname, as [Drive's hosting notes](../packages/drive/README.md#hosting)
+describe. The guard reads existing
 identities, runs [Wrangler's dry run](https://developers.cloudflare.com/workers/wrangler/commands/workers/),
 then compares fresh remote evidence and the local commit/config/tool/assets.
 It checks actual Bun, Node and installed Wrangler versions against the pins,
@@ -149,7 +153,7 @@ binds execution to the captured Node path, and fingerprints the runtime binaries
 Wrangler executable target and CLI code again after preview.
 No D1 migration command is needed: these Workers have no D1 binding.
 
-The website builds once without Cloudflare credentials. A validated private
+The demo builds once without Cloudflare credentials. A validated private
 configuration removes its custom-build command and uses the absolute captured
 asset directory for both dry run and deployment; Wrangler cannot rebuild the
 assets between them. The guard hashes file boundaries and paths, including
@@ -157,7 +161,7 @@ routing files, and rejects symlinks. Temporary configuration and logs are
 removed afterward. Never run direct Wrangler deploy to bypass the guard.
 
 After a merge to `main`, wait for the actual merge commit's successful
-deployment and smoke-test resume, apex, experiment and Drive URLs, as `AGENTS.md`
+deployment and smoke-test resume, apex, demo and Drive URLs, as `AGENTS.md`
 requires. A bundle preview alone does not prove live identity or route safety.
 
 ## Terraform preview
@@ -197,7 +201,11 @@ requires provider refresh in its saved plan and reads populated remote state
 with the six existing custom-domain resources. It matches their
 hostnames and services to explicit existing production identities and their
 account IDs to the private account variable. A domain migration
-requires a separate guard review. The entrypoint then creates and inspects a
+requires a separate guard review: `DOMAIN_MIGRATION` in
+`scripts/terraformPlan.ts` names the domains it adds and retires. While it is
+applied, an added domain may still be absent from state, and a retired one may
+remain there or be deleted, each only with exactly its named identity. Empty it
+again once the migration is applied. The entrypoint then creates and inspects a
 complete saved plan. Unsupported, deferred,
 errored, failed-check, provider-Action, deletion and replacement effects stop
 it. Applying requires an interactive terminal, a visible rendering of the exact
@@ -233,7 +241,7 @@ sh .husky/pre-commit
 sh .husky/pre-push
 bun run ci-headless
 bun run --cwd packages/website test
-bun run --cwd packages/experiment test
+bun run --cwd packages/demo test
 bun run --cwd packages/drive test
 bun audit
 ```
