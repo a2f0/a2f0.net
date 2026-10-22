@@ -98,7 +98,7 @@ set -eu
 printf '%s\\n' "$*" >> "$CALLS"
 case "$1" in
   workspace) echo default ;;
-  version) echo '{"terraform_version":"1.16.6"}' ;;
+  version) echo '{"terraform_version":"1.17.0"}' ;;
   state) cat "$FIXTURE/state.json" ;;
   plan) for argument in "$@"; do case "$argument" in -out=*) printf fixture > "\${argument#-out=}" ;; esac; done ;;
   show) cat "$FIXTURE/plan.json" ;;

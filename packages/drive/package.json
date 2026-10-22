@@ -23,25 +23,25 @@
   },
   "dependencies": {
     "@phosphor-icons/react": "2.1.10",
-    "@tearleads/client-sdk": "0.1.50",
+    "@tearleads/client-sdk": "0.1.86",
     "next": "16.4.2",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   },
   "devDependencies": {
-    "@happy-dom/global-registrator": "21.0.3",
+    "@happy-dom/global-registrator": "21.0.4",
     "@types/bun": "1.4.3",
     "@types/mocha": "10.0.10",
     "@types/node": "24.19.2",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "@wdio/cli": "10.0.2",
-    "@wdio/globals": "10.0.2",
-    "@wdio/local-runner": "10.0.2",
-    "@wdio/mocha-framework": "10.0.1",
-    "@wdio/spec-reporter": "10.0.1",
+    "@wdio/cli": "10.1.0",
+    "@wdio/globals": "10.1.0",
+    "@wdio/local-runner": "10.1.0",
+    "@wdio/mocha-framework": "10.1.0",
+    "@wdio/spec-reporter": "10.1.0",
     "start-server-and-test": "3.0.13",
     "typescript": "7.0.2",
-    "wrangler": "4.151.1"
+    "wrangler": "4.151.3"
   }
 }

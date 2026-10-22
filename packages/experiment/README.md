@@ -56,7 +56,7 @@ every app; the resume keeps its theme and scale across one. The theme switch
 sits in the routed taskbar's tray too. Next.js leaves the routed shell's
 history entries to it.
 
-The app uses the published `@tearleads/windowing` package, pinned to `0.2.16`.
+The app uses the published `@tearleads/windowing` package, pinned to `0.2.18`.
 Install from this repository's root:
 
 ```sh

@@ -42,7 +42,7 @@ gate. See [AGENTS.md](../AGENTS.md) for title, review, and shipping policy.
   the actual export, browser and peer checks. Node types follow the runtime in
   [`.nvmrc`](../.nvmrc). The published
   [Bun types](https://www.npmjs.com/package/@types/bun/v/1.4.3) and
-  [Happy DOM](https://www.npmjs.com/package/@happy-dom/global-registrator/v/21.0.3)
+  [Happy DOM](https://www.npmjs.com/package/@happy-dom/global-registrator/v/21.0.4)
   request newer Node declarations, while WebdriverIO requests Node 22 types.
   The root `@types/node` override keeps all ambient Node declarations on the
   supported Node 24 runtime line. Verify full compilation and runtime tests when
@@ -78,13 +78,14 @@ gate. See [AGENTS.md](../AGENTS.md) for title, review, and shipping policy.
 ## Security overrides and patches
 
 The `smol-toml` 1.9 security fix returns objects with null prototypes.
-Markdownlint 0.41.1 otherwise drops nested TOML rule options through an
+Markdownlint 0.42.0 otherwise drops nested TOML rule options through an
 `instanceof Object` check. Its narrow Bun-managed patch accepts those objects
 while preserving options, `enabled` and warning `severity`. The real CLI
 regression is `scripts/markdownlintCompatibility.test.ts`. Remove the patch only
 when an upstream owning Markdownlint release passes that regression unpatched.
-Remove the parser override when its owner naturally resolves a fixed parser and
-that same regression passes; confirm the resulting graph with a fresh audit.
+The owner now resolves `smol-toml` 1.9.1 directly, so no parser override is
+needed. Keep verifying the real CLI regression and the resolved graph when
+updating that owner.
 Mocha's own compatible range now resolves the fixed `serialize-javascript`
 7.1.2, so it needs no override. Recheck that resolution when changing Mocha.
 
@@ -101,7 +102,7 @@ held owner groups; it does not establish today's exposure or available fixes.
 
 The remaining advisory constraints need their owning packages updated:
 
-- `markdownlint-cli2` still owns Markdownlint 0.41.1 and
+- `markdownlint-cli2` still owns Markdownlint 0.42.0 and
   `micromark-extension-math` with KaTeX 0.16. KaTeX's
   [prototype-pollution gadget fix](https://github.com/advisories/GHSA-238p-pmpm-9mq7)
   starts at 0.18.2. Revisit when that owner accepts the fixed release; verify
@@ -213,6 +214,11 @@ refresh; manually review any provider effects before mutation. Unit command
 fixtures prove ordering and refusal behavior only and never access production.
 
 ## Validation
+
+Markdownlint owns Markdown formatting. Biome's Markdown formatter stays disabled
+because it removes blank lines required by the enforced Markdownlint rules.
+Biome continues to format source, JSON and YAML; managed skill directories stay
+excluded from Biome and are verified with `agents:check` and Markdownlint.
 
 Use pinned Bun/Node binaries, install normally to set up Husky, and run:
 

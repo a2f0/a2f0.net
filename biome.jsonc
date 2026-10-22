@@ -1,11 +1,13 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.6.2/schema.json",
 
   "vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
   "files": {
     "ignoreUnknown": false,
     "includes": [
       "**",
+      "!.agents",
+      "!.claude",
       "!**/.next/**/*",
       "!**/dist/**/*",
       "!**/out/**/*",
@@ -18,10 +20,12 @@
       // not filter through .gitignore: the matrix-secrets link, which Biome
       // follows, and plaintext the retired SOPS decryption left in old clones.
       "!.secrets",
-      "!terraform/*.json"
+      "!terraform/*.json",
+      "!terraform/.terraform"
     ]
   },
   "formatter": { "enabled": true, "indentStyle": "space" },
+  "markdown": { "formatter": { "enabled": false } },
   "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "javascript": {
     "formatter": { "quoteStyle": "double" },

@@ -14,12 +14,17 @@ beforeAll(() => {
 });
 afterAll(() => GlobalRegistrator.unregister());
 
+function Page({
+  capture,
+}: {
+  capture: (settings: ReturnType<typeof useResumeSettings>) => void;
+}) {
+  capture(useResumeSettings());
+  return null;
+}
+
 test("the resume follows the desktop and retains each scheme's page choice and scale", async () => {
   let settings: ReturnType<typeof useResumeSettings> | undefined;
-  function Page() {
-    settings = useResumeSettings();
-    return null;
-  }
   const current = () => {
     if (!settings) throw new Error("The page did not mount");
     return settings;
@@ -35,7 +40,12 @@ test("the resume follows the desktop and retains each scheme's page choice and s
           defaultTheme="graphite"
           storageKey="resume-test.theme"
         >
-          <Page key={pageKey} />
+          <Page
+            key={pageKey}
+            capture={(value) => {
+              settings = value;
+            }}
+          />
           <ThemeSwitch />
         </ThemeProvider>,
       ),
