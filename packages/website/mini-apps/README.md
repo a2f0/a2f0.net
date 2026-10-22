@@ -53,14 +53,14 @@ several apps.
   own theme controls override the page within that desktop scheme; the choice
   and scale survive layout switches. Paper gives it a pale surround, while
   Graphite keeps the resume site's dark desk. Its light page uses Paper's
-  charcoal ink instead of the shared light theme's black; printing keeps black.
+  grey ink instead of the shared light theme's black; printing keeps black.
   Its window opens fitted to the page once the SVG has rendered.
 - `ascii-art/` runs the graffiti artwork from `packages/demo` inside a
   shadow root. Its controls (the animation and the ASCII view, with its pressed
   state) sit in the window's toolbar and its View menu.
   Both mirror the site's own toolbar, which stays in the shadow root unseen and
   keeps the site's behavior. Paper inverts the monochrome stage, including its
-  lens and animations, into a drawing in charcoal ink on white; its window
+  lens and animations, into a drawing in grey ink on white; its window
   controls use the desktop palette.
 - `skyline/` mounts the 3D Chicago skyline from `@a2f0/skyline`, which
   renders the viewer in the page inside a shadow root, from assets the
@@ -69,7 +69,7 @@ several apps.
   menus close; its keys act only while focus is inside it. Its window opens at
   three quarters of the desktop's width and height, to give the 3D scene room,
   with the scene's control bar open. Paper starts the native sunny-day colour
-  mode; Graphite starts in greyscale. The viewer's own colour toggle still works.
+  mode, with Paper's grey ink in the control bar; Graphite starts in greyscale. The viewer's own colour toggle still works.
   Changing the desktop scheme remounts the viewer with that starting mode and
   resets its camera: the package exposes colour as a mount option, not a live
   setter. The old viewer is destroyed first, releasing its WebGL context, as
@@ -110,7 +110,7 @@ several apps.
 `shared/useDnbmState.ts` follows a dnbm instance's state for both windows'
 chrome, and `shared/useWindowTitle.ts` names what an app shows in its window's
 title. `shared/useDnbmTheme.ts` gives both music apps a pale neutral palette in
-Paper, with its charcoal text, including their dialogs, inputs, waveform, and
+Paper, with its grey text, including their dialogs, inputs, waveform, and
 spectrum. It adopts a
 stylesheet inside each app's shadow root without remounting, so changing themes
 preserves the song, undo history, playback, and position.

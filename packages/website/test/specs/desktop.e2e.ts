@@ -536,7 +536,7 @@ describe("Website desktop", () => {
     await resumeWindow().$("button=View").click();
     await resumeWindow().$("button*=Light Theme").click();
     await browser.waitUntil(
-      async () => (await resumeTextFills()).includes("#333333"),
+      async () => (await resumeTextFills()).includes("#555555"),
       { timeoutMsg: "the resume did not redraw in the light theme" },
     );
     expect(await resumeTextFills()).not.toContain("#DCDCDC");
@@ -1571,7 +1571,7 @@ describe("Website desktop", () => {
     await resumeWindow().$("button=View").click();
     await resumeWindow().$("button*=Light Theme").click();
     await browser.waitUntil(
-      async () => (await resumeTextFills()).includes("#333333"),
+      async () => (await resumeTextFills()).includes("#555555"),
       { timeoutMsg: "the resume did not take the light theme" },
     );
 
@@ -1584,7 +1584,7 @@ describe("Website desktop", () => {
     await expect(
       $$(".desktop-surface > section.window"),
     ).toBeElementsArrayOfSize(5);
-    expect(await resumeTextFills()).toContain("#333333");
+    expect(await resumeTextFills()).toContain("#555555");
   });
 
   it("keeps the resume's theme across a layout switch", async () => {
@@ -1601,7 +1601,7 @@ describe("Website desktop", () => {
     await expect(
       $(".routed-pane-toolbar button[aria-label='Dark Theme']"),
     ).toBeDisplayed();
-    expect(await resumeTextFills()).toContain("#333333");
+    expect(await resumeTextFills()).toContain("#555555");
   });
 
   it("switches the desktop's theme from the taskbar's lower-right corner", async () => {
@@ -1701,6 +1701,8 @@ describe("Website desktop", () => {
         if (!skyline) throw new Error("Missing the skyline");
         const controls = skyline.shadowRoot?.querySelector(".control-bar");
         if (!controls) throw new Error("Missing the skyline controls");
+        const pressed = controls.querySelector("button[aria-pressed='true']");
+        if (!pressed) throw new Error("Missing a pressed skyline control");
         return {
           sequencer: frameStyle(".dnbm-window"),
           player: frameStyle(".dnbm-player-window"),
@@ -1710,6 +1712,8 @@ describe("Website desktop", () => {
           skylineControls: {
             background: getComputedStyle(controls).backgroundColor,
             scheme: getComputedStyle(controls).colorScheme,
+            color: getComputedStyle(controls).color,
+            pressed: getComputedStyle(pressed).color,
           },
           skylineColour: document
             .querySelector(".skyline-window [role=region]")
@@ -1721,17 +1725,22 @@ describe("Website desktop", () => {
     await themeSwitch().click();
     await waitForSkyline();
     await browser.waitUntil(
-      async () => (await resumeTextFills()).includes("#333333"),
+      async () => (await resumeTextFills()).includes("#555555"),
       { timeoutMsg: "Paper did not give the resume its light page" },
     );
     expect(await palettes()).toEqual({
-      sequencer: { background: "rgb(245, 245, 245)", color: "rgb(51, 51, 51)" },
-      player: { background: "rgb(245, 245, 245)", color: "rgb(51, 51, 51)" },
-      artwork: "invert(1) contrast(0.73) brightness(1.156)",
+      sequencer: { background: "rgb(245, 245, 245)", color: "rgb(85, 85, 85)" },
+      player: { background: "rgb(245, 245, 245)", color: "rgb(85, 85, 85)" },
+      artwork: "invert(1) contrast(0.541) brightness(1.298)",
       skylineColour: "true",
       skylineBackdrop: "rgb(245, 245, 245)",
       skylineScheme: "light",
-      skylineControls: { background: "rgb(245, 245, 245)", scheme: "light" },
+      skylineControls: {
+        background: "rgb(245, 245, 245)",
+        scheme: "light",
+        color: "rgb(85, 85, 85)",
+        pressed: "rgb(68, 68, 68)",
+      },
     });
     expect(await backgroundOf("section.window:has(.resume-window)")).toBe(
       "rgb(231, 231, 231)",
@@ -1766,7 +1775,12 @@ describe("Website desktop", () => {
       skylineColour: "false",
       skylineBackdrop: "rgb(0, 0, 0)",
       skylineScheme: "dark",
-      skylineControls: { background: "rgb(8, 8, 8)", scheme: "dark" },
+      skylineControls: {
+        background: "rgb(8, 8, 8)",
+        scheme: "dark",
+        color: "rgb(221, 221, 221)",
+        pressed: "rgb(255, 255, 255)",
+      },
     });
     await expect(player()).toHaveAttribute("data-state", "playing");
     await expect(dnbmAction("Undo")).toBeEnabled();
@@ -1779,15 +1793,20 @@ describe("Website desktop", () => {
     await waitForDnbmApps();
     await waitForSkyline();
     expect(await palettes()).toEqual({
-      sequencer: { background: "rgb(245, 245, 245)", color: "rgb(51, 51, 51)" },
-      player: { background: "rgb(245, 245, 245)", color: "rgb(51, 51, 51)" },
-      artwork: "invert(1) contrast(0.73) brightness(1.156)",
+      sequencer: { background: "rgb(245, 245, 245)", color: "rgb(85, 85, 85)" },
+      player: { background: "rgb(245, 245, 245)", color: "rgb(85, 85, 85)" },
+      artwork: "invert(1) contrast(0.541) brightness(1.298)",
       skylineColour: "true",
       skylineBackdrop: "rgb(245, 245, 245)",
       skylineScheme: "light",
-      skylineControls: { background: "rgb(245, 245, 245)", scheme: "light" },
+      skylineControls: {
+        background: "rgb(245, 245, 245)",
+        scheme: "light",
+        color: "rgb(85, 85, 85)",
+        pressed: "rgb(68, 68, 68)",
+      },
     });
-    expect(await resumeTextFills()).toContain("#333333");
+    expect(await resumeTextFills()).toContain("#555555");
   });
 
   it("switches the theme from the routed shell's tray", async () => {
@@ -1809,12 +1828,12 @@ describe("Website desktop", () => {
         const art = document.querySelector(".ascii-art-window");
         return art && getComputedStyle(art).filter;
       }),
-    ).toBe("invert(1) contrast(0.73) brightness(1.156)");
+    ).toBe("invert(1) contrast(0.541) brightness(1.298)");
     // A directly opened route and a reload both keep Paper for the app's
     // contents, not only the tray and toolbar.
     await browser.url("/app/resume");
     await waitForResume();
-    expect(await resumeTextFills()).toContain("#333333");
+    expect(await resumeTextFills()).toContain("#555555");
   });
 
   it("switches between the windowed desktop and the routed shell", async () => {
