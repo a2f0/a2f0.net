@@ -4,7 +4,7 @@ import { ThemeProvider, ThemeSwitch } from "@tearleads/windowing";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 
-import { EXPERIMENT_THEMES } from "../../components/themes";
+import { WEBSITE_THEMES } from "../../components/themes";
 import { useResumeSettings } from "./resumeSettings";
 import { DARK, LIGHT } from "./useResumeMenus";
 
@@ -36,7 +36,7 @@ test("the resume follows the desktop and retains each scheme's page choice and s
     act(() =>
       root.render(
         <ThemeProvider
-          themes={EXPERIMENT_THEMES}
+          themes={WEBSITE_THEMES}
           defaultTheme="graphite"
           storageKey="resume-test.theme"
         >

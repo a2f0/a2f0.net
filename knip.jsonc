@@ -35,14 +35,14 @@
         "@wdio/spec-reporter"
       ]
     },
-    "packages/website": {
+    "packages/demo": {
       "entry": ["src/main.ts", "src/**/*.test.ts", "test/**/*.ts"],
       "ignoreDependencies": ["@wdio/local-runner"]
     },
     "packages/shared": {
       "project": ["src/**/*.ts"]
     },
-    "packages/experiment": {
+    "packages/website": {
       "entry": ["pages/**/*.tsx", "test/specs/*.e2e.ts", "**/*.test.tsx"],
       "project": ["**/*.{ts,tsx}"],
       "ignoreDependencies": ["@types/mocha", "@wdio/local-runner"]

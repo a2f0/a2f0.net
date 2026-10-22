@@ -16,7 +16,7 @@ export const config: WebdriverIO.Config = {
     },
   ],
   logLevel: "error",
-  baseUrl: process.env.EXPERIMENT_BASE_URL ?? "http://localhost:4003",
+  baseUrl: "http://localhost:4002",
   waitforTimeout: 10000,
   framework: "mocha",
   reporters: ["spec"],

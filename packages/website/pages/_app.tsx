@@ -13,14 +13,14 @@ import "../mini-apps/dnbm-player/DnbmPlayer.css";
 import "../mini-apps/resume/Resume.css";
 import "../mini-apps/skyline/Skyline.css";
 
-export default function ExperimentApp({
+export default function WebsiteApp({
   Component,
   pageProps,
 }: AppProps): React.ReactElement {
   return (
     <>
       <Head>
-        <title>a2f0 experiment</title>
+        <title>a2f0.net</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />

@@ -1,5 +1,5 @@
-// The website's graffiti restacked into a square: "a2" over "f0", drawn with
-// the letters, chrome, and extrusion of packages/website/public/a2f0.svg. The
+// The demo's graffiti restacked into a square: "a2" over "f0", drawn with
+// the letters, chrome, and extrusion of packages/demo/public/a2f0.svg. The
 // taskbar renders one, so its ids stay unique in the page.
 
 const LETTERS = {

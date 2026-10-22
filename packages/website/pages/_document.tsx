@@ -1,6 +1,6 @@
 import { Head, Html, Main, NextScript } from "next/document";
 
-export default function ExperimentDocument() {
+export default function WebsiteDocument() {
   return (
     <Html lang="en">
       <Head />

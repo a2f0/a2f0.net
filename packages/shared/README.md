@@ -1,6 +1,6 @@
 # Shared resume code
 
-Framework-neutral resume code used by the resume app and the experiment: the
+Framework-neutral resume code used by the resume app and the website: the
 resume data (`resume.json`), layout configuration, the SVG and PDF factories,
 text measurement, the browser download helpers, and printing, which prints
 the PDF in the light theme. Modules are exported by path, for example

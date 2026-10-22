@@ -42,12 +42,12 @@ resource "cloudflare_workers_custom_domain" "staging" {
   service    = "resume-staging"
 }
 
-# Host for packages/experiment, deployed from production CI.
-resource "cloudflare_workers_custom_domain" "experiment" {
+# Host for packages/demo, deployed from production CI.
+resource "cloudflare_workers_custom_domain" "demo" {
   account_id = var.cloudflare_account_id
   zone_id    = data.cloudflare_zone.resume.id
-  hostname   = "experiment.${var.domain}"
-  service    = "experiment"
+  hostname   = "demo.${var.domain}"
+  service    = "demo"
 }
 
 # Host for the Tearleads SDK drive, deployed from production CI.

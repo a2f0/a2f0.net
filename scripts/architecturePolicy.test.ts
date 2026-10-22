@@ -12,25 +12,25 @@ import {
 } from "./architecturePolicy";
 
 const MANIFESTS = new Map<string, WorkspaceManifest>([
+  ["demo", { name: "@a2f0/demo" }],
   ["drive", { name: "@a2f0/drive" }],
+  ["resume", { name: "@resume/site" }],
+  ["shared", { name: "@a2f0/shared" }],
   [
-    "experiment",
+    "website",
     {
-      name: "@a2f0/experiment",
-      dependencies: { "@a2f0/website": "workspace:*" },
+      name: "@a2f0/website",
+      dependencies: { "@a2f0/demo": "workspace:*" },
       devDependencies: { "dev-only": "1.0.0" },
     },
   ],
-  ["resume", { name: "@resume/site" }],
-  ["shared", { name: "@a2f0/shared" }],
-  ["website", { name: "@a2f0/website" }],
 ]);
 
 // Each file breaks the rules named after it.
 const SOURCES = {
   // not-to-dev-dep, though a type-only import of a devDependency is fine.
-  "packages/experiment/app.ts":
-    'import type { Value } from "dev-only/types";\nimport { value } from "dev-only";\nimport { site } from "@a2f0/website/site";\nexport const app: Value = value + site;\n',
+  "packages/website/app.ts":
+    'import type { Value } from "dev-only/types";\nimport { value } from "dev-only";\nimport { site } from "@a2f0/demo/site";\nexport const app: Value = value + site;\n',
   // A type-only import cycle within a workspace: no-circular.
   "packages/shared/a.ts":
     'import type { B } from "./b";\nexport type A = B;\nexport const a = 1;\n',
@@ -38,10 +38,10 @@ const SOURCES = {
     'import { a } from "./a";\nexport type B = 1;\nexport const b = a;\n',
   // A relative import of a workspace outside the resume's layers.
   "packages/resume/page.ts":
-    'import { site } from "../website/site";\nexport const page = site;\n',
-  // An import of a workspace above the website, which closes a cycle.
-  "packages/website/site.ts":
-    'import { app } from "@a2f0/experiment/app";\nexport const site = 1;\nexport const loop = app;\n',
+    'import { site } from "../demo/site";\nexport const page = site;\n',
+  // An import of a workspace above the demo, which closes a cycle.
+  "packages/demo/site.ts":
+    'import { app } from "@a2f0/website/app";\nexport const site = 1;\nexport const loop = app;\n',
   // A root script importing app code by a relative path.
   "scripts/tool.ts":
     'import { a } from "../packages/shared/a";\nexport const tool = a;\n',
@@ -89,14 +89,14 @@ test("the rules catch each kind of violation", async () => {
     );
     // dependency-cruiser reports each cycle once, from its first module.
     expect(violations.toSorted()).toEqual([
-      "no-circular: packages/experiment/app.ts → packages/website/site.ts",
+      "demo-imports-only-its-layers: packages/demo/site.ts → packages/website/app.ts",
+      "no-circular: packages/demo/site.ts → packages/website/app.ts",
       "no-circular: packages/shared/a.ts → packages/shared/b.ts",
-      "no-relative-imports-across-workspaces: packages/resume/page.ts → packages/website/site.ts",
+      "no-relative-imports-across-workspaces: packages/resume/page.ts → packages/demo/site.ts",
       "no-relative-imports-across-workspaces: scripts/tool.ts → packages/shared/a.ts",
-      "not-to-dev-dep: packages/experiment/app.ts → node_modules/dev-only/index.js",
-      "resume-imports-only-its-layers: packages/resume/page.ts → packages/website/site.ts",
+      "not-to-dev-dep: packages/website/app.ts → node_modules/dev-only/index.js",
+      "resume-imports-only-its-layers: packages/resume/page.ts → packages/demo/site.ts",
       "scripts-do-not-import-workspaces: scripts/tool.ts → packages/shared/a.ts",
-      "website-imports-only-its-layers: packages/website/site.ts → packages/experiment/app.ts",
     ]);
   } finally {
     await rm(fixture, { recursive: true, force: true });
@@ -113,7 +113,7 @@ const importer = (source: string, ...resolved: string[]) =>
 test("the graph check passes declared workspace imports", () => {
   expect(
     findGraphViolations(
-      [importer("packages/experiment/app.ts", "packages/website/site.ts")],
+      [importer("packages/website/app.ts", "packages/demo/site.ts")],
       MANIFESTS,
     ),
   ).toEqual([]);
@@ -122,12 +122,12 @@ test("the graph check passes declared workspace imports", () => {
 test("the graph check flags undeclared and unresolved workspace imports", () => {
   expect(
     findGraphViolations(
-      [importer("packages/experiment/app.ts", "packages/shared/a.ts")],
+      [importer("packages/website/app.ts", "packages/shared/a.ts")],
       MANIFESTS,
     ),
   ).toEqual([
-    "packages/experiment declares @a2f0/website, but no import resolved to packages/website",
-    "packages/experiment imports packages/shared without declaring it in its package.json",
+    "packages/website declares @a2f0/demo, but no import resolved to packages/demo",
+    "packages/website imports packages/shared without declaring it in its package.json",
   ]);
 });
 
@@ -138,6 +138,6 @@ test("the graph check flags workspaces WORKSPACE_LAYERS does not cover", () => {
   expect(findGraphViolations([], manifests)).toEqual([
     "packages/blog is missing from WORKSPACE_LAYERS",
     "WORKSPACE_LAYERS names packages/shared, which is gone",
-    "packages/experiment declares @a2f0/website, but no import resolved to packages/website",
+    "packages/website declares @a2f0/demo, but no import resolved to packages/demo",
   ]);
 });

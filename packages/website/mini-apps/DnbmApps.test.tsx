@@ -12,10 +12,7 @@ import {
 import { act, type ComponentType, StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
-import {
-  EXPERIMENT_THEMES,
-  type ExperimentThemeId,
-} from "../components/themes";
+import { WEBSITE_THEMES, type WebsiteThemeId } from "../components/themes";
 import { MiniAppWindow } from "./MiniAppWindow";
 import { EM_SPACE } from "./shared/menuLabels";
 import type { MiniAppId, MiniAppProps } from "./types";
@@ -192,13 +189,13 @@ const current = () => {
 
 /**
  * Opens the app in a window on a desktop of its own, in Strict Mode, as the
- * experiment does in development.
+ * website does in development.
  */
 const render = async (
   App: ComponentType<MiniAppProps>,
   appId: MiniAppId,
   title: string,
-  theme: ExperimentThemeId = "graphite",
+  theme: WebsiteThemeId = "graphite",
 ) => {
   const onLoad = mock(ignore);
   let actions: WindowStateActions | undefined;
@@ -220,7 +217,7 @@ const render = async (
     root.render(
       <StrictMode>
         <ThemeProvider
-          themes={EXPERIMENT_THEMES}
+          themes={WEBSITE_THEMES}
           defaultTheme={theme}
           storageKey="dnbm-test.theme"
         >

@@ -351,13 +351,13 @@ const frontWindowApp = async () =>
     }),
   );
 
-describe("Experiment desktop", () => {
+describe("Website desktop", () => {
   beforeEach(async () => {
     await browser.setViewport({ width: 1440, height: 900 });
     await browser.url("/");
     await waitForResume();
     await browser.waitUntil(async () => (await siteState()).view === "ascii", {
-      timeoutMsg: "the website did not mount inside its shadow root",
+      timeoutMsg: "the demo did not mount inside its shadow root",
     });
   });
 
@@ -369,9 +369,9 @@ describe("Experiment desktop", () => {
     browser.execute(() => {
       localStorage.removeItem("dnbm:song");
       localStorage.removeItem("dnbm:saved");
-      localStorage.removeItem("experiment.navigationMode");
-      localStorage.removeItem("experiment.launcherPlacement");
-      localStorage.removeItem("experiment.theme");
+      localStorage.removeItem("website.navigationMode");
+      localStorage.removeItem("website.launcherPlacement");
+      localStorage.removeItem("website.theme");
     }),
   );
 
@@ -1607,7 +1607,7 @@ describe("Experiment desktop", () => {
   it("switches the desktop's theme from the taskbar's lower-right corner", async () => {
     // A saved choice for the removed blue theme falls back to Graphite.
     await browser.execute(() => {
-      localStorage.setItem("experiment.theme", "skyline");
+      localStorage.setItem("website.theme", "skyline");
     });
     await browser.refresh();
     await waitForResume();

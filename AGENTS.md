@@ -32,8 +32,8 @@ addressed.
 
 ## Repo Validation Commands
 
-The Next.js resume app is in `packages/resume` and the static apex website is in
-`packages/website`. PR helpers come from the commit-pinned `a2f0/agent-tool`
+The Next.js resume app is in `packages/resume`, the Next.js apex website is in
+`packages/website`, and the static graffiti demo is in `packages/demo`. PR helpers come from the commit-pinned `a2f0/agent-tool`
 GitHub dependency; use `bun run agent-tool` from the root. Project title and CI
 policy is in `agent-tool.json`. Run the root Bun scripts to check the workspaces.
 Shared skills are managed in `.agents/skills` and `.claude/skills`. Run
@@ -90,7 +90,7 @@ base, PR base, and head before merging.
 Verify merge ancestry and branch identities before deleting shipped branches.
 
 After merging to `main`, wait for the `CI` deployment for that merge commit
-and smoke-test `resume.a2f0.net`, `a2f0.net`, `experiment.a2f0.net`, and
+and smoke-test `resume.a2f0.net`, `a2f0.net`, `demo.a2f0.net`, and
 `drive.a2f0.net`. If using an
 isolated worktree, clean up that worktree without modifying the user's checkout.
 Report the independent reviewer, fallback, verdict, repairs, merge, and deploy.

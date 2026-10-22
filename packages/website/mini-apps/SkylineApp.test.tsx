@@ -12,7 +12,7 @@ import { ThemeProvider, ThemeSwitch } from "@tearleads/windowing";
 import { act, StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
-import { EXPERIMENT_THEMES } from "../components/themes";
+import { WEBSITE_THEMES } from "../components/themes";
 
 // A stand-in for one mounted skyline viewer.
 interface FakeViewer {
@@ -99,7 +99,7 @@ test("Paper mounts a colour skyline and switching back releases that viewer", as
   await act(() =>
     root.render(
       <ThemeProvider
-        themes={EXPERIMENT_THEMES}
+        themes={WEBSITE_THEMES}
         defaultTheme="paper"
         storageKey="skyline-test.theme"
       >

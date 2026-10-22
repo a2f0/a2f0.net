@@ -8,16 +8,16 @@ import type {
 
 /**
  * The workspace packages each package may import, keeping them layered: the
- * website and the shared resume code are leaves, the resume builds on the
- * shared code, and the experiment on both. Nothing imports the resume or the
- * experiment, so no import between packages can close a cycle.
+ * demo and the shared resume code are leaves, the resume builds on the shared
+ * code, and the website on both. Nothing imports the resume or the website,
+ * so no import between packages can close a cycle.
  */
 const WORKSPACE_LAYERS = {
+  demo: [],
   drive: [],
-  experiment: ["shared", "website"],
   resume: ["shared"],
   shared: [],
-  website: [],
+  website: ["demo", "shared"],
 } as const satisfies Record<string, readonly string[]>;
 
 /** The parts of a workspace's package.json the check reads. */

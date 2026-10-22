@@ -4,9 +4,9 @@ import { PHASE_DEVELOPMENT_SERVER } from "next/constants";
 const nextConfig: NextConfig = {
   output: "export",
   agentRules: false,
-  transpilePackages: ["@a2f0/shared", "@a2f0/website"],
+  transpilePackages: ["@a2f0/demo", "@a2f0/shared"],
   webpack: (config) => {
-    // `?raw` imports a file's text, such as the website's index.html.
+    // `?raw` imports a file's text, such as the demo's index.html.
     config.module.rules.push({ resourceQuery: /raw/, type: "asset/source" });
     return config;
   },

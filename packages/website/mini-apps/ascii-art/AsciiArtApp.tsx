@@ -1,4 +1,4 @@
-import { mountSite } from "@a2f0/website/src/site";
+import { mountSite } from "@a2f0/demo/src/site";
 import { useEffect, useRef, useState } from "react";
 
 import { buildSite, loadSite } from "./site";

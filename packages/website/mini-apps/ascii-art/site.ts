@@ -1,4 +1,4 @@
-import siteHtml from "@a2f0/website/public/index.html?raw";
+import siteHtml from "@a2f0/demo/public/index.html?raw";
 
 // The site lays out its own <main>; inside a window a plain container takes
 // its place, and fills the window body. The window's toolbar carries the
@@ -31,8 +31,8 @@ interface Site {
 let site: Site | undefined;
 
 /**
- * Reads the markup and styles from the website's own index.html, so the
- * window shows exactly what a2f0.net does. Its styles go in a shadow root:
+ * Reads the markup and styles from the demo's own index.html, so the
+ * window shows exactly what demo.a2f0.net does. Its styles go in a shadow root:
  * they select `.window`, `main`, and `:root`, which would restyle the
  * desktop, and the desktop's resets would restyle the site.
  */
@@ -62,7 +62,7 @@ export const loadSite = (): Site => {
     }
   }
   const main = page.querySelector("main");
-  if (!main) throw new Error("The website has no <main>");
+  if (!main) throw new Error("The demo has no <main>");
   site = { sheet, main };
   return site;
 };

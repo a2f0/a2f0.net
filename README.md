@@ -5,12 +5,12 @@
 [mise](https://mise.jdx.dev/) installs Node from `.nvmrc` and Bun from
 `.mise.toml`. CI uses the same configuration.
 The resume app lives in [`packages/resume`](packages/resume), the apex website
-lives in [`packages/website`](packages/website), and PR helpers come from the
-commit-pinned [agent-tool repository](https://github.com/a2f0/agent-tool).
+lives in [`packages/website`](packages/website/README.md), and PR helpers come
+from the commit-pinned [agent-tool repository](https://github.com/a2f0/agent-tool).
 The resume data, layout, and SVG
-and PDF factories live in [`packages/shared`](packages/shared/README.md), and
-[`packages/experiment`](packages/experiment/README.md) opens the resume and
-website artwork in desktop windows.
+and PDF factories live in [`packages/shared`](packages/shared/README.md). The
+website opens the resume, the graffiti artwork from
+[`packages/demo`](packages/demo), and other apps in desktop windows.
 [`packages/drive`](packages/drive/README.md) is an independently styled file explorer
 built on the published Tearleads client SDK, hosted at `drive.a2f0.net`.
 Run the commands below from the repository root.
@@ -28,13 +28,14 @@ exported HTML; local development and mobile layouts still generate it in the
 browser. The SVG uses the bundled Arimo font for consistent build and browser
 layout. PDF generation remains in the browser.
 
-The apex website displays a grayscale SVG graffiti wordmark on a black canvas,
-served by Cloudflare Workers. Edit `packages/website/public/a2f0.svg` to refine
-the artwork. Its TypeScript in `packages/website/src` renders the ASCII view,
-the lens, and the toolbar's play button animations (a laser etching over the
-SVG, and falling code that writes the ASCII art). Wrangler runs `bun run build` before `dev`. The guarded deployment builds
-once, then previews and publishes that same `dist/` asset tree. Preview it with
-`bun run --cwd packages/website start` on port 4002.
+The demo at `demo.a2f0.net` displays a grayscale SVG graffiti wordmark on a
+black canvas, served by Cloudflare Workers. Edit `packages/demo/public/a2f0.svg`
+to refine the artwork. Its TypeScript in `packages/demo/src` renders the ASCII
+view, the lens, and the toolbar's play button animations (a laser etching over
+the SVG, and falling code that writes the ASCII art). Wrangler runs
+`bun run build` before `dev`. The guarded deployment builds once, then previews
+and publishes that same `dist/` asset tree. Preview it with
+`bun run --cwd packages/demo start` on port 4002.
 
 ## Agent tooling
 
@@ -49,17 +50,19 @@ bun run compile
 bun run unit
 bun run ci-headless
 bun run --cwd packages/website test
+bun run --cwd packages/demo test
 bun run lint:md
 bun run check:architecture
 ```
 
 `ci-headless` builds the static export and runs the browser tests against
 Wrangler on port 4001. It covers the resume views, downloads, menus, direct
-routes, canonical URLs, and 404 responses. The website test builds and serves
-`packages/website/dist` through Wrangler and checks that the apex page
-responds without a resume redirect.
+routes, canonical URLs, and 404 responses. The website test exports
+`packages/website` and drives its desktop and windows through Wrangler. The
+demo test builds and serves `packages/demo/dist` through Wrangler and checks
+that its page responds without a redirect.
 
-Both browser suites include an `a11y.e2e.ts` spec that audits each view with
+The resume and demo browser suites include an `a11y.e2e.ts` spec that audits each view with
 [axe-core](https://github.com/dequelabs/axe-core) against WCAG 2.2 A and AA
 and axe's best practices, and drives the menus and toolbar from the keyboard.
 Biome enforces all of its `a11y` lint rules on the TSX and HTML.
@@ -70,8 +73,8 @@ source file git doesn't ignore with the rules in `scripts/architecturePolicy.ts`
 circular imports, type-only ones included; npm imports declared in the importing
 workspace, as dependencies wherever the apps ship them; no orphaned modules; and
 workspaces importing one another by package name and only down their layers. The
-website and `packages/shared` import no other workspace, the resume imports
-`packages/shared`, and the experiment imports both. The pre-push hook runs it
+demo and `packages/shared` import no other workspace, the resume imports
+`packages/shared`, and the website imports both. The pre-push hook runs it
 after [Knip](https://knip.dev), which reports unused files, dependencies, and
 exports.
 
@@ -132,15 +135,16 @@ is served using Cloudflare's
 | `staging` | `bun run deploy:staging` | `resume-staging` | `staging.a2f0.net` |
 | `main` | `bun run deploy:prod` | `resume-prod` | `resume.a2f0.net` |
 | `main` | `bun run deploy:website` | `resume-redirect` | `a2f0.net` |
-| `main` | `bun run --cwd packages/experiment deploy` | `experiment` | `experiment.a2f0.net` |
+| `main` | `bun run deploy:demo` | `demo` | `demo.a2f0.net` |
 | `main` | `bun run --cwd packages/drive deploy` | `drive` | `drive.a2f0.net` |
 
-The experiment uses the published, pinned `@tearleads/windowing` package and
-deploys alongside the resume and website after production validation succeeds.
+The website uses the published, pinned `@tearleads/windowing` package and
+deploys alongside the resume and demo after production validation succeeds.
 
 `a2f0.net` serves the website directly. The resume remains at
-`resume.a2f0.net`. The website keeps the existing Worker service name so the
-apex domain stays attached when the redirect code is replaced.
+`resume.a2f0.net`. The website keeps the apex Worker's existing service name,
+`resume-redirect`, so the apex domain stays attached as the code it serves
+changes.
 
 Terraform also attaches `nc.a2f0.net` to the `nc` Worker, which
 [a2f0/nc](https://github.com/a2f0/nc) builds and deploys with
@@ -162,7 +166,7 @@ and read access to the existing Worker settings, deployments, domains,
 subdomain settings and schedules. The guard
 fails closed when its reads are denied. It populates the Actions
 `CLOUDFLARE_API_TOKEN` secret. CI exposes it only to the guard and Wrangler,
-after installation and the build finish; the website's local build runs with
+after installation and the build finish; the demo's local build runs with
 Cloudflare credentials removed.
 The Terraform provider uses `cloudflare_api_token`, which also needs Workers
 custom-domain access, Zone Read, DNS Edit, and Zone Settings Edit for `a2f0.net`.
@@ -173,8 +177,8 @@ see [Setup](#setup).
 Public `workers.dev` and preview URLs are disabled. Each Worker is served
 through its existing Terraform-owned custom domain. Select the explicit target
 with the scripts above; do not pass alternate names or environments to Wrangler.
-Use `preview:staging`, `preview:prod`, `preview:website`, or
-`bun run --cwd packages/experiment preview` for the same guard without mutation.
+Use `preview:staging`, `preview:prod`, `preview:website`, or `preview:demo`
+for the same guard without mutation.
 
 ## Infrastructure
 

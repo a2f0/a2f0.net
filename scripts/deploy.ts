@@ -8,7 +8,7 @@ import {
   checkConfiguration,
   checkDeployment,
   checkDomain,
-  checkDriveBootstrap,
+  checkBootstrap,
   checkPublicEndpoints,
   checkSettings,
   DEPLOYMENTS,
@@ -50,13 +50,11 @@ async function main() {
     extra.length
   ) {
     throw new Error(
-      "Usage: bun scripts/deploy.ts <target> [--dry-run]; drive also accepts --bootstrap or --bootstrap-dry-run",
+      "Usage: bun scripts/deploy.ts <target> [--dry-run]; a target not yet created also accepts --bootstrap or --bootstrap-dry-run",
     );
   }
   const target = name as DeploymentName;
   const bootstrap = mode === "--bootstrap" || mode === "--bootstrap-dry-run";
-  if (bootstrap && target !== "drive")
-    throw new Error("Only Drive supports initial provisioning");
   const previewOnly = mode === "--dry-run" || mode === "--bootstrap-dry-run";
   const specification = DEPLOYMENTS[target];
   const directory = resolve(root, "packages", specification.package);
@@ -123,9 +121,9 @@ async function main() {
     target,
     directory,
   );
-  // The website's Wrangler custom build only replaces generated local dist/.
+  // The demo's Wrangler custom build only replaces generated local dist/.
   // Build before snapshotting so the preview and the mutation use the same assets.
-  if (target === "website") {
+  if (target === "demo") {
     const buildEnvironment = { ...process.env };
     for (const key of [
       "CLOUDFLARE_API_TOKEN",
@@ -153,7 +151,7 @@ async function main() {
         api(`accounts/${account}/workers/scripts`),
         api(`accounts/${account}/workers/domains`),
       ]);
-      checkDriveBootstrap(scripts, domains, target);
+      checkBootstrap(scripts, domains, target);
       return createHash("sha256")
         .update(JSON.stringify({ account, scripts, domains }))
         .digest("hex");
@@ -267,7 +265,7 @@ async function main() {
     previewOnly
       ? "Deployment preview and remote identities verified"
       : bootstrap
-        ? "Drive Worker created; attach its custom domain through Terraform"
+        ? "Worker created; attach its custom domain through Terraform"
         : "Previewed deployment completed",
   );
 }

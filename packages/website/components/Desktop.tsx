@@ -26,14 +26,14 @@ import { trackInputModality } from "./inputModality";
 import StartIcon from "./StartIcon";
 import Taskbar from "./Taskbar";
 import {
-  DEFAULT_EXPERIMENT_THEME,
-  EXPERIMENT_THEMES,
+  DEFAULT_WEBSITE_THEME,
+  WEBSITE_THEMES,
   THEME_STORAGE_KEY,
 } from "./themes";
 
 // Where the windowed/routed switch keeps the visitor's choice.
-const NAVIGATION_MODE_STORAGE_KEY = "experiment.navigationMode";
-const LAUNCHER_PLACEMENT_STORAGE_KEY = "experiment.launcherPlacement";
+const NAVIGATION_MODE_STORAGE_KEY = "website.navigationMode";
+const LAUNCHER_PLACEMENT_STORAGE_KEY = "website.launcherPlacement";
 
 function DesktopSurface() {
   const { windows } = useWindowStateData();
@@ -107,7 +107,7 @@ function DesktopLayout() {
       <LauncherNavigationProvider definition={MINI_APP_LAUNCHER} mode={mode}>
         <OpenEveryMiniAppOnce />
         <main className={`desktop desktop--${mode}`}>
-          <h1 className="visually-hidden">a2f0 experiment</h1>
+          <h1 className="visually-hidden">a2f0</h1>
           {mode === "routed" ? (
             <RoutedPane
               AppBoundary={RoutedMiniAppBoundary}
@@ -137,9 +137,9 @@ export default function Desktop() {
 
   return (
     <ThemeProvider
-      defaultTheme={DEFAULT_EXPERIMENT_THEME}
+      defaultTheme={DEFAULT_WEBSITE_THEME}
       storageKey={THEME_STORAGE_KEY}
-      themes={EXPERIMENT_THEMES}
+      themes={WEBSITE_THEMES}
     >
       <NavigationModeOverrideProvider storageKey={NAVIGATION_MODE_STORAGE_KEY}>
         <DesktopLayout />

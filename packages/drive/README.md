@@ -108,7 +108,7 @@ production accounts or require the Tearleads checkout in CI.
 
 The Worker is named `drive`. Terraform owns `drive.a2f0.net`; CI builds, tests,
 and deploys the package on validated pushes to `main`. Current Tearleads
-APIs allow Drive and future Experiment hosts without a separate CORS change.
+APIs allow Drive and a future website host without a separate CORS change.
 
 Before merging a branch that first enables Drive in production CI, provision
 the Worker and attach its custom domain from the reviewed, committed PR head.
@@ -134,13 +134,13 @@ attaches the hostname through its normal saved-plan review. Subsequent deploys
 use `bun run --cwd packages/drive deploy` and require the existing identities;
 `preview` performs those checks without publishing.
 
-## Future Experiment integration
+## Future website integration
 
 The package exports `DriveApp` as its default and `@a2f0/drive/styles.css`.
-The component accepts an optional `apiBaseUrl`. A future Experiment mini-app
+The component accepts an optional `apiBaseUrl`. A future website mini-app
 can import the component and stylesheet, then serve the same SDK worker/WASM
 assets at its origin. Drive’s styles are scoped to its root and dialog classes.
 The SDK owns storage, identity, and sync; the React components own presentation.
-Storage belongs to the browser origin, so `drive.a2f0.net` and
-`experiment.a2f0.net` will have separate local copies and sign in to the same
+Storage belongs to the browser origin, so `drive.a2f0.net` and `a2f0.net`
+will have separate local copies and sign in to the same
 remote identity using its recovery phrase.

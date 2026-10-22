@@ -13,8 +13,8 @@
       "!**/out/**/*",
       "!**/.wrangler/**/*",
       "!**/.turbo/**/*",
-      "!packages/experiment/public/skyline/**/*",
-      "!packages/experiment/public/dnbm/**/*",
+      "!packages/website/public/skyline/**/*",
+      "!packages/website/public/dnbm/**/*",
       "!packages/drive/public/worker.js",
       // Secret JSON stays out of Biome's diffs, which this configuration does
       // not filter through .gitignore: the matrix-secrets link, which Biome

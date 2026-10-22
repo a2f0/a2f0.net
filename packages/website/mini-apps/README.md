@@ -1,6 +1,6 @@
 # Mini-Apps
 
-Each window on the experiment desktop is a mini-app: a component that runs
+Each window on the website's desktop is a mini-app: a component that runs
 inside a window from `@tearleads/windowing` and reaches its window's chrome
 (File and View menus, toolbar, status bar) through the package's `useWindow*`
 hooks. The layout follows Tearleads'
@@ -54,7 +54,7 @@ several apps.
   and scale survive layout switches. Paper gives it a pale surround, while
   Graphite keeps the resume site's dark desk.
   Its window opens fitted to the page once the SVG has rendered.
-- `ascii-art/` runs the a2f0.net artwork from `packages/website` inside a
+- `ascii-art/` runs the graffiti artwork from `packages/demo` inside a
   shadow root. Its controls (the animation and the ASCII view, with its pressed
   state) sit in the window's toolbar and its View menu.
   Both mirror the site's own toolbar, which stays in the shadow root unseen and
