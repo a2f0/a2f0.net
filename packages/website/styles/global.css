@@ -45,15 +45,15 @@ body {
 
 /* The taskbar, styled as Tearleads' pane footer: a muted bar under a hairline,
    with bordered chips that light up under the pointer and for the front
-   window. The two tokens Tearleads adds for it derive from the theme's
-   foreground and background, so they follow the theme. */
+   window. Of the two tokens Tearleads adds for it, the control border derives
+   from the theme's foreground and background, so it follows the theme, and
+   each theme sets the muted labels' opacity (see themes.css). */
 :root {
   --app-control-border: color-mix(
     in srgb,
     var(--color-dark) 55%,
     var(--color-light)
   );
-  --opacity-muted: 0.75;
 }
 
 .desktop-taskbar {
