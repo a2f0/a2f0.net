@@ -1631,6 +1631,8 @@ describe("Website desktop", () => {
           corner: [innerWidth - corner.right, innerHeight - corner.bottom],
           taskbar: getComputedStyle(taskbar).backgroundColor,
           titlebar: getComputedStyle(titlebar).backgroundColor,
+          // Minimized windows' labels, muted less in Paper to keep 4.5:1.
+          muted: getComputedStyle(root).getPropertyValue("--opacity-muted"),
         };
       });
 
@@ -1650,6 +1652,7 @@ describe("Website desktop", () => {
       corner,
       taskbar: "rgb(40, 40, 40)",
       titlebar: "rgb(40, 40, 40)",
+      muted: "0.75",
     });
 
     // Each click moves to the next theme and recolors the chrome.
@@ -1660,6 +1663,7 @@ describe("Website desktop", () => {
       corner,
       taskbar: "rgb(228, 228, 228)",
       titlebar: "rgb(228, 228, 228)",
+      muted: "0.9",
     });
     // The choice survives a reload, and the cycle wraps to the default.
     await browser.url("/");
