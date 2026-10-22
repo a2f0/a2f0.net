@@ -26,7 +26,7 @@ function MiniAppWindowBoundary({
 export function MiniAppWindow({ windowId }: { windowId: string }) {
   const { windowMap } = useWindowStateData();
   const appId = windowMap.get(windowId)?.appId;
-  const window = (
+  const frame = (
     <Window
       ContentBoundary={MiniAppWindowBoundary}
       historyBack={false}
@@ -34,8 +34,8 @@ export function MiniAppWindow({ windowId }: { windowId: string }) {
     />
   );
   return isMiniAppId(appId) ? (
-    <MiniAppTracking appId={appId}>{window}</MiniAppTracking>
+    <MiniAppTracking appId={appId}>{frame}</MiniAppTracking>
   ) : (
-    window
+    frame
   );
 }

@@ -104,7 +104,14 @@ describe("click tracking boundaries", () => {
       await expect($(".routed-pane-appbar")).toBeExisting();
       await $(".routed-pane-taskbar button[aria-label='Menu']").click();
       await browser.execute(() => window.dispatchEvent(new Event("pagehide")));
-      expect(attempts).toEqual([]);
+      // A positive control proves interception and waits for the asynchronous
+      // browser-to-runner channel to deliver earlier attempts before asserting.
+      const probe = "https://ct.a2f0.net/__interception_probe__";
+      await browser.execute(async (url) => {
+        await fetch(url, { method: "POST" });
+      }, probe);
+      await browser.waitUntil(() => attempts.includes(probe));
+      expect(attempts).toEqual([probe]);
     } finally {
       await script.remove();
     }

@@ -23,6 +23,11 @@ hooks. The layout follows Tearleads'
   `ContentBoundary` slot with `MiniAppBoundary`, so an app that throws fails
   inside its own window, and turns off the history Back button: these apps have
   no routes.
+- `MiniAppTracking.tsx` marks the desktop window with its CT app identifier.
+  Its full-size surface preserves the windowing package's parent measurements
+  and lets pointer events through to sibling windows. Each app also marks its
+  existing content root with `data-ct-app`, which provides routed attribution
+  without adding a parent that would change layout or measurement.
 - `useOpenMiniApp.ts` opens an app's window, or brings its open window to the
   front. Each app has at most one window.
 
@@ -37,6 +42,9 @@ hooks. The layout follows Tearleads'
    `onLoad` once its content shows.
 4. Import its stylesheet, if it has one, from `pages/_app.tsx`: Next.js takes
    global stylesheets only from there.
+5. Add `data-ct-app="<app id>"` to the app's existing root element, using its
+   registered id. This attributes content and open-shadow-root clicks in both
+   layouts. Shared menus, taskbars, and routed chrome keep the website fallback.
 
 ## Layout
 
@@ -74,6 +82,9 @@ several apps.
   resets its camera: the package exposes colour as a mount option, not a live
   setter. The old viewer is destroyed first, releasing its WebGL context, as
   when its window closes or minimizes.
+  `mountSkyline` mounts only the viewer; the package's standalone page tracker
+  is not started. The host website owns the single CT tracker, including the
+  viewer's descriptive `data-ct` labels.
 - `dnbm/` mounts the dnbm drum and bass sequencer from `@a2f0/dnbm`, which
   renders it in the page inside a shadow root, from assets the `copy-dnbm`
   script copies into `public/dnbm/`. It mounts with `actions: false`, so the
