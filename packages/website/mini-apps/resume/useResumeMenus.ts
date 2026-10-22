@@ -26,8 +26,8 @@ export const DARK: ResumeColors = {
   highlightColor: darkHighlightColor,
 };
 
-// The light page takes Paper's charcoal ink rather than the shared light
-// theme's black, which is harsher on screen. Printing keeps black on white.
+// The light page takes Paper's grey ink rather than the shared light theme's
+// black, which is harsher on screen. Printing keeps black on white.
 export const LIGHT: ResumeColors = {
   foregroundColor: PAPER_INK,
   backgroundColor: lightBackgroundColor,

@@ -38,10 +38,10 @@ themes are listed in [`components/themes.ts`](components/themes.ts) and styled i
 [`styles/themes.css`](styles/themes.css), each a block of the windowing
 package's design tokens plus the desktop's background. The choice persists. The
 themes recolor the desktop, its chrome, and every mini-app. Paper writes in a
-charcoal ink, `#333333`, rather than black, which is harsher on white than
-Graphite's light grey is on black. It gives the artwork an ink-on-white
-treatment, the music apps pale surfaces with dark controls, and Skyline its
-sunny-day colour mode. The resume follows the desktop
+grey ink, `#555555` (about 7:1 on its sheets), with emphasis in `#444444`,
+rather than black, which is harsher on white than Graphite's light grey is on
+black. It gives the artwork an ink-on-white treatment, the music apps pale
+surfaces with dark controls, and Skyline its sunny-day colour mode. The resume follows the desktop
 by default and keeps its own theme controls for previewing its page.
 
 On phones, tablets, and windows narrower than 1024px, the desktop gives way to
