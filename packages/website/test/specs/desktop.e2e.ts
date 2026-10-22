@@ -536,7 +536,7 @@ describe("Website desktop", () => {
     await resumeWindow().$("button=View").click();
     await resumeWindow().$("button*=Light Theme").click();
     await browser.waitUntil(
-      async () => (await resumeTextFills()).includes("#000000"),
+      async () => (await resumeTextFills()).includes("#333333"),
       { timeoutMsg: "the resume did not redraw in the light theme" },
     );
     expect(await resumeTextFills()).not.toContain("#DCDCDC");
@@ -1571,7 +1571,7 @@ describe("Website desktop", () => {
     await resumeWindow().$("button=View").click();
     await resumeWindow().$("button*=Light Theme").click();
     await browser.waitUntil(
-      async () => (await resumeTextFills()).includes("#000000"),
+      async () => (await resumeTextFills()).includes("#333333"),
       { timeoutMsg: "the resume did not take the light theme" },
     );
 
@@ -1584,7 +1584,7 @@ describe("Website desktop", () => {
     await expect(
       $$(".desktop-surface > section.window"),
     ).toBeElementsArrayOfSize(5);
-    expect(await resumeTextFills()).toContain("#000000");
+    expect(await resumeTextFills()).toContain("#333333");
   });
 
   it("keeps the resume's theme across a layout switch", async () => {
@@ -1601,7 +1601,7 @@ describe("Website desktop", () => {
     await expect(
       $(".routed-pane-toolbar button[aria-label='Dark Theme']"),
     ).toBeDisplayed();
-    expect(await resumeTextFills()).toContain("#000000");
+    expect(await resumeTextFills()).toContain("#333333");
   });
 
   it("switches the desktop's theme from the taskbar's lower-right corner", async () => {
@@ -1721,13 +1721,13 @@ describe("Website desktop", () => {
     await themeSwitch().click();
     await waitForSkyline();
     await browser.waitUntil(
-      async () => (await resumeTextFills()).includes("#000000"),
+      async () => (await resumeTextFills()).includes("#333333"),
       { timeoutMsg: "Paper did not give the resume its light page" },
     );
     expect(await palettes()).toEqual({
-      sequencer: { background: "rgb(245, 245, 245)", color: "rgb(36, 36, 36)" },
-      player: { background: "rgb(245, 245, 245)", color: "rgb(36, 36, 36)" },
-      artwork: "invert(1)",
+      sequencer: { background: "rgb(245, 245, 245)", color: "rgb(51, 51, 51)" },
+      player: { background: "rgb(245, 245, 245)", color: "rgb(51, 51, 51)" },
+      artwork: "invert(1) contrast(0.73) brightness(1.156)",
       skylineColour: "true",
       skylineBackdrop: "rgb(245, 245, 245)",
       skylineScheme: "light",
@@ -1779,15 +1779,15 @@ describe("Website desktop", () => {
     await waitForDnbmApps();
     await waitForSkyline();
     expect(await palettes()).toEqual({
-      sequencer: { background: "rgb(245, 245, 245)", color: "rgb(36, 36, 36)" },
-      player: { background: "rgb(245, 245, 245)", color: "rgb(36, 36, 36)" },
-      artwork: "invert(1)",
+      sequencer: { background: "rgb(245, 245, 245)", color: "rgb(51, 51, 51)" },
+      player: { background: "rgb(245, 245, 245)", color: "rgb(51, 51, 51)" },
+      artwork: "invert(1) contrast(0.73) brightness(1.156)",
       skylineColour: "true",
       skylineBackdrop: "rgb(245, 245, 245)",
       skylineScheme: "light",
       skylineControls: { background: "rgb(245, 245, 245)", scheme: "light" },
     });
-    expect(await resumeTextFills()).toContain("#000000");
+    expect(await resumeTextFills()).toContain("#333333");
   });
 
   it("switches the theme from the routed shell's tray", async () => {
@@ -1809,12 +1809,12 @@ describe("Website desktop", () => {
         const art = document.querySelector(".ascii-art-window");
         return art && getComputedStyle(art).filter;
       }),
-    ).toBe("invert(1)");
+    ).toBe("invert(1) contrast(0.73) brightness(1.156)");
     // A directly opened route and a reload both keep Paper for the app's
     // contents, not only the tray and toolbar.
     await browser.url("/app/resume");
     await waitForResume();
-    expect(await resumeTextFills()).toContain("#000000");
+    expect(await resumeTextFills()).toContain("#333333");
   });
 
   it("switches between the windowed desktop and the routed shell", async () => {

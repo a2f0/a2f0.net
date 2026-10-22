@@ -27,18 +27,19 @@
   --desktop-background: #000;
 }
 
-/* Paper: near-black ink on white sheets, over a grey desk. */
+/* Paper: charcoal ink (PAPER_INK in components/themes.ts) on white sheets,
+   over a grey desk. */
 :root[data-theme="paper"] {
-  --color-dark: #1f1f1f;
+  --color-dark: #333333;
   --color-light: #fafafa;
   --color-muted: #e4e4e4;
   --color-danger: #b3261e;
   --color-hairline: color-mix(in srgb, var(--color-dark) 16%, transparent);
   --border-strong-color: #b4b4b4;
   --emphasis-surface: #cdcdcd;
-  --emphasis-text: #111;
+  --emphasis-text: #262626;
   --tearleads-window-titlebar-background: #e4e4e4;
-  --tearleads-window-titlebar-text: #1f1f1f;
+  --tearleads-window-titlebar-text: #333333;
   --app-shadow-surface: 0 0.5rem 2rem rgb(0 0 0 / 14%);
   --app-shadow-window:
     0 1rem 3rem rgb(0 0 0 / 14%), 0 0.25rem 0.75rem rgb(0 0 0 / 10%);

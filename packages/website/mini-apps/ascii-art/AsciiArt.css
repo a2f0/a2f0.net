@@ -7,7 +7,9 @@
 }
 
 /* The monochrome artwork becomes an ink drawing on white paper, including
-   its SVG lens, code rain, and etching. Its window controls stay unfiltered. */
+   its SVG lens, code rain, and etching. Inverted alone, its brightest strokes
+   turn near-black; easing the contrast and restoring the white leaves them in
+   Paper's charcoal ink (#333) on white. Its window controls stay unfiltered. */
 :root[data-theme-scheme="light"] .ascii-art-window {
-  filter: invert(1);
+  filter: invert(1) contrast(0.73) brightness(1.156);
 }
