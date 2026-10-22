@@ -53,5 +53,5 @@ export function SkylineApp() {
     return () => skyline.destroy();
   }, [colour]);
 
-  return <div ref={hostRef} className="skyline-window" />;
+  return <div ref={hostRef} className="skyline-window" data-ct-app="skyline" />;
 }

@@ -1,7 +1,12 @@
-import { Window, type WindowEntry } from "@tearleads/windowing";
+import {
+  useWindowStateData,
+  Window,
+  type WindowEntry,
+} from "@tearleads/windowing";
 import type { PropsWithChildren } from "react";
 
 import { MiniAppBoundary } from "./MiniAppBoundary";
+import { MiniAppTracking } from "./MiniAppTracking";
 import { isMiniAppId } from "./types";
 
 // Gives a mini-app window the mini-app error boundary. Windows that no
@@ -19,11 +24,18 @@ function MiniAppWindowBoundary({
  * Back to offer: it shows only while an app registers toolbar actions.
  */
 export function MiniAppWindow({ windowId }: { windowId: string }) {
-  return (
+  const { windowMap } = useWindowStateData();
+  const appId = windowMap.get(windowId)?.appId;
+  const window = (
     <Window
       ContentBoundary={MiniAppWindowBoundary}
       historyBack={false}
       windowId={windowId}
     />
+  );
+  return isMiniAppId(appId) ? (
+    <MiniAppTracking appId={appId}>{window}</MiniAppTracking>
+  ) : (
+    window
   );
 }

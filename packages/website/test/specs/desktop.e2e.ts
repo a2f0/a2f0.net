@@ -339,7 +339,7 @@ const frontWindowApp = async () =>
     await browser.execute(() => {
       const windows = [
         ...document.querySelectorAll<HTMLElement>(
-          ".desktop-surface > section.window",
+          ".desktop-surface section.window",
         ),
       ];
       const front = windows.reduce((top, candidate) =>
@@ -376,9 +376,9 @@ describe("Website desktop", () => {
   );
 
   it("renders every app with the published window styles", async () => {
-    await expect(
-      $$(".desktop-surface > section.window"),
-    ).toBeElementsArrayOfSize(5);
+    await expect($$(".desktop-surface section.window")).toBeElementsArrayOfSize(
+      5,
+    );
     await expect(resumeWindow().$(".window-titlebar-title")).toHaveText(
       "Resume",
     );
@@ -1392,9 +1392,9 @@ describe("Website desktop", () => {
     await $(".menu").$("button=Resume").click();
     await waitForResume();
     await expect(taskbar("Resume")).toBeExisting();
-    await expect(
-      $$(".desktop-surface > section.window"),
-    ).toBeElementsArrayOfSize(5);
+    await expect($$(".desktop-surface section.window")).toBeElementsArrayOfSize(
+      5,
+    );
   });
 
   it("shows one app at a time in the routed shell on a phone", async () => {
@@ -1581,9 +1581,9 @@ describe("Website desktop", () => {
     await browser.pause(500);
     await expect($(".desktop-taskbar")).toBeDisplayed();
     await expect($("html")).toHaveAttribute("data-navigation-mode", "windowed");
-    await expect(
-      $$(".desktop-surface > section.window"),
-    ).toBeElementsArrayOfSize(5);
+    await expect($$(".desktop-surface section.window")).toBeElementsArrayOfSize(
+      5,
+    );
     expect(await resumeTextFills()).toContain("#555555");
   });
 
@@ -1869,9 +1869,9 @@ describe("Website desktop", () => {
     await toWindowed();
     await expect($(".desktop-taskbar")).toBeDisplayed();
     await expect($("html")).toHaveAttribute("data-navigation-mode", "windowed");
-    await expect(
-      $$(".desktop-surface > section.window"),
-    ).toBeElementsArrayOfSize(4);
+    await expect($$(".desktop-surface section.window")).toBeElementsArrayOfSize(
+      4,
+    );
     await expect(skylineWindow()).not.toBeExisting();
 
     // The choice survives a reload.
