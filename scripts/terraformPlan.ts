@@ -135,10 +135,7 @@ export interface DomainMigration {
 // still be absent from state, and the domains it retires may remain there and
 // be deleted, each only with exactly the identity named. Keep both empty until
 // a migration is reviewed, and empty them again once it is applied.
-const DOMAIN_MIGRATION: DomainMigration = {
-  adding: ["demo"],
-  retiring: { experiment: ["experiment.a2f0.net", "experiment"] },
-};
+const DOMAIN_MIGRATION: DomainMigration = { adding: [], retiring: {} };
 
 // Whether a planned change deletes a domain the migration retires, still
 // identified as the migration names it, with nothing created in its place.
