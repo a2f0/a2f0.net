@@ -12,6 +12,13 @@ export const WEBSITE_THEMES: readonly ThemeDefinition<WebsiteThemeId>[] = [
   { id: "paper", label: "Paper", scheme: "light" },
 ];
 
+/**
+ * Paper's ink: a charcoal rather than black, since dark text on white reads
+ * harsher than Graphite's light grey on black. styles/themes.css gives the
+ * desktop's chrome the same color.
+ */
+export const PAPER_INK = "#333333";
+
 /** The theme until the visitor picks one, whatever the OS prefers. */
 export const DEFAULT_WEBSITE_THEME: WebsiteThemeId = "graphite";
 

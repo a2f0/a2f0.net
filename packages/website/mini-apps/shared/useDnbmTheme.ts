@@ -2,10 +2,13 @@ import type { DnbmInstance } from "@a2f0/dnbm";
 import { useOptionalTheme } from "@tearleads/windowing";
 import { useEffect } from "react";
 
+import { PAPER_INK } from "../../components/themes";
+
 // Both dnbm apps define their palette below the shadow host. Override those
 // tokens in the same root, including dialogs and the failure screen. Their
 // canvas scopes read these tokens every frame, so audio and editing can keep
-// running while the theme changes.
+// running while the theme changes. Text takes Paper's charcoal ink, and its
+// brighter text one step darker, as the desktop's emphasis does.
 const LIGHT_PALETTE = `
   .frame, .dialog-layer, .failure {
     color-scheme: light;
@@ -15,10 +18,10 @@ const LIGHT_PALETTE = `
     --hover: #dedede;
     --line: #dedede;
     --line-strong: #b6b6b6;
-    --text: #242424;
+    --text: ${PAPER_INK};
     --muted: #5f5f5f;
     --faint: #6b6b6b;
-    --bright: #111111;
+    --bright: #262626;
     --cell: #eeeeee;
     --cell-alt: #f7f7f7;
     --cell-now: #d7d7d7;
@@ -33,7 +36,7 @@ const LIGHT_PALETTE = `
     --skin-light: #ffffff;
     --skin-dark: #b5b5b5;
     --display: #fcfcfc;
-    --lit: #222222;
+    --lit: #262626;
     --spectrum-bar: #555555;
     --spectrum-peak: #111111;
   }

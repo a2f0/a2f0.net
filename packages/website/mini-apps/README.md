@@ -52,15 +52,16 @@ several apps.
   Its page follows the desktop's light/dark scheme by default. The resume's
   own theme controls override the page within that desktop scheme; the choice
   and scale survive layout switches. Paper gives it a pale surround, while
-  Graphite keeps the resume site's dark desk.
+  Graphite keeps the resume site's dark desk. Its light page uses Paper's
+  charcoal ink instead of the shared light theme's black; printing keeps black.
   Its window opens fitted to the page once the SVG has rendered.
 - `ascii-art/` runs the graffiti artwork from `packages/demo` inside a
   shadow root. Its controls (the animation and the ASCII view, with its pressed
   state) sit in the window's toolbar and its View menu.
   Both mirror the site's own toolbar, which stays in the shadow root unseen and
   keeps the site's behavior. Paper inverts the monochrome stage, including its
-  lens and animations, into an ink-on-white drawing; its window controls use
-  the desktop palette.
+  lens and animations, into a drawing in charcoal ink on white; its window
+  controls use the desktop palette.
 - `skyline/` mounts the 3D Chicago skyline from `@a2f0/skyline`, which
   renders the viewer in the page inside a shadow root, from assets the
   `copy-skyline` script copies into `public/skyline/`. Presses inside it reach
@@ -109,6 +110,7 @@ several apps.
 `shared/useDnbmState.ts` follows a dnbm instance's state for both windows'
 chrome, and `shared/useWindowTitle.ts` names what an app shows in its window's
 title. `shared/useDnbmTheme.ts` gives both music apps a pale neutral palette in
-Paper, including their dialogs, inputs, waveform, and spectrum. It adopts a
+Paper, with its charcoal text, including their dialogs, inputs, waveform, and
+spectrum. It adopts a
 stylesheet inside each app's shadow root without remounting, so changing themes
 preserves the song, undo history, playback, and position.
