@@ -135,6 +135,24 @@ describe("Drive with the published Tearleads SDK", () => {
         () => document.documentElement.scrollWidth <= window.innerWidth,
       ),
     ).toBe(true);
+    // The narrowest phones still fit the brand beside the header's controls.
+    await browser.setViewport({ width: 320, height: 640 });
+    await expect(
+      $("button[aria-label='Switch to Paper theme']"),
+    ).toBeDisplayed();
+    expect(
+      await browser.execute(() => {
+        const brand = document.querySelector(".drive-brand-by");
+        const controls = document.querySelector(".drive-sidebar-bottom");
+        return (
+          !!brand &&
+          !!controls &&
+          brand.getBoundingClientRect().right <=
+            controls.getBoundingClientRect().left
+        );
+      }),
+    ).toBe(true);
+    await browser.setViewport({ width: 1440, height: 900 });
     await browser.setWindowSize(1440, 900);
   });
 

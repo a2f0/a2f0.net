@@ -928,3 +928,15 @@
     bottom: 15px;
   }
 }
+/* Below 400px the brand, the account button and the theme switch no longer
+   fit one row, so the account button keeps its label for screen readers only. */
+@media (max-width: 400px) {
+  .drive-account-button > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
