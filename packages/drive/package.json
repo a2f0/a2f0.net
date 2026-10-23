@@ -22,6 +22,7 @@
     "preview": "bun run build && bun ../../scripts/deploy/deploy.ts drive --dry-run"
   },
   "dependencies": {
+    "@a2f0/ct-client": "0.1.5",
     "@phosphor-icons/react": "2.1.10",
     "@tearleads/client-sdk": "0.1.90",
     "@tearleads/windowing": "0.2.18",

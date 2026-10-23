@@ -123,6 +123,7 @@ test("pre-push checks the pushed commits even when HEAD is different", async () 
         );
       }
     }
+    expect(command(["sh", hook, "origin"]).exitCode).toBe(0);
     const multiple = command(
       ["sh", hook, "origin"],
       `refs/heads/main ${head} refs/heads/feat/valid ${zero}\n` +

@@ -1,7 +1,8 @@
 import type { AppProps } from "next/app";
-import type React from "react";
+import { type ReactElement, useEffect } from "react";
 import { Provider } from "react-redux";
 import Analytics from "../components/Analytics";
+import { startClickTracking } from "../lib/clickTracking";
 import { store } from "../lib/store";
 
 import GlobalStyle from "../styles/GlobalStyle";
@@ -9,7 +10,9 @@ import GlobalStyle from "../styles/GlobalStyle";
 export default function MyApp({
   Component,
   pageProps,
-}: AppProps): React.ReactElement {
+}: AppProps): ReactElement {
+  useEffect(startClickTracking, []);
+
   return (
     <Provider store={store}>
       <GlobalStyle />

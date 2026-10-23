@@ -20,4 +20,5 @@ test("serves the canvas toolbar and the bundled script", async () => {
   const script = await fetch("http://localhost:4002/graffiti.js");
   expect(script.status).toBe(200);
   expect(script.headers.get("content-type")).toContain("javascript");
+  expect(await script.text()).not.toContain("process.env");
 });

@@ -4,7 +4,11 @@ set -eu
 bun run agent-tool hooks check
 
 remote=${1:-origin}
-refs=$(cat)
+if [ -t 0 ]; then
+  refs=
+else
+  refs=$(cat)
+fi
 printf '%s\n' "$refs" | bun run agent-tool branch check --pre-push
 
 bunx --no-install knip

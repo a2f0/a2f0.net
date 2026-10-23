@@ -6,7 +6,7 @@
 `.mise.toml`. CI uses the same configuration.
 The resume app lives in [`packages/resume`](packages/resume), the apex website
 lives in [`packages/website`](packages/website/README.md), and PR helpers come
-from the pinned [agent-tool package](https://github.com/a2f0/agent-tool).
+from the pinned [agent-tool package](https://www.npmjs.com/package/@a2f0/agent-tool).
 The resume data, layout, and SVG
 and PDF factories live in [`packages/shared`](packages/shared/README.md). The
 website opens the resume, the graffiti artwork from
@@ -14,6 +14,10 @@ website opens the resume, the graffiti artwork from
 [`packages/drive`](packages/drive/README.md) is an independently styled file explorer
 built on the published Tearleads client SDK, hosted at `drive.a2f0.net`.
 Run the commands below from the repository root.
+
+Production browser apps use CT click analytics. See
+[click analytics](docs/click-tracking.md) for app dimensions, collected data,
+and browser opt-outs.
 
 ```sh
 mise install

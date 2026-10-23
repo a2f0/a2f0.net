@@ -271,15 +271,19 @@ describe("Laser etching", () => {
         );
       } as typeof original;
     });
-    const clock = await freezeClock();
+    let clock: Awaited<ReturnType<typeof freezeClock>> | undefined;
     try {
+      clock = await freezeClock();
       await playProfiled();
       const first = await glowTotal(8200);
       expect(first).toBeGreaterThan(0);
       expect(await glowTotal(8200)).toBe(first);
     } finally {
-      await clock.remove();
-      await readback.remove();
+      try {
+        await clock?.remove();
+      } finally {
+        await readback.remove();
+      }
     }
   });
 
