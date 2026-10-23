@@ -135,6 +135,24 @@ describe("Drive with the published Tearleads SDK", () => {
         () => document.documentElement.scrollWidth <= window.innerWidth,
       ),
     ).toBe(true);
+    // The narrowest phones still fit the brand beside the header's controls.
+    await browser.setViewport({ width: 320, height: 640 });
+    await expect(
+      $("button[aria-label='Switch to Paper theme']"),
+    ).toBeDisplayed();
+    expect(
+      await browser.execute(() => {
+        const brand = document.querySelector(".drive-brand-by");
+        const controls = document.querySelector(".drive-sidebar-bottom");
+        return (
+          !!brand &&
+          !!controls &&
+          brand.getBoundingClientRect().right <=
+            controls.getBoundingClientRect().left
+        );
+      }),
+    ).toBe(true);
+    await browser.setViewport({ width: 1440, height: 900 });
     await browser.setWindowSize(1440, 900);
   });
 
@@ -168,5 +186,23 @@ describe("Drive with the published Tearleads SDK", () => {
     await expect($(".drive-dialog .drive-error")).not.toBeExisting();
     await $("button[aria-label='Close dialog']").click();
     await browser.refresh();
+  });
+
+  it("switches between the website's Graphite and Paper themes and keeps the choice", async () => {
+    const background = () =>
+      browser.execute(() => {
+        const app = document.querySelector(".drive-app");
+        return app && getComputedStyle(app).backgroundColor;
+      });
+    await expect($(".drive-app")).toBeDisplayed();
+    await expect($("html")).toHaveAttribute("data-theme", "graphite");
+    expect(await background()).toBe("rgb(22, 22, 22)");
+    await $("button[aria-label='Switch to Paper theme']").click();
+    await expect($("html")).toHaveAttribute("data-theme", "paper");
+    expect(await background()).toBe("rgb(250, 250, 250)");
+    await browser.refresh();
+    await expect($("html")).toHaveAttribute("data-theme", "paper");
+    await $("button[aria-label='Switch to Graphite theme']").click();
+    await expect($("html")).toHaveAttribute("data-theme", "graphite");
   });
 });

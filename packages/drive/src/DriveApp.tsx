@@ -5,6 +5,7 @@ import {
   KeyIcon,
   LockKeyIcon,
 } from "@phosphor-icons/react";
+import { ThemeSwitch } from "@tearleads/windowing";
 import {
   useCallback,
   useEffect,
@@ -119,8 +120,13 @@ function DriveSession({ apiBaseUrl }: { apiBaseUrl: string }) {
                 </p>
               </div>
               <div className="drive-sidebar-bottom">
-                <LockKeyIcon size={18} />
-                <span>Powered by Tearleads</span>
+                <div className="drive-sidebar-foot">
+                  <span>
+                    <LockKeyIcon size={18} />
+                    Powered by Tearleads
+                  </span>
+                  <ThemeSwitch className="drive-theme-switch" />
+                </div>
               </div>
             </aside>
             <main className="drive-onboarding">
@@ -269,9 +275,16 @@ function Workspace({
             <KeyIcon size={18} />
             <span>Your identity</span>
           </button>
-          <a href="https://app.tearleads.com" target="_blank" rel="noreferrer">
-            Open Tearleads ↗
-          </a>
+          <div className="drive-sidebar-foot">
+            <a
+              href="https://app.tearleads.com"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Open Tearleads ↗
+            </a>
+            <ThemeSwitch className="drive-theme-switch" />
+          </div>
         </div>
       </aside>
       <Explorer

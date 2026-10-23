@@ -8,7 +8,12 @@ neighboring checkout.
 Drive creates an encrypted local workspace, or imports an existing Tearleads
 recovery phrase. It supports folder navigation and renaming, search within a
 folder, notes, file attachments, and downloads. Other Tearleads document kinds
-open as read-only structured fields. The interface has its own styling.
+open as read-only structured fields. The interface has its own layout in the
+website's themes: Graphite, the dark default, and Paper, a light one. The
+switch in the sidebar's corner cycles them, and the choice persists in the
+browser. [`src/themes.ts`](src/themes.ts) lists them, and
+[`src/drive.css`](src/drive.css) gives each Drive's palette in the website's
+ink, surfaces, and edges.
 
 ## Development
 
@@ -21,7 +26,9 @@ bun run --cwd packages/drive dev
 
 Open `http://localhost:4004`. `dev` and `build` copy the SQLite module worker,
 WASM, and license from the installed SDK into `public/`. Next’s webpack config
-enables async WebAssembly for Loro’s development entrypoint. The production
+enables async WebAssembly for Loro’s development entrypoint, and transpiles the
+pinned `@tearleads/windowing` package, whose theme provider and switch import
+their own stylesheets. The production
 build is a static export; Wrangler serves `out/`.
 
 The default API is `https://api.tearleads.com`. For local API development, set
@@ -140,6 +147,9 @@ The package exports `DriveApp` as its default and `@a2f0/drive/styles.css`.
 The component accepts an optional `apiBaseUrl`. A future website mini-app
 can import the component and stylesheet, then serve the same SDK worker/WASM
 assets at its origin. Drive’s styles are scoped to its root and dialog classes.
+Its palette follows `<html data-theme-scheme>`, which the windowing package's
+`ThemeProvider` stamps: Drive's own page mounts one, and inside the website the
+sidebar's switch would drive the desktop's.
 The SDK owns storage, identity, and sync; the React components own presentation.
 Storage belongs to the browser origin, so `drive.a2f0.net` and `a2f0.net`
 will have separate local copies and sign in to the same

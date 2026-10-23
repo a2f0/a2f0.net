@@ -1,9 +1,60 @@
+/* Drive's palette follows the website's themes (see themes.ts): Graphite, the
+   default, here, and Paper wherever a theme provider stamps a light scheme on
+   <html>, as Drive's own page and the website's desktop both do. Ink,
+   surfaces, edges, and the hairline take the website's values. */
+.drive-page,
+.drive-app,
+.drive-dialog {
+  color-scheme: dark;
+  --drive-ink: #e5e5e5;
+  --drive-ink-strong: #f2f2f2;
+  --drive-muted: #a0a0a0;
+  --drive-paper: #161616;
+  --drive-surface: #1f1f1f;
+  --drive-hover: #212121;
+  --drive-chip: #2a2a2a;
+  --drive-sidebar: #282828;
+  --drive-sidebar-hover: #333333;
+  --drive-emphasis: #3a3a3a;
+  --drive-line: color-mix(in srgb, var(--drive-ink) 12%, transparent);
+  --drive-border: #3b3b3b;
+  --drive-accent: #e5e5e5;
+  --drive-accent-ink: #161616;
+  --drive-accent-hover: #ffffff;
+  --drive-focus: color-mix(in srgb, var(--drive-ink) 50%, transparent);
+  --drive-danger: #ec7a74;
+  --drive-shadow: rgb(0 0 0 / 32%);
+}
+/* Muted text keeps 4.5:1 on every surface but the sidebar's hover. The focus
+   ring is solid, since half of Paper's ink falls below 3:1 on its sheets. */
+:root[data-theme-scheme="light"] :is(.drive-page, .drive-app, .drive-dialog) {
+  color-scheme: light;
+  --drive-ink: #555555;
+  --drive-ink-strong: #444444;
+  --drive-muted: #636363;
+  --drive-paper: #fafafa;
+  --drive-surface: #ffffff;
+  --drive-hover: #f0f0f0;
+  --drive-chip: #ebebeb;
+  --drive-sidebar: #e4e4e4;
+  --drive-sidebar-hover: #d8d8d8;
+  --drive-emphasis: #cdcdcd;
+  --drive-line: color-mix(in srgb, var(--drive-ink) 16%, transparent);
+  --drive-border: #b4b4b4;
+  --drive-accent: #444444;
+  --drive-accent-ink: #fafafa;
+  --drive-accent-hover: #333333;
+  --drive-focus: #767676;
+  --drive-danger: #b3261e;
+  --drive-shadow: rgb(0 0 0 / 14%);
+}
+/* The standalone page (pages/_document.tsx), so it shows the theme before
+   Drive mounts. */
+.drive-page {
+  margin: 0;
+  background: var(--drive-paper);
+}
 .drive-app {
-  --drive-ink: #252b31;
-  --drive-muted: #798087;
-  --drive-line: #e4e6df;
-  --drive-accent: #baf27d;
-  --drive-paper: #f9faf6;
   display: flex;
   position: relative;
   min-height: 100dvh;
@@ -18,9 +69,6 @@
 .drive-app *::before,
 .drive-app *::after {
   box-sizing: border-box;
-}
-body:has(> #__next .drive-app) {
-  margin: 0;
 }
 :where(.drive-app) button,
 :where(.drive-app) input,
@@ -41,7 +89,7 @@ body:has(> #__next .drive-app) {
   -webkit-tap-highlight-color: transparent;
 }
 .drive-app :focus-visible {
-  outline: 2px solid #629b38;
+  outline: 2px solid var(--drive-focus);
   outline-offset: 4px;
 }
 .drive-app h1,
@@ -51,8 +99,8 @@ body:has(> #__next .drive-app) {
   margin-top: 0;
 }
 .drive-sidebar {
-  background: #1e252a;
-  color: #d4d9d9;
+  background: var(--drive-sidebar);
+  color: var(--drive-ink);
   width: 250px;
   flex-shrink: 0;
   display: flex;
@@ -67,11 +115,11 @@ body:has(> #__next .drive-app) {
   font-weight: 750;
   letter-spacing: -1.5px;
   padding: 0 10px 47px;
-  color: #fff;
+  color: var(--drive-ink-strong);
 }
 .drive-brand-icon {
   background: var(--drive-accent);
-  color: #273020;
+  color: var(--drive-accent-ink);
   width: 37px;
   height: 37px;
   border-radius: 11px;
@@ -79,21 +127,21 @@ body:has(> #__next .drive-app) {
   place-items: center;
 }
 .drive-brand-dot {
-  color: var(--drive-accent);
+  color: var(--drive-muted);
 }
 .drive-brand-by {
   margin-left: auto;
-  color: #abb4b2;
+  color: var(--drive-muted);
   letter-spacing: 0;
   font-size: 12px;
   font-weight: 500;
-  border: 1px solid #47504f;
+  border: 1px solid var(--drive-border);
   border-radius: 6px;
   padding: 2px 6px;
 }
 .drive-sidebar-label {
   display: block;
-  color: #98a4a7;
+  color: var(--drive-muted);
   font-size: 10px;
   font-weight: 650;
   letter-spacing: 1.6px;
@@ -108,7 +156,7 @@ body:has(> #__next .drive-app) {
   width: 100%;
   text-align: left;
   background: transparent;
-  color: #c6cece;
+  color: var(--drive-ink);
   border-radius: 7px;
   margin-bottom: 4px;
 }
@@ -116,11 +164,11 @@ body:has(> #__next .drive-app) {
   flex-shrink: 0;
 }
 .drive-sidebar :where(nav) > button:hover {
-  background: #30393d;
+  background: var(--drive-sidebar-hover);
 }
 .drive-sidebar :where(nav) > button.is-active {
-  color: var(--drive-accent);
-  background: #354334;
+  color: var(--drive-ink-strong);
+  background: var(--drive-emphasis);
 }
 .drive-nav-count {
   margin-left: auto;
@@ -145,42 +193,68 @@ body:has(> #__next .drive-app) {
   font-size: 28px;
   letter-spacing: -1px;
   font-weight: 300;
-  color: #eef2e9;
+  color: var(--drive-ink-strong);
 }
 .drive-sidebar-bottom {
   margin-top: auto;
   padding: 35px 8px 0;
   font-size: 12px;
 }
-.drive-sidebar-bottom > a {
-  display: inline-block;
-  color: #aab7b4;
+.drive-sidebar-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--drive-muted);
+}
+.drive-sidebar-foot:not(:first-child) {
+  margin-top: 12px;
+}
+.drive-sidebar-foot > a {
+  color: inherit;
   text-decoration: none;
-  margin-top: 20px;
   font-size: 11px;
 }
-.drive-sidebar-bottom > svg {
-  margin-right: 7px;
-  vertical-align: middle;
+.drive-sidebar-foot > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.drive-theme-switch {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+}
+.drive-theme-switch:hover {
+  background: var(--drive-sidebar-hover);
+  color: var(--drive-ink-strong);
 }
 .drive-connection {
   display: flex;
   align-items: center;
   gap: 10px;
-  border-top: 1px solid #3b4447;
+  border-top: 1px solid var(--drive-line);
   padding-top: 21px;
 }
 .drive-connection > svg {
   flex-shrink: 0;
-  color: var(--drive-accent);
+  color: var(--drive-ink);
 }
 .drive-connection strong {
-  color: #e6eae5;
+  color: var(--drive-ink-strong);
   font-size: 10px;
   font-weight: 600;
 }
 .drive-connection p {
-  color: #a6b0b0;
+  color: var(--drive-muted);
   font-size: 10px;
   margin: 4px 0 0;
 }
@@ -190,23 +264,27 @@ body:has(> #__next .drive-app) {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #84908b;
+  box-shadow: inset 0 0 0 1px var(--drive-muted);
 }
 .drive-status-dot.is-online {
-  background: var(--drive-accent);
+  background: var(--drive-ink-strong);
+  box-shadow: none;
 }
 .drive-account-button {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #d8dfd8;
+  color: var(--drive-ink);
   background: transparent;
-  border: 1px solid #45504d;
+  border: 1px solid var(--drive-border);
   border-radius: 7px;
   padding: 10px 12px;
   margin-top: 20px;
   width: 100%;
   text-align: left;
+}
+.drive-account-button:hover {
+  background: var(--drive-sidebar-hover);
 }
 .drive-main {
   flex: 1;
@@ -240,7 +318,7 @@ body:has(> #__next .drive-app) {
   background: transparent;
   border: 0;
   padding: 5px;
-  color: #717b7b;
+  color: var(--drive-muted);
   display: inline-flex;
   align-items: center;
   max-width: 200px;
@@ -255,8 +333,8 @@ body:has(> #__next .drive-app) {
 .drive-search {
   border: 1px solid var(--drive-line);
   border-radius: 7px;
-  color: #81898a;
-  background: #fff;
+  color: var(--drive-muted);
+  background: var(--drive-surface);
   display: flex;
   align-items: center;
   gap: 9px;
@@ -274,7 +352,7 @@ body:has(> #__next .drive-app) {
   font-size: 12px;
 }
 .drive-search:focus-within {
-  outline: 2px solid #629b38;
+  outline: 2px solid var(--drive-focus);
 }
 .drive-main-heading {
   display: flex;
@@ -287,7 +365,7 @@ body:has(> #__next .drive-app) {
   font-size: 9px;
   font-weight: 600;
   letter-spacing: 1.8px;
-  color: #727b72;
+  color: var(--drive-muted);
   margin-bottom: 10px;
 }
 .drive-main-heading h1 {
@@ -318,18 +396,18 @@ body:has(> #__next .drive-app) {
 }
 .drive-primary {
   background: var(--drive-accent);
-  color: #24371c;
+  color: var(--drive-accent-ink);
 }
 .drive-primary:not(:disabled):hover {
-  background: #ace269;
+  background: var(--drive-accent-hover);
 }
 .drive-secondary {
-  background: #fff;
-  color: #505b5b;
+  background: var(--drive-surface);
+  color: var(--drive-ink);
   border-color: var(--drive-line);
 }
 .drive-secondary:not(:disabled):hover {
-  background: #eef2e9;
+  background: var(--drive-hover);
 }
 .drive-tools {
   display: flex;
@@ -350,11 +428,11 @@ body:has(> #__next .drive-app) {
   height: 33px;
   border-radius: 6px;
   background: transparent;
-  color: #828e88;
+  color: var(--drive-muted);
 }
 .drive-icon-button:not(:disabled):hover {
-  background: #e9eee3;
-  color: #394b34;
+  background: var(--drive-hover);
+  color: var(--drive-ink-strong);
 }
 .drive-table-wrap {
   overflow-x: auto;
@@ -368,14 +446,14 @@ body:has(> #__next .drive-app) {
 .drive-table th {
   font-size: 10px;
   font-weight: 500;
-  color: #78817f;
+  color: var(--drive-muted);
   border-bottom: 1px solid var(--drive-line);
   padding: 11px 12px;
 }
 .drive-table td {
   border-bottom: 1px solid var(--drive-line);
   padding: 9px 12px;
-  color: #7b8580;
+  color: var(--drive-muted);
 }
 .drive-table th:first-child {
   width: 57%;
@@ -385,7 +463,7 @@ body:has(> #__next .drive-app) {
   white-space: nowrap;
 }
 .drive-table tr:hover td {
-  background: #f0f4eb;
+  background: var(--drive-hover);
 }
 .drive-file-name {
   width: 100%;
@@ -408,12 +486,11 @@ body:has(> #__next .drive-app) {
   width: 37px;
   height: 37px;
   border-radius: 9px;
-  background: #e8efee;
-  color: #74968f;
+  background: var(--drive-chip);
+  color: var(--drive-muted);
 }
 .drive-folder-icon {
-  background: #edf1dc;
-  color: #889959;
+  color: var(--drive-ink);
 }
 .drive-empty {
   flex: 1;
@@ -429,10 +506,10 @@ body:has(> #__next .drive-app) {
   width: 100px;
   height: 100px;
   border-radius: 30px;
-  background: #eff3e6;
+  background: var(--drive-chip);
   display: grid;
   place-items: center;
-  color: #93a879;
+  color: var(--drive-muted);
   margin-bottom: 26px;
   transform: rotate(-6deg);
 }
@@ -453,7 +530,7 @@ body:has(> #__next .drive-app) {
   align-items: center;
   background: none;
   border: 0;
-  color: #547b35;
+  color: var(--drive-ink-strong);
   font-size: 12px;
   font-weight: 600;
   padding: 10px 0;
@@ -463,7 +540,7 @@ body:has(> #__next .drive-app) {
   padding: 24px 0;
   display: flex;
   justify-content: space-between;
-  color: #8a938c;
+  color: var(--drive-muted);
   font-size: 10px;
   letter-spacing: 0.2px;
 }
@@ -478,11 +555,12 @@ body:has(> #__next .drive-app) {
   align-items: center;
   max-width: min(650px, 94vw);
   padding: 15px 20px;
-  background: #fff2e5;
-  border: 1px solid #e4c39f;
-  color: #7c4c27;
+  background: color-mix(in srgb, var(--drive-danger) 12%, var(--drive-paper));
+  border: 1px solid
+    color-mix(in srgb, var(--drive-danger) 45%, var(--drive-paper));
+  color: var(--drive-danger);
   border-radius: 9px;
-  box-shadow: 0 6px 20px #20202015;
+  box-shadow: 0 6px 20px var(--drive-shadow);
 }
 .drive-error button {
   display: grid;
@@ -516,13 +594,13 @@ body:has(> #__next .drive-app) {
   display: flex;
   align-items: center;
   gap: 24px;
-  color: #849b62;
+  color: var(--drive-muted);
   margin-bottom: 25px;
 }
 .drive-welcome-art span {
   font-size: 9px;
   letter-spacing: 2px;
-  color: #6b7b64;
+  color: var(--drive-muted);
   max-width: 145px;
   line-height: 1.9;
 }
@@ -534,10 +612,10 @@ body:has(> #__next .drive-app) {
   margin-bottom: 25px;
 }
 .drive-welcome :where(h1) span {
-  color: #788b64;
+  color: var(--drive-muted);
 }
 .drive-welcome > p {
-  color: #758077;
+  color: var(--drive-muted);
   line-height: 1.8;
   max-width: 380px;
 }
@@ -552,18 +630,15 @@ body:has(> #__next .drive-app) {
   align-items: center;
   gap: 8px;
   font-size: 10px;
-  color: #83907f;
+  color: var(--drive-muted);
   margin-top: 35px;
 }
 .drive-dialog {
-  --drive-ink: #252b31;
-  --drive-line: #e4e6df;
-  --drive-accent: #baf27d;
   color: var(--drive-ink);
   border: 1px solid var(--drive-line);
-  background: #f9faf6;
+  background: var(--drive-paper);
   border-radius: 15px;
-  box-shadow: 0 20px 70px #0003;
+  box-shadow: 0 20px 70px var(--drive-shadow);
   width: min(460px, calc(100vw - 32px));
   max-height: 90dvh;
   padding: 28px;
@@ -574,7 +649,7 @@ body:has(> #__next .drive-app) {
     sans-serif;
 }
 .drive-dialog::backdrop {
-  background: #1d282666;
+  background: rgb(0 0 0 / 40%);
   backdrop-filter: blur(3px);
 }
 .drive-dialog-wide {
@@ -594,7 +669,7 @@ body:has(> #__next .drive-app) {
   overflow-wrap: anywhere;
 }
 .drive-dialog p {
-  color: #748077;
+  color: var(--drive-muted);
   font-size: 12px;
 }
 .drive-dialog h3 {
@@ -612,10 +687,10 @@ body:has(> #__next .drive-app) {
 .drive-welcome textarea {
   width: 100%;
   padding: 11px 13px;
-  background: #fff;
-  border: 1px solid #d5ddcc;
+  background: var(--drive-surface);
+  border: 1px solid var(--drive-border);
   border-radius: 7px;
-  color: #253123;
+  color: var(--drive-ink);
 }
 .drive-dialog-actions {
   display: flex;
@@ -626,7 +701,7 @@ body:has(> #__next .drive-app) {
 }
 .drive-dialog-actions > span {
   margin-right: auto;
-  color: #7b8a73;
+  color: var(--drive-muted);
   font-size: 11px;
 }
 .drive-dialog hr {
@@ -636,12 +711,12 @@ body:has(> #__next .drive-app) {
 }
 .drive-hint {
   font-size: 11px;
-  color: #7b8778;
+  color: var(--drive-muted);
   line-height: 1.6;
   margin-top: 15px;
 }
 .drive-identity {
-  background: #edf1e8;
+  background: var(--drive-chip);
   padding: 14px;
   border-radius: 8px;
   margin: 20px 0;
@@ -650,7 +725,7 @@ body:has(> #__next .drive-app) {
   display: block;
   margin-bottom: 6px;
   font-size: 10px;
-  color: #75826c;
+  color: var(--drive-muted);
 }
 .drive-identity code {
   font-size: 10px;
@@ -659,7 +734,7 @@ body:has(> #__next .drive-app) {
 .drive-recovery > code {
   display: block;
   padding: 18px;
-  border: 1px dashed #a5b58f;
+  border: 1px dashed var(--drive-border);
   border-radius: 8px;
   line-height: 1.9;
   font-size: 13px;
@@ -668,7 +743,7 @@ body:has(> #__next .drive-app) {
   display: flex;
   justify-content: space-between;
   font-size: 11px;
-  color: #788673;
+  color: var(--drive-muted);
   margin-bottom: 15px;
 }
 .drive-note-editor {
@@ -676,8 +751,8 @@ body:has(> #__next .drive-app) {
   width: 100%;
   min-height: 270px;
   padding: 20px;
-  background: #fff;
-  border: 1px solid #e2e7dd;
+  background: var(--drive-surface);
+  border: 1px solid var(--drive-line);
   border-radius: 8px;
   color: var(--drive-ink);
   line-height: 1.8;
@@ -696,7 +771,7 @@ body:has(> #__next .drive-app) {
   align-items: center;
   gap: 12px;
   padding: 13px;
-  background: #eef1e9;
+  background: var(--drive-chip);
   border-radius: 8px;
   margin-top: 8px;
 }
@@ -711,7 +786,7 @@ body:has(> #__next .drive-app) {
 }
 .drive-attachment span {
   font-size: 10px;
-  color: #7a8a73;
+  color: var(--drive-muted);
 }
 .drive-sr-only {
   position: absolute;
@@ -775,16 +850,20 @@ body:has(> #__next .drive-app) {
   .drive-sidebar-label,
   .drive-sidebar-intro,
   .drive-connection,
-  .drive-sidebar-bottom > a,
-  .drive-sidebar-bottom > span,
-  .drive-sidebar-bottom > svg {
+  .drive-sidebar-foot > :not(.drive-theme-switch) {
     display: none;
   }
   .drive-sidebar-bottom {
     position: absolute;
     top: 14px;
     right: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     padding: 0;
+  }
+  .drive-sidebar-foot:not(:first-child) {
+    margin-top: 0;
   }
   .drive-account-button {
     margin: 0;
@@ -849,5 +928,17 @@ body:has(> #__next .drive-app) {
     font-size: 12px;
     width: calc(100vw - 32px);
     bottom: 15px;
+  }
+}
+/* Below 400px the brand, the account button and the theme switch no longer
+   fit one row, so the account button keeps its label for screen readers only. */
+@media (max-width: 400px) {
+  .drive-account-button > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 }
