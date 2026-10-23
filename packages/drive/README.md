@@ -135,8 +135,8 @@ deploy entrypoint:
 
 ```sh
 bun run --cwd packages/drive build
-bun scripts/deploy.ts drive --bootstrap-dry-run
-bun scripts/deploy.ts drive --bootstrap
+bun scripts/deploy/deploy.ts drive --bootstrap-dry-run
+bun scripts/deploy/deploy.ts drive --bootstrap
 sh terraform/apply.sh --dry-run
 sh terraform/apply.sh
 ```

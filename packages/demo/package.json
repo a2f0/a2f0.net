@@ -10,8 +10,8 @@
     "unit": "bun test ./src",
     "test": "start-server-and-test 'bun run start' http://localhost:4002 'bun run test:served'",
     "test:served": "bun test test/demo.test.ts && wdio run wdio.conf.ts",
-    "deploy": "bun ../../scripts/deploy.ts demo",
-    "preview": "bun ../../scripts/deploy.ts demo --dry-run"
+    "deploy": "bun ../../scripts/deploy/deploy.ts demo",
+    "preview": "bun ../../scripts/deploy/deploy.ts demo --dry-run"
   },
   "dependencies": {
     "@a2f0/ct-client": "0.1.5"

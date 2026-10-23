@@ -6,7 +6,8 @@ root, then use root scripts such as `bun run build`, `bun run unit`, and
 `bun run ci-headless`.
 
 The production build writes its static export to `packages/resume/out/`.
-See the [root README](../../README.md) for development and deployment commands.
+See [development](../../docs/development.md) and
+[deployment](../../docs/deployment.md) for the full workflow.
 
 Only the standalone production page starts CT click tracking, with the
 `resume` app dimension and a constant safe page. Shared résumé components

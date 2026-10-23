@@ -30,11 +30,11 @@
     "start": "bun run --cwd packages/resume start",
     "lint": "biome lint --error-on-warnings",
     "lint:md": "markdownlint-cli2",
-    "check:dependencies": "node --import tsx scripts/checkPinnedDependencies.ts",
-    "check:architecture": "bun scripts/checkArchitecture.ts",
+    "check:dependencies": "node --import tsx scripts/checks/checkPinnedDependencies.ts",
+    "check:architecture": "bun scripts/checks/checkArchitecture.ts",
     "compile": "bun run compile:scripts && turbo run compile",
     "fix": "biome . --fix",
-    "prepare": "husky && bun run compile",
+    "prepare": "bun run hooks:install && bun run compile",
     "unit": "bun test ./scripts/ && turbo run unit",
     "deploy:staging": "bun run --cwd packages/resume deploy:staging",
     "deploy:prod": "bun run --cwd packages/resume deploy:prod",
@@ -48,7 +48,11 @@
     "preview:staging": "bun run --cwd packages/resume preview:staging",
     "preview:prod": "bun run --cwd packages/resume preview:prod",
     "preview:website": "bun run --cwd packages/website preview",
-    "preview:demo": "bun run --cwd packages/demo preview"
+    "preview:demo": "bun run --cwd packages/demo preview",
+    "hooks:install": "agent-tool hooks install --apply",
+    "lint:branch-name": "agent-tool branch check",
+    "check:fast": "agent-tool run-group scripts/testing/checkFast.json",
+    "check": "agent-tool run-group scripts/testing/check.json"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.2",
@@ -56,16 +60,15 @@
     "@commitlint/config-conventional": "21.2.4",
     "@swc/core": "1.16.18",
     "@types/bun": "1.4.3",
-    "agent-tool": "github:a2f0/agent-tool#61c5081b2c6a913f72b75c657824dc124e455a2b",
     "dependency-cruiser": "18.7.0",
-    "husky": "9.1.7",
     "jsonc-parser": "3.3.1",
     "knip": "6.42.1",
     "lint-staged": "17.6.0",
     "markdownlint-cli2": "0.24.0",
     "tsx": "4.23.15",
     "turbo": "2.11.10",
-    "typescript": "7.0.2"
+    "typescript": "7.0.2",
+    "@a2f0/agent-tool": "0.1.19"
   },
   "patchedDependencies": {
     "markdownlint@0.42.0": "patches/markdownlint@0.42.0.patch"

@@ -57,7 +57,10 @@ for (const name of Object.keys(DEPLOYMENTS) as DeploymentName[]) {
   test(`${name}: validates the real config and requires its existing domain`, async () => {
     const target = DEPLOYMENTS[name];
     const text = await file(
-      new URL(`../packages/${target.package}/wrangler.jsonc`, import.meta.url),
+      new URL(
+        `../../packages/${target.package}/wrangler.jsonc`,
+        import.meta.url,
+      ),
     ).text();
     expect(checkConfiguration(text, name)).toBe(
       target.package === "demo" ? "./dist" : "./out",
@@ -111,7 +114,7 @@ for (const name of Object.keys(DEPLOYMENTS) as DeploymentName[]) {
 
 test("resource migrations, renames and unknown build commands fail closed", async () => {
   const text = await file(
-    new URL("../packages/website/wrangler.jsonc", import.meta.url),
+    new URL("../../packages/website/wrangler.jsonc", import.meta.url),
   ).text();
   for (const addition of [
     '"d1_databases": []',
@@ -147,7 +150,7 @@ test("missing bindings and existing stateful bindings cannot be cleared", () => 
 
 test("a reviewed compatibility-date transition accepts only the configured and previous live dates", async () => {
   const text = await file(
-    new URL("../packages/website/wrangler.jsonc", import.meta.url),
+    new URL("../../packages/website/wrangler.jsonc", import.meta.url),
   ).text();
   const transition = { current: "2026-10-07", previous: "2026-09-16" };
   const candidate = text.replace("2026-09-16", transition.current);
@@ -171,7 +174,7 @@ test("a reviewed compatibility-date transition accepts only the configured and p
 
 test("a demo preview captures the real assets without rerunning its build", async () => {
   const text = await file(
-    new URL("../packages/demo/wrangler.jsonc", import.meta.url),
+    new URL("../../packages/demo/wrangler.jsonc", import.meta.url),
   ).text();
   const config = JSON.parse(
     deploymentConfiguration(text, "demo", "/fixture/demo"),
@@ -357,17 +360,17 @@ test("failed preview or changed local/remote evidence prevents mutation", async 
 test("all owned deploy entrypoints use the guard", async () => {
   for (const folder of ["resume", "website", "demo", "drive"]) {
     const manifest = await file(
-      new URL(`../packages/${folder}/package.json`, import.meta.url),
+      new URL(`../../packages/${folder}/package.json`, import.meta.url),
     ).json();
     for (const [name, command] of Object.entries(manifest.scripts)) {
       if (name.startsWith("deploy"))
-        expect(command).toContain("scripts/deploy.ts");
+        expect(command).toContain("scripts/deploy/deploy.ts");
     }
   }
   const workflow = await file(
-    new URL("../.github/workflows/main.yml", import.meta.url),
+    new URL("../../.github/workflows/main.yml", import.meta.url),
   ).text();
   expect(workflow).not.toContain("wrangler deploy");
   for (const target of Object.keys(DEPLOYMENTS))
-    expect(workflow).toContain(`scripts/deploy.ts ${target}`);
+    expect(workflow).toContain(`scripts/deploy/deploy.ts ${target}`);
 });

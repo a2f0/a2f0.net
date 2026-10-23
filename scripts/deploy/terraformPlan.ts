@@ -347,7 +347,7 @@ if (import.meta.main) {
       record(value).terraform_version !==
       (
         await file(
-          new URL("../terraform/.terraform-version", import.meta.url),
+          new URL("../../terraform/.terraform-version", import.meta.url),
         ).text()
       ).trim()
     ) {

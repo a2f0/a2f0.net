@@ -250,14 +250,40 @@ describe("Laser etching", () => {
   });
 
   it("keeps the fat laser steady from frame to frame", async () => {
-    const clock = await freezeClock();
+    // Chrome may switch raster backends after getImageData, changing pixels
+    // even without a redraw. Select a stable readback context on first use.
+    const readback = await browser.addInitScript(() => {
+      const original = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function (
+        this: HTMLCanvasElement,
+        contextId: string,
+        options?: unknown,
+      ) {
+        return original.call(
+          this,
+          contextId,
+          contextId === "2d" && this.classList.contains("etch-glow")
+            ? {
+                ...(options as CanvasRenderingContext2DSettings | undefined),
+                willReadFrequently: true,
+              }
+            : options,
+        );
+      } as typeof original;
+    });
+    let clock: Awaited<ReturnType<typeof freezeClock>> | undefined;
     try {
+      clock = await freezeClock();
       await playProfiled();
       const first = await glowTotal(8200);
       expect(first).toBeGreaterThan(0);
       expect(await glowTotal(8200)).toBe(first);
     } finally {
-      await clock.remove();
+      try {
+        await clock?.remove();
+      } finally {
+        await readback.remove();
+      }
     }
   });
 

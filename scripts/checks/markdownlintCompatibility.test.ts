@@ -8,7 +8,7 @@ test("the real Markdownlint CLI preserves TOML rule options, disabling and warni
   const directory = await mkdtemp(resolve(tmpdir(), "a2f0-markdownlint-test-"));
   const cli = resolve(
     import.meta.dir,
-    "../node_modules/markdownlint-cli2/markdownlint-cli2-bin.mjs",
+    "../../node_modules/markdownlint-cli2/markdownlint-cli2-bin.mjs",
   );
   const config = resolve(directory, ".markdownlint-cli2.toml");
   const document = resolve(directory, "fixture.md");

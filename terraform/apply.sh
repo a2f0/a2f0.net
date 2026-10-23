@@ -26,14 +26,14 @@ require_terraform_inputs
 
 # Use the existing R2 state backend and default workspace, never a local or
 # replacement backend. Missing credentials or state stop before any apply.
-bun ../scripts/terraformPlan.ts backend .terraform/terraform.tfstate
+bun ../scripts/deploy/terraformPlan.ts backend .terraform/terraform.tfstate
 [ "$(terraform workspace show)" = default ] || {
   echo 'Unexpected Terraform workspace' >&2
   exit 1
 }
 # No provisioners or external data programs are part of the reviewed stack.
 # This scans ignored overrides and JSON sources without requiring ripgrep.
-bun ../scripts/terraformPlan.ts sources .
+bun ../scripts/deploy/terraformPlan.ts sources .
 
 umask 077
 plan_directory=$(mktemp -d "${TMPDIR:-/tmp}/a2f0-terraform.XXXXXX")
@@ -42,20 +42,20 @@ trap 'exit 129' HUP
 trap 'exit 130' INT
 trap 'exit 143' TERM
 terraform version -json > "$plan_directory/version.json"
-bun ../scripts/terraformPlan.ts version "$plan_directory/version.json"
+bun ../scripts/deploy/terraformPlan.ts version "$plan_directory/version.json"
 # Read actual remote state; a matching backend file alone is insufficient.
 terraform state pull > "$plan_directory/state-before.json"
-bun ../scripts/terraformPlan.ts state "$plan_directory/state-before.json" "$terraform_variables"
+bun ../scripts/deploy/terraformPlan.ts state "$plan_directory/state-before.json" "$terraform_variables"
 terraform plan -input=false -lock=true -refresh=true -var-file="$terraform_variables" -out="$plan_directory/plan"
 terraform show -json "$plan_directory/plan" > "$plan_directory/plan.json"
-bun ../scripts/terraformPlan.ts plan "$plan_directory/plan.json"
+bun ../scripts/deploy/terraformPlan.ts plan "$plan_directory/plan.json"
 
-bun ../scripts/terraformPlan.ts backend .terraform/terraform.tfstate
+bun ../scripts/deploy/terraformPlan.ts backend .terraform/terraform.tfstate
 [ "$(terraform workspace show)" = default ] || exit 1
 terraform version -json > "$plan_directory/version.json"
-bun ../scripts/terraformPlan.ts version "$plan_directory/version.json"
+bun ../scripts/deploy/terraformPlan.ts version "$plan_directory/version.json"
 terraform state pull > "$plan_directory/state-after.json"
-bun ../scripts/terraformPlan.ts state "$plan_directory/state-after.json" "$terraform_variables"
+bun ../scripts/deploy/terraformPlan.ts state "$plan_directory/state-after.json" "$terraform_variables"
 cmp -s "$plan_directory/state-before.json" "$plan_directory/state-after.json" || {
   echo 'Remote state changed during preview; generate a fresh plan' >&2
   exit 1
@@ -75,10 +75,10 @@ if [ "$preview_only" = false ]; then
     echo 'Terraform apply cancelled' >&2
     exit 1
   fi
-  bun ../scripts/terraformPlan.ts backend .terraform/terraform.tfstate
+  bun ../scripts/deploy/terraformPlan.ts backend .terraform/terraform.tfstate
   [ "$(terraform workspace show)" = default ] || exit 1
   terraform state pull > "$plan_directory/state-approved.json"
-  bun ../scripts/terraformPlan.ts state "$plan_directory/state-approved.json" "$terraform_variables"
+  bun ../scripts/deploy/terraformPlan.ts state "$plan_directory/state-approved.json" "$terraform_variables"
   cmp -s "$plan_directory/state-before.json" "$plan_directory/state-approved.json" || {
     echo 'Remote state changed after approval; generate a fresh plan' >&2
     exit 1

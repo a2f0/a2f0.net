@@ -1,6 +1,6 @@
-# Agent Notes (Codex)
+# Repository guidance
 
-This file is for Codex guidance in this repository.
+Follow this policy when working in this repository.
 
 ## Repository Identification (Critical)
 
@@ -15,7 +15,7 @@ Use `-R "$REPO"` (or `--repo "$REPO"`) on `gh` commands when ambiguity is possib
 ## Branch and Commit Rules
 
 - Do not commit or push directly to `main`; work on a branch.
-- Use conventional commits.
+- Use `<type>/<topic>` feature branches and conventional commits.
 - Do not force-push unless explicitly requested.
 - Do not add AI attribution/co-author footers.
 
@@ -24,8 +24,8 @@ Use `-R "$REPO"` (or `--repo "$REPO"`) on `gh` commands when ambiguity is possib
 Fix valid findings from pull request review comments, scoped to the feedback,
 and run the relevant validation (`bun run compile`, `bun run unit`,
 `bun run ci-headless` as needed) before committing and pushing. Then reply in
-each original review thread through
-`POST /repos/{owner}/{repo}/pulls/{pull_number}/comments/{comment_id}/replies`,
+each original review thread with
+`agent-tool pr threads reply <comment-id> --body-file <reply-file>`,
 saying what changed and naming the fixing commit. Never reply with top-level PR
 comments or `gh pr review`. Resolve a thread only when its finding is fully
 addressed.
@@ -33,12 +33,15 @@ addressed.
 ## Repo Validation Commands
 
 The Next.js resume app is in `packages/resume`, the Next.js apex website is in
-`packages/website`, and the static graffiti demo is in `packages/demo`. PR helpers come from the commit-pinned `a2f0/agent-tool`
-GitHub dependency; use `bun run agent-tool` from the root. Project title and CI
+`packages/website`, and the static graffiti demo is in `packages/demo`. PR helpers come from the exact-pinned `@a2f0/agent-tool`
+npm dependency; use `bun run agent-tool` from the root. Project title and CI
 policy is in `agent-tool.json`. Run the root Bun scripts to check the workspaces.
 Shared skills are managed in `.agents/skills` and `.claude/skills`. Run
 `bun run agents:sync` after updating the dependency pin; commit the lockfile,
 skills, and `.agent-tool-skills.json` together. Do not edit managed skills.
+
+See [development](docs/development.md) for architecture and script ownership,
+and [deployment](docs/deployment.md) for environments and infrastructure.
 
 Primary checks in this repo:
 
@@ -51,7 +54,7 @@ Primary checks in this repo:
 
 Capture noisy finite checks, builds, setup, and hooks with the pinned harness,
 for example `bun run agent:run --label unit -- bun run unit` or
-`bun run agent:run --label pre-commit -- sh .husky/pre-commit`.
+`bun run agent:run --label pre-commit -- sh scripts/git/hooks/pre-commit`.
 It preserves the command's exit status and complete private logs while returning
 a compact receipt and a bounded failure excerpt. Use
 `bun run agent-tool logs <log-path>` or a targeted search for more evidence;
@@ -62,14 +65,16 @@ Logs may contain secrets; keep them private and remove them when finished.
 
 Pre-commit hook entrypoint:
 
-- `sh ./.husky/pre-commit`
+- `sh ./scripts/git/hooks/pre-commit`
 
 ## Shipping and Deployment
 
 Use the shared `$ship-pr` skill with the Node version in `.nvmrc` and Bun version
 in `.mise.toml`. Agent shells should put their matching directories under
 `~/.local/share/mise/installs` first on `PATH` rather than running `mise trust`.
-Run the checks above and both Husky hooks before shipping.
+Run the checks above and both validation hooks before shipping. For direct
+noninteractive pre-push validation use `sh scripts/git/hooks/pre-push </dev/null`;
+Git supplies pushed refs when it invokes the hook.
 Pre-commit needs Terraform/TFLint versions from CI, ShellCheck, and yamllint.
 Integrate updated bases with normal merges; do not force-push. Review with an
 agent other than the one that wrote the change: Codex from Claude Code, Claude

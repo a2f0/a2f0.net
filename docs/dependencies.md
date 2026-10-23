@@ -27,14 +27,16 @@ non-destructive saved plan through `terraform/apply.sh --dry-run`. Local validat
 plans are never production-plan evidence. Do not apply infrastructure or deploy
 to validate an upgrade.
 
-Agent-tool is installed directly from GitHub at the full commit SHA in
-`package.json` and `bun.lock`; its source CLI runs on the pinned Bun version.
-After reviewing an upstream change, update that SHA and run `bun install` so
-Bun resolves the exact source. Then run `bun run agents:sync` to install both
-harnesses and commit the pin, lockfile, managed skills, and
-`.agent-tool-skills.json` together. Do not edit managed skill copies or lock
-integrity manually. `bun run agents:check` is the read-only hook and CI drift
-gate. See [AGENTS.md](../AGENTS.md) for title, review, and shipping policy.
+Agent-tool is pinned exactly as `@a2f0/agent-tool` from npm. Confirm the producer's
+successful publication and package tarball before selecting a version; source
+commits do not establish availability. Use `bun install` to update the lockfile,
+then `bun run agents:sync` and commit the pin, lockfile, managed skills, and
+`.agent-tool-skills.json` together. Do not edit managed copies or lock integrity.
+`bun run agents:check` is the hook and CI drift gate. Shared branch, commit,
+installed-hook, validation-receipt, and PR mechanics use `agent-tool.json`;
+full commitlint, architecture, and deployment policy remain repository-owned.
+See [development](development.md) for migrating the old Husky hook location and
+[AGENTS.md](../AGENTS.md) for shipping requirements.
 
 ## Coupled packages and migrations
 
@@ -93,7 +95,7 @@ The `smol-toml` 1.9 security fix returns objects with null prototypes.
 Markdownlint 0.42.0 otherwise drops nested TOML rule options through an
 `instanceof Object` check. Its narrow Bun-managed patch accepts those objects
 while preserving options, `enabled` and warning `severity`. The real CLI
-regression is `scripts/markdownlintCompatibility.test.ts`. Remove the patch only
+regression is `scripts/checks/markdownlintCompatibility.test.ts`. Remove the patch only
 when an upstream owning Markdownlint release passes that regression unpatched.
 The owner now resolves `smol-toml` 1.9.1 directly, so no parser override is
 needed. Keep verifying the real CLI regression and the resolved graph when
@@ -126,8 +128,14 @@ The remaining advisory constraints need their owning packages updated:
 
 ## Worker preview
 
-Every owned deployment script and CI deployment runs `scripts/deploy.ts`.
+Every owned deployment script and CI deployment runs `scripts/deploy/deploy.ts`.
 Use the matching `preview:*` root script or Drive's `preview` script first. The deployment itself repeats the preview and fresh checks.
+
+For changes to this guard, run the manual workflow on the reviewed clean feature
+branch with `gh workflow run main.yml --ref <branch> -f preview=true`. Wait for
+validation and all five preview targets on that exact commit. The optional preview
+uses CI credentials and never publishes; ordinary PR and push validation receives
+no deployment credentials.
 
 The guard requires a committed clean tree and scoped Cloudflare credentials.
 Read permissions must cover the existing account's Worker settings,
@@ -150,10 +158,10 @@ inventory in [PR #1188](https://github.com/a2f0/a2f0.net/pull/1188) is historica
 evidence. Adding or changing routing requires a separate migration review.
 
 The five target names and Terraform-owned hostnames are explicit in
-`scripts/deployPolicy.ts`. New resource settings, migrations, alternate Worker
+`scripts/deploy/deployPolicy.ts`. New resource settings, migrations, alternate Worker
 names, stateful bindings, enabled public endpoints, cron schedules and split
 live traffic require a separate migration review. A new target's Worker is
-created once with `bun scripts/deploy.ts <target> --bootstrap`, after
+created once with `bun scripts/deploy/deploy.ts <target> --bootstrap`, after
 `--bootstrap-dry-run`, from the reviewed PR head before merging; it refuses when
 the Worker or its hostname already exists. Terraform then attaches the
 hostname, as [Drive's hosting notes](../packages/drive/README.md#hosting)
@@ -214,7 +222,7 @@ with the six existing custom-domain resources. It matches their
 hostnames and services to explicit existing production identities and their
 account IDs to the private account variable. A domain migration
 requires a separate guard review: `DOMAIN_MIGRATION` in
-`scripts/terraformPlan.ts` names the domains it adds and retires. While it is
+`scripts/deploy/terraformPlan.ts` names the domains it adds and retires. While it is
 applied, an added domain may still be absent from state, and a retired one may
 remain there or be deleted, each only with exactly its named identity. Empty it
 again once the migration is applied. The entrypoint then creates and inspects a
@@ -240,7 +248,7 @@ because it removes blank lines required by the enforced Markdownlint rules.
 Biome continues to format source, JSON and YAML; managed skill directories stay
 excluded from Biome and are verified with `agents:check` and Markdownlint.
 
-Use pinned Bun/Node binaries, install normally to set up Husky, and run:
+Use pinned Bun/Node binaries, install normally to set up the copied Git hooks, and run:
 
 ```sh
 bun run compile
@@ -249,8 +257,8 @@ bun run build
 bun run lint:md
 bun run check:dependencies
 bun run agents:check
-sh .husky/pre-commit
-sh .husky/pre-push
+sh scripts/git/hooks/pre-commit
+sh scripts/git/hooks/pre-push </dev/null
 bun run ci-headless
 bun run --cwd packages/website test
 bun run --cwd packages/demo test
