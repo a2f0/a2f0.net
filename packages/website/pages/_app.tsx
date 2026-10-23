@@ -1,6 +1,8 @@
 import type { AppProps } from "next/app";
 import Head from "next/head";
-import type React from "react";
+import { type ReactElement, useEffect } from "react";
+
+import { startClickTracking } from "../components/clickTracking";
 
 import "../styles/global.css";
 import "../styles/themes.css";
@@ -16,7 +18,9 @@ import "../mini-apps/skyline/Skyline.css";
 export default function WebsiteApp({
   Component,
   pageProps,
-}: AppProps): React.ReactElement {
+}: AppProps): ReactElement {
+  useEffect(startClickTracking, []);
+
   return (
     <>
       <Head>

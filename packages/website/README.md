@@ -93,3 +93,26 @@ that code too, so the copied assets must match the installed package: an older
 copy runs no command and leaves the windows' chrome disabled. The app has no
 `three` dependency: the skyline's scene loads the copy of three.js in its
 assets when it first needs it.
+
+## Click tracking
+
+One `@a2f0/ct-client` tracker starts only in production builds served from
+`https://a2f0.net`. It records `site: a2f0-net` and `environment: production`.
+The `app` dimension distinguishes `resume`, `ascii-art`, `skyline`, `dnbm`, and
+`dnbm-player`, including clicks inside their open shadow roots. Controls inside
+desktop windows belong to their app. Shared menus rendered outside those
+windows, the desktop taskbar, and the routed layout's shared toolbar,
+navigation, and taskbar use the `website` fallback.
+Only `/` and known `/app/<app id>` paths are sent, without query strings,
+fragments, or arbitrary nested segments.
+
+This site explicitly overrides browser Global Privacy Control, like standalone
+Skyline. The CT extension opt-out, Do Not Track, local opt-out, form-field
+exclusions, and automation exclusion still apply. Development, tests, SSR, and
+other hostnames never start the tracker. Mount cleanup destroys it so layout
+changes and React remounts do not add duplicate listeners.
+
+CT collects the request IP and approximate location.
+See [CT's data policy](https://github.com/a2f0/ct/blob/main/docs/privacy.md)
+for collected fields, dashboard access, opt-outs, and retention. The integration tests use local
+fixtures and intercepted requests; they never submit test clicks to production.

@@ -125,6 +125,9 @@ test("a mini-app that throws fails inside its own window", async () => {
   await click(button("Open artwork"));
 
   const resume = windowTitled("Resume");
+  expect(resume?.closest("[data-ct-app]")?.getAttribute("data-ct-app")).toBe(
+    "resume",
+  );
   expect(resume?.querySelector("[role='alert']")?.textContent).toBe(
     "Resume stopped working. Close the window and open it again from the taskbar.",
   );
@@ -132,6 +135,11 @@ test("a mini-app that throws fails inside its own window", async () => {
   // The other mini-app keeps working.
   const artwork = windowTitled("a2f0.net");
   if (!artwork) throw new Error("The artwork window did not open");
+  expect(
+    button("Close window", artwork)
+      .closest("[data-ct-app]")
+      ?.getAttribute("data-ct-app"),
+  ).toBe("ascii-art");
   await click(button("clicked 0", artwork));
   expect(button("clicked 1", artwork)).toBeTruthy();
 });

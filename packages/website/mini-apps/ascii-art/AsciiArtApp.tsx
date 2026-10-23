@@ -35,5 +35,7 @@ export function AsciiArtApp() {
     };
   }, []);
 
-  return <div ref={hostRef} className="ascii-art-window" />;
+  return (
+    <div ref={hostRef} className="ascii-art-window" data-ct-app="ascii-art" />
+  );
 }

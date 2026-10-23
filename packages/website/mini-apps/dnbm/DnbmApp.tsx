@@ -75,5 +75,5 @@ export function DnbmApp({ onLoad }: MiniAppProps) {
     };
   }, [onLoad]);
 
-  return <div ref={hostRef} className="dnbm-window" />;
+  return <div ref={hostRef} className="dnbm-window" data-ct-app="dnbm" />;
 }

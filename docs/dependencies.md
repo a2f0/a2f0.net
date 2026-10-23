@@ -50,6 +50,10 @@ gate. See [AGENTS.md](../AGENTS.md) for title, review, and shipping policy.
   the repository deliberately changes its supported runtime.
 - Keep `@tearleads/windowing` exact and consume only published releases. Its
   local producer candidate cannot authorize a consumer bump.
+  The website's click-attribution wrapper gives each desktop window a full-size
+  immediate parent because the package measures that parent for geometry. Recheck
+  fitting, dragging, resizing, stacking, and pointer routing in the website browser
+  suite when upgrading; keep routed app roots directly inside their existing pane.
 - Keep `@tearleads/client-sdk` exact and verify its published tarball before
   upgrading Drive. Check the public API and existing browser database schema;
   the SDK can reject older schemas without migrating them. Agree on preserving
@@ -66,6 +70,12 @@ gate. See [AGENTS.md](../AGENTS.md) for title, review, and shipping policy.
   the published instance has no live colour setter. Pass the same scheme through
   `theme` so the loading backdrop matches before the scene or its styles arrive,
   and the bottom controls keep that palette after the scene renders.
+  The host website owns click tracking. Verify the published mount entry does not
+  import or initialize the standalone page tracker, even if Skyline carries its
+  own CT dependency. Check descriptive `data-ct` labels in the copied assets and
+  intercept collector requests when smoke-testing real mounted controls/canvases
+  under the production origin: one trusted click must produce one event with the
+  host site's app dimension. Never send these verification clicks to production.
 - Dnbm's sequencer/player loaders and copied asset API must be checked against
   the actual published tarball before updating its pin. Paper's palette also
   relies on the private `.frame`, `.dialog-layer`, and `.failure` selectors and

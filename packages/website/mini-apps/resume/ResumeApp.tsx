@@ -76,5 +76,7 @@ export function ResumeApp({ onLoad }: MiniAppProps) {
     };
   }, [measured, colors, scale, isMobile, layoutWidth, onLoad]);
 
-  return <div ref={containerRef} className="resume-window" />;
+  return (
+    <div ref={containerRef} className="resume-window" data-ct-app="resume" />
+  );
 }

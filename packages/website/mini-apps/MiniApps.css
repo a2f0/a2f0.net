@@ -1,3 +1,17 @@
+/* The windowing package measures its window's immediate parent. Keep that
+   surface the size of the desktop without intercepting other windows' clicks
+   or introducing a stacking context. */
+.desktop-surface > .mini-app-tracking {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+}
+
+.desktop-surface > .mini-app-tracking > .window {
+  pointer-events: auto;
+}
+
 .mini-app-error {
   margin: 0;
   color: var(--color-dark);

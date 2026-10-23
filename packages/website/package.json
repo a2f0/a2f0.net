@@ -19,10 +19,11 @@
     "preview": "bun run build && bun ../../scripts/deploy.ts website --dry-run"
   },
   "dependencies": {
+    "@a2f0/ct-client": "0.1.4",
     "@a2f0/demo": "workspace:*",
     "@a2f0/dnbm": "0.4.5",
     "@a2f0/shared": "workspace:*",
-    "@a2f0/skyline": "0.2.36",
+    "@a2f0/skyline": "0.2.38",
     "@phosphor-icons/react": "2.1.10",
     "@tearleads/windowing": "0.2.18",
     "next": "16.4.2",

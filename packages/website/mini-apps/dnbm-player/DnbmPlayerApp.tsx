@@ -71,5 +71,11 @@ export function DnbmPlayerApp({ onLoad }: MiniAppProps) {
     };
   }, [onLoad]);
 
-  return <div ref={hostRef} className="dnbm-player-window" />;
+  return (
+    <div
+      ref={hostRef}
+      className="dnbm-player-window"
+      data-ct-app="dnbm-player"
+    />
+  );
 }
