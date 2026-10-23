@@ -26,7 +26,9 @@ export default function App({ Component, pageProps }: AppProps) {
           name="description"
           content="A little space for your files, powered by Tearleads."
         />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </Head>
       <Component {...pageProps} />
     </ThemeProvider>

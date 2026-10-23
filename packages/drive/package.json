@@ -9,9 +9,10 @@
     "./styles.css": "./src/drive.css"
   },
   "scripts": {
+    "favicons": "agent-tool --repo ../.. images build drive-favicons",
     "copy-sdk": "bun scripts/build/copySdk.ts",
-    "dev": "bun run copy-sdk && next dev --webpack -p 4004",
-    "build": "bun run copy-sdk && next build --webpack",
+    "dev": "bun run favicons && bun run copy-sdk && next dev --webpack -p 4004",
+    "build": "bun run favicons && bun run copy-sdk && next build --webpack",
     "start": "wrangler dev --port 4004 --local",
     "compile": "tsc",
     "unit": "bun test ./src && bun test ./test/host.test.ts && bun test ./test/DocumentPanelEditing.test.tsx",

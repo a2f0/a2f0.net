@@ -67,7 +67,8 @@ bun ci
 bun run --cwd packages/website dev
 ```
 
-The dev server listens on port 4003 and rewrites the routed shell's `/app/*` routes to the page, as the Worker does. `dev` and `build` first copy the
+The dev server listens on port 4003 and rewrites the routed shell's `/app/*` routes to the page, as the Worker does. `dev` and `build` first render the
+favicons from `assets/brand/logo.svg` into `public/`, then copy the
 demo's `a2f0.svg` into `public/`, where the artwork window loads it, the
 skyline viewer's assets into
 `public/skyline/`, and the dnbm sequencer's and player's into `public/dnbm/`. `build` writes a static export to `out/`,

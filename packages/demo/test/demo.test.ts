@@ -22,3 +22,20 @@ test("serves the canvas toolbar and the bundled script", async () => {
   expect(script.headers.get("content-type")).toContain("javascript");
   expect(await script.text()).not.toContain("process.env");
 });
+
+test("links and serves the favicons the build renders into dist", async () => {
+  const page = await (await fetch("http://localhost:4002/")).text();
+  const icons = ["/favicon.ico", "/favicon.svg", "/apple-touch-icon.png"];
+  const links = Array.from(
+    page.matchAll(/<link rel="(?:icon|apple-touch-icon)" href="([^"]+)"/g),
+    ([, href]) => href,
+  );
+  expect(links).toEqual(icons);
+
+  for (const icon of icons) {
+    const response = await fetch(`http://localhost:4002${icon}`);
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toMatch(/^image\//);
+    expect((await response.arrayBuffer()).byteLength).toBeGreaterThan(0);
+  }
+});
