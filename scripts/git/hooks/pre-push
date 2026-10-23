@@ -22,8 +22,13 @@ printf '%s\n' "$refs" | while read -r local_ref local_oid _remote_ref remote_oid
   [ -n "$local_ref" ] || continue
   [ "$local_oid" != "$zero" ] || continue
   if [ "$remote_oid" != "$zero" ]; then
-    bun run agent-tool commits check --range "$local_oid" --exclude "$remote_oid" </dev/null
-    commits=$(git rev-list "$local_oid" --not "$remote_oid" --)
+    if git remote get-url "$remote" >/dev/null 2>&1; then
+      bun run agent-tool commits check --range "$local_oid" --exclude "$remote_oid" --exclude-remotes "$remote" </dev/null
+      commits=$(git rev-list "$local_oid" --not "$remote_oid" "--remotes=$remote" --)
+    else
+      bun run agent-tool commits check --range "$local_oid" --exclude "$remote_oid" </dev/null
+      commits=$(git rev-list "$local_oid" --not "$remote_oid" --)
+    fi
   elif git remote get-url "$remote" >/dev/null 2>&1; then
     bun run agent-tool commits check --range "$local_oid" --exclude-remotes "$remote" </dev/null
     commits=$(git rev-list "$local_oid" --not "--remotes=$remote" --)

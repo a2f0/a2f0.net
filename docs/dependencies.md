@@ -258,7 +258,7 @@ bun run lint:md
 bun run check:dependencies
 bun run agents:check
 sh scripts/git/hooks/pre-commit
-sh scripts/git/hooks/pre-push
+sh scripts/git/hooks/pre-push </dev/null
 bun run ci-headless
 bun run --cwd packages/website test
 bun run --cwd packages/demo test

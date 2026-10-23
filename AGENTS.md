@@ -72,7 +72,9 @@ Pre-commit hook entrypoint:
 Use the shared `$ship-pr` skill with the Node version in `.nvmrc` and Bun version
 in `.mise.toml`. Agent shells should put their matching directories under
 `~/.local/share/mise/installs` first on `PATH` rather than running `mise trust`.
-Run the checks above and both validation hooks before shipping.
+Run the checks above and both validation hooks before shipping. For direct
+noninteractive pre-push validation use `sh scripts/git/hooks/pre-push </dev/null`;
+Git supplies pushed refs when it invokes the hook.
 Pre-commit needs Terraform/TFLint versions from CI, ShellCheck, and yamllint.
 Integrate updated bases with normal merges; do not force-push. Review with an
 agent other than the one that wrote the change: Codex from Claude Code, Claude

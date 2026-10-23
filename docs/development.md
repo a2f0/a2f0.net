@@ -103,6 +103,13 @@ aliases remain available for focused work. CI validates the explicit branch name
 because its checkout may be detached.
 Pre-push checks commit signatures, attribution, and full commitlint rules for
 the actual pushed commit ranges, including pushes of a branch other than HEAD.
+For named remotes, commits already reachable from that remote's tracking refs are
+excluded, including main commits integrated with a normal merge. URL-only pushes
+lack that tracking context and use the remote's old tip, or all history on first
+push; use a configured named remote for the normal shipping workflow.
+Direct or CI invocation with no ref tuples runs static checks only. Use
+`sh scripts/git/hooks/pre-push </dev/null` for noninteractive validation; Git
+supplies ref tuples itself during a real push.
 Run `bun audit` separately when reviewing the documented lower-severity
 dependency constraints.
 

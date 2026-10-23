@@ -67,7 +67,7 @@ jobs:
           terraform fmt -check -recursive terraform
       - run: bun run lint:md
       - run: sh ./scripts/git/hooks/pre-commit
-      - run: sh ./scripts/git/hooks/pre-push
+      - run: sh ./scripts/git/hooks/pre-push </dev/null
       - run: bun run compile
       - run: bun run unit
       - name: Test exported site with Cloudflare Workers

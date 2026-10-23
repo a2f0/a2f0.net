@@ -141,6 +141,31 @@ test("pre-push checks the pushed commits even when HEAD is different", async () 
       accepted.exitCode,
       accepted.stdout.toString() + accepted.stderr.toString(),
     ).toBe(0);
+    // An existing branch may merge upstream commits that already passed remote policy.
+    // They are not new-to-remote work, even if their messages fail this local policy.
+    git("commit", "-m", "chore: install fixture tooling");
+    const previous = git("rev-parse", "HEAD");
+    git("update-ref", "refs/remotes/origin/feat/valid", previous);
+    git("update-ref", "refs/remotes/origin/main", forbidden);
+    git("merge", "--no-ff", forbidden, "-m", "chore: integrate updated main");
+    const integrated = git("rev-parse", "HEAD");
+    const mergedBase = command(
+      ["sh", hook, "origin"],
+      `refs/heads/main ${integrated} refs/heads/feat/valid ${previous}\n`,
+    );
+    expect(
+      mergedBase.exitCode,
+      mergedBase.stdout.toString() + mergedBase.stderr.toString(),
+    ).toBe(0);
+    git("commit", "--allow-empty", "-m", "Invalid new subject");
+    const invalidAfterMerge = command(
+      ["sh", hook, "origin"],
+      `refs/heads/main ${git("rev-parse", "HEAD")} refs/heads/feat/valid ${previous}\n`,
+    );
+    expect(invalidAfterMerge.exitCode).not.toBe(0);
+    expect(
+      invalidAfterMerge.stdout.toString() + invalidAfterMerge.stderr.toString(),
+    ).toContain("subject-empty");
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
