@@ -1,0 +1,25 @@
+{
+  "label": "check",
+  "steps": [
+    {
+      "label": "fast",
+      "command": ["bun", "run", "check:fast"]
+    },
+    {
+      "label": "resume-browser",
+      "command": ["bun", "run", "ci-headless"]
+    },
+    {
+      "label": "website-browser",
+      "command": ["bun", "run", "--cwd", "packages/website", "test"]
+    },
+    {
+      "label": "demo-browser",
+      "command": ["bun", "run", "--cwd", "packages/demo", "test"]
+    },
+    {
+      "label": "drive-browser",
+      "command": ["bun", "run", "--cwd", "packages/drive", "test"]
+    }
+  ]
+}

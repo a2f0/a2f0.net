@@ -12,14 +12,14 @@
     "ci": "bun run build && start-server-and-test 'bun run start-server-test' http-get://localhost:4001 'bun run test'",
     "ci-headless": "bun run build && start-server-and-test 'bun run start-server-test' http-get://localhost:4001 'bun run test-headless'",
     "build": "bun run generate:desktop-svg && next build",
-    "generate:desktop-svg": "node --import tsx lib/scripts/generateDesktopSvg.ts",
+    "generate:desktop-svg": "node --import tsx scripts/build/generateDesktopSvg.ts",
     "start": "wrangler dev --env staging --port 4000 --local",
     "compile": "tsc",
     "unit": "vitest run",
-    "deploy:staging": "bun run build && bun ../../scripts/deploy.ts resume-staging",
-    "deploy:prod": "bun run build && bun ../../scripts/deploy.ts resume-prod",
-    "preview:staging": "bun run build && bun ../../scripts/deploy.ts resume-staging --dry-run",
-    "preview:prod": "bun run build && bun ../../scripts/deploy.ts resume-prod --dry-run"
+    "deploy:staging": "bun run build && bun ../../scripts/deploy/deploy.ts resume-staging",
+    "deploy:prod": "bun run build && bun ../../scripts/deploy/deploy.ts resume-prod",
+    "preview:staging": "bun run build && bun ../../scripts/deploy/deploy.ts resume-staging --dry-run",
+    "preview:prod": "bun run build && bun ../../scripts/deploy/deploy.ts resume-prod --dry-run"
   },
   "dependencies": {
     "@a2f0/shared": "workspace:*",

@@ -23,7 +23,7 @@ import {
   fingerprintFile,
 } from "./deploySnapshot";
 
-const root = resolve(import.meta.dir, "..");
+const root = resolve(import.meta.dir, "../..");
 
 async function command(args: string[], cwd = root, env = process.env) {
   const child = spawn(args, { cwd, env, stdout: "pipe", stderr: "pipe" });
@@ -50,7 +50,7 @@ async function main() {
     extra.length
   ) {
     throw new Error(
-      "Usage: bun scripts/deploy.ts <target> [--dry-run]; a target not yet created also accepts --bootstrap or --bootstrap-dry-run",
+      "Usage: bun scripts/deploy/deploy.ts <target> [--dry-run]; a target not yet created also accepts --bootstrap or --bootstrap-dry-run",
     );
   }
   const target = name as DeploymentName;

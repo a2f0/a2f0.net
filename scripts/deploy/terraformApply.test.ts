@@ -26,7 +26,7 @@ test("Terraform entrypoint inspects saved plans and refuses unattended apply", a
   await mkdir(binaries);
   for (const script of ["apply.sh", "credentials.sh"])
     await copyFile(
-      new URL(`../terraform/${script}`, import.meta.url),
+      new URL(`../../terraform/${script}`, import.meta.url),
       resolve(folder, script),
     );
   // Fixture R2 state key in the .secrets layout; shared.env loads first, so
@@ -323,7 +323,7 @@ test("init and upgrade entrypoints give Terraform only the R2 state key", async 
   await mkdir(binaries);
   for (const script of ["init.sh", "upgrade.sh", "credentials.sh"])
     await copyFile(
-      new URL(`../terraform/${script}`, import.meta.url),
+      new URL(`../../terraform/${script}`, import.meta.url),
       resolve(folder, script),
     );
   const terraform = resolve(binaries, "terraform");

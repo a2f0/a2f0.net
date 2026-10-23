@@ -9,7 +9,7 @@
     "./styles.css": "./src/drive.css"
   },
   "scripts": {
-    "copy-sdk": "bun scripts/copySdk.ts",
+    "copy-sdk": "bun scripts/build/copySdk.ts",
     "dev": "bun run copy-sdk && next dev --webpack -p 4004",
     "build": "bun run copy-sdk && next build --webpack",
     "start": "wrangler dev --port 4004 --local",
@@ -18,8 +18,8 @@
     "test": "bun run build && start-server-and-test 'bun run start' http://localhost:4004 'bun run test:served'",
     "test:served": "wdio run wdio.conf.ts",
     "test:integration": "wdio run wdio.conf.ts --spec ./test/integration/connection.e2e.ts",
-    "deploy": "bun run build && bun ../../scripts/deploy.ts drive",
-    "preview": "bun run build && bun ../../scripts/deploy.ts drive --dry-run"
+    "deploy": "bun run build && bun ../../scripts/deploy/deploy.ts drive",
+    "preview": "bun run build && bun ../../scripts/deploy/deploy.ts drive --dry-run"
   },
   "dependencies": {
     "@phosphor-icons/react": "2.1.10",

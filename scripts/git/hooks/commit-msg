@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+bun run agent-tool hooks check
+bun run agent-tool commits check --message-file "$1"
+bunx --no-install commitlint --edit "$1"

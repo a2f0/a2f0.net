@@ -1,14 +1,17 @@
-set -e
+#!/bin/sh
+set -eu
+
+bun run agent-tool hooks check
 
 bunx --no-install lint-staged
 
 terraform fmt terraform
 tflint --chdir terraform
 
-shellcheck scripts/*.sh terraform/*.sh
+shellcheck scripts/checks/*.sh terraform/*.sh
 
 bunx --no-install biome lint --error-on-warnings
 bunx --no-install biome format
-packages/resume/lib/scripts/ajv.ts
+packages/resume/scripts/checks/ajv.ts
 
 yamllint .

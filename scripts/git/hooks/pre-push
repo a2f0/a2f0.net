@@ -1,0 +1,35 @@
+#!/bin/sh
+set -eu
+
+bun run agent-tool hooks check
+
+remote=${1:-origin}
+refs=$(cat)
+printf '%s\n' "$refs" | bun run agent-tool branch check --pre-push
+
+bunx --no-install knip
+bun run check:architecture
+bun run check:dependencies
+bun run agents:check
+
+# Inspect the pushed refs even when they differ from the checked-out HEAD.
+zero=0000000000000000000000000000000000000000
+printf '%s\n' "$refs" | while read -r local_ref local_oid _remote_ref remote_oid; do
+  [ -n "$local_ref" ] || continue
+  [ "$local_oid" != "$zero" ] || continue
+  if [ "$remote_oid" != "$zero" ]; then
+    bun run agent-tool commits check --range "$local_oid" --exclude "$remote_oid" </dev/null
+    commits=$(git rev-list "$local_oid" --not "$remote_oid" --)
+  elif git remote get-url "$remote" >/dev/null 2>&1; then
+    bun run agent-tool commits check --range "$local_oid" --exclude-remotes "$remote" </dev/null
+    commits=$(git rev-list "$local_oid" --not "--remotes=$remote" --)
+  else
+    bun run agent-tool commits check --range "$local_oid" </dev/null
+    commits=$(git rev-list "$local_oid" --)
+  fi
+  printf '%s\n' "$commits" | while read -r commit; do
+    [ -n "$commit" ] || continue
+    git -c log.showSignature=false show --no-patch --format=%B "$commit" |
+      bunx --no-install commitlint
+  done
+done

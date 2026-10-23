@@ -16,6 +16,10 @@
     },
     ".": {
       "project": "scripts/**/*.ts",
+      // Reuse Knip's shell-hook scanner for the shared installer's sources.
+      "husky": {
+        "config": ["scripts/git/hooks/*"]
+      },
       // dependency-cruiser loads swc to parse TypeScript, as TypeScript 7 has
       // no JavaScript API for it.
       "ignoreDependencies": ["@swc/core"]
@@ -26,7 +30,7 @@
         "wdio.shared.conf.ts",
         "wdio.headless.conf.ts",
         "test/specs/*.e2e.ts",
-        "lib/scripts/*.ts"
+        "scripts/**/*.ts"
       ],
       "project": "**/*.{ts,tsx,mjs}",
       "ignoreDependencies": [

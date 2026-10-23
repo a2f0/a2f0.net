@@ -1,0 +1,29 @@
+{
+  "label": "checkFast",
+  "steps": [
+    {
+      "label": "markdown",
+      "command": ["bun", "run", "lint:md"]
+    },
+    {
+      "label": "compile",
+      "command": ["bun", "run", "compile"]
+    },
+    {
+      "label": "unit",
+      "command": ["bun", "run", "unit"]
+    },
+    {
+      "label": "pre-commit",
+      "command": ["sh", "scripts/git/hooks/pre-commit"]
+    },
+    {
+      "label": "pre-push",
+      "command": ["sh", "scripts/git/hooks/pre-push"]
+    },
+    {
+      "label": "audit",
+      "command": ["bun", "audit", "--audit-level=critical"]
+    }
+  ]
+}
