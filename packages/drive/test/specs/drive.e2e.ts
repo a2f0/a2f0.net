@@ -169,4 +169,22 @@ describe("Drive with the published Tearleads SDK", () => {
     await $("button[aria-label='Close dialog']").click();
     await browser.refresh();
   });
+
+  it("switches between the website's Graphite and Paper themes and keeps the choice", async () => {
+    const background = () =>
+      browser.execute(() => {
+        const app = document.querySelector(".drive-app");
+        return app && getComputedStyle(app).backgroundColor;
+      });
+    await expect($(".drive-app")).toBeDisplayed();
+    await expect($("html")).toHaveAttribute("data-theme", "graphite");
+    expect(await background()).toBe("rgb(22, 22, 22)");
+    await $("button[aria-label='Switch to Paper theme']").click();
+    await expect($("html")).toHaveAttribute("data-theme", "paper");
+    expect(await background()).toBe("rgb(250, 250, 250)");
+    await browser.refresh();
+    await expect($("html")).toHaveAttribute("data-theme", "paper");
+    await $("button[aria-label='Switch to Graphite theme']").click();
+    await expect($("html")).toHaveAttribute("data-theme", "graphite");
+  });
 });

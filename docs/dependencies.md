@@ -49,7 +49,9 @@ gate. See [AGENTS.md](../AGENTS.md) for title, review, and shipping policy.
   changing it; remove the override when owners resolve that line naturally or
   the repository deliberately changes its supported runtime.
 - Keep `@tearleads/windowing` exact and consume only published releases. Its
-  local producer candidate cannot authorize a consumer bump.
+  local producer candidate cannot authorize a consumer bump. The website and
+  Drive (for its theme provider and switch) pin the same version; bump them
+  together and recheck Drive's theme switch in its browser suite.
   The website's click-attribution wrapper gives each desktop window a full-size
   immediate parent because the package measures that parent for geometry. Recheck
   fitting, dragging, resizing, stacking, and pointer routing in the website browser
