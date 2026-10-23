@@ -1,6 +1,8 @@
 import { ThemeProvider } from "@tearleads/windowing";
 import type { AppProps } from "next/app";
 import Head from "next/head";
+import { useEffect } from "react";
+import { startClickTracking } from "../src/clickTracking";
 import "../src/drive.css";
 import {
   DEFAULT_DRIVE_THEME,
@@ -9,6 +11,8 @@ import {
 } from "../src/themes";
 
 export default function App({ Component, pageProps }: AppProps) {
+  useEffect(startClickTracking, []);
+
   return (
     <ThemeProvider
       defaultTheme={DEFAULT_DRIVE_THEME}
