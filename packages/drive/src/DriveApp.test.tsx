@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, expect, mock, test } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
+import { ThemeProvider } from "@tearleads/windowing";
 import { act, StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
@@ -14,6 +15,9 @@ mock.module("./host", () => ({
   },
 }));
 const { default: DriveApp } = await import("./DriveApp");
+const { DEFAULT_DRIVE_THEME, DRIVE_THEMES, THEME_STORAGE_KEY } = await import(
+  "./themes"
+);
 
 beforeAll(() => {
   GlobalRegistrator.register();
@@ -37,6 +41,31 @@ test("Strict Mode starts one identity host and shows onboarding after a clean bo
     finishBoot(null);
   });
   expect(element.textContent).toContain("Create a drive");
+  // An embedding host may mount no theme provider; the switch then hides.
+  expect(element.querySelector(".drive-theme-switch")).toBeNull();
+  await act(async () => root.unmount());
+});
+
+test("offers the theme switch under a theme provider", async () => {
+  const element = document.createElement("div");
+  const root = createRoot(element);
+  await act(async () => {
+    root.render(
+      <ThemeProvider
+        defaultTheme={DEFAULT_DRIVE_THEME}
+        storageKey={THEME_STORAGE_KEY}
+        themes={DRIVE_THEMES}
+      >
+        <DriveApp />
+      </ThemeProvider>,
+    );
+  });
+  await act(async () => {
+    finishBoot(null);
+  });
+  expect(
+    element.querySelector(".drive-theme-switch")?.getAttribute("aria-label"),
+  ).toBe("Switch to Paper theme");
   await act(async () => root.unmount());
 });
 
