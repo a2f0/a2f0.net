@@ -25,7 +25,8 @@
   --drive-danger: #ec7a74;
   --drive-shadow: rgb(0 0 0 / 32%);
 }
-/* Muted text keeps 4.5:1 on every surface but the sidebar's hover. */
+/* Muted text keeps 4.5:1 on every surface but the sidebar's hover. The focus
+   ring is solid, since half of Paper's ink falls below 3:1 on its sheets. */
 :root[data-theme-scheme="light"] :is(.drive-page, .drive-app, .drive-dialog) {
   color-scheme: light;
   --drive-ink: #555555;
@@ -43,6 +44,7 @@
   --drive-accent: #444444;
   --drive-accent-ink: #fafafa;
   --drive-accent-hover: #333333;
+  --drive-focus: #767676;
   --drive-danger: #b3261e;
   --drive-shadow: rgb(0 0 0 / 14%);
 }
