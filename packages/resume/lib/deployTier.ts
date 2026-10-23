@@ -14,6 +14,8 @@ export function parseDeployTier(value: string | undefined): DeployTier {
   throw new Error("RESUME_DEPLOY_TIER must be production or staging");
 }
 
-// next.config.ts inlines the validated value into both the server and the
-// browser bundles, so the page hydrates with the tier it was exported with.
+// next.config.ts inlines the variable into both the server and the browser
+// bundles, so the page hydrates with the tier it was exported with. The
+// export renders every page through _document.tsx, which reads this, so an
+// unknown tier stops the build.
 export const DEPLOY_TIER = parseDeployTier(process.env.RESUME_DEPLOY_TIER);
