@@ -11,15 +11,16 @@
     "test-headless": "wdio run wdio.headless.conf.ts",
     "ci": "bun run build && start-server-and-test 'bun run start-server-test' http-get://localhost:4001 'bun run test'",
     "ci-headless": "bun run build && start-server-and-test 'bun run start-server-test' http-get://localhost:4001 'bun run test-headless'",
-    "build": "bun run generate:desktop-svg && next build",
+    "build": "bun run generate:desktop-svg && next build && bun run write:crawler-files",
+    "write:crawler-files": "node --import tsx scripts/build/writeCrawlerFiles.ts",
     "generate:desktop-svg": "node --import tsx scripts/build/generateDesktopSvg.ts",
     "start": "wrangler dev --env staging --port 4000 --local",
     "compile": "tsc",
     "unit": "vitest run",
-    "deploy:staging": "bun run build && bun ../../scripts/deploy/deploy.ts resume-staging",
-    "deploy:prod": "bun run build && bun ../../scripts/deploy/deploy.ts resume-prod",
-    "preview:staging": "bun run build && bun ../../scripts/deploy/deploy.ts resume-staging --dry-run",
-    "preview:prod": "bun run build && bun ../../scripts/deploy/deploy.ts resume-prod --dry-run"
+    "deploy:staging": "RESUME_DEPLOY_TIER=staging bun run build && bun ../../scripts/deploy/deploy.ts resume-staging",
+    "deploy:prod": "RESUME_DEPLOY_TIER=production bun run build && bun ../../scripts/deploy/deploy.ts resume-prod",
+    "preview:staging": "RESUME_DEPLOY_TIER=staging bun run build && bun ../../scripts/deploy/deploy.ts resume-staging --dry-run",
+    "preview:prod": "RESUME_DEPLOY_TIER=production bun run build && bun ../../scripts/deploy/deploy.ts resume-prod --dry-run"
   },
   "dependencies": {
     "@a2f0/ct-client": "0.1.5",

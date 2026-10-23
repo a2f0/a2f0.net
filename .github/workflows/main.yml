@@ -93,14 +93,27 @@ jobs:
           install_args: bun node
       - run: bun ci
       - run: bun run build
+        env:
+          RESUME_DEPLOY_TIER: production
       - name: Preview the exact assets and existing Worker identity
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          for target in resume-staging resume-prod website demo drive; do
+          for target in resume-prod website demo drive; do
             bun scripts/deploy/deploy.ts "$target" --dry-run
           done
+      # The staging resume is its own build: it keeps every response out of
+      # search results, and the guard refuses either tier's export for the other.
+      - name: Build the staging resume
+        run: bun run build --filter=@resume/site
+        env:
+          RESUME_DEPLOY_TIER: staging
+      - name: Preview the staging resume
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: bun scripts/deploy/deploy.ts resume-staging --dry-run
 
   deploy:
     needs: build
@@ -124,9 +137,13 @@ jobs:
       - name: Build resume
         if: github.ref == 'refs/heads/staging'
         run: bun run build --filter=@resume/site
+        env:
+          RESUME_DEPLOY_TIER: staging
       - name: Build all workspaces
         if: github.ref == 'refs/heads/main'
         run: bun run build
+        env:
+          RESUME_DEPLOY_TIER: production
       - name: Deploy staging
         if: github.ref == 'refs/heads/staging'
         working-directory: packages/resume

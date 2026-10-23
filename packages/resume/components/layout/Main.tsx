@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { mobileMediaQuery } from "../../lib/breakpoints";
 import { useAppSelector } from "../../lib/hooks";
 import { selectScale } from "../../lib/resumeConfigSlice";
+import PageMetadata from "../PageMetadata";
 import Body from "./Body";
 import Footer from "./Footer";
 import Gutter from "./Gutter";
@@ -43,6 +44,7 @@ const Main = ({ children, title }: IProps) => {
       <Gutter />
       <MainColumn scale={scale}>
         <VisuallyHidden as="h1">{title}</VisuallyHidden>
+        <PageMetadata title={title} />
         <Header title={title} />
         <Body>{children}</Body>
         <Footer />

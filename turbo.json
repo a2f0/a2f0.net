@@ -13,7 +13,7 @@
     },
     "build": {
       "dependsOn": ["transit"],
-      "env": ["NEXT_PUBLIC_TEARLEADS_API_URL"],
+      "env": ["NEXT_PUBLIC_TEARLEADS_API_URL", "RESUME_DEPLOY_TIER"],
       "outputs": [
         ".generated/**",
         ".next/**",
