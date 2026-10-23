@@ -1,4 +1,4 @@
-import { ThemeProvider } from "@tearleads/windowing";
+import { ThemeProvider, useTheme } from "@tearleads/windowing";
 import type { AppProps } from "next/app";
 import Head from "next/head";
 import { useEffect } from "react";
@@ -7,6 +7,7 @@ import "../src/drive.css";
 import {
   DEFAULT_DRIVE_THEME,
   DRIVE_THEMES,
+  driveThemeColor,
   THEME_STORAGE_KEY,
 } from "../src/themes";
 
@@ -22,6 +23,17 @@ const OG_IMAGE = {
   alt: "The Drive logo, a green folder on a dark slate square",
 };
 
+// Inside the theme provider, so the browser's chrome follows the theme switch:
+// the default theme's color in the exported HTML, then the visitor's.
+function ThemeColor() {
+  const { activeTheme } = useTheme();
+  return (
+    <Head>
+      <meta name="theme-color" content={driveThemeColor(activeTheme.id)} />
+    </Head>
+  );
+}
+
 export default function App({ Component, pageProps }: AppProps) {
   useEffect(startClickTracking, []);
 
@@ -35,8 +47,6 @@ export default function App({ Component, pageProps }: AppProps) {
         <title>{TITLE}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content={DESCRIPTION} />
-        {/* Graphite's paper, the default theme's background. */}
-        <meta name="theme-color" content="#161616" />
         <link rel="canonical" href={CANONICAL_URL} />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -52,6 +62,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta property="og:image:alt" content={OG_IMAGE.alt} />
         <meta name="twitter:card" content="summary_large_image" />
       </Head>
+      <ThemeColor />
       <Component {...pageProps} />
     </ThemeProvider>
   );

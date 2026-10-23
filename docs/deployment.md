@@ -67,6 +67,10 @@ canonical URL and carries its description and link-preview tags, including
 the `og-image.png` each build renders from `assets/brand/`, and each
 host serves a plain-text `robots.txt`. The resume and the website also serve a
 `sitemap.xml`. The resume and website pages describe themselves with JSON-LD.
+The website's copies of other sites' pages stay out of its sitemap: the dnbm
+pages under `/dnbm/` name `dnbm.a2f0.net` as canonical, as `@a2f0/dnbm` gives
+them from 0.4.10, so search engines treat them as that site's duplicates, and
+the `skyline/` studies are `noindex`.
 
 `staging.a2f0.net` stays out of search results. The resume's build reads
 `RESUME_DEPLOY_TIER` (`production` by default, or `staging`; see

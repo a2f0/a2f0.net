@@ -13,7 +13,8 @@ website's themes: Graphite, the dark default, and Paper, a light one. The
 switch in the sidebar's corner cycles them, and the choice persists in the
 browser. [`src/themes.ts`](src/themes.ts) lists them, and
 [`src/drive.css`](src/drive.css) gives each Drive's palette in the website's
-ink, surfaces, and edges.
+ink, surfaces, and edges. The page's `theme-color` follows the theme, so the
+browser's own chrome matches the page.
 
 ## Development
 

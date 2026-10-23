@@ -11,8 +11,8 @@ import {
   SITE_NAME,
   SITE_TITLE,
   SITE_URL,
-  THEME_COLOR,
 } from "../components/siteMetadata";
+import { useThemeColor } from "../components/useThemeColor";
 
 import "../styles/global.css";
 import "../styles/themes.css";
@@ -24,6 +24,17 @@ import "../mini-apps/dnbm/Dnbm.css";
 import "../mini-apps/dnbm-player/DnbmPlayer.css";
 import "../mini-apps/resume/Resume.css";
 import "../mini-apps/skyline/Skyline.css";
+
+// The browser's chrome follows the desktop's theme switch. Kept in its own
+// head, so a theme change rerenders this tag rather than the whole page.
+function ThemeColor() {
+  const color = useThemeColor();
+  return (
+    <Head>
+      <meta name="theme-color" content={color} />
+    </Head>
+  );
+}
 
 export default function WebsiteApp({
   Component,
@@ -37,7 +48,6 @@ export default function WebsiteApp({
         <title>{SITE_TITLE}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content={SITE_DESCRIPTION} />
-        <meta name="theme-color" content={THEME_COLOR} />
         <link rel="canonical" href={SITE_URL} />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -59,6 +69,7 @@ export default function WebsiteApp({
           dangerouslySetInnerHTML={{ __html: serializeJsonLd(SITE_JSON_LD) }}
         />
       </Head>
+      <ThemeColor />
       <Component {...pageProps} />
     </>
   );
