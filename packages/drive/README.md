@@ -24,8 +24,9 @@ bun ci
 bun run --cwd packages/drive dev
 ```
 
-Open `http://localhost:4004`. `dev` and `build` copy the SQLite module worker,
-WASM, and license from the installed SDK into `public/`. Next’s webpack config
+Open `http://localhost:4004`. `dev` and `build` render the favicons from
+`assets/brand/drive.svg` and copy the SQLite module worker, WASM, and license
+from the installed SDK into `public/`. Next’s webpack config
 enables async WebAssembly for Loro’s development entrypoint, and transpiles the
 pinned `@tearleads/windowing` package, whose theme provider and switch import
 their own stylesheets. The production

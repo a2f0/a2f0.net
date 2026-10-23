@@ -92,6 +92,17 @@ generators stay with their package under `scripts/build/`, and the resume
 schema validator lives under its `scripts/checks/`. Use package scripts as the
 stable interface. Keep native Terraform wrappers in `terraform/`.
 
+## Brand images
+
+Favicons render from the plain static SVG sources in `assets/brand/`:
+`logo.svg` for the resume, website, and demo, and `drive.svg` for Drive.
+The `images` targets in `agent-tool.json` declare the outputs, `favicon.svg`,
+`favicon.ico`, and `apple-touch-icon.png`, and each app's `favicons` script runs
+`agent-tool images build` before its dev server and build: into `public/` for
+the Next.js apps and into `dist/` for the demo. The outputs are ignored; never
+commit them or other binary images. Edit the sources instead, following
+agent-tool's source rules (no `<style>`, `style` attributes, or text).
+
 ## Shared tooling and hook migration
 
 The exact npm agent-tool pin owns branch/ref checks, attribution checks, copied

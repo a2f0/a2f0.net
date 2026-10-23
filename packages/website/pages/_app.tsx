@@ -38,8 +38,9 @@ export default function WebsiteApp({
         <meta name="description" content={SITE_DESCRIPTION} />
         <meta name="theme-color" content={THEME_COLOR} />
         <link rel="canonical" href={SITE_URL} />
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content={SITE_NAME} />
         <meta property="og:title" content={SITE_TITLE} />

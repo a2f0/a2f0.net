@@ -14,6 +14,11 @@
     "build": {
       "dependsOn": ["transit"],
       "env": ["NEXT_PUBLIC_TEARLEADS_API_URL", "RESUME_DEPLOY_TIER"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/agent-tool.json",
+        "$TURBO_ROOT$/assets/brand/**"
+      ],
       "outputs": [
         ".generated/**",
         ".next/**",
@@ -21,6 +26,9 @@
         "dist/**",
         "out/**",
         "public/a2f0.svg",
+        "public/apple-touch-icon.png",
+        "public/favicon.ico",
+        "public/favicon.svg",
         "public/skyline/**",
         "public/worker.js",
         "public/sqlite3.wasm",

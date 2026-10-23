@@ -33,7 +33,9 @@ export default function App({ Component, pageProps }: AppProps) {
         {/* Graphite's paper, the default theme's background. */}
         <meta name="theme-color" content="#161616" />
         <link rel="canonical" href={CANONICAL_URL} />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="a2f0.net" />
         <meta property="og:title" content={TITLE} />
