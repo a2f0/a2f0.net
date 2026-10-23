@@ -11,7 +11,7 @@ CT records clicks for the production website and standalone apps:
 
 Each standalone browser entrypoint explicitly initializes the pinned
 `@a2f0/ct-client` after mounting. Imports and reusable components stay inert.
-Next.js starts and cleans up its tracker in the page-level React effect; the
+Next.js starts and cleans up its tracker in the app-level React effect; the
 demo starts it only in `src/main.ts`, outside its reusable `mountSite`.
 Embedding the résumé, demo, or Drive therefore leaves tracking to the host.
 The existing apex website's tracker and app boundaries are unchanged.
@@ -40,6 +40,8 @@ See [CT's data policy](https://github.com/a2f0/ct/blob/main/docs/privacy.md)
 for details and opt-outs. This describes CT only; the résumé's existing Google
 Analytics integration is separate.
 
-Unit tests intercept transport while exercising the real client. Browser tests
-and deployment checks intercept collector requests before making real clicks;
-verification must never write test events to the production collector.
+Unit tests intercept transport while exercising the real client. Standalone
+browser tracking tests intercept collection and exercise real controls without
+the WebDriver signal, proving built local previews stay inactive. Deployment
+checks also intercept collector requests before making real clicks; verification
+must never write test events to the production collector.

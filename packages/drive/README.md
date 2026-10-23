@@ -56,9 +56,9 @@ the identity and permits downloading synced data; it cannot recover unsynced
 files. Drive never clears site data automatically.
 
 Creating a drive generates an identity and root folder locally. It makes no
-Tearleads API requests until **Your identity → Connect to Tearleads**. Importing a recovery
-phrase attempts to sign in to that existing identity. A failed imported login
-never registers a replacement account. Reconnection uses the same identity.
+Tearleads API requests until **Your identity → Connect to Tearleads**. Importing
+a recovery phrase attempts to sign in to that existing identity. A failed
+imported login never registers a replacement account. Reconnection uses the same identity.
 Tearleads organization billing and access permissions still govern remote sync.
 
 The SDK browser keyring holds a non-extractable wrapping key in IndexedDB.

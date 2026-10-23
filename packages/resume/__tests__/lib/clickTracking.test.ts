@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
-import { startClickTracking } from "../lib/clickTracking";
+
+let startClickTracking: typeof import("../../lib/clickTracking").startClickTracking;
 
 const originalWindow = window;
 let currentOrigin = "https://resume.a2f0.net";
@@ -9,7 +10,7 @@ const clickListeners = new Set<EventListener>();
 const originalEnvironment = process.env.NODE_ENV;
 let stop: (() => void) | undefined;
 
-beforeEach(() => {
+beforeEach(async () => {
   Object.assign(process.env, { NODE_ENV: "production" });
   vi.stubGlobal(
     "window",
@@ -51,6 +52,8 @@ beforeEach(() => {
   ] as const) {
     Object.defineProperty(navigator, name, { configurable: true, value });
   }
+  vi.resetModules();
+  ({ startClickTracking } = await import("../../lib/clickTracking"));
 });
 
 afterEach(() => {
@@ -99,6 +102,7 @@ function batch() {
 }
 
 test("imports stay inert until explicit standalone initialization", async () => {
+  expect(clickListeners.size).toBe(0);
   click("button");
   await flush();
   expect(send).not.toHaveBeenCalled();
