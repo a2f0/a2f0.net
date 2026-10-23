@@ -60,6 +60,27 @@ with the scripts above; do not pass alternate names or environments to Wrangler.
 Use `preview:staging`, `preview:prod`, `preview:website`, or `preview:demo`
 for the same guard without mutation.
 
+## Search indexing
+
+The production hosts are indexable: each page's exported HTML names its
+canonical URL and carries its description and link-preview tags, including
+the `og-image.png` each build renders from `assets/brand/`, and each
+host serves a plain-text `robots.txt`. The resume and the website also serve a
+`sitemap.xml`. The resume and website pages describe themselves with JSON-LD.
+
+`staging.a2f0.net` stays out of search results. The resume's build reads
+`RESUME_DEPLOY_TIER` (`production` by default, or `staging`; see
+[`packages/resume/lib/deployTier.ts`](../packages/resume/lib/deployTier.ts)).
+A staging build adds a robots meta tag to every page and a `_headers` rule
+that sends `X-Robots-Tag: noindex, nofollow` with every response. It names no
+canonical URL and has no sitemap, and its `robots.txt` still allows crawling,
+so crawlers can read those rules. `deploy:staging`, `preview:staging`, and CI's
+staging builds set the tier. The deploy guard checks the assets against the
+target's tier in
+[`scripts/deploy/indexingPolicy.ts`](../scripts/deploy/indexingPolicy.ts): it
+refuses a staging deploy without those rules, and a production deploy whose
+`_headers` or root pages ask to be left out of search.
+
 ## Infrastructure
 
 Terraform keeps state in the Cloudflare R2 bucket `a2f0-net-terraform-state`

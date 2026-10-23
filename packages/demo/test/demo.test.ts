@@ -8,7 +8,35 @@ test("serves the demo page without redirecting", async () => {
   expect(response.status).toBe(200);
   expect(response.headers.get("location")).toBeNull();
   expect(response.headers.get("content-type")).toContain("text/html");
-  expect(await response.text()).toContain("<title>a2f0 demo</title>");
+  const page = await response.text();
+  expect(page).toContain(
+    "<title>a2f0 demo – Graffiti Wordmark and ASCII Art</title>",
+  );
+  expect(page).toContain('<link rel="canonical" href="https://demo.a2f0.net/"');
+  expect(page).toContain(
+    '<meta property="og:url" content="https://demo.a2f0.net/"',
+  );
+  expect(page).toMatch(
+    /<meta\s+name="description"\s+content="The a2f0 wordmark/,
+  );
+  expect(page).toContain(
+    '<meta property="og:image" content="https://demo.a2f0.net/og-image.png"',
+  );
+  expect(page).toContain(
+    '<meta name="twitter:card" content="summary_large_image"',
+  );
+  expect(page).not.toMatch(/<meta name="robots"/);
+
+  const image = await fetch("http://localhost:4002/og-image.png");
+  expect(image.status).toBe(200);
+  expect(image.headers.get("content-type")).toBe("image/png");
+});
+
+test("serves robots.txt as text that allows crawling", async () => {
+  const response = await fetch("http://localhost:4002/robots.txt");
+  expect(response.status).toBe(200);
+  expect(response.headers.get("content-type")).toContain("text/plain");
+  expect(await response.text()).toBe("User-agent: *\nAllow: /\n");
 });
 
 test("serves the canvas toolbar and the bundled script", async () => {

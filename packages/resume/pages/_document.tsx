@@ -7,6 +7,8 @@ import Document, {
 } from "next/document";
 import { ServerStyleSheet } from "styled-components";
 
+import { DEPLOY_TIER } from "../lib/deployTier";
+
 export default class MyDocument extends Document {
   static async getInitialProps(ctx: DocumentContext) {
     const sheet = new ServerStyleSheet();
@@ -32,7 +34,13 @@ export default class MyDocument extends Document {
   render() {
     return (
       <Html lang="en">
-        <Head />
+        <Head>
+          {/* Every exported page, the 404 page included, carries the tier's
+              robots rule; staging's _headers repeats it for every response. */}
+          {DEPLOY_TIER === "staging" && (
+            <meta name="robots" content="noindex, nofollow" />
+          )}
+        </Head>
         <body>
           <Main />
           <NextScript />

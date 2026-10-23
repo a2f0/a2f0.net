@@ -1,36 +1,46 @@
 import { resolve } from "node:path";
 import { type ParseError, parse } from "jsonc-parser";
 
+/**
+ * Each guarded target. `tier` decides what the indexing check requires of the
+ * assets (see indexingPolicy.ts): staging must ask search engines to drop
+ * every response, and production must never do so.
+ */
 export const DEPLOYMENTS = {
   drive: {
     package: "drive",
     environment: undefined,
     worker: "drive",
     hostname: "drive.a2f0.net",
+    tier: "production",
   },
   "resume-staging": {
     package: "resume",
     environment: "staging",
     worker: "resume-staging",
     hostname: "staging.a2f0.net",
+    tier: "staging",
   },
   "resume-prod": {
     package: "resume",
     environment: "prod",
     worker: "resume-prod",
     hostname: "resume.a2f0.net",
+    tier: "production",
   },
   website: {
     package: "website",
     environment: undefined,
     worker: "resume-redirect",
     hostname: "a2f0.net",
+    tier: "production",
   },
   demo: {
     package: "demo",
     environment: undefined,
     worker: "demo",
     hostname: "demo.a2f0.net",
+    tier: "production",
   },
 } as const;
 

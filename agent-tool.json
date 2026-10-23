@@ -78,6 +78,19 @@
           }
         ]
       },
+      "og-image": {
+        "outputs": [
+          {
+            "path": "og-image.png",
+            "size": [1200, 630],
+            "opaque": true,
+            "layers": [
+              { "fill": "#202020" },
+              { "source": "logo", "scale": 0.5 }
+            ]
+          }
+        ]
+      },
       "drive-favicons": {
         "dir": "packages/drive/public",
         "outputs": [
@@ -94,6 +107,20 @@
             "layers": [
               { "fill": "#191e27" },
               { "source": "drive", "scale": 0.8 }
+            ]
+          }
+        ]
+      },
+      "drive-og-image": {
+        "dir": "packages/drive/public",
+        "outputs": [
+          {
+            "path": "og-image.png",
+            "size": [1200, 630],
+            "opaque": true,
+            "layers": [
+              { "fill": "#191e27" },
+              { "source": "drive", "scale": 0.5 }
             ]
           }
         ]

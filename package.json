@@ -26,6 +26,7 @@
     "test-headless": "bun run --cwd packages/resume test-headless",
     "ci": "bun run --cwd packages/resume ci",
     "ci-headless": "bun run --cwd packages/resume ci-headless",
+    "ci-headless:staging": "bun run --cwd packages/resume ci-headless:staging",
     "build": "turbo run build",
     "start": "bun run --cwd packages/resume start",
     "lint": "biome lint --error-on-warnings",

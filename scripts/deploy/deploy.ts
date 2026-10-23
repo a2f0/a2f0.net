@@ -22,6 +22,7 @@ import {
   digestAssets,
   fingerprintFile,
 } from "./deploySnapshot";
+import { checkIndexing, readIndexingEvidence } from "./indexingPolicy";
 
 const root = resolve(import.meta.dir, "../..");
 
@@ -209,6 +210,10 @@ async function main() {
     )
       throw new Error("Captured configuration changed");
     const assets = checkConfiguration(config, target);
+    checkIndexing(
+      specification.tier,
+      await readIndexingEvidence(resolve(directory, assets)),
+    );
     const hash = createHash("sha256")
       .update(await command(["git", "rev-parse", "HEAD"]))
       .update(config);

@@ -16,12 +16,15 @@ out/
 # production
 build/
 dist/
+# Workspace build scripts live in scripts/build/ and stay tracked.
+!**/scripts/build/
 
-# Favicons rendered from assets/brand/ by each app's dev and build scripts
-# (the demo renders its own into dist/).
+# Favicons and link-preview images rendered from assets/brand/ by each app's
+# dev and build scripts (the demo renders its own into dist/).
 packages/*/public/favicon.svg
 packages/*/public/favicon.ico
 packages/*/public/apple-touch-icon.png
+packages/*/public/og-image.png
 
 # Runtime assets from the pinned Tearleads SDK
 packages/drive/public/worker.js

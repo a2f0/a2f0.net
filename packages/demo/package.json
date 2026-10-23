@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "favicons": "agent-tool --repo ../.. images build favicons --out packages/demo/dist",
-    "build": "rm -rf dist && cp -R public dist && bun run favicons && bun build src/main.ts --outdir dist --entry-naming graffiti.[ext] --target browser --production --sourcemap=linked",
+    "og-image": "agent-tool --repo ../.. images build og-image --out packages/demo/dist",
+    "build": "rm -rf dist && cp -R public dist && bun run favicons && bun run og-image && bun build src/main.ts --outdir dist --entry-naming graffiti.[ext] --target browser --production --sourcemap=linked",
     "start": "wrangler dev --port 4002 --local",
     "compile": "tsc",
     "unit": "bun test ./src",

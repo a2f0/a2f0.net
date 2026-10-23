@@ -6,6 +6,9 @@ root, then use root scripts such as `bun run build`, `bun run unit`, and
 `bun run ci-headless`.
 
 The production build writes its static export to `packages/resume/out/`.
+Staging's export is built with `RESUME_DEPLOY_TIER=staging`, which keeps it
+out of search results; see
+[search indexing](../../docs/deployment.md#search-indexing).
 See [development](../../docs/development.md) and
 [deployment](../../docs/deployment.md) for the full workflow.
 
