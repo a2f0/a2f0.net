@@ -16,6 +16,8 @@ out/
 # production
 build/
 dist/
+# Workspace build scripts live in scripts/build/ and stay tracked.
+!**/scripts/build/
 
 # Runtime assets from the pinned Tearleads SDK
 packages/drive/public/worker.js
