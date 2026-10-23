@@ -8,6 +8,14 @@ export const RESUME_URL = "https://resume.a2f0.net/";
 /** The color of the page's sticky header, for the browser's own chrome. */
 export const THEME_COLOR = "#404040";
 
+/** The link-preview image the build renders from assets/brand/logo.svg. */
+export const OG_IMAGE = {
+  url: new URL("og-image.png", RESUME_URL).href,
+  width: 1200,
+  height: 630,
+  alt: "The a2f0.net logo, a square shaded from black to light grey",
+};
+
 // Company names are Markdown and may link to the company's site.
 const plainText = (markdown: string) => extractLinks(markdown).plainString;
 const firstLink = (markdown: string) => extractLinks(markdown).matches[0]?.url;

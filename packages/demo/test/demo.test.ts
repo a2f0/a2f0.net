@@ -19,7 +19,17 @@ test("serves the demo page without redirecting", async () => {
   expect(page).toMatch(
     /<meta\s+name="description"\s+content="The a2f0 wordmark/,
   );
+  expect(page).toContain(
+    '<meta property="og:image" content="https://demo.a2f0.net/og-image.png"',
+  );
+  expect(page).toContain(
+    '<meta name="twitter:card" content="summary_large_image"',
+  );
   expect(page).not.toMatch(/<meta name="robots"/);
+
+  const image = await fetch("http://localhost:4002/og-image.png");
+  expect(image.status).toBe(200);
+  expect(image.headers.get("content-type")).toBe("image/png");
 });
 
 test("serves robots.txt as text that allows crawling", async () => {

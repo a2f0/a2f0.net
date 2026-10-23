@@ -10,6 +10,10 @@
       "command": ["bun", "run", "ci-headless"]
     },
     {
+      "label": "resume-staging-browser",
+      "command": ["bun", "run", "ci-headless:staging"]
+    },
+    {
       "label": "website-browser",
       "command": ["bun", "run", "--cwd", "packages/website", "test"]
     },

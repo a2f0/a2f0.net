@@ -18,7 +18,12 @@ describe("Search metadata", () => {
       expect(html).toContain(
         '<meta property="og:url" content="https://a2f0.net/"',
       );
-      expect(html).toContain('<meta name="twitter:card" content="summary"');
+      expect(html).toContain(
+        '<meta property="og:image" content="https://a2f0.net/og-image.png"',
+      );
+      expect(html).toContain(
+        '<meta name="twitter:card" content="summary_large_image"',
+      );
       expect(html).not.toMatch(/<meta name="robots"/);
       const [, json] =
         /<script type="application\/ld\+json"[^>]*>([^<]*)<\/script>/.exec(
@@ -38,6 +43,12 @@ describe("Search metadata", () => {
     expect(await response.text()).toBe(
       "User-agent: *\nAllow: /\n\nSitemap: https://a2f0.net/sitemap.xml\n",
     );
+  });
+
+  it("serves the link-preview image", async () => {
+    const response = await fetchPath("/og-image.png");
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toBe("image/png");
   });
 
   it("lists the root in the sitemap", async () => {

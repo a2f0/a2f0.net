@@ -5,6 +5,7 @@ import { type ReactElement, useEffect } from "react";
 
 import { startClickTracking } from "../components/clickTracking";
 import {
+  OG_IMAGE,
   SITE_DESCRIPTION,
   SITE_JSON_LD,
   SITE_NAME,
@@ -46,7 +47,11 @@ export default function WebsiteApp({
         <meta property="og:title" content={SITE_TITLE} />
         <meta property="og:description" content={SITE_DESCRIPTION} />
         <meta property="og:url" content={SITE_URL} />
-        <meta name="twitter:card" content="summary" />
+        <meta property="og:image" content={OG_IMAGE.url} />
+        <meta property="og:image:width" content={String(OG_IMAGE.width)} />
+        <meta property="og:image:height" content={String(OG_IMAGE.height)} />
+        <meta property="og:image:alt" content={OG_IMAGE.alt} />
+        <meta name="twitter:card" content="summary_large_image" />
         <script
           type="application/ld+json"
           key="website"

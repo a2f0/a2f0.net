@@ -10,6 +10,7 @@ root. See [deployment](deployment.md) for Workers and Terraform, and
 bun run compile
 bun run unit
 bun run ci-headless
+bun run ci-headless:staging
 bun run --cwd packages/website test
 bun run --cwd packages/demo test
 bun run --cwd packages/drive test
@@ -19,7 +20,10 @@ bun run check:architecture
 
 `ci-headless` builds the static export and runs the browser tests against
 Wrangler on port 4001. It covers the resume views, downloads, menus, direct
-routes, canonical URLs, and 404 responses. The website test exports
+routes, canonical URLs, search metadata, and 404 responses.
+`ci-headless:staging` builds staging's export and runs the search metadata spec
+against it, checking the robots meta tag, the `X-Robots-Tag` header on every
+kind of response, and the missing canonical URL and sitemap. The website test exports
 `packages/website` and drives its desktop and windows through Wrangler. The
 demo test builds and serves `packages/demo/dist` through Wrangler and checks
 that its page responds without a redirect.
@@ -102,6 +106,9 @@ The `images` targets in `agent-tool.json` declare the outputs, `favicon.svg`,
 the Next.js apps and into `dist/` for the demo. The outputs are ignored; never
 commit them or other binary images. Edit the sources instead, following
 agent-tool's source rules (no `<style>`, `style` attributes, or text).
+Each build's `og-image` script renders the 1200×630 link-preview image,
+`og-image.png`, the same way: the `og-image` target from `logo.svg` and
+`drive-og-image` from `drive.svg`.
 
 ## Shared tooling and hook migration
 

@@ -16,6 +16,11 @@ const TITLE = "Drive – Encrypted Notes and Files · a2f0";
 const DESCRIPTION =
   "A little space for your files, powered by Tearleads: a home for notes, files, and whatever comes next, encrypted on your device.";
 const CANONICAL_URL = "https://drive.a2f0.net/";
+// Rendered from assets/brand/drive.svg by the build (see agent-tool.json).
+const OG_IMAGE = {
+  url: new URL("og-image.png", CANONICAL_URL).href,
+  alt: "The Drive logo, a green folder on a dark slate square",
+};
 
 export default function App({ Component, pageProps }: AppProps) {
   useEffect(startClickTracking, []);
@@ -41,7 +46,11 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta property="og:title" content={TITLE} />
         <meta property="og:description" content={DESCRIPTION} />
         <meta property="og:url" content={CANONICAL_URL} />
-        <meta name="twitter:card" content="summary" />
+        <meta property="og:image" content={OG_IMAGE.url} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={OG_IMAGE.alt} />
+        <meta name="twitter:card" content="summary_large_image" />
       </Head>
       <Component {...pageProps} />
     </ThemeProvider>

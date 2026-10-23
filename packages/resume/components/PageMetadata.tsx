@@ -3,6 +3,7 @@ import Head from "next/head";
 
 import { DEPLOY_TIER } from "../lib/deployTier";
 import {
+  OG_IMAGE,
   RESUME_DESCRIPTION,
   RESUME_PERSON,
   RESUME_URL,
@@ -16,9 +17,9 @@ interface PageMetadataProps {
 
 /**
  * Search and link-preview metadata. Each page shows the one resume, so each
- * names the home page as canonical. Staging names no URL: its pages are kept
- * out of search results, and a canonical would point search engines at
- * production from a page they were asked to drop.
+ * names the home page as canonical. Staging names no canonical URL: its pages
+ * are kept out of search results, and a canonical would point search engines
+ * at production from a page they were asked to drop.
  */
 export default function PageMetadata({ title }: PageMetadataProps) {
   const production = DEPLOY_TIER === "production";
@@ -38,7 +39,23 @@ export default function PageMetadata({ title }: PageMetadataProps) {
       {production && (
         <meta property="og:url" content={RESUME_URL} key="og:url" />
       )}
-      <meta name="twitter:card" content="summary" key="twitter:card" />
+      <meta property="og:image" content={OG_IMAGE.url} key="og:image" />
+      <meta
+        property="og:image:width"
+        content={String(OG_IMAGE.width)}
+        key="og:image:width"
+      />
+      <meta
+        property="og:image:height"
+        content={String(OG_IMAGE.height)}
+        key="og:image:height"
+      />
+      <meta property="og:image:alt" content={OG_IMAGE.alt} key="og:image:alt" />
+      <meta
+        name="twitter:card"
+        content="summary_large_image"
+        key="twitter:card"
+      />
       <script
         type="application/ld+json"
         key="person"

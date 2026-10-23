@@ -72,6 +72,8 @@ jobs:
       - run: bun run unit
       - name: Test exported site with Cloudflare Workers
         run: bun run ci-headless
+      - name: Test the staging resume export's search rules with Cloudflare Workers
+        run: bun run ci-headless:staging
       - name: Test apex website with Cloudflare Workers
         run: bun run --cwd packages/website test
       - name: Test demo with Cloudflare Workers

@@ -1,12 +1,14 @@
 import { $, browser, expect } from "@wdio/globals";
 
-// The suite serves the default build, which is production's; the deploy
-// guard checks the staging build's robots rules before it is published.
-const page = async (path: string) => {
-  const response = await fetch(new URL(path, browser.options.baseUrl));
-  expect(response.status).toBe(200);
-  return response.text();
-};
+import { parseDeployTier } from "../../lib/deployTier";
+
+// `ci-headless` serves the production export; `ci-headless:staging` builds
+// staging's and runs this spec against it with the same tier.
+const staging = parseDeployTier(process.env.RESUME_DEPLOY_TIER) === "staging";
+const STAGING_RULE = "noindex, nofollow";
+
+const fetchPath = (path: string) =>
+  fetch(new URL(path, browser.options.baseUrl));
 
 const jsonLd = (html: string) =>
   [
@@ -15,55 +17,109 @@ const jsonLd = (html: string) =>
     ),
   ].map(([, json]) => JSON.parse(json));
 
-describe("Search metadata", () => {
+// Every kind of response: pages, the 404 page, crawler files, and assets.
+const RESPONSES = [
+  ["/", 200],
+  ["/pdf", 200],
+  ["/does-not-exist", 404],
+  ["/robots.txt", 200],
+  ["/favicon.svg", 200],
+  ["/og-image.png", 200],
+] as const;
+
+describe(`Search metadata (${staging ? "staging" : "production"})`, () => {
   for (const path of ["/", "/pdf"]) {
-    it(`exports ${path} with its metadata and the home page as canonical`, async () => {
-      const html = await page(path);
-      expect(html).toContain(
-        '<link rel="canonical" href="https://resume.a2f0.net/"',
-      );
-      expect(html).toContain(
-        '<meta property="og:url" content="https://resume.a2f0.net/"',
-      );
+    it(`exports ${path} with its description, previews, and JSON-LD`, async () => {
+      const response = await fetchPath(path);
+      expect(response.status).toBe(200);
+      const html = await response.text();
       expect(html).toMatch(/<meta name="description" content="Dan Sullivan/);
-      expect(html).toContain('<meta name="twitter:card" content="summary"');
-      expect(html).not.toMatch(/<meta name="robots"/);
+      expect(html).toContain(
+        '<meta property="og:image" content="https://resume.a2f0.net/og-image.png"',
+      );
+      expect(html).toContain(
+        '<meta name="twitter:card" content="summary_large_image"',
+      );
       expect(jsonLd(html)).toMatchObject([
         { "@type": "Person", name: "Dan Sullivan" },
       ]);
+      if (staging) {
+        expect(html).toContain(
+          `<meta name="robots" content="${STAGING_RULE}"/>`,
+        );
+        expect(html).not.toMatch(/rel="canonical"|property="og:url"/);
+      } else {
+        expect(html).toContain(
+          '<link rel="canonical" href="https://resume.a2f0.net/"',
+        );
+        expect(html).toContain(
+          '<meta property="og:url" content="https://resume.a2f0.net/"',
+        );
+        expect(html).not.toMatch(/<meta name="robots"/);
+      }
     });
   }
 
-  it("keeps the metadata once the page hydrates", async () => {
-    await browser.url("/");
-    await $("#svgResume").waitForExist();
-    await expect($('link[rel="canonical"]')).toHaveAttribute(
-      "href",
-      "https://resume.a2f0.net/",
-    );
-    await expect($('meta[name="robots"]')).not.toBeExisting();
+  it(`${staging ? "asks" : "never asks"} search engines to drop a response`, async () => {
+    for (const [path, status] of RESPONSES) {
+      const response = await fetchPath(path);
+      expect(response.status).toBe(status);
+      expect(response.headers.get("x-robots-tag")).toBe(
+        staging ? STAGING_RULE : null,
+      );
+    }
+    const missing = await (await fetchPath("/does-not-exist")).text();
+    expect(
+      missing.includes(`<meta name="robots" content="${STAGING_RULE}"`),
+    ).toBe(staging);
   });
 
-  it("serves robots.txt as text with the sitemap", async () => {
-    const response = await fetch(
-      new URL("/robots.txt", browser.options.baseUrl),
-    );
+  it("keeps the tier's metadata once the page hydrates", async () => {
+    await browser.url("/");
+    await $("#svgResume").waitForExist();
+    if (staging) {
+      await expect($('meta[name="robots"]')).toHaveAttribute(
+        "content",
+        STAGING_RULE,
+      );
+      await expect($('link[rel="canonical"]')).not.toBeExisting();
+    } else {
+      await expect($('link[rel="canonical"]')).toHaveAttribute(
+        "href",
+        "https://resume.a2f0.net/",
+      );
+      await expect($('meta[name="robots"]')).not.toBeExisting();
+    }
+  });
+
+  it("serves robots.txt as text that allows crawling", async () => {
+    const response = await fetchPath("/robots.txt");
     expect(response.status).toBe(200);
     expect(response.headers.get("content-type")).toContain("text/plain");
     const robots = await response.text();
     expect(robots).toContain("User-agent: ia_archiver\nDisallow: /\n");
     expect(robots).toContain("User-agent: *\nAllow: /\n");
-    expect(robots).toContain("Sitemap: https://resume.a2f0.net/sitemap.xml");
+    if (staging) expect(robots).not.toMatch(/sitemap/i);
+    else
+      expect(robots).toContain("Sitemap: https://resume.a2f0.net/sitemap.xml");
   });
 
-  it("lists the home page in the sitemap", async () => {
-    const response = await fetch(
-      new URL("/sitemap.xml", browser.options.baseUrl),
-    );
+  it(`${staging ? "has no" : "lists the home page in its"} sitemap`, async () => {
+    const response = await fetchPath("/sitemap.xml");
+    if (staging) {
+      expect(response.status).toBe(404);
+      return;
+    }
     expect(response.status).toBe(200);
     expect(response.headers.get("content-type")).toContain("xml");
     expect(await response.text()).toContain(
       "<loc>https://resume.a2f0.net/</loc>",
     );
+  });
+
+  it("serves the link-preview image", async () => {
+    const response = await fetchPath("/og-image.png");
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toBe("image/png");
   });
 });

@@ -19,6 +19,14 @@ export const SITE_DESCRIPTION =
 /** Graphite's desk, the default theme's background. */
 export const THEME_COLOR = "#000000";
 
+/** The link-preview image the build renders from assets/brand/logo.svg. */
+export const OG_IMAGE = {
+  url: new URL("og-image.png", SITE_URL).href,
+  width: 1200,
+  height: 630,
+  alt: "The a2f0.net logo, a square shaded from black to light grey",
+};
+
 export const SITE_JSON_LD = {
   "@context": "https://schema.org",
   "@type": "WebSite",

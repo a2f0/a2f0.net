@@ -63,7 +63,8 @@ for the same guard without mutation.
 ## Search indexing
 
 The production hosts are indexable: each page's exported HTML names its
-canonical URL and carries its description and link-preview tags, and each
+canonical URL and carries its description and link-preview tags, including
+the `og-image.png` each build renders from `assets/brand/`, and each
 host serves a plain-text `robots.txt`. The resume and the website also serve a
 `sitemap.xml`. The resume and website pages describe themselves with JSON-LD.
 
