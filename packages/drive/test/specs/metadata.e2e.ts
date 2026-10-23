@@ -26,6 +26,7 @@ describe("Search metadata", () => {
     expect(html).toContain(
       '<meta name="twitter:card" content="summary_large_image"',
     );
+    expect(html).toContain('<meta name="theme-color" content="#161616"');
     expect(html).not.toMatch(/<meta name="robots"/);
   });
 

@@ -138,7 +138,7 @@
       "dependencies": {
         "@a2f0/ct-client": "0.1.4",
         "@a2f0/demo": "workspace:*",
-        "@a2f0/dnbm": "0.4.5",
+        "@a2f0/dnbm": "0.4.10",
         "@a2f0/shared": "workspace:*",
         "@a2f0/skyline": "0.2.38",
         "@phosphor-icons/react": "2.1.10",
@@ -184,7 +184,7 @@
 
     "@a2f0/demo": ["@a2f0/demo@workspace:packages/demo"],
 
-    "@a2f0/dnbm": ["@a2f0/dnbm@0.4.5", "", {}, "sha512-oSaxOcjaB8yyFqxhno38cNghFe7vcdWatx88dSlWYn5WC6JcQ7JKTZTwl+xk7HubKsmivka+XofDmC0dXRSGIA=="],
+    "@a2f0/dnbm": ["@a2f0/dnbm@0.4.10", "", {}, "sha512-VTl1giTrQD6tezVgDZkbwcprs2w7dPhbPSwm5Gr0f1CiO/Jfh/4ILYa+0GVV6/mSZFT7bLBYlbx6+6Yk0+My2A=="],
 
     "@a2f0/drive": ["@a2f0/drive@workspace:packages/drive"],
 

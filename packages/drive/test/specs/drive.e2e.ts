@@ -194,15 +194,32 @@ describe("Drive with the published Tearleads SDK", () => {
         const app = document.querySelector(".drive-app");
         return app && getComputedStyle(app).backgroundColor;
       });
+    // The browser's chrome follows the theme through one theme-color tag.
+    const themeColors = () =>
+      browser.execute(() =>
+        [...document.querySelectorAll('meta[name="theme-color"]')].map((tag) =>
+          tag.getAttribute("content"),
+        ),
+      );
+    const showsColor = (color: string) =>
+      browser.waitUntil(
+        async () =>
+          JSON.stringify(await themeColors()) === JSON.stringify([color]),
+        { timeoutMsg: `the theme color did not become ${color}` },
+      );
     await expect($(".drive-app")).toBeDisplayed();
     await expect($("html")).toHaveAttribute("data-theme", "graphite");
     expect(await background()).toBe("rgb(22, 22, 22)");
+    await showsColor("#161616");
     await $("button[aria-label='Switch to Paper theme']").click();
     await expect($("html")).toHaveAttribute("data-theme", "paper");
     expect(await background()).toBe("rgb(250, 250, 250)");
+    await showsColor("#fafafa");
     await browser.refresh();
     await expect($("html")).toHaveAttribute("data-theme", "paper");
+    await showsColor("#fafafa");
     await $("button[aria-label='Switch to Graphite theme']").click();
     await expect($("html")).toHaveAttribute("data-theme", "graphite");
+    await showsColor("#161616");
   });
 });

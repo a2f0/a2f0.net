@@ -16,9 +16,6 @@ export const SITE_TITLE =
 export const SITE_DESCRIPTION =
   "Dan Sullivan's resume, the a2f0 graffiti artwork, a 3D Chicago skyline, and the dnbm drum and bass sequencer and player in draggable, resizable windows.";
 
-/** Graphite's desk, the default theme's background. */
-export const THEME_COLOR = "#000000";
-
 /** The link-preview image the build renders from assets/brand/logo.svg. */
 export const OG_IMAGE = {
   url: new URL("og-image.png", SITE_URL).href,

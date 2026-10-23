@@ -25,5 +25,14 @@ export const PAPER_INK_STRONG = "#444444";
 /** The theme until the visitor picks one, whatever the OS prefers. */
 export const DEFAULT_WEBSITE_THEME: WebsiteThemeId = "graphite";
 
+/**
+ * Each theme's desk (`--desktop-background` in styles/themes.css), for the
+ * browser's own chrome: `<meta name="theme-color">` follows the theme showing.
+ */
+export const WEBSITE_THEME_COLORS: Readonly<Record<WebsiteThemeId, string>> = {
+  graphite: "#000000",
+  paper: "#c8c8c8",
+};
+
 /** Where the switch keeps the visitor's choice. */
 export const THEME_STORAGE_KEY = "website.theme";
