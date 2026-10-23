@@ -13,6 +13,9 @@
     "deploy": "bun ../../scripts/deploy.ts demo",
     "preview": "bun ../../scripts/deploy.ts demo --dry-run"
   },
+  "dependencies": {
+    "@a2f0/ct-client": "0.1.5"
+  },
   "devDependencies": {
     "@happy-dom/global-registrator": "21.0.4",
     "@types/bun": "1.4.3",
@@ -25,8 +28,5 @@
     "start-server-and-test": "3.0.13",
     "typescript": "7.0.2",
     "wrangler": "4.151.3"
-  },
-  "dependencies": {
-    "@a2f0/ct-client": "0.1.5"
   }
 }

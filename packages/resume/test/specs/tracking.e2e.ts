@@ -6,9 +6,17 @@ describe("standalone click tracking", () => {
     const tagManager = await browser.mock(
       "https://www.googletagmanager.com/**",
     );
-    tagManager.abort();
+    tagManager.respond("", {
+      fetchResponse: false,
+      statusCode: 200,
+      headers: { "content-type": "application/javascript" },
+    });
     const analytics = await browser.mock("https://*.google-analytics.com/**");
     analytics.abort();
+    const regionalAnalytics = await browser.mock(
+      "https://*.analytics.google.com/**",
+    );
+    regionalAnalytics.abort();
     const attempts: string[] = [];
     const script = await browser.addInitScript<string>((emit) => {
       Object.defineProperty(navigator, "webdriver", { get: () => false });
@@ -31,6 +39,8 @@ describe("standalone click tracking", () => {
     try {
       await browser.url("/?secret=private#private");
       await expect($("#menuButtonView")).toBeEnabled();
+      await browser.waitUntil(() => tagManager.calls.length > 0);
+      expect(tagManager.calls.length).toBeGreaterThan(0);
       await $("#menuButtonView").click();
 
       await browser.execute(() => window.dispatchEvent(new Event("pagehide")));
@@ -46,6 +56,7 @@ describe("standalone click tracking", () => {
       await browser.url("about:blank");
       await tagManager.restore();
       await analytics.restore();
+      await regionalAnalytics.restore();
     }
   });
 });
