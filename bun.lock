@@ -43,7 +43,7 @@
       "version": "0.1.0",
       "dependencies": {
         "@phosphor-icons/react": "2.1.10",
-        "@tearleads/client-sdk": "0.1.86",
+        "@tearleads/client-sdk": "0.1.90",
         "@tearleads/windowing": "0.2.18",
         "next": "16.4.2",
         "react": "19.3.1",
@@ -694,7 +694,7 @@
 
     "@swc/types": ["@swc/types@0.1.28", "", { "dependencies": { "@swc/counter": "^0.1.3" } }, "sha512-V6Mnml8v09QALx6K0elJ7o9K/MkVDtW3t6L+7Ou/JcWtb3xwId2AH4FeOceySd2JaO87IMw4+6vSZxLm34LPbw=="],
 
-    "@tearleads/client-sdk": ["@tearleads/client-sdk@0.1.86", "", { "dependencies": { "@noble/hashes": "^2.4.0", "@noble/post-quantum": "^0.7.1", "@scure/bip39": "^2.4.0", "drizzle-orm": "^0.45.4", "loro-crdt": "^1.16.4", "zod": "^4.6.7" } }, "sha512-wDPhwSPxoFu7TfzAQB4n7XXMCMrUGT2/ZABcXDuTgP5rjO+Z3+7p+jnN5SbeZEwSBqphw0QW66TMrVtWaN1Paw=="],
+    "@tearleads/client-sdk": ["@tearleads/client-sdk@0.1.90", "", { "dependencies": { "@noble/hashes": "^2.4.0", "@noble/post-quantum": "^0.7.1", "@scure/bip39": "^2.4.0", "drizzle-orm": "^0.45.4", "loro-crdt": "^1.16.4", "zod": "^4.6.7" } }, "sha512-4mnaVktnLMJl5bK3sF4V/l5uFXUAPGiP61Up+KF7pnQzkvOjxN8ephEPx7ORwF7cbgiGuGFxythwTHo6TPDmGg=="],
 
     "@tearleads/windowing": ["@tearleads/windowing@0.2.18", "", { "dependencies": { "@phosphor-icons/react": "^2.1.10" }, "peerDependencies": { "react": "^19.2.0", "react-dom": "^19.2.0" } }, "sha512-cT+1Xk4cs+muMfOBAD/8RO+sBHZMR9stEcpu+hISbbrJcslMvAzC7o2j6IyGJ8cnxO798toHWnTtCwTX32RCXA=="],
 
