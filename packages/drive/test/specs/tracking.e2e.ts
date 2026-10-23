@@ -1,7 +1,15 @@
 import { $, browser, expect } from "@wdio/globals";
 
 describe("standalone click tracking", () => {
-  it("keeps the built local preview inactive without the WebDriver signal", async () => {
+  it("keeps the built local preview inactive without the WebDriver signal", async function () {
+    // Never disable automation safeguards when this suite targets a live site.
+    const origin = new URL(browser.options.baseUrl ?? "about:blank");
+    if (
+      origin.protocol !== "http:" ||
+      !["localhost", "127.0.0.1"].includes(origin.hostname)
+    ) {
+      this.skip();
+    }
     const attempts: string[] = [];
     const script = await browser.addInitScript<string>((emit) => {
       Object.defineProperty(navigator, "webdriver", { get: () => false });

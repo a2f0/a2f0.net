@@ -25,7 +25,7 @@ beforeEach(() => {
     new Response(null, { status: 204 }),
   );
   document.body.innerHTML =
-    '<a href="/private-file?token=secret">Private file</a><button>Private title</button><input value="recovery words"><textarea>Secret note</textarea><select><option>Private folder</option></select><div contenteditable="true">Secret note</div><div data-ct-ignore><button>Hidden action</button></div>';
+    '<a href="/private-file?token=secret" aria-label="Download private file" title="private file title" id="private-file-id" name="private-file-name">Private file</a><button aria-label="Rename private folder" title="private folder title" id="private-folder-id" name="private-folder-name">Private title</button><input value="recovery words"><textarea>Secret note</textarea><select><option>Private folder</option></select><div contenteditable="true">Secret note</div><div data-ct-ignore><button>Hidden action</button></div>';
   document.documentElement.removeAttribute("data-ct-disabled");
   localStorage.clear();
   for (const [name, value] of [
