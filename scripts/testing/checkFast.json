@@ -19,7 +19,7 @@
     },
     {
       "label": "pre-push",
-      "command": ["sh", "scripts/git/hooks/pre-push"]
+      "command": ["sh", "-c", "sh scripts/git/hooks/pre-push </dev/null"]
     },
     {
       "label": "audit",

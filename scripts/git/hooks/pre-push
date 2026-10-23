@@ -33,7 +33,7 @@ printf '%s\n' "$refs" | while read -r local_ref local_oid _remote_ref remote_oid
   fi
   printf '%s\n' "$commits" | while read -r commit; do
     [ -n "$commit" ] || continue
-    git -c log.showSignature=false show --no-patch --format=%B "$commit" |
-      bunx --no-install commitlint
+    message=$(git -c log.showSignature=false show --no-patch --format=%B "$commit" </dev/null)
+    printf '%s\n' "$message" | bunx --no-install commitlint
   done
 done
