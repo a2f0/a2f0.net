@@ -56,5 +56,48 @@
     "signatureHeaderFallback": true,
     "rejectCoauthors": true,
     "subjects": false
+  },
+  "images": {
+    "targets": {
+      "favicons": {
+        "outputs": [
+          { "path": "favicon.svg", "layers": [{ "source": "logo" }] },
+          {
+            "path": "favicon.ico",
+            "sizes": [16, 32, 48],
+            "layers": [{ "source": "logo" }]
+          },
+          {
+            "path": "apple-touch-icon.png",
+            "size": 180,
+            "opaque": true,
+            "layers": [
+              { "fill": "#202020" },
+              { "source": "logo", "scale": 0.8 }
+            ]
+          }
+        ]
+      },
+      "drive-favicons": {
+        "dir": "packages/drive/public",
+        "outputs": [
+          { "path": "favicon.svg", "layers": [{ "source": "drive" }] },
+          {
+            "path": "favicon.ico",
+            "sizes": [16, 32, 48],
+            "layers": [{ "source": "drive" }]
+          },
+          {
+            "path": "apple-touch-icon.png",
+            "size": 180,
+            "opaque": true,
+            "layers": [
+              { "fill": "#191e27" },
+              { "source": "drive", "scale": 0.8 }
+            ]
+          }
+        ]
+      }
+    }
   }
 }
