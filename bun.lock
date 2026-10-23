@@ -24,6 +24,9 @@
     },
     "packages/demo": {
       "name": "@a2f0/demo",
+      "dependencies": {
+        "@a2f0/ct-client": "0.1.5",
+      },
       "devDependencies": {
         "@happy-dom/global-registrator": "21.0.4",
         "@types/bun": "1.4.3",
@@ -42,6 +45,7 @@
       "name": "@a2f0/drive",
       "version": "0.1.0",
       "dependencies": {
+        "@a2f0/ct-client": "0.1.5",
         "@phosphor-icons/react": "2.1.10",
         "@tearleads/client-sdk": "0.1.90",
         "@tearleads/windowing": "0.2.18",
@@ -70,6 +74,7 @@
       "name": "@resume/site",
       "version": "0.1.156",
       "dependencies": {
+        "@a2f0/ct-client": "0.1.5",
         "@a2f0/shared": "workspace:*",
         "@next/third-parties": "16.4.2",
         "@phosphor-icons/react": "2.1.10",
@@ -174,7 +179,7 @@
     "@types/node": "24.19.2",
   },
   "packages": {
-    "@a2f0/ct-client": ["@a2f0/ct-client@0.1.4", "", {}, "sha512-b6JYVDpKMEbkPgMdd55D6JM+S45sqxTJj9wx687wjrGZEN2DBSE7M7v02Xxyh33QwUpv+kzG7NTBqQtR6tDgXg=="],
+    "@a2f0/ct-client": ["@a2f0/ct-client@0.1.5", "", {}, "sha512-1IkE5Ft3XkkbzAegrTblsvsa3JuL0WpB8wydtXHm33iGQNrdJ3djdbhXPa7drhcMbsMzRt3rsOjNZhxqC+qk6A=="],
 
     "@a2f0/demo": ["@a2f0/demo@workspace:packages/demo"],
 
@@ -1941,6 +1946,8 @@
     "zod": ["zod@4.6.7", "", {}, "sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg=="],
 
     "@a2f0/skyline/@a2f0/ct-client": ["@a2f0/ct-client@0.1.2", "", {}, "sha512-EfTVf5ZwcbNLOktMktmiwdp+nQ5GW6y7cVp2Wl9/ZX1yfPw3Gf4mZKqAKOPLC/rf2JsQ5xrV4cx1zPM/Xq22WA=="],
+
+    "@a2f0/website/@a2f0/ct-client": ["@a2f0/ct-client@0.1.4", "", {}, "sha512-b6JYVDpKMEbkPgMdd55D6JM+S45sqxTJj9wx687wjrGZEN2DBSE7M7v02Xxyh33QwUpv+kzG7NTBqQtR6tDgXg=="],
 
     "@commitlint/resolve-extends/global-directory": ["global-directory@5.0.0", "", { "dependencies": { "ini": "6.0.0" } }, "sha512-1pgFdhK3J2LeM+dVf2Pd424yHx2ou338lC0ErNP2hPx4j8eW1Sp0XqSjNxtk6Tc4Kr5wlWtSvz8cn2yb7/SG/w=="],
 

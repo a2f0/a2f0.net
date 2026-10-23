@@ -15,6 +15,10 @@ website opens the resume, the graffiti artwork from
 built on the published Tearleads client SDK, hosted at `drive.a2f0.net`.
 Run the commands below from the repository root.
 
+Production browser apps use CT click analytics. See
+[click analytics](docs/click-tracking.md) for app dimensions, collected data,
+and browser opt-outs.
+
 ```sh
 mise install
 bun ci

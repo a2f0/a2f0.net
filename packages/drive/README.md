@@ -56,9 +56,9 @@ the identity and permits downloading synced data; it cannot recover unsynced
 files. Drive never clears site data automatically.
 
 Creating a drive generates an identity and root folder locally. It makes no
-API requests until **Your identity → Connect to Tearleads**. Importing a recovery
-phrase attempts to sign in to that existing identity. A failed imported login
-never registers a replacement account. Reconnection uses the same identity.
+Tearleads API requests until **Your identity → Connect to Tearleads**. Importing
+a recovery phrase attempts to sign in to that existing identity. A failed
+imported login never registers a replacement account. Reconnection uses the same identity.
 Tearleads organization billing and access permissions still govern remote sync.
 
 The SDK browser keyring holds a non-extractable wrapping key in IndexedDB.
@@ -94,6 +94,13 @@ restoration, API namespace isolation, navigation, login failure, and React
 startup/teardown races. Isolated host tests cover pending-login cancellation and
 disconnect persistence across reopening. Root compile, unit, architecture,
 dependency, Markdown, and hook checks include this workspace.
+
+The standalone production page also uses CT click analytics with the `drive`
+app dimension. It sends a constant page and never filenames, document IDs,
+paths, recovery phrases, form values, or document contents. The reusable
+`DriveApp` does not start a tracker. See
+[click analytics](../../docs/click-tracking.md) for IP/location collection,
+retention, and browser opt-outs.
 
 For the optional sync and identity-recovery test, start the API from a prepared
 Tearleads checkout (with its dependencies and SDK built):
