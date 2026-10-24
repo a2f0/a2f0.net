@@ -25,6 +25,11 @@ import "../mini-apps/dnbm-player/DnbmPlayer.css";
 import "../mini-apps/resume/Resume.css";
 import "../mini-apps/skyline/Skyline.css";
 
+// The error page (pages/404.tsx). Workers serves it at /404 with a 200 (the
+// routed shell's fallback answers other missing paths), so it stays out of
+// search and names no URL of its own.
+const ERROR_PAGE = "/404";
+
 // The browser's chrome follows the desktop's theme switch. Kept in its own
 // head, so a theme change rerenders this tag rather than the whole page.
 function ThemeColor() {
@@ -39,8 +44,10 @@ function ThemeColor() {
 export default function WebsiteApp({
   Component,
   pageProps,
+  router,
 }: AppProps): ReactElement {
   useEffect(startClickTracking, []);
+  const errorPage = router.pathname === ERROR_PAGE;
 
   return (
     <>
@@ -48,7 +55,11 @@ export default function WebsiteApp({
         <title>{SITE_TITLE}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content={SITE_DESCRIPTION} />
-        <link rel="canonical" href={SITE_URL} />
+        {errorPage ? (
+          <meta name="robots" content="noindex" />
+        ) : (
+          <link rel="canonical" href={SITE_URL} />
+        )}
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -56,7 +67,7 @@ export default function WebsiteApp({
         <meta property="og:site_name" content={SITE_NAME} />
         <meta property="og:title" content={SITE_TITLE} />
         <meta property="og:description" content={SITE_DESCRIPTION} />
-        <meta property="og:url" content={SITE_URL} />
+        {!errorPage && <meta property="og:url" content={SITE_URL} />}
         <meta property="og:image" content={OG_IMAGE.url} />
         <meta property="og:image:width" content={String(OG_IMAGE.width)} />
         <meta property="og:image:height" content={String(OG_IMAGE.height)} />

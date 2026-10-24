@@ -1,4 +1,4 @@
-import { browser, expect } from "@wdio/globals";
+import { $, $$, browser, expect } from "@wdio/globals";
 
 const fetchPath = (path: string) =>
   fetch(new URL(path, browser.options.baseUrl));
@@ -28,6 +28,42 @@ describe("Search metadata", () => {
     );
     expect(html).toContain('<meta name="theme-color" content="#161616"');
     expect(html).not.toMatch(/<meta name="robots"/);
+  });
+
+  // Workers serves the error page for every missing path, with a 404, and at
+  // its own path with a 200. It is the one page kept out of search, and it
+  // names no URL of its own.
+  for (const [path, status] of [
+    ["/404", 200],
+    ["/does-not-exist", 404],
+    ["/nested/does-not-exist", 404],
+  ] as const) {
+    it(`keeps the error page at ${path} out of search`, async () => {
+      const response = await fetchPath(path);
+      expect(response.status).toBe(status);
+      expect(response.headers.get("content-type")).toContain("text/html");
+      expect(response.headers.get("x-robots-tag")).toBeNull();
+      const html = await response.text();
+      expect(html).toContain("This page could not be found");
+      expect(
+        [...html.matchAll(/<meta name="robots" content="([^"]*)"/g)].map(
+          ([, content]) => content,
+        ),
+      ).toEqual(["noindex"]);
+      expect(html).not.toMatch(/rel="canonical"|property="og:url"/);
+    });
+  }
+
+  it("keeps the error page's tags once it hydrates", async () => {
+    await browser.url("/does-not-exist");
+    await expect($("h1")).toHaveText("404");
+    await expect($$('meta[name="robots"]')).toBeElementsArrayOfSize(1);
+    await expect($('meta[name="robots"]')).toHaveAttribute(
+      "content",
+      "noindex",
+    );
+    await expect($('link[rel="canonical"]')).not.toBeExisting();
+    await expect($('meta[property="og:url"]')).not.toBeExisting();
   });
 
   it("serves the link-preview image", async () => {

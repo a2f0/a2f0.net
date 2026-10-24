@@ -22,6 +22,10 @@ const OG_IMAGE = {
   url: new URL("og-image.png", CANONICAL_URL).href,
   alt: "The Drive logo, a green folder on a dark slate square",
 };
+// The error page (pages/404.tsx). Workers serves it for every missing path,
+// with a 404, and at /404 with a 200, so it stays out of search and names no
+// URL of its own.
+const ERROR_PAGE = "/404";
 
 // Inside the theme provider, so the browser's chrome follows the theme switch:
 // the default theme's color in the exported HTML, then the visitor's.
@@ -34,8 +38,9 @@ function ThemeColor() {
   );
 }
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function App({ Component, pageProps, router }: AppProps) {
   useEffect(startClickTracking, []);
+  const errorPage = router.pathname === ERROR_PAGE;
 
   return (
     <ThemeProvider
@@ -47,7 +52,11 @@ export default function App({ Component, pageProps }: AppProps) {
         <title>{TITLE}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content={DESCRIPTION} />
-        <link rel="canonical" href={CANONICAL_URL} />
+        {errorPage ? (
+          <meta name="robots" content="noindex" />
+        ) : (
+          <link rel="canonical" href={CANONICAL_URL} />
+        )}
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -55,7 +64,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta property="og:site_name" content="a2f0.net" />
         <meta property="og:title" content={TITLE} />
         <meta property="og:description" content={DESCRIPTION} />
-        <meta property="og:url" content={CANONICAL_URL} />
+        {!errorPage && <meta property="og:url" content={CANONICAL_URL} />}
         <meta property="og:image" content={OG_IMAGE.url} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />

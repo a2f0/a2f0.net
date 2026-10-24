@@ -76,6 +76,18 @@ out of search: `@a2f0/skyline` marks its pages `noindex`, and the website's
 `X-Robots-Tag: noindex, nofollow` for `/skyline` and `/skyline/*`, so the
 copy's scripts, models, images, and redirects carry it too.
 
+Each Next.js app's error page, `pages/404.tsx`, exports as `404.html`, which
+Workers also serves at `/404` with a 200. It is the one page of a production
+host's own that asks to be left out of search: it carries
+`<meta name="robots" content="noindex">` and names no canonical URL or
+`og:url`, and no sitemap lists it. The resume's `_document.tsx` adds the tag
+for each tier (see `robotsDirectives`), and Drive's and the website's
+`_app.tsx` swap it for the canonical. The resume and Drive serve the page,
+with a 404, for every missing path (`not_found_handling: "404-page"`). The
+website's routed shell answers missing paths with the desktop instead, and
+the demo exports no error page: its missing paths, `/404` included, answer
+an empty 404.
+
 `staging.a2f0.net` stays out of search results. The resume's build reads
 `RESUME_DEPLOY_TIER` (`production` by default, or `staging`; see
 [`packages/resume/lib/deployTier.ts`](../packages/resume/lib/deployTier.ts)).
@@ -87,11 +99,14 @@ staging builds set the tier. The deploy guard checks the assets against the
 target's tier in
 [`scripts/deploy/indexingPolicy.ts`](../scripts/deploy/indexingPolicy.ts): it
 refuses a staging deploy without those rules, and a production deploy whose
-`_headers` or root pages ask to be left out of search. The one exception is a
-target's `noindexPatterns` in
-[`scripts/deploy/deployPolicy.ts`](../scripts/deploy/deployPolicy.ts): only the
-website has any, and they name exactly the two skyline patterns, so a noindex
-rule for `/*`, the site's own pages, or `/dnbm/*` still stops a deploy.
+`_headers` or root pages ask to be left out of search. It makes two
+exceptions. The root page `404.html` (`ERROR_PAGE`) may carry a noindex robots
+meta tag; every other root page that does still stops a deploy, and so does a
+`_headers` rule for `/404`. A target's `noindexPatterns` in
+[`scripts/deploy/deployPolicy.ts`](../scripts/deploy/deployPolicy.ts) name the
+`_headers` patterns it may keep out of search: only the website has any, and
+they name exactly the two skyline patterns, so a noindex rule for `/*`, the
+site's own pages, or `/dnbm/*` still stops a deploy.
 
 ## Infrastructure
 

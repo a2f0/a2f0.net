@@ -31,7 +31,9 @@ from the installed SDK into `public/`. Next’s webpack config
 enables async WebAssembly for Loro’s development entrypoint, and transpiles the
 pinned `@tearleads/windowing` package, whose theme provider and switch import
 their own stylesheets. The production
-build is a static export; Wrangler serves `out/`.
+build is a static export; Wrangler serves `out/`, and its error page,
+`404.html`, for missing paths; see
+[search indexing](../../docs/deployment.md#search-indexing).
 
 The default API is `https://api.tearleads.com`. For local API development, set
 the build-time environment variable before starting Next:

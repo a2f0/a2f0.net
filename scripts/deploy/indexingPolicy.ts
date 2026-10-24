@@ -75,16 +75,23 @@ const normalized = (directives: string) =>
   directives.replace(/\s+/g, "").toLowerCase();
 const STAGING_DIRECTIVES = "noindex,nofollow";
 const EXCLUDES_PAGE = /\b(noindex|none)\b/i;
+/**
+ * The error page each Next.js export writes. Workers serves it for missing
+ * paths and also at /404 with a 200, so it is the one production page that
+ * may ask to be left out of search.
+ */
+export const ERROR_PAGE = "404.html";
 
 /**
  * Staging must keep every response out of search results without blocking
  * crawlers, which would hide the rule from them, and must not advertise a
  * sitemap. Production must never carry that rule: no page the site exports at
- * its root may ask for it, and no `_headers` rule may send it except for the
- * exact patterns in `noindexPatterns`, a target's copies of pages that are
- * kept out of search by design. Pages that builds copy in from packages, such
- * as the website's skyline/ studies, sit in subdirectories and keep the
- * robots rules their packages give them.
+ * its root may ask for it except the error page, `ERROR_PAGE`, and no
+ * `_headers` rule may send it except for the exact patterns in
+ * `noindexPatterns`, a target's copies of pages that are kept out of search by
+ * design. Pages that builds copy in from packages, such as the website's
+ * skyline/ studies, sit in subdirectories and keep the robots rules their
+ * packages give them.
  */
 export function checkIndexing(
   tier: "production" | "staging",
@@ -117,7 +124,10 @@ export function checkIndexing(
   const rootPages = [...pages].filter(([path]) => !path.includes("/"));
   if (!rootPages.length) throw new Error("The asset tree has no root page");
   for (const [path, page] of rootPages) {
-    if (robotsMeta(page).some((content) => EXCLUDES_PAGE.test(content)))
+    if (
+      path !== ERROR_PAGE &&
+      robotsMeta(page).some((content) => EXCLUDES_PAGE.test(content))
+    )
       throw new Error(`Production page ${path} asks to be left out of search`);
   }
   for (const [pattern, values] of rules) {
