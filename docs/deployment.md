@@ -50,6 +50,8 @@ after installation and the build finish; the demo's local build runs with
 Cloudflare credentials removed.
 The Terraform provider uses `cloudflare_api_token`, which also needs Workers
 custom-domain access, Zone Read, DNS Edit, and Zone Settings Edit for `a2f0.net`.
+It lacks Zone → Single Redirect → Edit (Dynamic URL Redirects Write), so the
+[www redirect](#www-redirect) is managed outside Terraform.
 Creating the zone requires additional zone-creation permission; the stack looks
 up a zone created beforehand. Both tokens live in `.secrets/prod/main.tfvars.json`;
 see [Setup](#setup).
@@ -114,7 +116,8 @@ Terraform keeps state in the Cloudflare R2 bucket `a2f0-net-terraform-state`
 and manages Cloudflare custom domains, HTTPS redirects, Google Workspace DNS
 records, and GitHub secrets. Google Workspace account resources remain in the
 same stack. Domain registration remains with AWS and delegates to the Cloudflare
-nameservers.
+nameservers. The [www redirect](#www-redirect) is the one zone behavior managed
+outside Terraform.
 
 ### Setup
 
@@ -164,6 +167,69 @@ saved plan after approval and a fresh state check. Deletions, replacements, and
 missing domain state stop it. Keep the existing Worker scripts and domains;
 the website uses `resume-redirect`, which owns the apex custom domain. See
 [the Terraform gates](dependencies.md#terraform-preview) for details.
+
+### www Redirect
+
+`www.a2f0.net` answers HTTP and HTTPS requests with a 301 to
+`https://a2f0.net`, keeping the path and query string. Terraform's
+`always_use_https` setting doesn't cover it, and nothing about it is in
+Terraform: `cloudflare_api_token` lacks Zone → Single Redirect → Edit, so it
+was created on 2026-10-24 with the [`cf` CLI](https://github.com/cloudflare/cf)
+under the account owner's login. It consists of:
+
+- the zone's `http_request_dynamic_redirect` entry point ruleset, `Redirects`
+  (ID `e4f31148f01741b98e13b4a216e2c1ea`), with one rule, ref `www_to_apex`,
+  that matches `(http.host eq "www.a2f0.net")` and redirects with status 301
+  to `concat("https://a2f0.net", http.request.uri.path)`, preserving the query
+  string;
+- a proxied `AAAA` record `www.a2f0.net` → `100::`
+  (ID `fddb23e2502433994776ea7336c97a6b`), so the name resolves to Cloudflare.
+
+To recreate it, save the rule as `rules.json`:
+
+```json
+[
+  {
+    "ref": "www_to_apex",
+    "description": "www.a2f0.net to a2f0.net",
+    "expression": "(http.host eq \"www.a2f0.net\")",
+    "action": "redirect",
+    "action_parameters": {
+      "from_value": {
+        "status_code": 301,
+        "preserve_query_string": true,
+        "target_url": {
+          "expression": "concat(\"https://a2f0.net\", http.request.uri.path)"
+        }
+      }
+    }
+  }
+]
+```
+
+Then, with a login that can edit single redirects, replace the entry point's
+rules, and create the record only if it is missing:
+
+```sh
+cf rulesets entrypoint update http_request_dynamic_redirect -z a2f0.net \
+  --name Redirects \
+  --description 'Single redirects (managed with cf, see the repository docs)' \
+  --rules @rules.json
+cf dns records create -z a2f0.net --body '{"type":"AAAA","name":"www.a2f0.net","content":"100::","proxied":true,"ttl":1,"comment":"Redirected to the apex by the Redirects ruleset (managed with cf)"}'
+```
+
+The update replaces every rule in the phase, so keep any other redirect in
+`rules.json`. A zone has one entry point ruleset per phase. Once the Terraform
+token gains that permission, a Terraform-managed redirect must import this
+ruleset and the record by the IDs above rather than create new ones.
+
+Check it live:
+
+```sh
+curl -sI https://www.a2f0.net/ | grep -i '^location'
+```
+
+It prints `location: https://a2f0.net/`.
 
 ### Dependency Updates
 
