@@ -213,6 +213,7 @@ async function main() {
     checkIndexing(
       specification.tier,
       await readIndexingEvidence(resolve(directory, assets)),
+      specification.noindexPatterns,
     );
     const hash = createHash("sha256")
       .update(await command(["git", "rev-parse", "HEAD"]))

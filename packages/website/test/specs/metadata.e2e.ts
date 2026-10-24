@@ -53,6 +53,44 @@ describe("Search metadata", () => {
     });
   }
 
+  // The skyline viewer's copies stay out of search: its pages carry the
+  // package's robots meta tag, and _headers covers every response under the
+  // copy, assets and redirects included, exactly once. The site's own pages
+  // and the dnbm copies send no X-Robots-Tag.
+  for (const [path, status] of [
+    ["/skyline", 307],
+    ["/skyline/", 200],
+    ["/skyline/skyline-3d", 200],
+    ["/skyline/skyline-3d.html", 307],
+    ["/skyline/skyline-animated.svg", 200],
+    ["/skyline/skyline-viewer.js", 200],
+    ["/skyline/viewer.css", 200],
+  ] as const) {
+    it(`keeps ${path} out of search`, async () => {
+      const response = await fetch(new URL(path, browser.options.baseUrl), {
+        redirect: "manual",
+      });
+      expect(response.status).toBe(status);
+      expect(response.headers.get("x-robots-tag")).toBe("noindex, nofollow");
+    });
+  }
+
+  for (const path of [
+    "/",
+    "/app/resume",
+    "/dnbm/",
+    "/dnbm/player/",
+    "/a2f0.svg",
+  ]) {
+    it(`leaves ${path} indexable`, async () => {
+      const response = await fetch(new URL(path, browser.options.baseUrl), {
+        redirect: "manual",
+      });
+      expect(response.status).toBe(200);
+      expect(response.headers.get("x-robots-tag")).toBeNull();
+    });
+  }
+
   it("colors the browser's chrome with the theme's desk", async () => {
     const themeColors = () =>
       browser.execute(() =>

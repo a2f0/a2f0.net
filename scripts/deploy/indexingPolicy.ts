@@ -79,14 +79,17 @@ const EXCLUDES_PAGE = /\b(noindex|none)\b/i;
 /**
  * Staging must keep every response out of search results without blocking
  * crawlers, which would hide the rule from them, and must not advertise a
- * sitemap. Production must never carry that rule: no `_headers` rule may send
- * it, and no page the site exports at its root may ask for it. Pages that
- * builds copy in from packages, such as the website's skyline/ studies, sit
- * in subdirectories and keep the robots rules their packages give them.
+ * sitemap. Production must never carry that rule: no page the site exports at
+ * its root may ask for it, and no `_headers` rule may send it except for the
+ * exact patterns in `noindexPatterns`, a target's copies of pages that are
+ * kept out of search by design. Pages that builds copy in from packages, such
+ * as the website's skyline/ studies, sit in subdirectories and keep the
+ * robots rules their packages give them.
  */
 export function checkIndexing(
   tier: "production" | "staging",
   { pages, headers, robots, sitemap }: IndexingEvidence,
+  noindexPatterns: readonly string[] = [],
 ) {
   if (!pages.size) throw new Error("The asset tree has no HTML pages");
   const rules = headerRules(headers ?? "");
@@ -117,10 +120,13 @@ export function checkIndexing(
     if (robotsMeta(page).some((content) => EXCLUDES_PAGE.test(content)))
       throw new Error(`Production page ${path} asks to be left out of search`);
   }
-  for (const values of rules.values()) {
-    if (values.some((header) => EXCLUDES_PAGE.test(robotsHeader(header))))
+  for (const [pattern, values] of rules) {
+    if (
+      !noindexPatterns.includes(pattern) &&
+      values.some((header) => EXCLUDES_PAGE.test(robotsHeader(header)))
+    )
       throw new Error(
-        "Production _headers ask to leave responses out of search",
+        `Production _headers ask to leave responses to ${pattern} out of search`,
       );
   }
 }
