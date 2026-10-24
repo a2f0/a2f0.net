@@ -7,7 +7,7 @@ import Document, {
 } from "next/document";
 import { ServerStyleSheet } from "styled-components";
 
-import { DEPLOY_TIER } from "../lib/deployTier";
+import { DEPLOY_TIER, robotsDirectives } from "../lib/deployTier";
 
 export default class MyDocument extends Document {
   static async getInitialProps(ctx: DocumentContext) {
@@ -32,15 +32,13 @@ export default class MyDocument extends Document {
   }
 
   render() {
+    // Staging's rule is on every exported page, the 404 page included, and
+    // its _headers repeats it for every response. Production's is on the 404
+    // page alone.
+    const robots = robotsDirectives(DEPLOY_TIER, this.props.__NEXT_DATA__.page);
     return (
       <Html lang="en">
-        <Head>
-          {/* Every exported page, the 404 page included, carries the tier's
-              robots rule; staging's _headers repeats it for every response. */}
-          {DEPLOY_TIER === "staging" && (
-            <meta name="robots" content="noindex, nofollow" />
-          )}
-        </Head>
+        <Head>{robots && <meta name="robots" content={robots} />}</Head>
         <body>
           <Main />
           <NextScript />

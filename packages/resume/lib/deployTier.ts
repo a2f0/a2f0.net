@@ -7,6 +7,23 @@
  */
 export type DeployTier = "production" | "staging";
 
+/** The error page's route. Workers serves it for every missing path, too. */
+export const ERROR_PAGE = "/404";
+
+/**
+ * The robots meta tag's content for a page, if it needs one. Staging asks
+ * search engines to drop every page. Production asks only for the error page,
+ * which Workers also answers at its own path, /404, with a 200; it names no
+ * canonical URL and isn't in the sitemap.
+ */
+export function robotsDirectives(
+  tier: DeployTier,
+  page: string,
+): string | undefined {
+  if (tier === "staging") return "noindex, nofollow";
+  return page === ERROR_PAGE ? "noindex" : undefined;
+}
+
 export function parseDeployTier(value: string | undefined): DeployTier {
   if (value === undefined || value === "" || value === "production")
     return "production";

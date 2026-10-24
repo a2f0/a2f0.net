@@ -5,6 +5,7 @@ import { resolve } from "node:path";
 import { DEPLOYMENTS } from "./deployPolicy";
 import {
   checkIndexing,
+  ERROR_PAGE,
   type IndexingEvidence,
   readIndexingEvidence,
 } from "./indexingPolicy";
@@ -142,17 +143,28 @@ test("production must never ask to be left out of search", () => {
     "<meta content='none' name='robots'>",
     '<meta name="googlebot" content="noindex"/>',
   ]) {
-    expect(() =>
-      checkIndexing(
-        "production",
-        production({
-          pages: new Map([
-            ["index.html", page()],
-            ["404.html", page(meta)],
-          ]),
-        }),
-      ),
-    ).toThrow("Production page 404.html");
+    // Every other root page is refused, whatever its name.
+    for (const path of [
+      "index.html",
+      "pdf.html",
+      "500.html",
+      "404.htm",
+      "404.HTML",
+      "_404.html",
+      "not-found.html",
+    ]) {
+      expect(() =>
+        checkIndexing(
+          "production",
+          production({
+            pages: new Map([
+              [path === "index.html" ? "home.html" : "index.html", page()],
+              [path, page(meta)],
+            ]),
+          }),
+        ),
+      ).toThrow(`Production page ${path} asks to be left out of search`);
+    }
   }
   // Pages copied in from packages keep their own rules.
   expect(() =>
@@ -183,6 +195,51 @@ test("production must never ask to be left out of search", () => {
     expect(() => checkIndexing("production", production({ headers }))).toThrow(
       "Production _headers",
     );
+  }
+});
+
+test("production may keep exactly its error page out of search", () => {
+  expect(ERROR_PAGE).toBe("404.html");
+  for (const meta of [
+    '<meta name="robots" content="noindex"/>',
+    STAGING_META,
+    "<meta content='none' name='robots'>",
+  ]) {
+    expect(() =>
+      checkIndexing(
+        "production",
+        production({
+          pages: new Map([
+            ["index.html", page()],
+            [ERROR_PAGE, page(meta)],
+          ]),
+        }),
+      ),
+    ).not.toThrow();
+  }
+  // The error page's allowance never excuses another page, nor a _headers
+  // rule for its path.
+  expect(() =>
+    checkIndexing(
+      "production",
+      production({
+        pages: new Map([
+          ["index.html", page(STAGING_META)],
+          [ERROR_PAGE, page(STAGING_META)],
+        ]),
+      }),
+    ),
+  ).toThrow("Production page index.html");
+  for (const pattern of ["/404", "/404.html"]) {
+    expect(() =>
+      checkIndexing(
+        "production",
+        production({
+          pages: new Map([[ERROR_PAGE, page(STAGING_META)]]),
+          headers: `${pattern}\n  X-Robots-Tag: noindex\n`,
+        }),
+      ),
+    ).toThrow(`Production _headers ask to leave responses to ${pattern} out`);
   }
 });
 

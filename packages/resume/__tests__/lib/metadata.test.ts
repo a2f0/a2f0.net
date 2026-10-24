@@ -4,7 +4,11 @@ import resume from "@a2f0/shared/resume.json";
 import { describe, expect, it } from "vitest";
 
 import { crawlerFiles } from "../../lib/crawlerFiles";
-import { parseDeployTier } from "../../lib/deployTier";
+import {
+  ERROR_PAGE,
+  parseDeployTier,
+  robotsDirectives,
+} from "../../lib/deployTier";
 import {
   RESUME_DESCRIPTION,
   RESUME_PERSON,
@@ -24,6 +28,22 @@ describe("parseDeployTier", () => {
   it("refuses any other tier", () => {
     for (const tier of ["prod", "Staging", "preview"]) {
       expect(() => parseDeployTier(tier)).toThrow("production or staging");
+    }
+  });
+});
+
+describe("robotsDirectives", () => {
+  it("keeps every staging page out of search", () => {
+    for (const page of ["/", "/pdf", ERROR_PAGE]) {
+      expect(robotsDirectives("staging", page)).toBe("noindex, nofollow");
+    }
+  });
+
+  it("keeps only the error page out of production search", () => {
+    expect(ERROR_PAGE).toBe("/404");
+    expect(robotsDirectives("production", ERROR_PAGE)).toBe("noindex");
+    for (const page of ["/", "/pdf", "/_error", "/404/", "/404.html"]) {
+      expect(robotsDirectives("production", page)).toBeUndefined();
     }
   });
 });

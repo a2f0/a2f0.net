@@ -1,4 +1,4 @@
-import { $, browser, expect } from "@wdio/globals";
+import { $, $$, browser, expect } from "@wdio/globals";
 
 import { parseDeployTier } from "../../lib/deployTier";
 
@@ -17,10 +17,16 @@ const jsonLd = (html: string) =>
     ),
   ].map(([, json]) => JSON.parse(json));
 
+const robotsMeta = (html: string) =>
+  [...html.matchAll(/<meta name="robots" content="([^"]*)"/g)].map(
+    ([, content]) => content,
+  );
+
 // Every kind of response: pages, the 404 page, crawler files, and assets.
 const RESPONSES = [
   ["/", 200],
   ["/pdf", 200],
+  ["/404", 200],
   ["/does-not-exist", 404],
   ["/robots.txt", 200],
   ["/favicon.svg", 200],
@@ -60,6 +66,24 @@ describe(`Search metadata (${staging ? "staging" : "production"})`, () => {
     });
   }
 
+  // Workers serves the error page for every missing path, with a 404, and at
+  // its own path with a 200. Production keeps it out of search too, and it
+  // names no URL of its own.
+  for (const [path, status] of [
+    ["/404", 200],
+    ["/does-not-exist", 404],
+    ["/nested/does-not-exist", 404],
+  ] as const) {
+    it(`keeps the error page at ${path} out of search`, async () => {
+      const response = await fetchPath(path);
+      expect(response.status).toBe(status);
+      const html = await response.text();
+      expect(html).toContain("This page could not be found");
+      expect(robotsMeta(html)).toEqual([staging ? STAGING_RULE : "noindex"]);
+      expect(html).not.toMatch(/rel="canonical"|property="og:url"/);
+    });
+  }
+
   it(`${staging ? "asks" : "never asks"} search engines to drop a response`, async () => {
     for (const [path, status] of RESPONSES) {
       const response = await fetchPath(path);
@@ -68,10 +92,6 @@ describe(`Search metadata (${staging ? "staging" : "production"})`, () => {
         staging ? STAGING_RULE : null,
       );
     }
-    const missing = await (await fetchPath("/does-not-exist")).text();
-    expect(
-      missing.includes(`<meta name="robots" content="${STAGING_RULE}"`),
-    ).toBe(staging);
   });
 
   it("keeps the tier's metadata once the page hydrates", async () => {
@@ -90,6 +110,13 @@ describe(`Search metadata (${staging ? "staging" : "production"})`, () => {
       );
       await expect($('meta[name="robots"]')).not.toBeExisting();
     }
+    await browser.url("/does-not-exist");
+    await expect($("h1")).toHaveText("404");
+    await expect($$('meta[name="robots"]')).toBeElementsArrayOfSize(1);
+    await expect($('meta[name="robots"]')).toHaveAttribute(
+      "content",
+      staging ? STAGING_RULE : "noindex",
+    );
   });
 
   it("serves robots.txt as text that allows crawling", async () => {

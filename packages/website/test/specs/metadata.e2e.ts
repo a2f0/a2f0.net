@@ -1,4 +1,4 @@
-import { $, browser, expect } from "@wdio/globals";
+import { $, $$, browser, expect } from "@wdio/globals";
 
 const fetchPath = (path: string) =>
   fetch(new URL(path, browser.options.baseUrl));
@@ -36,6 +36,31 @@ describe("Search metadata", () => {
       });
     });
   }
+
+  // Workers serves the error page at its own path with a 200; the routed
+  // shell's fallback answers every other missing path. It is the one page of
+  // the site's own kept out of search, and it names no URL of its own.
+  it("keeps the error page at /404 out of search", async () => {
+    const response = await fetchPath("/404");
+    expect(response.status).toBe(200);
+    expect(response.headers.get("x-robots-tag")).toBeNull();
+    const html = await response.text();
+    expect(html).toContain("This page could not be found");
+    expect(
+      [...html.matchAll(/<meta name="robots" content="([^"]*)"/g)].map(
+        ([, content]) => content,
+      ),
+    ).toEqual(["noindex"]);
+    expect(html).not.toMatch(/rel="canonical"|property="og:url"/);
+    await browser.url("/404");
+    await expect($("h1")).toHaveText("404");
+    await expect($$('meta[name="robots"]')).toBeElementsArrayOfSize(1);
+    await expect($('meta[name="robots"]')).toHaveAttribute(
+      "content",
+      "noindex",
+    );
+    await expect($('link[rel="canonical"]')).not.toBeExisting();
+  });
 
   // The dnbm package's pages, copied under /dnbm/, name the dnbm site as
   // canonical, so search engines treat these copies as its duplicates.
