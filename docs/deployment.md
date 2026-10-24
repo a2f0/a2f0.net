@@ -69,8 +69,12 @@ host serves a plain-text `robots.txt`. The resume and the website also serve a
 `sitemap.xml`. The resume and website pages describe themselves with JSON-LD.
 The website's copies of other sites' pages stay out of its sitemap: the dnbm
 pages under `/dnbm/` name `dnbm.a2f0.net` as canonical, as `@a2f0/dnbm` gives
-them from 0.4.10, so search engines treat them as that site's duplicates, and
-the `skyline/` studies are `noindex`.
+them from 0.4.10, so search engines treat them as that site's duplicates and
+the copies stay indexable. The skyline viewer's copies under `/skyline/` stay
+out of search: `@a2f0/skyline` marks its pages `noindex`, and the website's
+[`public/_headers`](../packages/website/public/_headers) sends
+`X-Robots-Tag: noindex, nofollow` for `/skyline` and `/skyline/*`, so the
+copy's scripts, models, images, and redirects carry it too.
 
 `staging.a2f0.net` stays out of search results. The resume's build reads
 `RESUME_DEPLOY_TIER` (`production` by default, or `staging`; see
@@ -83,7 +87,11 @@ staging builds set the tier. The deploy guard checks the assets against the
 target's tier in
 [`scripts/deploy/indexingPolicy.ts`](../scripts/deploy/indexingPolicy.ts): it
 refuses a staging deploy without those rules, and a production deploy whose
-`_headers` or root pages ask to be left out of search.
+`_headers` or root pages ask to be left out of search. The one exception is a
+target's `noindexPatterns` in
+[`scripts/deploy/deployPolicy.ts`](../scripts/deploy/deployPolicy.ts): only the
+website has any, and they name exactly the two skyline patterns, so a noindex
+rule for `/*`, the site's own pages, or `/dnbm/*` still stops a deploy.
 
 ## Infrastructure
 

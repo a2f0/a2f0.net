@@ -1,0 +1,9 @@
+# The skyline viewer's copies stay out of search. Their pages carry a robots
+# meta tag from @a2f0/skyline; these rules also cover the copy's scripts,
+# models and images, and the redirect from /skyline to /skyline/. The guard in
+# scripts/deploy/indexingPolicy.ts allows no other production noindex rule.
+/skyline
+  X-Robots-Tag: noindex, nofollow
+
+/skyline/*
+  X-Robots-Tag: noindex, nofollow

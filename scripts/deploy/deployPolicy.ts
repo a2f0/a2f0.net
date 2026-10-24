@@ -4,7 +4,8 @@ import { type ParseError, parse } from "jsonc-parser";
 /**
  * Each guarded target. `tier` decides what the indexing check requires of the
  * assets (see indexingPolicy.ts): staging must ask search engines to drop
- * every response, and production must never do so.
+ * every response, and production must never do so, except for the `_headers`
+ * patterns in `noindexPatterns`.
  */
 export const DEPLOYMENTS = {
   drive: {
@@ -13,6 +14,7 @@ export const DEPLOYMENTS = {
     worker: "drive",
     hostname: "drive.a2f0.net",
     tier: "production",
+    noindexPatterns: [],
   },
   "resume-staging": {
     package: "resume",
@@ -20,6 +22,7 @@ export const DEPLOYMENTS = {
     worker: "resume-staging",
     hostname: "staging.a2f0.net",
     tier: "staging",
+    noindexPatterns: [],
   },
   "resume-prod": {
     package: "resume",
@@ -27,6 +30,7 @@ export const DEPLOYMENTS = {
     worker: "resume-prod",
     hostname: "resume.a2f0.net",
     tier: "production",
+    noindexPatterns: [],
   },
   website: {
     package: "website",
@@ -34,6 +38,9 @@ export const DEPLOYMENTS = {
     worker: "resume-redirect",
     hostname: "a2f0.net",
     tier: "production",
+    // The skyline viewer's copies, whose pages @a2f0/skyline marks noindex.
+    // The dnbm copies name dnbm.a2f0.net as canonical and stay indexable.
+    noindexPatterns: ["/skyline", "/skyline/*"],
   },
   demo: {
     package: "demo",
@@ -41,6 +48,7 @@ export const DEPLOYMENTS = {
     worker: "demo",
     hostname: "demo.a2f0.net",
     tier: "production",
+    noindexPatterns: [],
   },
 } as const;
 
