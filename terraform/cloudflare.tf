@@ -74,6 +74,9 @@ resource "cloudflare_workers_custom_domain" "dnbm" {
   service    = "dnbm"
 }
 
+# The www.a2f0.net redirect to the apex and its www record are managed with cf,
+# outside Terraform; read "www Redirect" in docs/deployment.md before adding a
+# redirect ruleset or a www record here.
 resource "cloudflare_zone_setting" "always_use_https" {
   zone_id    = data.cloudflare_zone.resume.id
   setting_id = "always_use_https"
