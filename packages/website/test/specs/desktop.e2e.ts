@@ -656,6 +656,7 @@ describe("Website desktop", () => {
   });
 
   it("puts the artwork controls in the window toolbar", async () => {
+    await taskbar("a2f0.net").click();
     const toolbar = asciiArtWindow().$(
       "[role='toolbar'][aria-label='Toolbar']",
     );
@@ -786,7 +787,7 @@ describe("Website desktop", () => {
           window as unknown as { skylineKeys: [string, boolean][] }
         ).skylineKeys.splice(0),
       );
-    // The artwork window has focus. Arrows rotate the skyline and + zooms it,
+    // The resume window has focus. Arrows rotate the skyline and + zooms it,
     // but only while focus is inside it.
     await browser.keys(["ArrowLeft", "+"]);
     expect(await takenKeys()).toEqual([
@@ -1025,6 +1026,7 @@ describe("Website desktop", () => {
     await waitForDnbmApps();
     // With the artwork minimized and the resume in front, the player shows
     // to the right of the resume.
+    await taskbar("a2f0.net").click();
     await asciiArtWindow().$("button[aria-label='Minimize window']").click();
     await taskbar("Resume").click();
     await pressVisible(".dnbm-player-window [role=region]");
@@ -1052,7 +1054,7 @@ describe("Website desktop", () => {
 
   it("keeps keys pressed outside a dnbm app out of it", async () => {
     await waitForDnbmApps();
-    // The artwork window has focus. Space plays either app, and X the player,
+    // The resume window has focus. Space plays either app, and X the player,
     // but only while focus is inside it.
     await browser.keys(" ");
     await browser.keys("x");
