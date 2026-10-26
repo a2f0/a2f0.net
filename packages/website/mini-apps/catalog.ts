@@ -39,14 +39,13 @@ export const MINI_APP_WINDOWS: Readonly<
 };
 
 // Opened in this order on load, so the last one starts in front; the taskbar
-// lists the apps in the same order. The skyline opens behind the artwork,
-// which keeps the front window it had before the skyline joined. The dnbm
-// sequencer opens first, behind them all: its fitted window is the largest.
-// The dnbm player opens above the skyline and below the artwork.
+// lists the apps in the same order. The resume starts in front of the artwork,
+// player, and skyline. The dnbm sequencer opens first, behind them all: its
+// fitted window is the largest.
 export const MINI_APP_LAUNCH_ORDER = [
   "dnbm",
-  "resume",
   "skyline",
   "dnbm-player",
   "ascii-art",
+  "resume",
 ] as const satisfies ReadonlyArray<MiniAppId>;

@@ -35,8 +35,7 @@ function miniApp(
 /**
  * The windowing package's launcher definition of the desktop: every mini-app
  * with its title and icon, listed in launch order. The routed shell, on phones
- * and tablets, shows the artwork at the root route, as the desktop opens it in
- * front.
+ * and tablets, shows the artwork at the root route.
  */
 export const MINI_APP_LAUNCHER: LauncherDefinition<MiniAppId> = {
   apps: {

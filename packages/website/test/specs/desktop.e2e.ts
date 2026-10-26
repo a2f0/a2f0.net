@@ -471,8 +471,10 @@ describe("Website desktop", () => {
           outline: getComputedStyle(active).outlineStyle,
         };
       });
-    // The front window takes focus on load, before any input, without a ring.
-    expect(await focusRing()).toEqual({ title: "a2f0.net", outline: "none" });
+    // The resume starts in front and takes focus before any input, without a ring.
+    expect(await frontWindowApp()).toBe("Resume");
+    await expect(taskbar("Resume")).toHaveAttribute("aria-pressed", "true");
+    expect(await focusRing()).toEqual({ title: "Resume", outline: "none" });
 
     // A window reopened from the keyboard shows where focus went.
     await browser.execute(() =>
@@ -515,20 +517,20 @@ describe("Website desktop", () => {
       });
     // Clicking the window that took focus on load leaves that focus in place,
     // so it must not bring back the load-time ring.
-    await asciiArtWindow().$(".window-titlebar-title").click();
-    expect(await focusRing()).toEqual({ title: "a2f0.net", outline: "none" });
+    await resumeWindow().$(".window-titlebar-title").click();
+    expect(await focusRing()).toEqual({ title: "Resume", outline: "none" });
 
     // Shift alone is not keyboard use: some browsers ring the clicked window
     // on it, so the ring waits for the root to record keyboard input.
     await browser.action("key").down(SHIFT).up(SHIFT).perform();
     await expect($("html")).toHaveAttribute("data-input", "pointer");
-    expect(await focusRing()).toEqual({ title: "a2f0.net", outline: "none" });
+    expect(await focusRing()).toEqual({ title: "Resume", outline: "none" });
 
-    await asciiArtWindow().$("button[aria-label='Minimize window']").click();
-    await expect(asciiArtWindow()).not.toBeExisting();
-    await taskbar("a2f0.net").click();
-    await expect(asciiArtWindow()).toBeExisting();
-    expect(await focusRing()).toEqual({ title: "a2f0.net", outline: "none" });
+    await resumeWindow().$("button[aria-label='Minimize window']").click();
+    await expect(resumeWindow()).not.toBeExisting();
+    await taskbar("Resume").click();
+    await expect(resumeWindow()).toBeExisting();
+    expect(await focusRing()).toEqual({ title: "Resume", outline: "none" });
   });
 
   it("registers the resume and artwork menus", async () => {
@@ -654,6 +656,7 @@ describe("Website desktop", () => {
   });
 
   it("puts the artwork controls in the window toolbar", async () => {
+    await taskbar("a2f0.net").click();
     const toolbar = asciiArtWindow().$(
       "[role='toolbar'][aria-label='Toolbar']",
     );
@@ -692,8 +695,8 @@ describe("Website desktop", () => {
         loading: false,
       },
     });
-    // The skyline opens behind the artwork.
-    expect(await frontWindowApp()).toBe("a2f0.net");
+    // The skyline opens behind the resume.
+    expect(await frontWindowApp()).toBe("Resume");
   });
 
   it("opens the skyline at three quarters of the desktop", async () => {
@@ -733,7 +736,7 @@ describe("Website desktop", () => {
 
   it("raises the skyline window on a press inside it", async () => {
     await waitForSkyline();
-    // The skyline's scene shows right of the artwork, which is in front.
+    // The skyline's scene shows to the right of the other windows.
     await pressSkylineScene();
     await browser.waitUntil(
       async () => (await frontWindowApp()) === "Skyline",
@@ -784,7 +787,7 @@ describe("Website desktop", () => {
           window as unknown as { skylineKeys: [string, boolean][] }
         ).skylineKeys.splice(0),
       );
-    // The artwork window has focus. Arrows rotate the skyline and + zooms it,
+    // The resume window has focus. Arrows rotate the skyline and + zooms it,
     // but only while focus is inside it.
     await browser.keys(["ArrowLeft", "+"]);
     expect(await takenKeys()).toEqual([
@@ -855,8 +858,8 @@ describe("Website desktop", () => {
         tracks: expect.any(Number),
       },
     });
-    // The player opens behind the artwork.
-    expect(await frontWindowApp()).toBe("a2f0.net");
+    // The player opens behind the resume.
+    expect(await frontWindowApp()).toBe("Resume");
 
     // In front, Play in the window's toolbar starts its audio engine: the
     // clock runs.
@@ -979,7 +982,7 @@ describe("Website desktop", () => {
     // The window opens fitted to the sequencer's 1200px desktop layout.
     expect(width).toBeGreaterThanOrEqual(1200);
     // The sequencer opens behind the other apps.
-    expect(await frontWindowApp()).toBe("a2f0.net");
+    expect(await frontWindowApp()).toBe("Resume");
   });
 
   it("plays and stops the dnbm sequencer from its window toolbar and View menu", async () => {
@@ -1023,6 +1026,7 @@ describe("Website desktop", () => {
     await waitForDnbmApps();
     // With the artwork minimized and the resume in front, the player shows
     // to the right of the resume.
+    await taskbar("a2f0.net").click();
     await asciiArtWindow().$("button[aria-label='Minimize window']").click();
     await taskbar("Resume").click();
     await pressVisible(".dnbm-player-window [role=region]");
@@ -1050,7 +1054,7 @@ describe("Website desktop", () => {
 
   it("keeps keys pressed outside a dnbm app out of it", async () => {
     await waitForDnbmApps();
-    // The artwork window has focus. Space plays either app, and X the player,
+    // The resume window has focus. Space plays either app, and X the player,
     // but only while focus is inside it.
     await browser.keys(" ");
     await browser.keys("x");
@@ -1247,10 +1251,10 @@ describe("Website desktop", () => {
     const items = $$(".menu button");
     expect(await items.map((item) => item.getText())).toEqual([
       "dnbm",
-      "Resume",
       "Skyline",
       "dnbm player",
       "a2f0.net",
+      "Resume",
     ]);
     await expect($$(".menu button svg.menu-item-icon")).toBeElementsArrayOfSize(
       5,
@@ -1304,13 +1308,6 @@ describe("Website desktop", () => {
       },
       {
         ...chip,
-        title: "Resume",
-        pressed: "false",
-        state: "minimized",
-        muted: true,
-      },
-      {
-        ...chip,
         title: "dnbm player",
         pressed: "false",
         state: "minimized",
@@ -1323,6 +1320,13 @@ describe("Website desktop", () => {
         pressed: "true",
         state: "open",
         muted: false,
+      },
+      {
+        ...chip,
+        title: "Resume",
+        pressed: "false",
+        state: "minimized",
+        muted: true,
       },
     ]);
 
@@ -1403,8 +1407,8 @@ describe("Website desktop", () => {
     await expect($(".routed-pane.routed-pane--mobile")).toBeDisplayed();
     await expect($(".desktop-taskbar")).not.toBeExisting();
     await expect($("html")).toHaveAttribute("data-navigation-mode", "routed");
-    // The root route shows the artwork, as the desktop opens it in front,
-    // with its controls in the app bar's toolbar.
+    // The root route shows the artwork with its controls in the app bar's
+    // toolbar.
     await expect($(".routed-pane-main .ascii-art-window")).toBeExisting();
     await expect(
       $(".routed-pane-toolbar button[aria-label='ASCII view']"),
@@ -1422,7 +1426,7 @@ describe("Website desktop", () => {
     await expect($(".routed-pane-sheet")).toHaveAttribute("data-open", "true");
     expect(
       await $$(".routed-pane-sheet-tile").map((tile) => tile.getText()),
-    ).toEqual(["dnbm", "Resume", "Skyline", "dnbm player", "a2f0.net"]);
+    ).toEqual(["dnbm", "Skyline", "dnbm player", "a2f0.net", "Resume"]);
 
     // A tile navigates: the resume shows in the column layout, with its menu
     // actions in the toolbar, and Back returns to the artwork.
