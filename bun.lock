@@ -5,7 +5,7 @@
     "": {
       "name": "resume",
       "devDependencies": {
-        "@a2f0/agent-tool": "0.1.19",
+        "@a2f0/agent-tool": "0.1.21",
         "@biomejs/biome": "2.6.2",
         "@commitlint/cli": "21.2.4",
         "@commitlint/config-conventional": "21.2.4",
@@ -178,7 +178,7 @@
     "@types/node": "24.19.2",
   },
   "packages": {
-    "@a2f0/agent-tool": ["@a2f0/agent-tool@0.1.19", "", { "dependencies": { "@resvg/resvg-wasm": "2.6.2" }, "bin": { "agent-tool": "src/index.ts" } }, "sha512-Lh4LCkfb7u7W4Q+nHOGTORTDBQLfr9LkRtoV6BEZsHl5Ewlvik8pxYBo+nuOwVLo+cUSNe55Q+H7kHJxb9aiIA=="],
+    "@a2f0/agent-tool": ["@a2f0/agent-tool@0.1.21", "", { "dependencies": { "@resvg/resvg-wasm": "2.6.2" }, "bin": { "agent-tool": "src/index.ts" } }, "sha512-wfI1kvTJIf2VXimYnB2t1eFEEmitccDF2DegYztqoTwFnwuVmtf8lHYdopmuZ4WQIFY7aBQU2HwybXLFZE6vdg=="],
 
     "@a2f0/ct-client": ["@a2f0/ct-client@0.1.5", "", {}, "sha512-1IkE5Ft3XkkbzAegrTblsvsa3JuL0WpB8wydtXHm33iGQNrdJ3djdbhXPa7drhcMbsMzRt3rsOjNZhxqC+qk6A=="],
 

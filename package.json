@@ -56,6 +56,7 @@
     "check": "agent-tool run-group scripts/testing/check.json"
   },
   "devDependencies": {
+    "@a2f0/agent-tool": "0.1.21",
     "@biomejs/biome": "2.6.2",
     "@commitlint/cli": "21.2.4",
     "@commitlint/config-conventional": "21.2.4",
@@ -68,8 +69,7 @@
     "markdownlint-cli2": "0.24.0",
     "tsx": "4.23.15",
     "turbo": "2.11.10",
-    "typescript": "7.0.2",
-    "@a2f0/agent-tool": "0.1.19"
+    "typescript": "7.0.2"
   },
   "patchedDependencies": {
     "markdownlint@0.42.0": "patches/markdownlint@0.42.0.patch"
