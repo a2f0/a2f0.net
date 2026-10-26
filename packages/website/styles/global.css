@@ -43,6 +43,12 @@ body {
   outline-offset: -2px;
 }
 
+/* Close follows the same grayscale hover as the other titlebar controls. */
+.desktop .window-close:hover {
+  background: color-mix(in srgb, currentColor 18%, transparent);
+  color: var(--tearleads-window-titlebar-text);
+}
+
 /* The taskbar, styled as Tearleads' pane footer: a muted bar under a hairline,
    with bordered chips that light up under the pointer and for the front
    window. Of the two tokens Tearleads adds for it, the control border derives
