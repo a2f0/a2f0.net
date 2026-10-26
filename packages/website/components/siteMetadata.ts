@@ -10,8 +10,7 @@ export const SITE_URL = "https://a2f0.net/";
 
 export const SITE_NAME = "a2f0.net";
 
-export const SITE_TITLE =
-  "Resume, Graffiti, Skyline, and Drum and Bass – a2f0.net";
+export const SITE_TITLE = "a2f0.net";
 
 export const SITE_DESCRIPTION =
   "Dan Sullivan's resume, the a2f0 graffiti artwork, a 3D Chicago skyline, and the dnbm drum and bass sequencer and player in draggable, resizable windows.";

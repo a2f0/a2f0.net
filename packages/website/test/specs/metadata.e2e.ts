@@ -10,9 +10,7 @@ describe("Search metadata", () => {
       const response = await fetchPath(path);
       expect(response.status).toBe(200);
       const html = await response.text();
-      expect(html).toMatch(
-        /<title[^>]*>Resume, Graffiti, Skyline, and Drum and Bass – a2f0\.net<\/title>/,
-      );
+      expect(html).toMatch(/<title[^>]*>a2f0\.net<\/title>/);
       expect(html).toMatch(/<meta name="description" content="Dan Sullivan/);
       expect(html).toContain('<link rel="canonical" href="https://a2f0.net/"');
       expect(html).toContain(
