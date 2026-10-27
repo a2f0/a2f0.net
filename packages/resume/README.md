@@ -1,11 +1,17 @@
 # Resume app
 
-This workspace contains the Next.js resume, browser and unit tests, static
-assets, and Cloudflare Worker configurations. Run `bun install` at the repository
-root, then use root scripts such as `bun run build`, `bun run unit`, and
-`bun run ci-headless`.
+The Next.js resume served at <https://resume.a2f0.net>. This workspace contains
+the app, its browser and unit tests, static assets, and Cloudflare Worker
+configurations. Run `bun ci` at the repository root, then use root scripts such
+as `bun run start-server` (development, on <http://localhost:4000>),
+`bun run build`, `bun run unit`, and `bun run ci-headless`.
 
-The production build writes its static export to `packages/resume/out/`.
+`bun run build` generates the desktop SVG, then Next.js exports the site to
+`packages/resume/out/`, which Cloudflare Workers serves. The desktop SVG is
+included in the exported HTML; local development and mobile layouts still
+generate it in the browser. The SVG uses the bundled Arimo font for consistent
+build and browser layout. PDF generation remains in the browser.
+
 Staging's export is built with `RESUME_DEPLOY_TIER=staging`, which keeps it
 out of search results; see
 [search indexing](../../docs/deployment.md#search-indexing).
