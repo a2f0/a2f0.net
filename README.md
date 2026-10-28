@@ -1,7 +1,7 @@
 # a2f0.net
 
-Dan Sullivan's personal website: a desktop of draggable, resizable windows
-holding his resume, the a2f0 graffiti artwork, a 3D Chicago skyline, and the
+My personal website: a desktop of draggable, resizable windows
+holding my resume, the a2f0 graffiti artwork, a 3D Chicago skyline, and the
 dnbm drum and bass sequencer and player. On phones and narrow screens it opens
 one app at a time. This repo is available on the web at <https://a2f0.net>.
 It also serves:
