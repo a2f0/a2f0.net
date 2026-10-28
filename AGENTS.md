@@ -52,20 +52,29 @@ Primary checks in this repo:
 - `bun run check:architecture`
 - `bun run agents:check`
 
-Capture noisy finite checks, builds, setup, and hooks with the pinned harness,
-for example `bun run agent:run --label unit -- bun run unit` or
-`bun run agent:run --label pre-commit -- sh scripts/git/hooks/pre-commit`.
-It preserves the command's exit status and complete private logs while returning
-a compact receipt and a bounded failure excerpt. Use
-`bun run agent-tool logs <log-path>` or a targeted search for more evidence;
-inspect required warnings, timing, and artifacts before accepting a check.
-Keep review verdicts and structured decision output visible. Do not wrap
-interactive tools or persistent servers, or change test scope to reduce output.
-Logs may contain secrets; keep them private and remove them when finished.
-
 Pre-commit hook entrypoint:
 
 - `sh ./scripts/git/hooks/pre-commit`
+
+## Output capture
+
+Run finite, noisy commands, such as installs, builds, tests, linters, and Git
+commands that run hooks, through
+`bun run agent:run --label <name> -- <command> [args...]`. It keeps complete
+output in a private log, preserves the exit status, and prints a compact
+receipt, with a bounded excerpt of the log on failure. Read more with
+`bun run agent:logs <log-path>`, raising `--tail-lines` or `--max-bytes` as
+needed, or with a targeted search of the log. A zero exit does not rule out
+warnings: inspect required warnings, timings, and artifacts before accepting a
+check. Run reviews, version preparation, audits, infrastructure previews, and
+run-group checks directly so their results stay visible, and run interactive
+tools and servers directly too. Never narrow a suite or silence warnings to
+reduce output.
+
+For example, capture `bun run agent:run --label unit -- bun run unit` or
+`bun run agent:run --label pre-commit -- sh scripts/git/hooks/pre-commit`.
+`bun run check:fast` and `bun run check` are run groups, so run them directly.
+Logs may contain secrets; keep them private and remove them when finished.
 
 ## Shipping and Deployment
 
