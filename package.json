@@ -57,7 +57,7 @@
     "check": "agent-tool run-group scripts/testing/check.json"
   },
   "devDependencies": {
-    "@a2f0/agent-tool": "0.1.25",
+    "@a2f0/agent-tool": "0.1.28",
     "@biomejs/biome": "2.6.2",
     "@commitlint/cli": "21.2.4",
     "@commitlint/config-conventional": "21.2.4",
