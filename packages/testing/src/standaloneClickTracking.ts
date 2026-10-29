@@ -10,11 +10,19 @@ import {
 } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 
+type StartClickTracking = () => (() => void) | undefined;
+
 /** A standalone app and the tracking entrypoint its browser bundle calls. */
 export interface StandaloneApp {
   /** The CT app dimension, also the subdomain of a2f0.net it serves. */
   app: string;
-  startClickTracking: () => (() => void) | undefined;
+  /**
+   * Imports the tracking module, as `() => import("./clickTracking")`. The
+   * suite imports it once the first test has set up a production build's
+   * page that allows tracking, so tracking the import itself started fails
+   * the inert-import test, which runs first.
+   */
+  load: () => Promise<{ startClickTracking: StartClickTracking }>;
 }
 
 /**
@@ -22,20 +30,23 @@ export interface StandaloneApp {
  * inert imports, the exact production origin, fixed dimensions without
  * private content, honoured opt-outs, excluded fields, and clean remounts.
  */
-export const testStandaloneClickTracking = ({
-  app,
-  startClickTracking,
-}: StandaloneApp) => {
+export const testStandaloneClickTracking = ({ app, load }: StandaloneApp) => {
   const host = `${app}.a2f0.net`;
+  const originalEnvironment = process.env.NODE_ENV;
+  let startClickTracking: StartClickTracking | undefined;
+  const start = () => {
+    if (!startClickTracking)
+      throw new Error("The tracking module is not loaded");
+    return startClickTracking();
+  };
 
   beforeAll(() => GlobalRegistrator.register({ url: `https://${host}/` }));
   afterAll(() => GlobalRegistrator.unregister());
   let send: Mock<typeof fetch>;
 
-  const originalEnvironment = process.env.NODE_ENV;
   let stop: (() => void) | undefined;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     Object.assign(process.env, { NODE_ENV: "production" });
     window.location.href = `https://${host}/private?secret=value#private`;
     send = spyOn(globalThis, "fetch").mockResolvedValue(
@@ -52,6 +63,7 @@ export const testStandaloneClickTracking = ({
     ] as const) {
       Object.defineProperty(navigator, name, { configurable: true, value });
     }
+    startClickTracking ??= (await load()).startClickTracking;
   });
 
   afterEach(() => {
@@ -93,7 +105,7 @@ export const testStandaloneClickTracking = ({
     click("button");
     await flush();
     expect(send).not.toHaveBeenCalled();
-    stop = startClickTracking();
+    stop = start();
     click("button");
     await flush();
     expect(batch().events).toHaveLength(1);
@@ -102,7 +114,7 @@ export const testStandaloneClickTracking = ({
   test("only a production build on the exact standalone HTTPS origin starts", async () => {
     for (const environment of ["test", "development"]) {
       Object.assign(process.env, { NODE_ENV: environment });
-      expect(startClickTracking()).toBeUndefined();
+      expect(start()).toBeUndefined();
     }
     Object.assign(process.env, { NODE_ENV: "production" });
     for (const origin of [
@@ -114,7 +126,7 @@ export const testStandaloneClickTracking = ({
       `https://${host}.example.com`,
     ]) {
       window.location.href = origin;
-      expect(startClickTracking()).toBeUndefined();
+      expect(start()).toBeUndefined();
     }
     click("button");
     await flush();
@@ -122,7 +134,7 @@ export const testStandaloneClickTracking = ({
   });
 
   test("GPC override captures real controls with fixed dimensions and no private content", async () => {
-    stop = startClickTracking();
+    stop = start();
     click("a");
     click("button");
     await flush();
@@ -163,7 +175,7 @@ export const testStandaloneClickTracking = ({
       } else {
         localStorage.setItem("ct:opt-out", "1");
       }
-      stop = startClickTracking();
+      stop = start();
       click("button");
       await flush();
       expect(send).not.toHaveBeenCalled();
@@ -171,7 +183,7 @@ export const testStandaloneClickTracking = ({
   );
 
   test("editable fields, ignored descendants, and synthetic clicks are excluded", async () => {
-    stop = startClickTracking();
+    stop = start();
     for (const selector of [
       "input",
       "textarea",
@@ -189,10 +201,10 @@ export const testStandaloneClickTracking = ({
   });
 
   test("cleanup drops pending clicks and remounting installs one listener", async () => {
-    stop = startClickTracking();
+    stop = start();
     click("button");
     stop?.();
-    stop = startClickTracking();
+    stop = start();
     click("button");
     await flush();
     expect(batch().events).toHaveLength(1);
