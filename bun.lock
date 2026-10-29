@@ -93,6 +93,7 @@
         "@a2f0/testing": "workspace:*",
         "@testing-library/dom": "10.4.2",
         "@testing-library/react": "16.3.3",
+        "@types/bun": "1.4.3",
         "@types/invariant": "2.2.37",
         "@types/jsdom": "30.0.0",
         "@types/mocha": "10.0.10",
