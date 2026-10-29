@@ -46,6 +46,9 @@
     "packages/shared": {
       "project": ["src/**/*.ts"]
     },
+    "packages/testing": {
+      "project": ["src/**/*.ts"]
+    },
     "packages/website": {
       "entry": ["pages/**/*.tsx", "test/specs/*.e2e.ts", "**/*.test.tsx"],
       "project": ["**/*.{ts,tsx}"],

@@ -8,16 +8,19 @@ import type {
 
 /**
  * The workspace packages each package may import, keeping them layered: the
- * demo and the shared resume code are leaves, the resume builds on the shared
- * code, and the website on both. Nothing imports the resume or the website,
- * so no import between packages can close a cycle.
+ * demo, Drive, and the shared resume code are leaves, the resume builds on the
+ * shared code, and the website on the demo and the shared code. Nothing
+ * imports the resume or the website, so no import between packages can close
+ * a cycle. The testing helpers are a leaf that only tests may import (see
+ * testing-only-in-development).
  */
 const WORKSPACE_LAYERS = {
-  demo: [],
-  drive: [],
-  resume: ["shared"],
+  demo: ["testing"],
+  drive: ["testing"],
+  resume: ["shared", "testing"],
   shared: [],
-  website: ["demo", "shared"],
+  testing: [],
+  website: ["demo", "shared", "testing"],
 } as const satisfies Record<string, readonly string[]>;
 
 /** The parts of a workspace's package.json the check reads. */
@@ -33,6 +36,7 @@ const DEVELOPMENT_MODULE = [
   "\\.test\\.[jt]sx?$",
   "\\.d\\.ts$",
   "/(__tests__|scripts|test)/",
+  "^packages/testing/",
   "/(next|vite)\\.config\\.ts$",
   "/vitest\\.setup\\.ts$",
   "/wdio\\.[^/]*conf\\.ts$",
@@ -119,6 +123,14 @@ const FORBIDDEN_RULES: IForbiddenRuleType[] = [
       "The root scripts are repository tooling and must not depend on app code.",
     from: { path: "^scripts/" },
     to: { path: "^packages/" },
+  },
+  {
+    name: "testing-only-in-development",
+    severity: "error",
+    comment:
+      "packages/testing holds test helpers; only tests and other development modules may import it.",
+    from: { path: "^packages/", pathNot: DEVELOPMENT_MODULE },
+    to: { path: "^packages/testing/" },
   },
   ...layerRules,
 ];
