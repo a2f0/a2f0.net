@@ -1,4 +1,6 @@
 import { testStandaloneClickTracking } from "@a2f0/testing/standaloneClickTracking";
-import { startClickTracking } from "./clickTracking";
 
-testStandaloneClickTracking({ app: "demo", startClickTracking });
+testStandaloneClickTracking({
+  app: "demo",
+  load: () => import("./clickTracking"),
+});

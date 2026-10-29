@@ -1,7 +1,13 @@
-import { $, $$, browser, expect } from "@wdio/globals";
-
-const fetchPath = (path: string) =>
-  fetch(new URL(path, browser.options.baseUrl));
+import {
+  expectErrorPage,
+  expectHydratedErrorPage,
+  expectIndexedAt,
+  expectLinkPreviews,
+  fetchPath,
+  fetchRobotsTxt,
+  itServesLinkPreviewImage,
+} from "@a2f0/testing/searchMetadata";
+import { $, browser, expect } from "@wdio/globals";
 
 describe("Search metadata", () => {
   // The routed shell's app routes serve the same page, so all name the root.
@@ -12,18 +18,9 @@ describe("Search metadata", () => {
       const html = await response.text();
       expect(html).toMatch(/<title[^>]*>a2f0\.net<\/title>/);
       expect(html).toMatch(/<meta name="description" content="Dan Sullivan/);
-      expect(html).toContain('<link rel="canonical" href="https://a2f0.net/"');
-      expect(html).toContain(
-        '<meta property="og:url" content="https://a2f0.net/"',
-      );
-      expect(html).toContain(
-        '<meta property="og:image" content="https://a2f0.net/og-image.png"',
-      );
-      expect(html).toContain(
-        '<meta name="twitter:card" content="summary_large_image"',
-      );
+      expectIndexedAt(html, "https://a2f0.net/");
+      expectLinkPreviews(html, "https://a2f0.net/");
       expect(html).toContain('<meta name="theme-color" content="#000000"');
-      expect(html).not.toMatch(/<meta name="robots"/);
       const [, json] =
         /<script type="application\/ld\+json"[^>]*>([^<]*)<\/script>/.exec(
           html,
@@ -42,22 +39,8 @@ describe("Search metadata", () => {
     const response = await fetchPath("/404");
     expect(response.status).toBe(200);
     expect(response.headers.get("x-robots-tag")).toBeNull();
-    const html = await response.text();
-    expect(html).toContain("This page could not be found");
-    expect(
-      [...html.matchAll(/<meta name="robots" content="([^"]*)"/g)].map(
-        ([, content]) => content,
-      ),
-    ).toEqual(["noindex"]);
-    expect(html).not.toMatch(/rel="canonical"|property="og:url"/);
-    await browser.url("/404");
-    await expect($("h1")).toHaveText("404");
-    await expect($$('meta[name="robots"]')).toBeElementsArrayOfSize(1);
-    await expect($('meta[name="robots"]')).toHaveAttribute(
-      "content",
-      "noindex",
-    );
-    await expect($('link[rel="canonical"]')).not.toBeExisting();
+    expectErrorPage(await response.text());
+    await expectHydratedErrorPage("/404");
   });
 
   // The dnbm package's pages, copied under /dnbm/, name the dnbm site as
@@ -90,9 +73,7 @@ describe("Search metadata", () => {
     ["/skyline/viewer.css", 200],
   ] as const) {
     it(`keeps ${path} out of search`, async () => {
-      const response = await fetch(new URL(path, browser.options.baseUrl), {
-        redirect: "manual",
-      });
+      const response = await fetchPath(path, { redirect: "manual" });
       expect(response.status).toBe(status);
       expect(response.headers.get("x-robots-tag")).toBe("noindex, nofollow");
     });
@@ -106,9 +87,7 @@ describe("Search metadata", () => {
     "/a2f0.svg",
   ]) {
     it(`leaves ${path} indexable`, async () => {
-      const response = await fetch(new URL(path, browser.options.baseUrl), {
-        redirect: "manual",
-      });
+      const response = await fetchPath(path, { redirect: "manual" });
       expect(response.status).toBe(200);
       expect(response.headers.get("x-robots-tag")).toBeNull();
     });
@@ -149,19 +128,12 @@ describe("Search metadata", () => {
   });
 
   it("serves robots.txt as text, not the page", async () => {
-    const response = await fetchPath("/robots.txt");
-    expect(response.status).toBe(200);
-    expect(response.headers.get("content-type")).toContain("text/plain");
-    expect(await response.text()).toBe(
+    expect(await fetchRobotsTxt()).toBe(
       "User-agent: *\nAllow: /\n\nSitemap: https://a2f0.net/sitemap.xml\n",
     );
   });
 
-  it("serves the link-preview image", async () => {
-    const response = await fetchPath("/og-image.png");
-    expect(response.status).toBe(200);
-    expect(response.headers.get("content-type")).toBe("image/png");
-  });
+  itServesLinkPreviewImage();
 
   it("lists the root in the sitemap", async () => {
     const response = await fetchPath("/sitemap.xml");
