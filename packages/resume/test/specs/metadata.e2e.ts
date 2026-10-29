@@ -1,4 +1,13 @@
-import { $, $$, browser, expect } from "@wdio/globals";
+import {
+  expectErrorPage,
+  expectHydratedErrorPage,
+  expectIndexedAt,
+  expectLinkPreviews,
+  fetchPath,
+  fetchRobotsTxt,
+  itServesLinkPreviewImage,
+} from "@a2f0/testing/searchMetadata";
+import { $, browser, expect } from "@wdio/globals";
 
 import { parseDeployTier } from "../../lib/deployTier";
 
@@ -7,20 +16,12 @@ import { parseDeployTier } from "../../lib/deployTier";
 const staging = parseDeployTier(process.env.RESUME_DEPLOY_TIER) === "staging";
 const STAGING_RULE = "noindex, nofollow";
 
-const fetchPath = (path: string) =>
-  fetch(new URL(path, browser.options.baseUrl));
-
 const jsonLd = (html: string) =>
   [
     ...html.matchAll(
       /<script type="application\/ld\+json"[^>]*>([^<]*)<\/script>/g,
     ),
   ].map(([, json]) => JSON.parse(json));
-
-const robotsMeta = (html: string) =>
-  [...html.matchAll(/<meta name="robots" content="([^"]*)"/g)].map(
-    ([, content]) => content,
-  );
 
 // Every kind of response: pages, the 404 page, crawler files, and assets.
 const RESPONSES = [
@@ -40,12 +41,7 @@ describe(`Search metadata (${staging ? "staging" : "production"})`, () => {
       expect(response.status).toBe(200);
       const html = await response.text();
       expect(html).toMatch(/<meta name="description" content="Dan Sullivan/);
-      expect(html).toContain(
-        '<meta property="og:image" content="https://resume.a2f0.net/og-image.png"',
-      );
-      expect(html).toContain(
-        '<meta name="twitter:card" content="summary_large_image"',
-      );
+      expectLinkPreviews(html, "https://resume.a2f0.net/");
       expect(jsonLd(html)).toMatchObject([
         { "@type": "Person", name: "Dan Sullivan" },
       ]);
@@ -55,13 +51,7 @@ describe(`Search metadata (${staging ? "staging" : "production"})`, () => {
         );
         expect(html).not.toMatch(/rel="canonical"|property="og:url"/);
       } else {
-        expect(html).toContain(
-          '<link rel="canonical" href="https://resume.a2f0.net/"',
-        );
-        expect(html).toContain(
-          '<meta property="og:url" content="https://resume.a2f0.net/"',
-        );
-        expect(html).not.toMatch(/<meta name="robots"/);
+        expectIndexedAt(html, "https://resume.a2f0.net/");
       }
     });
   }
@@ -77,10 +67,10 @@ describe(`Search metadata (${staging ? "staging" : "production"})`, () => {
     it(`keeps the error page at ${path} out of search`, async () => {
       const response = await fetchPath(path);
       expect(response.status).toBe(status);
-      const html = await response.text();
-      expect(html).toContain("This page could not be found");
-      expect(robotsMeta(html)).toEqual([staging ? STAGING_RULE : "noindex"]);
-      expect(html).not.toMatch(/rel="canonical"|property="og:url"/);
+      expectErrorPage(
+        await response.text(),
+        staging ? STAGING_RULE : "noindex",
+      );
     });
   }
 
@@ -110,20 +100,14 @@ describe(`Search metadata (${staging ? "staging" : "production"})`, () => {
       );
       await expect($('meta[name="robots"]')).not.toBeExisting();
     }
-    await browser.url("/does-not-exist");
-    await expect($("h1")).toHaveText("404");
-    await expect($$('meta[name="robots"]')).toBeElementsArrayOfSize(1);
-    await expect($('meta[name="robots"]')).toHaveAttribute(
-      "content",
+    await expectHydratedErrorPage(
+      "/does-not-exist",
       staging ? STAGING_RULE : "noindex",
     );
   });
 
   it("serves robots.txt as text that allows crawling", async () => {
-    const response = await fetchPath("/robots.txt");
-    expect(response.status).toBe(200);
-    expect(response.headers.get("content-type")).toContain("text/plain");
-    const robots = await response.text();
+    const robots = await fetchRobotsTxt();
     expect(robots).toContain("User-agent: ia_archiver\nDisallow: /\n");
     expect(robots).toContain("User-agent: *\nAllow: /\n");
     if (staging) expect(robots).not.toMatch(/sitemap/i);
@@ -144,9 +128,5 @@ describe(`Search metadata (${staging ? "staging" : "production"})`, () => {
     );
   });
 
-  it("serves the link-preview image", async () => {
-    const response = await fetchPath("/og-image.png");
-    expect(response.status).toBe(200);
-    expect(response.headers.get("content-type")).toBe("image/png");
-  });
+  itServesLinkPreviewImage();
 });

@@ -1,7 +1,13 @@
-import { $, $$, browser, expect } from "@wdio/globals";
-
-const fetchPath = (path: string) =>
-  fetch(new URL(path, browser.options.baseUrl));
+import {
+  expectErrorPage,
+  expectHydratedErrorPage,
+  expectIndexedAt,
+  expectLinkPreviews,
+  fetchPath,
+  fetchRobotsTxt,
+  itServesLinkPreviewImage,
+} from "@a2f0/testing/searchMetadata";
+import { expect } from "@wdio/globals";
 
 describe("Search metadata", () => {
   it("exports the page with its metadata before any script runs", async () => {
@@ -14,20 +20,9 @@ describe("Search metadata", () => {
     expect(html).toMatch(
       /<meta name="description" content="A little space for your files/,
     );
-    expect(html).toContain(
-      '<link rel="canonical" href="https://drive.a2f0.net/"',
-    );
-    expect(html).toContain(
-      '<meta property="og:url" content="https://drive.a2f0.net/"',
-    );
-    expect(html).toContain(
-      '<meta property="og:image" content="https://drive.a2f0.net/og-image.png"',
-    );
-    expect(html).toContain(
-      '<meta name="twitter:card" content="summary_large_image"',
-    );
+    expectIndexedAt(html, "https://drive.a2f0.net/");
+    expectLinkPreviews(html, "https://drive.a2f0.net/");
     expect(html).toContain('<meta name="theme-color" content="#161616"');
-    expect(html).not.toMatch(/<meta name="robots"/);
   });
 
   // Workers serves the error page for every missing path, with a 404, and at
@@ -43,39 +38,16 @@ describe("Search metadata", () => {
       expect(response.status).toBe(status);
       expect(response.headers.get("content-type")).toContain("text/html");
       expect(response.headers.get("x-robots-tag")).toBeNull();
-      const html = await response.text();
-      expect(html).toContain("This page could not be found");
-      expect(
-        [...html.matchAll(/<meta name="robots" content="([^"]*)"/g)].map(
-          ([, content]) => content,
-        ),
-      ).toEqual(["noindex"]);
-      expect(html).not.toMatch(/rel="canonical"|property="og:url"/);
+      expectErrorPage(await response.text());
     });
   }
 
-  it("keeps the error page's tags once it hydrates", async () => {
-    await browser.url("/does-not-exist");
-    await expect($("h1")).toHaveText("404");
-    await expect($$('meta[name="robots"]')).toBeElementsArrayOfSize(1);
-    await expect($('meta[name="robots"]')).toHaveAttribute(
-      "content",
-      "noindex",
-    );
-    await expect($('link[rel="canonical"]')).not.toBeExisting();
-    await expect($('meta[property="og:url"]')).not.toBeExisting();
-  });
+  it("keeps the error page's tags once it hydrates", () =>
+    expectHydratedErrorPage("/does-not-exist"));
 
-  it("serves the link-preview image", async () => {
-    const response = await fetchPath("/og-image.png");
-    expect(response.status).toBe(200);
-    expect(response.headers.get("content-type")).toBe("image/png");
-  });
+  itServesLinkPreviewImage();
 
   it("serves robots.txt as text that allows crawling", async () => {
-    const response = await fetchPath("/robots.txt");
-    expect(response.status).toBe(200);
-    expect(response.headers.get("content-type")).toContain("text/plain");
-    expect(await response.text()).toBe("User-agent: *\nAllow: /\n");
+    expect(await fetchRobotsTxt()).toBe("User-agent: *\nAllow: /\n");
   });
 });

@@ -9,8 +9,10 @@ rejects an import from shipped code.
   icons.
 - `clickTrackingProbe`: intercepts CT requests in a local browser preview, so a
   spec can assert that clicks send nothing.
+- `searchMetadata`: checks the canonical URL, link previews, error page, and
+  robots.txt that every app's metadata spec covers.
 - `standaloneClickTracking`: registers the Bun unit suite for a standalone
-  app's click tracking.
+  app's click tracking: the demo, Drive, and the resume run it.
 
 Each app's suite runs these; `bun run --cwd packages/testing compile`
 typechecks them.
