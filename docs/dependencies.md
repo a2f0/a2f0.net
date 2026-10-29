@@ -30,9 +30,12 @@ to validate an upgrade.
 Agent-tool is pinned exactly as `@a2f0/agent-tool` from npm. Confirm the producer's
 successful publication and package tarball before selecting a version; source
 commits do not establish availability. Use `bun install` to update the lockfile,
-then `bun run agents:sync` and commit the pin, lockfile, managed skills, and
-`.agent-tool-skills.json` together. Do not edit managed copies or lock integrity.
-`bun run agents:check` is the hook and CI drift gate. Shared branch, commit,
+then `bun run agents:sync` and commit the pin, lockfile, managed skills,
+`.agent-tool-skills.json`, and the generated harness permission rules
+(`.claude/settings.json`, `.codex/rules/agent-tool.rules`, and
+`.agent-tool-permissions.json`) together. Do not edit managed copies, generated
+rules, or lock integrity. `bun run agents:check` is the hook and CI drift gate
+for both skills and rules. Shared branch, commit,
 installed-hook, validation-receipt, and PR mechanics use `agent-tool.json`;
 full commitlint, architecture, and deployment policy remain repository-owned.
 See [development](development.md) for migrating the old Husky hook location and

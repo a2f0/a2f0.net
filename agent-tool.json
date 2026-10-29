@@ -15,6 +15,17 @@
   "pr": {
     "rejectClaudeBranding": true
   },
+  "permissions": {
+    "executables": {
+      "biome": "local",
+      "commitlint": "local",
+      "knip": "local",
+      "markdownlint-cli2": "local",
+      "tsc": "local",
+      "tsx": "exec",
+      "wrangler": "release"
+    }
+  },
   "branch": {
     "types": [
       "feat",
