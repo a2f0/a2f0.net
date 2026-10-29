@@ -44,8 +44,8 @@
     "agent-tool": "agent-tool",
     "agent:run": "agent-tool run",
     "agent:logs": "agent-tool logs",
-    "agents:sync": "bun run agent-tool skills install --apply",
-    "agents:check": "bun run agent-tool skills check",
+    "agents:sync": "bun run agent-tool skills install --apply && bun run agent-tool permissions install --apply",
+    "agents:check": "bun run agent-tool skills check && bun run agent-tool permissions check",
     "compile:scripts": "tsc -p tsconfig.scripts.json",
     "preview:staging": "bun run --cwd packages/resume preview:staging",
     "preview:prod": "bun run --cwd packages/resume preview:prod",
@@ -57,7 +57,7 @@
     "check": "agent-tool run-group scripts/testing/check.json"
   },
   "devDependencies": {
-    "@a2f0/agent-tool": "0.1.23",
+    "@a2f0/agent-tool": "0.1.28",
     "@biomejs/biome": "2.6.2",
     "@commitlint/cli": "21.2.4",
     "@commitlint/config-conventional": "21.2.4",

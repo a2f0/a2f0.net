@@ -36,9 +36,13 @@ The Next.js resume app is in `packages/resume`, the Next.js apex website is in
 `packages/website`, and the static graffiti demo is in `packages/demo`. PR helpers come from the exact-pinned `@a2f0/agent-tool`
 npm dependency; use `bun run agent-tool` from the root. Project title and CI
 policy is in `agent-tool.json`. Run the root Bun scripts to check the workspaces.
-Shared skills are managed in `.agents/skills` and `.claude/skills`. Run
-`bun run agents:sync` after updating the dependency pin; commit the lockfile,
-skills, and `.agent-tool-skills.json` together. Do not edit managed skills.
+Shared skills are managed in `.agents/skills` and `.claude/skills`, and harness
+permission rules in `.claude/settings.json` and `.codex/rules/agent-tool.rules`.
+Run `bun run agents:sync` after updating the dependency pin or the
+`permissions.executables` classes in `agent-tool.json`; commit the lockfile,
+skills, rules, `.agent-tool-skills.json`, and `.agent-tool-permissions.json`
+together. Do not edit managed skills or generated rules. Run classified
+executables through `bun run agent-tool bun x <name> [-- args...]`.
 
 See [development](docs/development.md) for architecture and script ownership,
 and [deployment](docs/deployment.md) for environments and infrastructure.
@@ -58,9 +62,10 @@ Pre-commit hook entrypoint:
 
 ## Output capture
 
-Run finite, noisy commands, such as installs, builds, tests, linters, and Git
-commands that run hooks, through
-`bun run agent:run --label <name> -- <command> [args...]`. It keeps complete
+Run Bun tests through `bun run agent-tool bun test --log [-- args...]`, and
+other finite, noisy commands, such as installs, builds, linters, package
+scripts, and Git commands that run hooks, through
+`bun run agent:run --label <name> -- <command> [args...]`. Each keeps complete
 output in a private log, preserves the exit status, and prints a compact
 receipt, with a bounded excerpt of the log on failure. Read more with
 `bun run agent:logs <log-path>`, raising `--tail-lines` or `--max-bytes` as
@@ -71,7 +76,9 @@ run-group checks directly so their results stay visible, and run interactive
 tools and servers directly too. Never narrow a suite or silence warnings to
 reduce output.
 
-For example, capture `bun run agent:run --label unit -- bun run unit` or
+For example, run `bun run agent-tool bun test --log -- ./scripts/` or
+`bun run agent-tool bun test --cwd packages/website --log -- ./components`, and
+capture `bun run agent:run --label unit -- bun run unit` or
 `bun run agent:run --label pre-commit -- sh scripts/git/hooks/pre-commit`.
 `bun run check:fast` and `bun run check` are run groups, so run them directly.
 Logs may contain secrets; keep them private and remove them when finished.
@@ -92,7 +99,7 @@ from Codex, then the remaining CLIs, reporting any fallback.
 Handle actionable review comments in their original threads using the rules
 above. Every changed head requires validation and a new independent review.
 Before merging, validate the PR title against the full repository commitlint
-configuration with `printf '%s\n' "$PR_TITLE" | bunx --no-install commitlint`.
+configuration with `printf '%s\n' "$PR_TITLE" | bun run agent-tool bun x commitlint`.
 Then invoke
 `node_modules/.bin/agent-tool pr merge '' "$REVIEWED_SHA" "$BASE_REF"` directly
 because `bun run` drops empty arguments.
