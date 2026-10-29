@@ -136,7 +136,8 @@
         "**/test/**/*.ts",
         "**/wdio.*.conf.ts",
         "**/test/pageobjects/**/*.ts",
-        "**/test/specs/**/*.ts"
+        "**/test/specs/**/*.ts",
+        "packages/testing/src/**/*.ts"
       ],
       "javascript": {
         "globals": [

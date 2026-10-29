@@ -1,7 +1,6 @@
+import { axeViolations } from "@a2f0/testing/axe";
 import { $, $$, browser, expect } from "@wdio/globals";
-
 import { mobileQuery } from "../../lib/breakpoints";
-import { axeViolations } from "../lib/axe";
 import waitForHydration from "../lib/hydration";
 
 const focusedId = () => browser.execute(() => document.activeElement?.id);

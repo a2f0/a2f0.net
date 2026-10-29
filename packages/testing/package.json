@@ -1,0 +1,21 @@
+{
+  "name": "@a2f0/testing",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "compile": "tsc"
+  },
+  "devDependencies": {
+    "@happy-dom/global-registrator": "21.0.4",
+    "@types/bun": "1.4.3",
+    "@wdio/globals": "10.1.0",
+    "@wdio/mocha-framework": "10.1.0",
+    "axe-core": "4.14.0",
+    "typescript": "7.0.2"
+  }
+}

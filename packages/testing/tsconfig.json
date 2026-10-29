@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "types": ["bun", "@wdio/globals/types", "@wdio/mocha-framework"],
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src"]
+}

@@ -33,6 +33,7 @@
     "react-dom": "19.3.1"
   },
   "devDependencies": {
+    "@a2f0/testing": "workspace:*",
     "@happy-dom/global-registrator": "21.0.4",
     "@types/bun": "1.4.3",
     "@types/mocha": "10.0.10",

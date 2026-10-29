@@ -1,6 +1,5 @@
+import { axeViolations } from "@a2f0/testing/axe";
 import { $, browser, expect } from "@wdio/globals";
-
-import { axeViolations } from "../axe";
 
 const focused = () =>
   browser.execute(() => {

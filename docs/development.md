@@ -39,8 +39,10 @@ source file git doesn't ignore with the rules in `scripts/checks/architecturePol
 circular imports, type-only ones included; npm imports declared in the importing
 workspace, as dependencies wherever the apps ship them; no orphaned modules; and
 workspaces importing one another by package name and only down their layers. The
-demo and `packages/shared` import no other workspace, the resume imports
-`packages/shared`, and the website imports both. The pre-push hook runs it
+demo, Drive, and `packages/shared` import no other workspace, the resume imports
+`packages/shared`, and the website imports the demo and `packages/shared`.
+`packages/testing` holds the test helpers several apps share, and only tests
+may import it. The pre-push hook runs it
 after [Knip](https://knip.dev), which reports unused files, dependencies, and
 exports.
 

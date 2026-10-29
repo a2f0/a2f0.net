@@ -38,6 +38,7 @@ Each package's README has its own commands.
 | [`packages/shared`](packages/shared/README.md) | Resume data, layout, and the SVG and PDF factories |
 | [`packages/demo`](packages/demo/README.md) | The graffiti artwork at `demo.a2f0.net` |
 | [`packages/drive`](packages/drive/README.md) | The Drive file explorer at `drive.a2f0.net` |
+| [`packages/testing`](packages/testing/README.md) | Test helpers the apps' suites share |
 
 The website opens the resume, the demo's artwork, and other apps in desktop
 windows. Cloudflare Workers serves every site, and Terraform in `terraform/`

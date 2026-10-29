@@ -16,6 +16,7 @@ const MANIFESTS = new Map<string, WorkspaceManifest>([
   ["drive", { name: "@a2f0/drive" }],
   ["resume", { name: "@resume/site" }],
   ["shared", { name: "@a2f0/shared" }],
+  ["testing", { name: "@a2f0/testing" }],
   [
     "website",
     {
@@ -42,6 +43,12 @@ const SOURCES = {
   // An import of a workspace above the demo, which closes a cycle.
   "packages/demo/site.ts":
     'import { app } from "@a2f0/website/app";\nexport const site = 1;\nexport const loop = app;\n',
+  // Shipped drive code importing a test helper, which a drive test may do.
+  "packages/drive/app.ts":
+    'import { helper } from "@a2f0/testing/helper";\nexport const drive = helper;\n',
+  "packages/drive/app.test.ts":
+    'import { helper } from "@a2f0/testing/helper";\nimport { drive } from "./app";\nexport const check = helper + drive;\n',
+  "packages/testing/helper.ts": "export const helper = 1;\n",
   // A root script importing app code by a relative path.
   "scripts/tool.ts":
     'import { a } from "../packages/shared/a";\nexport const tool = a;\n',
@@ -97,6 +104,7 @@ test("the rules catch each kind of violation", async () => {
       "not-to-dev-dep: packages/website/app.ts → node_modules/dev-only/index.js",
       "resume-imports-only-its-layers: packages/resume/page.ts → packages/demo/site.ts",
       "scripts-do-not-import-workspaces: scripts/tool.ts → packages/shared/a.ts",
+      "testing-only-in-development: packages/drive/app.ts → packages/testing/helper.ts",
     ]);
   } finally {
     await rm(fixture, { recursive: true, force: true });
