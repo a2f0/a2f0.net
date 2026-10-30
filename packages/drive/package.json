@@ -27,7 +27,7 @@
     "@a2f0/ct-client": "0.1.5",
     "@phosphor-icons/react": "2.1.10",
     "@tearleads/client-sdk": "0.1.90",
-    "@tearleads/windowing": "0.2.18",
+    "@tearleads/windowing": "0.2.23",
     "next": "16.4.2",
     "react": "19.3.1",
     "react-dom": "19.3.1"

@@ -243,17 +243,23 @@ export const useDesktop = () => {
     });
   });
 
-  // The sequencer autosaves its song in this origin's storage, and the layout
-  // and theme switches their choices. Start each test from the example song on
-  // the windowed desktop in the default theme, even after a test that changed
-  // them failed.
+  // The sequencer autosaves its song in this origin's storage, the layout and
+  // theme switches their choices, and the desktop its icon layout (in the
+  // private file system). Start each test from the example song on the
+  // windowed desktop in the default theme with the icons in their grid, even
+  // after a test that changed them failed.
   afterEach(() =>
-    browser.execute(() => {
+    browser.execute(async () => {
       localStorage.removeItem("dnbm:song");
       localStorage.removeItem("dnbm:saved");
       localStorage.removeItem("website.navigationMode");
       localStorage.removeItem("website.launcherPlacement");
       localStorage.removeItem("website.theme");
+      const root = await navigator.storage.getDirectory();
+      // A test that never moved an icon leaves no directory to remove.
+      await root
+        .removeEntry("website", { recursive: true })
+        .catch(() => undefined);
     }),
   );
 };
