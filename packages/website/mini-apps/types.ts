@@ -4,6 +4,7 @@ const MINI_APP_IDS = [
   "skyline",
   "dnbm",
   "dnbm-player",
+  "display-properties",
 ] as const;
 
 export type MiniAppId = (typeof MINI_APP_IDS)[number];

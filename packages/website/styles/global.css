@@ -21,9 +21,12 @@ body {
   background: var(--desktop-background);
 }
 
-/* Windows are absolutely positioned and clamp to this element. */
+/* Windows are absolutely positioned and clamp to this element. It isolates a
+   stacking context, so the wallpaper's layer beneath the icons and windows
+   stays above the desk's background. */
 .desktop-surface {
   position: relative;
+  isolation: isolate;
   flex: 1;
   min-height: 0;
   overflow: hidden;
