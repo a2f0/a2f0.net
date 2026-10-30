@@ -19,7 +19,7 @@ export type WebsiteWallpaperId =
  * color, so the lines' own color does not matter. Lines on the tile's edges
  * are drawn on both sides, since each neighboring tile clips half of them.
  */
-export const BRICKS_WALLPAPER: WallpaperDefinition<"bricks"> = {
+const BRICKS_WALLPAPER: WallpaperDefinition<"bricks"> = {
   id: "bricks",
   label: "Bricks",
   tile: {
