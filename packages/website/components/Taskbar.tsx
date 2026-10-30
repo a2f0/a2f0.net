@@ -21,7 +21,8 @@ import StartIcon from "./StartIcon";
 const START_ICON = <StartIcon className="desktop-start-icon" />;
 
 /**
- * The start menu, which opens any mini-app, then a button per open window, as
+ * The start menu, which opens any mini-app and Display Properties, then a
+ * button per open window, as
  * in Tearleads' footer. A button restores its window and brings it to the
  * front. The front window's button is pressed, and a minimized window's shows
  * its title muted. Closing a window removes its button; the start menu opens
@@ -34,9 +35,11 @@ export default function Taskbar() {
   const openMiniApp = useOpenMiniApp();
   const front = findTopWindow(windows, (entry) => !entry.minimized);
 
+  // Every app, then Display Properties, which the desktop's context menu also
+  // opens; the start menu keeps it in reach of the keyboard.
   const startItems = useMemo(
     () =>
-      MINI_APP_LAUNCH_ORDER.map(
+      [...MINI_APP_LAUNCH_ORDER, "display-properties" as const].map(
         (appId): StartMenuItem => ({
           icon: MINI_APP_ICONS[appId],
           id: appId,

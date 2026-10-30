@@ -70,6 +70,24 @@ describe("Website Display Properties", () => {
     ).toBe("paper");
   });
 
+  it("opens from the start menu with the keyboard", async () => {
+    await $(".desktop-taskbar button[aria-label='Menu']").click();
+    const item = $(".menu").$("button=Display Properties");
+    await item.waitForDisplayed();
+    await browser.execute(() => {
+      const button = [...document.querySelectorAll(".menu button")].find(
+        (candidate) => candidate.textContent?.trim() === "Display Properties",
+      );
+      if (button instanceof HTMLElement) button.focus();
+    });
+    await browser.keys("Enter");
+    await expect(displayWindow()).toBeDisplayed();
+    await displayWindow().$("label=Chevron").click();
+    await browser.waitUntil(async () => (await wallpaper())?.id === "chevron", {
+      timeoutMsg: "the desktop did not repaint with Chevron",
+    });
+  });
+
   it("keeps a window's own right-click away from the desktop menu", async () => {
     await $("section.window:has(.resume-window) .window-titlebar").click({
       button: "right",
