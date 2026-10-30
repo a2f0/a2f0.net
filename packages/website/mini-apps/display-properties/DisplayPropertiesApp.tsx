@@ -3,8 +3,9 @@ import { useEffect } from "react";
 
 import type { MiniAppProps } from "../types";
 
-// Room for the wallpaper previews in rows of three, and the theme choices.
-const DISPLAY_PROPERTIES_SIZE = { width: 420, height: 330 };
+// Eight previews occupy three rows at 420px wide. The gallery and theme
+// choices measure 396px tall; the window adds its own padding and chrome.
+const DISPLAY_PROPERTIES_SIZE = { width: 420, height: 400 };
 
 /**
  * The windowing package's display settings: the desktop's wallpaper and the

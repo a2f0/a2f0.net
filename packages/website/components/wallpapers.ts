@@ -5,8 +5,10 @@ import {
   PLAIN_WALLPAPER,
   type WallpaperDefinition,
 } from "@tearleads/windowing";
+import { DESIGNED_WEBSITE_WALLPAPERS } from "./designedWallpapers";
 
 export type WebsiteWallpaperId =
+  | (typeof DESIGNED_WEBSITE_WALLPAPERS)[number]["id"]
   | "bricks"
   | "honeycomb"
   | "harlequin"
@@ -35,6 +37,7 @@ const BRICKS_WALLPAPER: WallpaperDefinition<"bricks"> = {
 /** The desktop's wallpapers, in the order Display Properties lists them. */
 export const WEBSITE_WALLPAPERS: readonly WallpaperDefinition<WebsiteWallpaperId>[] =
   [
+    ...DESIGNED_WEBSITE_WALLPAPERS,
     BRICKS_WALLPAPER,
     HONEYCOMB_WALLPAPER,
     HARLEQUIN_WALLPAPER,
@@ -43,7 +46,7 @@ export const WEBSITE_WALLPAPERS: readonly WallpaperDefinition<WebsiteWallpaperId
   ];
 
 /** The wallpaper until the visitor picks one. */
-export const DEFAULT_WEBSITE_WALLPAPER: WebsiteWallpaperId = "bricks";
+export const DEFAULT_WEBSITE_WALLPAPER: WebsiteWallpaperId = "flux";
 
 /** Where Display Properties keeps the visitor's choice. */
 export const WALLPAPER_STORAGE_KEY = "website.wallpaper";
