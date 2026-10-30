@@ -1,4 +1,6 @@
 import {
+  createOpfsDesktopStateStorage,
+  DesktopIcons,
   isWindowedLayoutEligible,
   LauncherNavigationProvider,
   type NavigationMode,
@@ -16,29 +18,45 @@ import {
 } from "@tearleads/windowing";
 import { useRouter } from "next/router";
 import { type PropsWithChildren, useEffect, useState } from "react";
-
+import { MINI_APP_LAUNCH_ORDER } from "../mini-apps/catalog";
 import { MiniAppBoundary } from "../mini-apps/MiniAppBoundary";
 import { MiniAppWindow } from "../mini-apps/MiniAppWindow";
 import { MINI_APP_LAUNCHER } from "../mini-apps/registry";
 import { isMiniAppId } from "../mini-apps/types";
-import { useOpenEveryMiniAppOnce } from "../mini-apps/useOpenMiniApp";
+import {
+  useOpenEveryMiniAppOnce,
+  useOpenMiniApp,
+} from "../mini-apps/useOpenMiniApp";
 import { trackInputModality } from "./inputModality";
 import StartIcon from "./StartIcon";
 import Taskbar from "./Taskbar";
 import {
   DEFAULT_WEBSITE_THEME,
-  WEBSITE_THEMES,
   THEME_STORAGE_KEY,
+  WEBSITE_THEMES,
 } from "./themes";
 
 // Where the windowed/routed switch keeps the visitor's choice.
 const NAVIGATION_MODE_STORAGE_KEY = "website.navigationMode";
 const LAUNCHER_PLACEMENT_STORAGE_KEY = "website.launcherPlacement";
 
+// Where the desktop keeps its icon layout: a file in this origin's private
+// file system. Reads and writes only run in the browser, after mount.
+const DESKTOP_STATE_STORAGE = createOpfsDesktopStateStorage({
+  directory: ["website"],
+  fileName: "desktop-state.json",
+});
+
 function DesktopSurface() {
   const { windows } = useWindowStateData();
+  const openMiniApp = useOpenMiniApp();
   return (
     <div className="desktop-surface">
+      <DesktopIcons
+        appIds={MINI_APP_LAUNCH_ORDER}
+        onOpen={openMiniApp}
+        storage={DESKTOP_STATE_STORAGE}
+      />
       {windows.map((entry) => (
         <MiniAppWindow key={entry.id} windowId={entry.id} />
       ))}

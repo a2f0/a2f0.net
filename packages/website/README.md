@@ -23,6 +23,14 @@ state: the sequencer's file commands sit in its window's File menu, and its
 play, undo, and redo in the toolbar; the player's controls sit in its toolbar
 and View menu. Each window's title names the song.
 
+Every mini-app also has an icon in a column down the desktop's left edge,
+from the windowing package's `DesktopIcons`; the windows open to its right. A
+double-click or Enter opens the app, or brings its window to the front, and a
+right-click offers Open. Dragging moves an icon, and the layout persists in a
+`website/desktop-state.json` file in the origin private file system (OPFS),
+through the package's `createOpfsDesktopStateStorage`. Where a browser lacks
+OPFS, icons still move but return to their column on the next load.
+
 The taskbar along the bottom starts with the windowing package's `StartMenu`,
 whose button shows the demo's graffiti restacked into a square, "a2" over
 "f0", and whose menu lists every mini-app with its icon, followed by a button
@@ -103,7 +111,7 @@ One `@a2f0/ct-client` tracker starts only in production builds served from
 The `app` dimension distinguishes `resume`, `ascii-art`, `skyline`, `dnbm`, and
 `dnbm-player`, including clicks inside their open shadow roots. Controls inside
 desktop windows belong to their app. Shared menus rendered outside those
-windows, the desktop taskbar, and the routed layout's shared toolbar,
+windows, the desktop icons and taskbar, and the routed layout's shared toolbar,
 navigation, and taskbar use the `website` fallback.
 Only `/` and known `/app/<app id>` paths are sent, without query strings,
 fragments, or arbitrary nested segments.
