@@ -220,9 +220,10 @@ describe("Website desktop windows", () => {
       "dnbm player",
       "a2f0.net",
       "Resume",
+      "Display Properties",
     ]);
     await expect($$(".menu button svg.menu-item-icon")).toBeElementsArrayOfSize(
-      5,
+      6,
     );
 
     await $(".menu").$("button=Skyline").click();

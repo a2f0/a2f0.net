@@ -244,10 +244,10 @@ export const useDesktop = () => {
   });
 
   // The sequencer autosaves its song in this origin's storage, the layout and
-  // theme switches their choices, and the desktop its icon layout (in the
-  // private file system). Start each test from the example song on the
-  // windowed desktop in the default theme with the icons in their grid, even
-  // after a test that changed them failed.
+  // theme switches and Display Properties their choices, and the desktop its
+  // icon layout (in the private file system). Start each test from the example
+  // song on the windowed desktop in the default theme and wallpaper with the
+  // icons in their grid, even after a test that changed them failed.
   afterEach(() =>
     browser.execute(async () => {
       localStorage.removeItem("dnbm:song");
@@ -255,6 +255,7 @@ export const useDesktop = () => {
       localStorage.removeItem("website.navigationMode");
       localStorage.removeItem("website.launcherPlacement");
       localStorage.removeItem("website.theme");
+      localStorage.removeItem("website.wallpaper");
       const root = await navigator.storage.getDirectory();
       // A test that never moved an icon leaves no directory to remove.
       await root

@@ -2,6 +2,7 @@ import { BuildingsIcon } from "@phosphor-icons/react/dist/csr/Buildings";
 import { EqualizerIcon } from "@phosphor-icons/react/dist/csr/Equalizer";
 import { FileTextIcon } from "@phosphor-icons/react/dist/csr/FileText";
 import { GlobeIcon } from "@phosphor-icons/react/dist/csr/Globe";
+import { MonitorIcon } from "@phosphor-icons/react/dist/csr/Monitor";
 import { PlaylistIcon } from "@phosphor-icons/react/dist/csr/Playlist";
 import type { WindowingIcon } from "@tearleads/windowing";
 
@@ -18,6 +19,7 @@ export const MINI_APP_TITLES: Readonly<Record<MiniAppId, string>> = {
   skyline: "Skyline",
   dnbm: "dnbm",
   "dnbm-player": "dnbm player",
+  "display-properties": "Display Properties",
 };
 
 export const MINI_APP_ICONS: Readonly<Record<MiniAppId, WindowingIcon>> = {
@@ -26,6 +28,7 @@ export const MINI_APP_ICONS: Readonly<Record<MiniAppId, WindowingIcon>> = {
   skyline: BuildingsIcon,
   dnbm: EqualizerIcon,
   "dnbm-player": PlaylistIcon,
+  "display-properties": MonitorIcon,
 };
 
 // Every window opens right of the desktop's column of app icons, which ends
@@ -38,6 +41,7 @@ export const MINI_APP_WINDOWS: Readonly<
   skyline: { x: 240, y: 48, relativeSize: { width: 0.75, height: 0.75 } },
   dnbm: { x: 120, y: 24, fitToContent: true },
   "dnbm-player": { x: 520, y: 72, fitToContent: true },
+  "display-properties": { x: 200, y: 96, fitToContent: true },
 };
 
 // Opened in this order on load, so the last one starts in front; the taskbar

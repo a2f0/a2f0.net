@@ -10,6 +10,7 @@ import {
   MINI_APP_LAUNCH_ORDER,
   MINI_APP_TITLES,
 } from "./catalog";
+import { DisplayPropertiesApp } from "./display-properties/DisplayPropertiesApp";
 import { DnbmApp } from "./dnbm/DnbmApp";
 import { DnbmPlayerApp } from "./dnbm-player/DnbmPlayerApp";
 import { withMiniAppProps } from "./MiniAppContent";
@@ -44,6 +45,7 @@ export const MINI_APP_LAUNCHER: LauncherDefinition<MiniAppId> = {
     skyline: miniApp("skyline", SkylineApp),
     dnbm: miniApp("dnbm", DnbmApp),
     "dnbm-player": miniApp("dnbm-player", DnbmPlayerApp),
+    "display-properties": miniApp("display-properties", DisplayPropertiesApp),
   },
   homeAppId: "ascii-art",
   order: MINI_APP_LAUNCH_ORDER,

@@ -1,6 +1,7 @@
 import {
   createOpfsDesktopStateStorage,
   DesktopIcons,
+  DesktopWallpaper,
   isWindowedLayoutEligible,
   LauncherNavigationProvider,
   type NavigationMode,
@@ -14,6 +15,7 @@ import {
   useNavigationModeDocumentAttribute,
   useNavigationModeOverride,
   useWindowStateData,
+  WallpaperProvider,
   WindowStateProvider,
 } from "@tearleads/windowing";
 import { useRouter } from "next/router";
@@ -27,6 +29,7 @@ import {
   useOpenEveryMiniAppOnce,
   useOpenMiniApp,
 } from "../mini-apps/useOpenMiniApp";
+import { DesktopSurfaceWithMenu } from "./DesktopMenu";
 import { trackInputModality } from "./inputModality";
 import StartIcon from "./StartIcon";
 import Taskbar from "./Taskbar";
@@ -35,6 +38,11 @@ import {
   THEME_STORAGE_KEY,
   WEBSITE_THEMES,
 } from "./themes";
+import {
+  DEFAULT_WEBSITE_WALLPAPER,
+  WALLPAPER_STORAGE_KEY,
+  WEBSITE_WALLPAPERS,
+} from "./wallpapers";
 
 // Where the windowed/routed switch keeps the visitor's choice.
 const NAVIGATION_MODE_STORAGE_KEY = "website.navigationMode";
@@ -51,7 +59,8 @@ function DesktopSurface() {
   const { windows } = useWindowStateData();
   const openMiniApp = useOpenMiniApp();
   return (
-    <div className="desktop-surface">
+    <DesktopSurfaceWithMenu>
+      <DesktopWallpaper />
       <DesktopIcons
         appIds={MINI_APP_LAUNCH_ORDER}
         onOpen={openMiniApp}
@@ -60,7 +69,7 @@ function DesktopSurface() {
       {windows.map((entry) => (
         <MiniAppWindow key={entry.id} windowId={entry.id} />
       ))}
-    </div>
+    </DesktopSurfaceWithMenu>
   );
 }
 
@@ -159,9 +168,17 @@ export default function Desktop() {
       storageKey={THEME_STORAGE_KEY}
       themes={WEBSITE_THEMES}
     >
-      <NavigationModeOverrideProvider storageKey={NAVIGATION_MODE_STORAGE_KEY}>
-        <DesktopLayout />
-      </NavigationModeOverrideProvider>
+      <WallpaperProvider
+        defaultWallpaper={DEFAULT_WEBSITE_WALLPAPER}
+        storageKey={WALLPAPER_STORAGE_KEY}
+        wallpapers={WEBSITE_WALLPAPERS}
+      >
+        <NavigationModeOverrideProvider
+          storageKey={NAVIGATION_MODE_STORAGE_KEY}
+        >
+          <DesktopLayout />
+        </NavigationModeOverrideProvider>
+      </WallpaperProvider>
     </ThemeProvider>
   );
 }
