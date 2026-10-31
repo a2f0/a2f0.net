@@ -154,7 +154,7 @@
         "@a2f0/demo": "workspace:*",
         "@a2f0/dnbm": "0.4.12",
         "@a2f0/shared": "workspace:*",
-        "@a2f0/skyline": "0.2.38",
+        "@a2f0/skyline": "0.2.61",
         "@phosphor-icons/react": "2.1.10",
         "@tearleads/windowing": "0.2.24",
         "next": "16.4.2",
@@ -205,7 +205,7 @@
 
     "@a2f0/shared": ["@a2f0/shared@workspace:packages/shared"],
 
-    "@a2f0/skyline": ["@a2f0/skyline@0.2.38", "", { "dependencies": { "@a2f0/ct-client": "0.1.2", "@types/three": "0.186.0" }, "peerDependencies": { "three": "~0.186.0" }, "optionalPeers": ["three"] }, "sha512-+AnRFHwPsSKMPISNPOkcZx4E3rwB18pufWdHIqkNp1A4dBa3coFS69jq4KahGjzbkCTIeVXz6tVyw1W9oKVvVQ=="],
+    "@a2f0/skyline": ["@a2f0/skyline@0.2.61", "", { "dependencies": { "@a2f0/ct-client": "0.1.2", "@types/three": "0.186.0" }, "peerDependencies": { "three": "~0.186.0" }, "optionalPeers": ["three"] }, "sha512-VhcdZc3HZMKfCADcsWOoys54xib2GewAftG1QK1s/mXNMtswjpppD5FTKzMSkg8GA7jdKrokfdMYj2EtvRiSHA=="],
 
     "@a2f0/testing": ["@a2f0/testing@workspace:packages/testing"],
 

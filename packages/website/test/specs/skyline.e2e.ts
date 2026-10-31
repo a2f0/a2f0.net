@@ -9,10 +9,10 @@ import {
   waitForSkyline,
 } from "../lib/desktop";
 
-// Presses the skyline's 3D scene where it shows in front of the other windows.
-// A press without a drag leaves the camera where it is.
-const pressSkylineScene = async () => {
-  const { x, y } = await browser.execute(() => {
+// Finds a point where the skyline's 3D scene shows in front of the other
+// windows, or null while they cover it.
+const skylineScenePoint = () =>
+  browser.execute(() => {
     const region = document.querySelector(".skyline-window [role=region]");
     const root = region?.shadowRoot;
     if (!region || !root) throw new Error("Missing skyline viewer");
@@ -26,7 +26,17 @@ const pressSkylineScene = async () => {
           return { x, y };
       }
     }
-    throw new Error("No part of the skyline's scene shows");
+    return null;
+  });
+
+// Presses the skyline's 3D scene where it shows in front of the other windows.
+// The skyline can be ready before the dnbm player above it fits its content:
+// until then the player opens at its generic size and covers the scene, so
+// wait for the scene to show. A press without a drag leaves the camera where
+// it is.
+const pressSkylineScene = async () => {
+  const { x, y } = await browser.waitUntil(skylineScenePoint, {
+    timeoutMsg: "No part of the skyline's scene shows",
   });
   await browser
     .action("pointer")
