@@ -19,15 +19,9 @@ const waitForDisplayFit = () =>
 
 const openFittedDisplayProperties = async () => {
   await $(".desktop-taskbar button[aria-label='Menu']").click();
-  // Exercise the content-fit path without moving or resizing the window.
-  // Native mouse and keyboard menu activation are covered separately below.
-  await browser.execute(() => {
-    const item = [
-      ...document.querySelectorAll<HTMLButtonElement>(".menu button"),
-    ].find((button) => button.textContent?.trim() === "Display Properties");
-    if (!item) throw new Error("Missing Display Properties menu item");
-    item.click();
-  });
+  // Native WebDriver input exercises the real fit/ResizeObserver ordering.
+  // DOM .click() changes scheduling and can hide a lost initial fit.
+  await $(".menu").$("button=Display Properties").click();
   await expect(displayWindow()).toBeDisplayed();
   await waitForDisplayFit();
 };
@@ -71,8 +65,29 @@ const displayLayout = () =>
     const pane = content?.closest<HTMLElement>(".window-body-content-scroll");
     if (!content || !pane) throw new Error("Missing Display Properties pane");
     const bounds = pane.getBoundingClientRect();
+    const padding = getComputedStyle(pane);
+    // The fit contract reserves a vertical scrollbar even when nothing scrolls.
+    // Measure this browser's thin scrollbar without changing the real pane.
+    const probe = document.createElement("div");
+    probe.style.cssText = `position:fixed;left:-1000px;top:-1000px;width:100px;height:100px;overflow:scroll;border:0;padding:0;scrollbar-width:${padding.scrollbarWidth}`;
+    document.body.append(probe);
+    const scrollbarWidth = probe.offsetWidth - probe.clientWidth;
+    probe.remove();
+    const frame = content.closest("section.window")?.getBoundingClientRect();
     const choices = [...content.querySelectorAll<HTMLElement>("label")];
     return {
+      frame: frame && { width: frame.width, height: frame.height },
+      scrollbarWidth,
+      fittedContent: {
+        width:
+          pane.clientWidth -
+          Number.parseFloat(padding.paddingLeft) -
+          Number.parseFloat(padding.paddingRight),
+        height:
+          pane.clientHeight -
+          Number.parseFloat(padding.paddingTop) -
+          Number.parseFloat(padding.paddingBottom),
+      },
       wallpapers: choices
         .filter((choice) => choice.matches(".display-properties-wallpaper"))
         .map((choice) => choice.textContent?.trim()),
@@ -100,6 +115,47 @@ const displayLayout = () =>
       contentHeight: content.getBoundingClientRect().height,
     };
   });
+
+// Read the actual preview cascade and SVG dimensions. A full-height tile
+// must also fit horizontally, while the selected desktop stays at native size.
+const patternScale = (id: string) =>
+  browser.execute(async (value) => {
+    const preview = document.querySelector(
+      `.display-properties-wallpaper:has(input[value="${value}"]) .display-properties-swatch`,
+    );
+    const desktop = document.querySelector(
+      ".desktop-surface > .desktop-wallpaper",
+    );
+    if (!preview || !desktop) throw new Error("Missing wallpaper layers");
+    const swatch = getComputedStyle(preview, "::before");
+    const surface = getComputedStyle(desktop, "::before");
+    const image = new Image();
+    image.src = swatch.maskImage.slice(5, -2);
+    await image.decode();
+    // HTMLImageElement rounds fractional intrinsic dimensions (Honeycomb's
+    // 27.71px width); read the authored SVG dimensions without that rounding.
+    const source = await fetch(image.src).then((response) => response.text());
+    const svg = new DOMParser().parseFromString(source, "image/svg+xml");
+    const tileWidth = Number(svg.documentElement.getAttribute("width"));
+    const tileHeight = Number(svg.documentElement.getAttribute("height"));
+    if (!(tileWidth > 0 && tileHeight > 0)) {
+      throw new Error("Missing natural tile dimensions");
+    }
+    const height = Number.parseFloat(swatch.height);
+    const width = Number.parseFloat(swatch.width);
+    return {
+      id: value,
+      previewMaskSize: swatch.maskSize,
+      previewRepeat: swatch.maskRepeat,
+      previewPosition: swatch.maskPosition,
+      previewWidth: width,
+      previewHeight: height,
+      scaledTileWidth: (tileWidth / tileHeight) * height,
+      nativeTile: `${tileWidth}px ${tileHeight}px`,
+      desktopMaskSize: surface.maskSize,
+      sameArtwork: surface.maskImage === swatch.maskImage,
+    };
+  }, id);
 
 // Rasterize the actual mask the desktop paints, not a test copy of its SVG.
 // Resolve CSS colors in the browser and composite every pixel against the
@@ -184,24 +240,57 @@ const patternReadability = () =>
 describe("Website Display Properties", () => {
   useDesktop();
 
-  it("shows every wallpaper and theme in the initial window without scrolling", async () => {
-    await openFittedDisplayProperties();
-    const layout = await displayLayout();
-    console.log(`initial Display Properties layout: ${JSON.stringify(layout)}`);
-    expect(layout.wallpapers).toEqual([
-      "Flux",
-      "Aperture",
-      "Isochrome",
-      "Bricks",
-      "Honeycomb",
-      "Harlequin",
-      "Chevron",
-      "None",
-    ]);
-    expect(layout.themes).toEqual(["Graphite", "Paper"]);
-    expect(layout.scrollTop).toBe(0);
-    expect(layout.clipped).toEqual([]);
-    expect(layout.scrollHeight).toBeLessThanOrEqual(layout.clientHeight);
+  for (const opening of [1, 2, 3, 4, 5]) {
+    it(`shows every wallpaper and theme without scrolling on native opening ${opening}`, async () => {
+      await openFittedDisplayProperties();
+      const layout = await displayLayout();
+      console.log(`native opening ${opening}: ${JSON.stringify(layout)}`);
+      // Assert the requested content area, independently of platform chrome;
+      // the generic 900×600 frame would falsely pass visibility alone.
+      expect(layout.fittedContent).toEqual({
+        width: 420 + layout.scrollbarWidth,
+        height: 400,
+      });
+      expect(layout.wallpapers).toEqual([
+        "Flux",
+        "Aperture",
+        "Isochrome",
+        "Bricks",
+        "Honeycomb",
+        "Harlequin",
+        "Chevron",
+        "None",
+      ]);
+      expect(layout.themes).toEqual(["Graphite", "Paper"]);
+      expect(layout.scrollTop).toBe(0);
+      expect(layout.clipped).toEqual([]);
+      expect(layout.scrollHeight).toBeLessThanOrEqual(layout.clientHeight);
+    });
+  }
+
+  it("fits whole tiles into previews while preserving native desktop tiles", async () => {
+    await openDesktopMenu();
+    await $(".menu").$("button=Display Properties").click();
+    await expect(displayWindow()).toBeDisplayed();
+    await waitForDisplayFit();
+    const cards = await displayWindow().$$(
+      ".display-properties-wallpaper:has(.display-properties-swatch[data-pattern])",
+    );
+    expect(cards).toHaveLength(7);
+    for (const card of cards) {
+      const label = await card.getText();
+      const id = await card.$("input").getValue();
+      await selectWallpaper(label, id);
+      const scale = await patternScale(id);
+      console.log(`wallpaper tile scale: ${JSON.stringify(scale)}`);
+      expect(scale.previewMaskSize).toBe("auto 100%");
+      expect(scale.previewRepeat).toBe("repeat");
+      expect(scale.previewPosition).toBe("0% 0%");
+      expect(scale.previewHeight).toBeGreaterThan(0);
+      expect(scale.scaledTileWidth).toBeLessThanOrEqual(scale.previewWidth);
+      expect(scale.desktopMaskSize).toBe(scale.nativeTile);
+      expect(scale.sameArtwork).toBe(true);
+    }
   });
 
   it("keeps every wallpaper and theme reachable by scrolling on a narrow desktop", async () => {

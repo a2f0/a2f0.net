@@ -26,7 +26,10 @@ against it, checking the robots meta tag, the `X-Robots-Tag` header on every
 kind of response, and the missing canonical URL and sitemap. The website test exports
 `packages/website` and drives its desktop and windows through Wrangler. The
 demo test builds and serves `packages/demo/dist` through Wrangler and checks
-that its page responds without a redirect.
+that its page responds without a redirect. Display Properties regressions open
+with native WebDriver input, wait for explicit fitted dimensions, and measure
+whole cards against the scrollport. DOM `.click()` can hide a lost initial fit;
+a generic oversized window must not count as a successful opening.
 
 The resume and demo browser suites include an `a11y.e2e.ts` spec that audits each view with
 [axe-core](https://github.com/dequelabs/axe-core) against WCAG 2.2 A and AA
