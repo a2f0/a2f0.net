@@ -53,6 +53,13 @@ light grey is on black. It gives the artwork an ink-on-white treatment, the musi
 surfaces with dark controls, and Skyline its sunny-day colour mode. The resume follows the desktop
 by default and keeps its own theme controls for previewing its page.
 
+The desktop starts with Flux, a flowing ribbon pattern. Display Properties,
+opened from the desktop's context menu or the start menu, also offers Aperture
+and Isochrome, plus the original Bricks, Honeycomb, Harlequin, Chevron, and None
+choices. Previews show the full height of each tile, while the desktop keeps the
+artwork's natural scale. Changing a wallpaper preserves it across visits; an
+existing saved choice is kept rather than replaced with the new default.
+
 On phones, tablets, and windows narrower than 1024px, the desktop gives way to
 the windowing package's routed shell, the layout Tearleads uses there: one
 mini-app at a time under an app bar, with a launcher of app tiles behind the
@@ -68,7 +75,7 @@ every app; the resume keeps its theme and scale across one. The theme switch
 sits in the routed taskbar's tray too. Next.js leaves the routed shell's
 history entries to it.
 
-The app uses the published `@tearleads/windowing` package, pinned to `0.2.18`.
+The app uses an exact-pinned, published `@tearleads/windowing` package.
 Install from this repository's root:
 
 ```sh
