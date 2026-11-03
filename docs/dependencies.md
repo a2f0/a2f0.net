@@ -11,7 +11,14 @@ Inventory direct pins, workspace edges, all lock resolutions, runtimes, CI
 Actions, native binaries, provider versions, overrides and patches. Use official
 release/migration notes and actual registry publication/artifact proof. A source
 branch or stale cache's `latest` tag cannot prove a published upgrade. Bun owns
-the lockfile; refresh it through normal manager operations.
+the lockfile; refresh it through normal manager operations. Declared updates use
+`agent-tool bun update`. Its direct-pin update can retain vulnerable ranged
+transitives. With this repository's exact declarations, use
+`bun update --recursive --lockfile-only` to refresh compatible transitive ranges,
+verify every manifest stayed unchanged, then run `bun ci` and audit again.
+Never use `--latest` or hand-edit resolutions to cross an owner's range.
+An intentional change to an existing root override first needs `bun install`
+to reconcile the lock before the helper's frozen baseline check.
 
 ## Pins and agent tooling
 
@@ -46,17 +53,24 @@ See [development](development.md) for migrating the old Husky hook location and
 - React, React DOM, types and the Next.js/third-parties pair move together with
   the actual export, browser and peer checks. Node types follow the runtime in
   [`.nvmrc`](../.nvmrc). The published
-  [Bun types](https://www.npmjs.com/package/@types/bun/v/1.4.3) and
+  [Bun types](https://www.npmjs.com/package/@types/bun/v/1.4.4) and
   [Happy DOM](https://www.npmjs.com/package/@happy-dom/global-registrator/v/21.0.4)
-  request newer Node declarations, while WebdriverIO requests Node 22 types.
+  accept a broad range of Node declaration versions, while WebdriverIO requests
+  Node 22 types.
   The root `@types/node` override keeps all ambient Node declarations on the
-  supported Node 24 runtime line. Verify full compilation and runtime tests when
+  supported Node 26 runtime line. Verify full compilation and runtime tests when
   changing it; remove the override when owners resolve that line naturally or
   the repository deliberately changes its supported runtime.
 - Keep `@tearleads/windowing` exact and consume only published releases. Its
   local producer candidate cannot authorize a consumer bump. The website and
   Drive (for its theme provider and switch) pin the same version; bump them
   together and recheck Drive's theme switch in its browser suite.
+  Its [published storage helper](https://www.npmjs.com/package/@tearleads/windowing/v/0.2.25)
+  probes `globalThis.localStorage` during Drive's static render. Node 26 emits
+  an experimental missing-storage warning and the helper uses its null fallback;
+  the export succeeds. Do not suppress the warning or enable server persistence
+  with `--localstorage-file`. Revisit when the producer guards browser-only
+  storage access, then check the static export and persistent browser themes.
   The website's click-attribution wrapper gives each desktop window a full-size
   immediate parent because the package measures that parent for geometry. Recheck
   fitting, dragging, resizing, stacking, and pointer routing in the website browser
@@ -66,6 +80,14 @@ See [development](development.md) for migrating the old Husky hook location and
   the SDK can reject older schemas without migrating them. Agree on preserving
   local data or requiring fresh browser storage before shipping an incompatible
   upgrade, and document the recovery steps. Never clear browser data silently.
+  Keep the current SDK pin until the producer supports preserving existing
+  databases: the published 0.1.131 requires `reference_count` in
+  `principal_history_nodes` and changes principal-policy ownership columns.
+  Its `ensureSqlTables` rejects missing required columns instead of migrating
+  them. See the [published SDK](https://www.npmjs.com/package/@tearleads/client-sdk/v/0.1.131)
+  and [storage contract](../packages/drive/README.md#identity-and-persistence).
+  Revisit with an in-place migration and a browser test that opens data written
+  by the currently deployed SDK; a fresh-database test is insufficient.
   Copy the worker, SQLite WASM, and license from that same installed SDK with
   Drive's `copy-sdk` script, then verify persistence and attachments in its
   browser suite.
@@ -105,8 +127,18 @@ when an upstream owning Markdownlint release passes that regression unpatched.
 The owner now resolves `smol-toml` 1.9.1 directly, so no parser override is
 needed. Keep verifying the real CLI regression and the resolved graph when
 updating that owner.
-Mocha's own compatible range now resolves the fixed `serialize-javascript`
-7.1.2, so it needs no override. Recheck that resolution when changing Mocha.
+Mocha's own compatible range resolves `serialize-javascript`'s fixed
+7.1.3-or-newer patch line, so it needs no override. Recheck that resolution
+when changing Mocha.
+
+The narrow `re2js` 2.8.7 override replaces Markdownlint's exact 2.8.6 dependency
+with the [repeated-lookbehind security fix](https://github.com/advisories/GHSA-gg6h-894w-4m9c).
+It preserves the engine's public API and requires Node 20 or later, covered by
+our runtime pin. `markdownlintCompatibility.test.ts` resolves through the real
+CLI/Markdownlint owner and exercises dense repeated lookbehind matches in a
+bounded subprocess, alongside the real CLI's rule options and severity checks.
+Remove the override when Markdownlint owns a fixed engine and those checks pass
+without it. Do not use it to force an unrelated engine major.
 
 WebdriverIO 10 uses Puppeteer browser downloads without the former `basic-ftp`
 and `extract-zip` dependency path. Puppeteer's downloader uses the system `unzip`
@@ -126,10 +158,13 @@ The remaining advisory constraints need their owning packages updated:
   [prototype-pollution gadget fix](https://github.com/advisories/GHSA-238p-pmpm-9mq7)
   starts at 0.18.2. Revisit when that owner accepts the fixed release; verify
   the real Markdownlint CLI and its TOML regression before removing its patch.
-- `micromatch` still owns `braces` 3.0.3. The
-  [nested-pattern stack exhaustion advisory](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
-  has no published fixed version. Recheck its owning release and advisory,
-  then run the lint, architecture and browser discovery checks.
+- WebdriverIO and Mocha still require `glob` 13 and `minimatch` 10. The
+  [glob cancellation fix](https://github.com/advisories/GHSA-3g3m-2fjr-6pw4)
+  starts at 14.0.2; the
+  [minimatch pattern-amplification fix](https://github.com/advisories/GHSA-g3hv-75wg-m249)
+  starts at 11.0.1. These are outside the owners' compatible ranges, so do not
+  force global major overrides. Revisit when supported owners adopt the fixes,
+  then run the complete browser discovery and lint checks.
 
 ## Worker preview
 

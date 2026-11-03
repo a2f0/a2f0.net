@@ -24,10 +24,10 @@ jobs:
     steps:
       # v7.0.1
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-      # v5.2.2
-      - uses: jdx/mise-action@8418fedb1110381a0d3ba51a7a415d7c1b884550
+      # v5.2.6
+      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c
         with:
-          version: 2026.10.17
+          version: 2026.11.0
           install_args: bun node
       - name: Verify runtime pins before building
         run: |
@@ -47,8 +47,8 @@ jobs:
           BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
         run: bun run lint:branch-name "$BRANCH_NAME"
       - run: bun audit --audit-level=critical
-      # v7.0.0
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+      # v7.1.0
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
         with:
           python-version: "3.15"
       - run: pip install yamllint==1.38.0
@@ -59,7 +59,7 @@ jobs:
       # v6.3.2
       - uses: terraform-linters/setup-tflint@6ffdbaa3be476b3431f7275c26966ef32ff60337
         with:
-          tflint_version: v0.64.0
+          tflint_version: v0.65.0
       - name: Validate Terraform without backend credentials
         run: |
           terraform -chdir=terraform init -backend=false -lockfile=readonly
@@ -88,10 +88,10 @@ jobs:
     steps:
       # v7.0.1
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-      # v5.2.2
-      - uses: jdx/mise-action@8418fedb1110381a0d3ba51a7a415d7c1b884550
+      # v5.2.6
+      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c
         with:
-          version: 2026.10.17
+          version: 2026.11.0
           install_args: bun node
       - run: bun ci
       - run: bun run build
@@ -130,10 +130,10 @@ jobs:
     steps:
       # v7.0.1
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-      # v5.2.2
-      - uses: jdx/mise-action@8418fedb1110381a0d3ba51a7a415d7c1b884550
+      # v5.2.6
+      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c
         with:
-          version: 2026.10.17
+          version: 2026.11.0
           install_args: bun node
       - run: bun ci
       - name: Build resume
