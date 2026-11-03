@@ -165,9 +165,6 @@ The remaining advisory constraints need their owning packages updated:
   force global major overrides. Revisit when supported owners adopt the fixes,
   then run the complete browser discovery and lint checks.
 
-The former [Braces advisory](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
-was withdrawn; it is not an unresolved current audit finding.
-
 ## Worker preview
 
 Every owned deployment script and CI deployment runs `scripts/deploy/deploy.ts`.

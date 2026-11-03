@@ -32,7 +32,10 @@ test("Markdownlint's regex engine bounds repeated lookbehind matching", () => {
     ],
     { timeout: 10000 },
   );
-  expect(result.exitCode).toBe(0);
+  expect(
+    result.exitCode,
+    result.stderr.toString() || "Regex subprocess timed out or failed",
+  ).toBe(0);
   expect(result.stdout.toString().trim()).toBe("32000");
 }, 20000);
 
