@@ -24,20 +24,20 @@
     "preview": "bun run build && bun ../../scripts/deploy/deploy.ts drive --dry-run"
   },
   "dependencies": {
-    "@a2f0/ct-client": "0.1.5",
+    "@a2f0/ct-client": "0.1.6",
     "@phosphor-icons/react": "2.1.10",
     "@tearleads/client-sdk": "0.1.90",
     "@tearleads/windowing": "0.2.25",
-    "next": "16.4.2",
+    "next": "16.4.4",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   },
   "devDependencies": {
     "@a2f0/testing": "workspace:*",
     "@happy-dom/global-registrator": "21.0.4",
-    "@types/bun": "1.4.3",
+    "@types/bun": "1.4.4",
     "@types/mocha": "10.0.10",
-    "@types/node": "24.19.2",
+    "@types/node": "26.6.6",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@wdio/cli": "10.1.0",
@@ -47,6 +47,6 @@
     "@wdio/spec-reporter": "10.1.0",
     "start-server-and-test": "3.0.13",
     "typescript": "7.0.2",
-    "wrangler": "4.151.3"
+    "wrangler": "4.157.0"
   }
 }

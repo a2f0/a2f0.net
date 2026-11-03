@@ -2,7 +2,39 @@ import { expect, test } from "bun:test";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
-import { spawn } from "bun";
+import { spawn, spawnSync } from "bun";
+
+// Resolve through the real owner so a stale nested resolution cannot pass.
+// GHSA-gg6h-894w-4m9c: repeated lookbehind matching must not rescan the input
+// from zero on every match. The vulnerable release exceeds this generous
+// subprocess budget; the fixed engine handles the same input in milliseconds.
+test("Markdownlint's regex engine bounds repeated lookbehind matching", () => {
+  const cli = resolve(
+    import.meta.dir,
+    "../../node_modules/markdownlint-cli2/markdownlint-cli2-bin.mjs",
+  );
+  const result = spawnSync(
+    [
+      "node",
+      "--input-type=module",
+      "-e",
+      `import { createRequire } from "node:module";
+     import { realpathSync } from "node:fs";
+     const cliRequire = createRequire(realpathSync(${JSON.stringify(cli)}));
+     const ownerRequire = createRequire(realpathSync(cliRequire.resolve("markdownlint")));
+     const { RE2JS } = ownerRequire("re2js");
+     const matcher = RE2JS.compile("(?<=a)b", RE2JS.LOOKBEHINDS)
+       .matcher("ab".repeat(32000));
+     let matches = 0;
+     while (matcher.find()) matches++;
+     if (matches !== 32000) throw new Error("Incorrect lookbehind matches");
+     console.log(matches);`,
+    ],
+    { timeout: 10000 },
+  );
+  expect(result.exitCode).toBe(0);
+  expect(result.stdout.toString().trim()).toBe("32000");
+}, 20000);
 
 test("the real Markdownlint CLI preserves TOML rule options, disabling and warning severity", async () => {
   const directory = await mkdtemp(resolve(tmpdir(), "a2f0-markdownlint-test-"));

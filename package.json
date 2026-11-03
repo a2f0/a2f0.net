@@ -3,12 +3,13 @@
   "private": true,
   "license": "UNLICENSED",
   "type": "module",
-  "packageManager": "bun@1.4.3",
+  "packageManager": "bun@1.4.4",
   "workspaces": [
     "packages/*"
   ],
   "overrides": {
-    "@types/node": "24.19.2"
+    "@types/node": "26.6.6",
+    "re2js": "2.8.7"
   },
   "trustedDependencies": [
     "canvas",
@@ -17,7 +18,7 @@
     "workerd"
   ],
   "engines": {
-    "node": "=24.22.1"
+    "node": "=26.13.0"
   },
   "scripts": {
     "start-server": "bun run --cwd packages/resume start-server",
@@ -57,15 +58,15 @@
     "check": "agent-tool run-group scripts/testing/check.json"
   },
   "devDependencies": {
-    "@a2f0/agent-tool": "0.1.30",
-    "@biomejs/biome": "2.6.2",
+    "@a2f0/agent-tool": "0.1.38",
+    "@biomejs/biome": "2.6.4",
     "@commitlint/cli": "21.2.4",
     "@commitlint/config-conventional": "21.2.4",
-    "@swc/core": "1.16.18",
-    "@types/bun": "1.4.3",
-    "dependency-cruiser": "18.7.0",
+    "@swc/core": "1.16.21",
+    "@types/bun": "1.4.4",
+    "dependency-cruiser": "18.7.2",
     "jsonc-parser": "3.3.1",
-    "knip": "6.42.1",
+    "knip": "6.44.1",
     "lint-staged": "17.6.0",
     "markdownlint-cli2": "0.24.0",
     "tsx": "4.23.15",
