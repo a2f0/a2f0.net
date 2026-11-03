@@ -55,7 +55,8 @@ See [development](development.md) for migrating the old Husky hook location and
   [`.nvmrc`](../.nvmrc). The published
   [Bun types](https://www.npmjs.com/package/@types/bun/v/1.4.4) and
   [Happy DOM](https://www.npmjs.com/package/@happy-dom/global-registrator/v/21.0.4)
-  request Node 26 declarations, while WebdriverIO requests Node 22 types.
+  accept a broad range of Node declaration versions, while WebdriverIO requests
+  Node 22 types.
   The root `@types/node` override keeps all ambient Node declarations on the
   supported Node 26 runtime line. Verify full compilation and runtime tests when
   changing it; remove the override when owners resolve that line naturally or
