@@ -6,11 +6,13 @@ import { createRoot } from "react-dom/client";
 
 let calls = 0;
 let finishBoot: (value: { close(): Promise<void> } | null) => void;
+let failBoot: (cause: Error) => void;
 mock.module("./host", () => ({
   openDrive() {
     calls += 1;
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       finishBoot = resolve;
+      failBoot = reject;
     });
   },
 }));
@@ -86,4 +88,44 @@ test("closing the app during SQLite startup closes the late host without renderi
   });
   expect(closes).toBe(1);
   expect(element.textContent).toBe("");
+});
+
+const button = (element: HTMLElement, name: string) => {
+  const found = [...element.querySelectorAll("button")].find((candidate) =>
+    candidate.textContent?.includes(name),
+  );
+  if (!found) throw new Error(`No ${name} button`);
+  return found;
+};
+
+test("retrying a failed boot starts a new boot that can finish", async () => {
+  calls = 0;
+  const element = document.createElement("div");
+  const root = createRoot(element);
+  await act(async () => root.render(<DriveApp />));
+  await act(async () => failBoot(new Error("locked")));
+  expect(element.textContent).toContain("Let’s try again.");
+  expect(element.textContent).toContain("locked");
+  await act(async () => button(element, "Retry opening Drive").click());
+  expect(calls).toBe(2);
+  expect(element.textContent).not.toContain("locked");
+  expect(button(element, "Creating…").disabled).toBe(true);
+  await act(async () => finishBoot(null));
+  expect(button(element, "Create a drive").disabled).toBe(false);
+  await act(async () => root.unmount());
+});
+
+test("a failed start returns to onboarding with its error", async () => {
+  calls = 0;
+  const element = document.createElement("div");
+  const root = createRoot(element);
+  await act(async () => root.render(<DriveApp />));
+  await act(async () => finishBoot(null));
+  await act(async () => button(element, "Create a drive").click());
+  expect(calls).toBe(2);
+  expect(button(element, "Creating…").disabled).toBe(true);
+  await act(async () => failBoot(new Error("no storage")));
+  expect(element.textContent).toContain("no storage");
+  expect(button(element, "Create a drive").disabled).toBe(false);
+  await act(async () => root.unmount());
 });
