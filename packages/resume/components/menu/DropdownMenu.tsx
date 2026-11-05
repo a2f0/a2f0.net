@@ -8,7 +8,6 @@ import {
 
 import { useAppSelector } from "../../lib/hooks";
 import { selectScale } from "../../lib/resumeConfigSlice";
-import { useDetectOutsideClick } from "../../lib/useDetectOutsideClick";
 import { DropdownMenuProvider } from "./DropdownMenuContext";
 import { MenuButton } from "./MenuButton";
 import { MenuContainer } from "./MenuContainer";
@@ -23,29 +22,15 @@ interface MenuProps {
 export default function DropdownMenu({ children, label }: MenuProps) {
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
-  const [isActive, setIsActive] = useDetectOutsideClick(dropdownRef, false);
-  const parentContext = useMenuParent();
+  const { openMenu, dispatch } = useMenuParent();
+  const isActive = openMenu === label;
   const scale = useAppSelector(selectScale);
   const menuId = `menuItems${label}`;
-  const onClick = () => {
-    const newIsActive = !isActive;
-    setIsActive(newIsActive);
-    parentContext.setIsActive(newIsActive);
-    parentContext.setActiveDropdown(label);
-  };
+  const onClick = () => dispatch({ type: "toggle", menu: label });
 
-  const onMouseEnter = () => {
-    if (parentContext.isActive === true) {
-      setIsActive(true);
-      parentContext.setActiveDropdown(label);
-    }
-  };
+  const onMouseEnter = () => dispatch({ type: "hover", menu: label });
 
-  const dismiss = () => {
-    setIsActive(false);
-    parentContext.setActiveDropdown("");
-    parentContext.setIsActive(false);
-  };
+  const dismiss = () => dispatch({ type: "dismiss", menu: label });
 
   // Hiding the menu would otherwise drop focus to the page.
   const close = () => {
@@ -69,11 +54,20 @@ export default function DropdownMenu({ children, label }: MenuProps) {
     }
   };
 
+  // A click outside the open menu closes it. The dismissal names this menu,
+  // so the click that opened another menu leaves that one open.
   useEffect(() => {
-    if (parentContext.activeDropdown !== label) {
-      setIsActive(false);
-    }
-  }, [parentContext.activeDropdown, label, setIsActive]);
+    if (!isActive) return;
+    const onWindowClick = (event: MouseEvent) => {
+      if (
+        dropdownRef.current !== null &&
+        !dropdownRef.current.contains(event.target as Node)
+      )
+        dispatch({ type: "dismiss", menu: label });
+    };
+    window.addEventListener("click", onWindowClick);
+    return () => window.removeEventListener("click", onWindowClick);
+  }, [isActive, dispatch, label]);
 
   return (
     <DropdownMenuProvider close={close}>

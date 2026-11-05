@@ -1,40 +1,29 @@
-import { type ReactNode, createContext, useContext } from "react";
+import {
+  createContext,
+  type Dispatch,
+  type ReactNode,
+  useContext,
+} from "react";
+
+import type { MenuBarEvent } from "../../lib/menuBar";
+
+interface ParentContextProps {
+  /** The label of the open menu, or null when the bar is closed. */
+  openMenu: string | null;
+  dispatch: Dispatch<MenuBarEvent>;
+}
 
 const MenuParentContext = createContext<ParentContextProps | undefined>(
   undefined,
 );
 
-interface ParentContextProps {
-  activeDropdown: string;
-  setActiveDropdown: React.Dispatch<React.SetStateAction<string>>;
-  isActive: boolean;
-  setIsActive: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-interface MenuParentProps {
+interface MenuParentProps extends ParentContextProps {
   children: ReactNode;
-  activeDropdown: string;
-  setActiveDropdown: React.Dispatch<React.SetStateAction<string>>;
-  isActive: boolean;
-  setIsActive: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-function MenuParentProvider({
-  children,
-  activeDropdown,
-  setActiveDropdown,
-  isActive,
-  setIsActive,
-}: MenuParentProps) {
+function MenuParentProvider({ children, openMenu, dispatch }: MenuParentProps) {
   return (
-    <MenuParentContext.Provider
-      value={{
-        activeDropdown: activeDropdown,
-        setActiveDropdown: setActiveDropdown,
-        isActive: isActive,
-        setIsActive: setIsActive,
-      }}
-    >
+    <MenuParentContext.Provider value={{ openMenu, dispatch }}>
       {children}
     </MenuParentContext.Provider>
   );
