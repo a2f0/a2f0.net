@@ -1,5 +1,6 @@
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useReducer } from "react";
 
+import { closedMenuBar, openMenu, transition } from "../../lib/menuBar";
 import { MenuParentProvider } from "./MenuParentContext";
 
 interface MenuProps {
@@ -7,15 +8,9 @@ interface MenuProps {
 }
 
 export default function MenuParent({ children }: MenuProps) {
-  const [isActive, setIsActive] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState("");
+  const [state, dispatch] = useReducer(transition, closedMenuBar);
   return (
-    <MenuParentProvider
-      activeDropdown={activeDropdown}
-      setActiveDropdown={setActiveDropdown}
-      isActive={isActive}
-      setIsActive={setIsActive}
-    >
+    <MenuParentProvider openMenu={openMenu(state)} dispatch={dispatch}>
       {children}
     </MenuParentProvider>
   );
