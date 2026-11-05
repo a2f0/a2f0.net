@@ -9,6 +9,7 @@ import { ThemeSwitch } from "@tearleads/windowing";
 import {
   useCallback,
   useEffect,
+  useReducer,
   useRef,
   useState,
   useSyncExternalStore,
@@ -19,6 +20,7 @@ import { Explorer } from "./Explorer";
 import { type DriveHost, type OpenDriveInput, openDrive } from "./host";
 import { folderName, rootFolders } from "./model";
 import { errorMessage } from "./profile";
+import { transition } from "./session";
 import { Welcome } from "./Welcome";
 
 export interface DriveAppProps {
@@ -33,19 +35,24 @@ export default function DriveApp({
 }
 
 function DriveSession({ apiBaseUrl }: { apiBaseUrl: string }) {
-  const [host, setHost] = useState<DriveHost | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [session, dispatch] = useReducer(transition<DriveHost>, {
+    status: "booting",
+    request: 0,
+  });
   const [error, setError] = useState<string | null>(null);
-  const [failed, setFailed] = useState(false);
   const [openRequest, setOpenRequest] = useState({ apiBaseUrl });
   const current = useRef<DriveHost | null>(null);
+  // Bumped by each effect run and cleanup: work from an older run must not
+  // dispatch, and closes any host it opened late.
   const generation = useRef(0);
+  // Tags each boot or start, so only the current one may finish the session.
+  const requests = useRef(0);
   const operations = useRef(Promise.resolve());
   const reportError = useCallback((message: string) => setError(message), []);
   useEffect(() => {
     const thisGeneration = ++generation.current;
-    setLoading(true);
-    setFailed(false);
+    const request = ++requests.current;
+    dispatch({ type: "boot", request });
     // Serialize boot and cleanup, including React Strict Mode's effect replay.
     operations.current = operations.current
       .then(async () => {
@@ -58,14 +65,12 @@ function DriveSession({ apiBaseUrl }: { apiBaseUrl: string }) {
           return;
         }
         current.current = opened;
-        setHost(opened);
-        setLoading(false);
+        dispatch({ type: "booted", request, host: opened });
       })
       .catch((cause) => {
         if (generation.current !== thisGeneration) return;
         reportError(errorMessage(cause));
-        setFailed(true);
-        setLoading(false);
+        dispatch({ type: "bootFailed", request });
       });
     return () => {
       ++generation.current;
@@ -75,8 +80,10 @@ function DriveSession({ apiBaseUrl }: { apiBaseUrl: string }) {
     };
   }, [openRequest, reportError]);
   const start = async (input: OpenDriveInput) => {
+    if (session.status !== "welcome") return;
     const thisGeneration = generation.current;
-    setLoading(true);
+    const request = ++requests.current;
+    dispatch({ type: "start", request });
     setError(null);
     const pending = operations.current.then(async () => {
       try {
@@ -86,17 +93,18 @@ function DriveSession({ apiBaseUrl }: { apiBaseUrl: string }) {
           return;
         }
         current.current = opened;
-        setHost(opened);
+        dispatch({ type: "started", request, host: opened });
       } catch (cause) {
-        if (generation.current === thisGeneration)
-          reportError(errorMessage(cause));
-      } finally {
-        if (generation.current === thisGeneration) setLoading(false);
+        if (generation.current !== thisGeneration) return;
+        reportError(errorMessage(cause));
+        dispatch({ type: "startFailed", request });
       }
     });
     operations.current = pending;
     await pending;
   };
+  const host = session.status === "open" ? session.host : null;
+  const busy = session.status === "booting" || session.status === "opening";
   return (
     <DriveErrorContext
       value={{ message: error, dismiss: () => setError(null) }}
@@ -130,7 +138,7 @@ function DriveSession({ apiBaseUrl }: { apiBaseUrl: string }) {
               </div>
             </aside>
             <main className="drive-onboarding">
-              {failed ? (
+              {session.status === "failed" ? (
                 <div className="drive-welcome">
                   <h1>Let’s try again.</h1>
                   <p>Your saved data has been kept.</p>
@@ -146,7 +154,7 @@ function DriveSession({ apiBaseUrl }: { apiBaseUrl: string }) {
                   </button>
                 </div>
               ) : (
-                <Welcome busy={loading} onOpen={(input) => void start(input)} />
+                <Welcome busy={busy} onOpen={(input) => void start(input)} />
               )}
             </main>
           </>
