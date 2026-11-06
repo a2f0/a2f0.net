@@ -57,9 +57,13 @@ export async function downloadSvg(colors: ResumeColors): Promise<void> {
   const blob = new Blob([svg.outerHTML], {
     type: "image/svg+xml",
   });
+  const url = window.URL.createObjectURL(blob);
   const element = document.createElement("a");
   element.download = "dan.sullivan.resume.svg";
-  element.href = window.URL.createObjectURL(blob);
+  element.href = url;
   element.click();
   element.remove();
+  // The blob otherwise stays in memory until the page unloads. Browsers start
+  // the download after click() returns, so the URL outlives it briefly.
+  setTimeout(() => window.URL.revokeObjectURL(url), 1000);
 }
