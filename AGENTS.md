@@ -83,6 +83,22 @@ capture `bun run agent:run --label unit -- bun run unit` or
 `bun run check:fast` and `bun run check` are run groups, so run them directly.
 Logs may contain secrets; keep them private and remove them when finished.
 
+## State machines
+
+Make implicit state machines explicit when you write or change code: one closed
+state type (a discriminated union, enum, or sealed type) carrying each state's
+data, typed events, and one pure transition function, with effects run on
+entering a state and async work tagged so only the current request can finish.
+Follow the `explicit-state-machines` skill for what to convert, what to leave
+alone, and how to prove behavior did not change; `agent-tool state-machines`
+lists leads. Reviews flag new implicit machines.
+
+Here states use a `status` tag, and each machine is a pure reducer beside its
+source with Bun tests next to it: `packages/drive/src/session.ts` (Drive boot,
+onboarding, open, lost) and `packages/resume/lib/menuBar.ts` (menu bar). Drive's
+host and session and the website's desktop mini-apps hold most other state; run
+new component tests against the old file to prove behavior did not change.
+
 ## Shipping and Deployment
 
 Use the shared `$ship-pr` skill with the Node version in `.nvmrc` and Bun version
