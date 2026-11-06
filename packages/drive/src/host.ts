@@ -25,6 +25,8 @@ export interface DriveHost {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
   close(): Promise<void>;
+  /** Settles once the host has closed, including after a SQLite worker crash. */
+  closed: Promise<void>;
 }
 
 export type OpenDriveInput =
@@ -55,6 +57,7 @@ export async function openDrive(
   let writes = Promise.resolve();
   let closed = false;
   let closing: Promise<void> | undefined;
+  const closedSignal = Promise.withResolvers<void>();
   const teardown = async () => {
     closed = true;
     for (const stop of cleanup) stop();
@@ -69,7 +72,7 @@ export async function openDrive(
   // Every caller waits for the one teardown, so a reopen after a crash finds
   // the lock released.
   const close = () => {
-    closing ??= teardown();
+    closing ??= teardown().finally(() => closedSignal.resolve());
     return closing;
   };
   try {
@@ -304,6 +307,7 @@ export async function openDrive(
       },
       connect,
       close,
+      closed: closedSignal.promise,
       async disconnect() {
         wantsConnection = false;
         current.connect = false;

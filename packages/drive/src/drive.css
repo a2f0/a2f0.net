@@ -570,6 +570,13 @@
   color: inherit;
   border: 0;
 }
+.drive-error .drive-error-action {
+  padding: 5px 12px;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  font-weight: 600;
+  white-space: nowrap;
+}
 .drive-dialog .drive-error {
   position: static;
   transform: none;
