@@ -196,8 +196,15 @@ mock.module("@tearleads/client-sdk", () => ({
     },
   }),
 }));
+let crashWorker: ((error: Error) => void) | undefined;
 mock.module("@tearleads/client-sdk/sqlite", () => ({
   createSQLiteRuntime: () => ({
+    subscribeWorkerError(listener: (error: Error) => void) {
+      crashWorker = listener;
+      return () => {
+        crashWorker = undefined;
+      };
+    },
     client: {
       init: async () => {
         return undefined;
@@ -410,5 +417,16 @@ test("a second close waits for the first close to release the lock", async () =>
   expect(releases).toBe(0);
   gate.resolve();
   await Promise.all([first, second]);
+  expect(releases).toBe(1);
+});
+
+test("a SQLite worker crash closes the host and settles closed after the lock is released", async () => {
+  const errors = mock(() => undefined);
+  const host = await openDrive(api, errors, { kind: "create" });
+  if (!host) throw new Error("Host did not open");
+  expect(typeof host.closed?.then).toBe("function");
+  crashWorker?.(new Error("Worker crashed"));
+  await host.closed;
+  expect(errors).toHaveBeenCalledWith("Worker crashed");
   expect(releases).toBe(1);
 });

@@ -103,11 +103,32 @@ function DriveSession({ apiBaseUrl }: { apiBaseUrl: string }) {
     operations.current = pending;
     await pending;
   };
-  const host = session.status === "open" ? session.host : null;
+  const host =
+    session.status === "open" || session.status === "lost"
+      ? session.host
+      : null;
+  // A host can close under the workspace, as when its SQLite worker crashes.
+  // The workspace stays, so unsaved text can still be copied, and the notice
+  // offers to reopen the drive. The reducer ignores a host no longer open.
+  useEffect(() => {
+    if (host) void host.closed.then(() => dispatch({ type: "closed", host }));
+  }, [host]);
+  const hostLost = session.status === "lost";
   const busy = session.status === "booting" || session.status === "opening";
   return (
     <DriveErrorContext
-      value={{ message: error, dismiss: () => setError(null) }}
+      value={
+        hostLost
+          ? {
+              message: `${error ?? "Drive stopped working."} Copy any unsaved text, then reopen Drive.`,
+              dismiss: () => undefined,
+              reopen: () => {
+                setError(null);
+                setOpenRequest({ apiBaseUrl });
+              },
+            }
+          : { message: error, dismiss: () => setError(null) }
+      }
     >
       <div className="drive-app">
         <ErrorNotice />

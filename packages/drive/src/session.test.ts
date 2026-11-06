@@ -25,6 +25,13 @@ test.each<[State, Event, State]>([
   [opening, { type: "started", request: 2, host }, open],
   [opening, { type: "started", request: 2, host: null }, welcome],
   [opening, { type: "startFailed", request: 2 }, welcome],
+  // The open drive closed under the workspace, and reopening it.
+  [open, { type: "closed", host }, { status: "lost", host }],
+  [
+    { status: "lost", host },
+    { type: "boot", request: 3 },
+    { status: "booting", request: 3 },
+  ],
 ])("%o + %o", (state, event, next) => {
   expect(transition(state, event)).toEqual(next);
 });
@@ -50,6 +57,10 @@ test.each<[State, Event]>([
   [open, { type: "bootFailed", request: 1 }],
   [failed, { type: "booted", request: 1, host }],
   [welcome, { type: "startFailed", request: 2 }],
+  // Only the open host's own close loses the workspace.
+  [open, { type: "closed", host: { id: "replaced" } }],
+  [booting, { type: "closed", host }],
+  [failed, { type: "closed", host }],
 ])("ignores %o + %o", (state, event) => {
   expect(transition(state, event)).toBe(state);
 });

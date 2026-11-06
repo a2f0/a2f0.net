@@ -8,7 +8,13 @@ export type SessionState<Host> =
   | { status: "failed" }
   | { status: "welcome" }
   | { status: "opening"; request: number }
-  | { status: "open"; host: Host };
+  | { status: "open"; host: Host }
+  /**
+   * The open drive closed under the workspace, as after a SQLite worker
+   * crash. The workspace stays, so unsaved text can be copied, until the
+   * drive reopens.
+   */
+  | { status: "lost"; host: Host };
 
 export type SessionEvent<Host> =
   /** Boots the drive saved in this browser, on mount and on retry. */
@@ -19,7 +25,9 @@ export type SessionEvent<Host> =
   /** Creates or imports a drive from onboarding. */
   | { type: "start"; request: number }
   | { type: "started"; request: number; host: Host | null }
-  | { type: "startFailed"; request: number };
+  | { type: "startFailed"; request: number }
+  /** The host closed on its own. */
+  | { type: "closed"; host: Host };
 
 const pending = <Host>(
   state: SessionState<Host>,
@@ -56,6 +64,10 @@ export function transition<Host>(
     case "startFailed":
       return pending(state, "opening", event.request)
         ? { status: "welcome" }
+        : state;
+    case "closed":
+      return state.status === "open" && state.host === event.host
+        ? { status: "lost", host: event.host }
         : state;
     default:
       return assertNever(event);
