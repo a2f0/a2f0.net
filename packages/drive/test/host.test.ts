@@ -12,6 +12,10 @@ Object.defineProperty(navigator, "storage", {
   },
 });
 const files = new Map<string, Uint8Array>();
+// Holds profile writes back while set, to keep a teardown in progress.
+let writeGate: Promise<void> | null = null;
+let keyringError: Error | null = null;
+let releases = 0;
 const clients: FakeClient[] = [];
 let online = true;
 const networkListeners = new Set<(online: boolean) => void>();
@@ -167,16 +171,20 @@ const keys = {
 };
 mock.module("@tearleads/client-sdk", () => ({
   Tearleads: FakeClient,
-  createBrowserLocalKeyring: () => ({
-    loadSession: async () => keys,
-    getOrCreateSession: async () => keys,
-    close() {
-      return undefined;
-    },
-  }),
+  createBrowserLocalKeyring: () => {
+    if (keyringError) throw keyringError;
+    return {
+      loadSession: async () => keys,
+      getOrCreateSession: async () => keys,
+      close() {
+        return undefined;
+      },
+    };
+  },
   createEncryptedBlobStore: (namespace: string) => ({
     readBytes: async (key: string) => files.get(`${namespace}/${key}`) ?? null,
     writeBytes: async (key: string, bytes: Uint8Array) => {
+      await writeGate;
       files.set(`${namespace}/${key}`, bytes.slice());
     },
   }),
@@ -210,7 +218,7 @@ mock.module("@tearleads/client-sdk/sqlite", () => ({
 }));
 mock.module("../src/browserLock", () => ({
   acquireDriveLock: async () => () => {
-    return undefined;
+    releases += 1;
   },
 }));
 const { openDrive } = await import("../src/host");
@@ -220,6 +228,9 @@ afterEach(() => {
   clients.length = 0;
   online = true;
   networkListeners.clear();
+  writeGate = null;
+  keyringError = null;
+  releases = 0;
 });
 
 function persistedProfile() {
@@ -371,4 +382,33 @@ test("a first failed connection retries when online without registering again", 
   expect(client.session.login).toHaveBeenCalledTimes(2);
   expect(client.session.syncEnabled).toBe(true);
   await host.close();
+});
+
+test("a keyring that cannot start releases the drive lock", async () => {
+  keyringError = new Error("Storage is blocked");
+  await expect(openDrive(api, () => undefined)).rejects.toThrow(
+    "Storage is blocked",
+  );
+  expect(releases).toBe(1);
+});
+
+test("a second close waits for the first close to release the lock", async () => {
+  const host = await openDrive(api, () => undefined, { kind: "create" });
+  if (!host) throw new Error("Host did not open");
+  const gate = Promise.withResolvers<void>();
+  writeGate = gate.promise;
+  // A session change starts a profile write that the teardown waits for.
+  clients[0].session.setUserId("changed-user");
+  const first = host.close();
+  let secondDone = false;
+  const second = host.close().then(() => {
+    secondDone = true;
+  });
+  await Promise.resolve();
+  await Promise.resolve();
+  expect(secondDone).toBe(false);
+  expect(releases).toBe(0);
+  gate.resolve();
+  await Promise.all([first, second]);
+  expect(releases).toBe(1);
 });

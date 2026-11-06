@@ -45,16 +45,17 @@ export async function openDrive(
     .join("")
     .slice(0, 24)}`;
   const releaseLock = await acquireDriveLock(namespace);
-  const keyring = createBrowserLocalKeyring();
+  type Keyring = ReturnType<typeof createBrowserLocalKeyring>;
+  let keyring: Keyring | undefined;
   const scope = { namespace };
-  let keys: Awaited<ReturnType<typeof keyring.loadSession>> = null;
+  let keys: Awaited<ReturnType<Keyring["loadSession"]>> = null;
   let sqlite: ReturnType<typeof createSQLiteRuntime> | undefined;
   let client: Tearleads | undefined;
   const cleanup: (() => void)[] = [];
   let writes = Promise.resolve();
   let closed = false;
-  const close = async () => {
-    if (closed) return;
+  let closing: Promise<void> | undefined;
+  const teardown = async () => {
     closed = true;
     for (const stop of cleanup) stop();
     client?.dispose();
@@ -62,10 +63,17 @@ export async function openDrive(
     client?.identity.destroy();
     sqlite?.destroy();
     keys?.dispose();
-    keyring.close?.();
+    keyring?.close?.();
     releaseLock();
   };
+  // Every caller waits for the one teardown, so a reopen after a crash finds
+  // the lock released.
+  const close = () => {
+    closing ??= teardown();
+    return closing;
+  };
   try {
+    keyring = createBrowserLocalKeyring();
     keys = await keyring.loadSession(scope);
     if (!keys && !input) {
       await close();
