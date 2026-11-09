@@ -182,14 +182,6 @@ export const playerApp = () =>
 export const dnbmRegion = () => $(".dnbm-window [role=region]");
 export const playerRegion = () => $(".dnbm-player-window [role=region]");
 
-export const waitForDnbmApps = () =>
-  browser.waitUntil(
-    async () =>
-      (await dnbmApp()).app?.steps === true &&
-      ((await playerApp()).app?.tracks ?? 0) > 0,
-    { timeoutMsg: "the dnbm sequencer and player did not load" },
-  );
-
 // Opens an app from the taskbar's start menu, by its menu label, or raises its
 // open window. The desktop opens only the skyline and the resume on load.
 export const openFromStartMenu = async (label: string) => {
@@ -200,15 +192,12 @@ export const openFromStartMenu = async (label: string) => {
   await expect(start).toHaveAttribute("aria-expanded", "false");
 };
 
-// The artwork is ready once its demo mounts inside its shadow root.
-export const waitForAsciiArt = () =>
-  browser.waitUntil(async () => (await siteState()).view === "ascii", {
-    timeoutMsg: "the demo did not mount inside its shadow root",
-  });
-
+// Opens the artwork and waits for its demo to mount inside its shadow root.
 export const openAsciiArt = async () => {
   await openFromStartMenu("a2f0.net");
-  await waitForAsciiArt();
+  await browser.waitUntil(async () => (await siteState()).view === "ascii", {
+    timeoutMsg: "the demo did not mount inside its shadow root",
+  });
 };
 
 // Opens the sequencer and then the player, which starts in front, and waits
@@ -216,7 +205,12 @@ export const openAsciiArt = async () => {
 export const openDnbmApps = async () => {
   await openFromStartMenu("dnbm");
   await openFromStartMenu("dnbm player");
-  await waitForDnbmApps();
+  await browser.waitUntil(
+    async () =>
+      (await dnbmApp()).app?.steps === true &&
+      ((await playerApp()).app?.tracks ?? 0) > 0,
+    { timeoutMsg: "the dnbm sequencer and player did not load" },
+  );
 };
 
 // Presses the first element matching `target` inside a dnbm app where it
