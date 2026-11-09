@@ -65,7 +65,7 @@ See [development](development.md) for migrating the old Husky hook location and
   local producer candidate cannot authorize a consumer bump. The website and
   Drive (for its theme provider and switch) pin the same version; bump them
   together and recheck Drive's theme switch in its browser suite.
-  Its [published storage helper](https://www.npmjs.com/package/@tearleads/windowing/v/0.2.25)
+  Its [published storage helper](https://www.npmjs.com/package/@tearleads/windowing/v/0.2.32)
   probes `globalThis.localStorage` during Drive's static render. Node 26 emits
   an experimental missing-storage warning and the helper uses its null fallback;
   the export succeeds. Do not suppress the warning or enable server persistence
