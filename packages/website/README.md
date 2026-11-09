@@ -58,7 +58,8 @@ by default and keeps its own theme controls for previewing its page.
 The desktop starts with Flux, a flowing ribbon pattern. Display Properties,
 opened from the desktop's context menu or the start menu, also offers Aperture
 and Isochrome, plus the original Bricks, Honeycomb, Harlequin, Chevron, and None
-choices. Previews show the full height of each tile, while the desktop keeps the
+choices. Every wallpaper is greyscale, dark in Graphite and light in Paper.
+Previews show the full height of each tile, while the desktop keeps the
 artwork's natural scale. Changing a wallpaper preserves it across visits; an
 existing saved choice is kept rather than replaced with the new default.
 
