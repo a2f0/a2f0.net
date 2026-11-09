@@ -1,9 +1,9 @@
 import { browser, expect } from "@wdio/globals";
 import {
   asciiArtWindow,
+  openAsciiArt,
   resumeWindow,
   siteState,
-  taskbar,
   useDesktop,
 } from "../lib/desktop";
 
@@ -11,7 +11,7 @@ describe("Website artwork window", () => {
   useDesktop();
 
   it("puts the artwork controls in the window toolbar", async () => {
-    await taskbar("a2f0.net").click();
+    await openAsciiArt();
     const toolbar = asciiArtWindow().$(
       "[role='toolbar'][aria-label='Toolbar']",
     );

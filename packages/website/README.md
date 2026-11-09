@@ -23,10 +23,12 @@ state: the sequencer's file commands sit in its window's File menu, and its
 play, undo, and redo in the toolbar; the player's controls sit in its toolbar
 and View menu. Each window's title names the song.
 
-Every mini-app also has an icon in a column down the desktop's left edge,
-from the windowing package's `DesktopIcons`; the windows open to its right. A
-double-click or Enter opens the app, or brings its window to the front, and a
-right-click offers Open. Dragging moves an icon, and the layout persists in a
+The skyline and the resume have icons in a column down the desktop's left
+edge, from the windowing package's `DesktopIcons`, and both open on load, the
+resume in front; the windows open right of the icons. The other apps open from
+the start menu. A double-click or Enter on an icon opens its app, or brings its
+window to the front, and a right-click offers Open. Dragging moves an icon, and
+the layout persists in a
 `website/desktop-state.json` file in the origin private file system (OPFS),
 through the package's `createOpfsDesktopStateStorage`. Where a browser lacks
 OPFS, icons still move but return to their column on the next load.

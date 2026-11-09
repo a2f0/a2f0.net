@@ -6,6 +6,7 @@ import {
   taskbar,
   useDesktop,
   waitForResume,
+  waitForRootAttribute,
 } from "../lib/desktop";
 
 describe("Website routed shell", () => {
@@ -16,7 +17,7 @@ describe("Website routed shell", () => {
     await browser.refresh();
     await expect($(".routed-pane.routed-pane--mobile")).toBeDisplayed();
     await expect($(".desktop-taskbar")).not.toBeExisting();
-    await expect($("html")).toHaveAttribute("data-navigation-mode", "routed");
+    await waitForRootAttribute("data-navigation-mode", "routed");
     // The root route shows the artwork with its controls in the app bar's
     // toolbar.
     await expect($(".routed-pane-main .ascii-art-window")).toBeExisting();
@@ -194,9 +195,9 @@ describe("Website routed shell", () => {
     await browser.setViewport({ width: 900, height: 900 });
     await browser.pause(500);
     await expect($(".desktop-taskbar")).toBeDisplayed();
-    await expect($("html")).toHaveAttribute("data-navigation-mode", "windowed");
+    await waitForRootAttribute("data-navigation-mode", "windowed");
     await expect($$(".desktop-surface section.window")).toBeElementsArrayOfSize(
-      5,
+      2,
     );
     expect(await resumeTextFills()).toContain("#555555");
   });
@@ -246,9 +247,10 @@ describe("Website routed shell", () => {
     // The tray switches back to the windows as they were.
     await toWindowed();
     await expect($(".desktop-taskbar")).toBeDisplayed();
-    await expect($("html")).toHaveAttribute("data-navigation-mode", "windowed");
+    await waitForRootAttribute("data-navigation-mode", "windowed");
+    // The resume alone stays open.
     await expect($$(".desktop-surface section.window")).toBeElementsArrayOfSize(
-      4,
+      1,
     );
     await expect(skylineWindow()).not.toBeExisting();
 
@@ -258,5 +260,30 @@ describe("Website routed shell", () => {
     await expect($(".routed-pane")).toBeDisplayed();
     await toWindowed();
     await expect($(".desktop-taskbar")).toBeDisplayed();
+  });
+
+  it("reopens the default windows on an empty desktop after the routed shell", async () => {
+    await skylineWindow().$("button[aria-label='Close window']").click();
+    await resumeWindow().$("button[aria-label='Close window']").click();
+    await expect($$(".desktop-surface section.window")).toBeElementsArrayOfSize(
+      0,
+    );
+    await $(
+      ".desktop-taskbar-end button[aria-label='Switch to iPad / mobile layout']",
+    ).click();
+    await expect($(".routed-pane.routed-pane--tablet")).toBeDisplayed();
+    await $(
+      ".routed-pane-taskbar-end button[aria-label='Switch to windowed layout']",
+    ).click();
+
+    // Back on an empty desktop, the skyline and then the resume open again,
+    // with the resume in front.
+    await waitForResume();
+    expect(
+      await $$(".desktop-surface section.window .window-titlebar-title").map(
+        (title) => title.getText(),
+      ),
+    ).toEqual(["Skyline", "Resume"]);
+    await expect(taskbar("Resume")).toHaveAttribute("aria-pressed", "true");
   });
 });

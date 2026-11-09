@@ -1,11 +1,12 @@
 import { $, browser, expect } from "@wdio/globals";
 import {
-  asciiArtWindow,
   dnbmAction,
   dnbmApp,
   dnbmRegion,
   dnbmWindow,
   frontWindowApp,
+  openDnbmApps,
+  openFromStartMenu,
   playerAction,
   playerApp,
   playerRegion,
@@ -14,7 +15,6 @@ import {
   taskbar,
   titleOf,
   useDesktop,
-  waitForDnbmApps,
 } from "../lib/desktop";
 
 // Whether the sequencer plays (its playhead shows), and the player's state.
@@ -84,6 +84,7 @@ describe("Website dnbm windows", () => {
   useDesktop();
 
   it("renders the dnbm player in the page from the same assets, and plays a song", async () => {
+    await openFromStartMenu("dnbm player");
     await browser.waitUntil(
       async () => {
         const { app, width } = await playerApp();
@@ -104,8 +105,8 @@ describe("Website dnbm windows", () => {
         tracks: expect.any(Number),
       },
     });
-    // The player opens behind the resume.
-    expect(await frontWindowApp()).toBe("Resume");
+    // The start menu opens the player in front of the skyline and the resume.
+    expect(await frontWindowApp()).toBe("dnbm player");
 
     // In front, Play in the window's toolbar starts its audio engine: the
     // clock runs.
@@ -124,7 +125,7 @@ describe("Website dnbm windows", () => {
   });
 
   it("drives the dnbm player from its window toolbar and View menu", async () => {
-    await waitForDnbmApps();
+    await openDnbmApps();
     await taskbar("dnbm player").click();
     const player = () => playerRegion().shadow$(".player");
     const action = (label: string, pressed: string | null = null) => ({
@@ -203,6 +204,7 @@ describe("Website dnbm windows", () => {
   });
 
   it("renders the dnbm sequencer in the page from its copied assets, fitted to its layout", async () => {
+    await openFromStartMenu("dnbm");
     // The window fits once the sequencer is ready: styled, laid out, and
     // showing its steps.
     await browser.waitUntil(
@@ -227,12 +229,13 @@ describe("Website dnbm windows", () => {
     });
     // The window opens fitted to the sequencer's 1200px desktop layout.
     expect(width).toBeGreaterThanOrEqual(1200);
-    // The sequencer opens behind the other apps.
-    expect(await frontWindowApp()).toBe("Resume");
+    // The start menu opens the sequencer in front of the skyline and the
+    // resume.
+    expect(await frontWindowApp()).toBe("dnbm");
   });
 
   it("plays and stops the dnbm sequencer from its window toolbar and View menu", async () => {
-    await waitForDnbmApps();
+    await openDnbmApps();
     await taskbar("dnbm").click();
     await expect(dnbmAction("Play")).toBeEnabled();
     expect(await toolbarState(dnbmWindow())).toEqual([
@@ -269,11 +272,8 @@ describe("Website dnbm windows", () => {
   });
 
   it("raises a dnbm window on a press inside it", async () => {
-    await waitForDnbmApps();
-    // With the artwork minimized and the resume in front, the player shows
-    // to the right of the resume.
-    await taskbar("a2f0.net").click();
-    await asciiArtWindow().$("button[aria-label='Minimize window']").click();
+    await openDnbmApps();
+    // With the resume in front, the player shows to the right of it.
     await taskbar("Resume").click();
     await pressVisible(".dnbm-player-window [role=region]");
     await browser.waitUntil(
@@ -291,7 +291,7 @@ describe("Website dnbm windows", () => {
       ),
     ).toBe(true);
 
-    // The sequencer, behind every other window, shows below them.
+    // The sequencer, behind the player and the resume, shows below them.
     await pressVisible(".dnbm-window [role=region]");
     await browser.waitUntil(async () => (await frontWindowApp()) === "dnbm", {
       timeoutMsg: "pressing the dnbm sequencer did not raise its window",
@@ -299,9 +299,10 @@ describe("Website dnbm windows", () => {
   });
 
   it("keeps keys pressed outside a dnbm app out of it", async () => {
-    await waitForDnbmApps();
-    // The resume window has focus. Space plays either app, and X the player,
-    // but only while focus is inside it.
+    await openDnbmApps();
+    // With the resume raised, focus is in its window. Space plays either app,
+    // and X the player, but only while focus is inside it.
+    await taskbar("Resume").click();
     await browser.keys(" ");
     await browser.keys("x");
     await browser.pause(500);
@@ -328,7 +329,7 @@ describe("Website dnbm windows", () => {
   });
 
   it("closes open menus on a press on a dnbm grid cell or knob", async () => {
-    await waitForDnbmApps();
+    await openDnbmApps();
     await taskbar("dnbm").click();
     const start = $(".desktop-taskbar button[aria-label='Menu']");
     const windowMenu = () => dnbmWindow().$(".window-menubar-dropdown");
@@ -371,7 +372,7 @@ describe("Website dnbm windows", () => {
   });
 
   it("disables the dnbm File menu while the sequencer asks something", async () => {
-    await waitForDnbmApps();
+    await openDnbmApps();
     await taskbar("dnbm").click();
     const fileItems = (enabled: boolean) => [
       ["New", enabled],
@@ -412,7 +413,7 @@ describe("Website dnbm windows", () => {
   });
 
   it("opens the dnbm file pickers inside the menu press", async () => {
-    await waitForDnbmApps();
+    await openDnbmApps();
     await taskbar("dnbm").click();
     // Record whether each picker opens with the press's user activation, as
     // browsers require, and cancel it.

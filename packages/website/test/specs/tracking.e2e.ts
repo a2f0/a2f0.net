@@ -1,4 +1,5 @@
 import { $, $$, browser, expect } from "@wdio/globals";
+import { openFromStartMenu } from "../lib/desktop";
 
 const apps = ["resume", "ascii-art", "skyline", "dnbm", "dnbm-player"];
 
@@ -8,6 +9,13 @@ describe("click tracking boundaries", () => {
     await browser.url("/");
     await browser.execute(() => localStorage.clear());
     await browser.refresh();
+    // The desktop opens the skyline and the resume; the start menu opens the
+    // other apps.
+    await browser.waitUntil(
+      async () => (await $$("section.window")).length === 2,
+    );
+    for (const label of ["dnbm", "dnbm player", "a2f0.net"])
+      await openFromStartMenu(label);
     await browser.waitUntil(
       async () => (await $$("section.window")).length === 5,
     );

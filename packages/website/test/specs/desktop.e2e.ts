@@ -4,6 +4,9 @@ import {
   backgroundOf,
   dnbmWindow,
   frontWindowApp,
+  openAsciiArt,
+  openDnbmApps,
+  openFromStartMenu,
   playerWindow,
   resumeWindow,
   siteState,
@@ -11,9 +14,9 @@ import {
   taskbar,
   titleOf,
   useDesktop,
-  waitForDnbmApps,
   waitForResume,
   waitForResumeFit,
+  waitForRootAttribute,
 } from "../lib/desktop";
 
 // WebDriver's code for the Shift key.
@@ -34,6 +37,16 @@ describe("Website desktop windows", () => {
   useDesktop();
 
   it("renders every app with the published window styles", async () => {
+    // The desktop opens the skyline and then the resume, in front; the other
+    // apps open from the start menu.
+    expect(
+      await $$(".desktop-surface section.window .window-titlebar-title").map(
+        (title) => title.getText(),
+      ),
+    ).toEqual(["Skyline", "Resume"]);
+    expect(await frontWindowApp()).toBe("Resume");
+    await openDnbmApps();
+    await openAsciiArt();
     await expect($$(".desktop-surface section.window")).toBeElementsArrayOfSize(
       5,
     );
@@ -125,6 +138,7 @@ describe("Website desktop windows", () => {
     expect(await focusRing()).toEqual({ title: "Resume", outline: "none" });
 
     // A window reopened from the keyboard shows where focus went.
+    await openAsciiArt();
     await browser.execute(() =>
       document
         .querySelector<HTMLButtonElement>(
@@ -145,7 +159,7 @@ describe("Website desktop windows", () => {
     );
     await browser.keys("Enter");
     await expect(asciiArtWindow()).toBeExisting();
-    await expect($("html")).toHaveAttribute("data-input", "keyboard");
+    await waitForRootAttribute("data-input", "keyboard");
     await browser.waitUntil(
       async () => (await focusRing()).outline === "solid",
       { timeoutMsg: "the keyboard-opened window showed no focus ring" },
@@ -161,7 +175,7 @@ describe("Website desktop windows", () => {
     // Shift alone is not keyboard use: some browsers ring the clicked window
     // on it, so the ring waits for the root to record keyboard input.
     await browser.action("key").down(SHIFT).up(SHIFT).perform();
-    await expect($("html")).toHaveAttribute("data-input", "pointer");
+    await waitForRootAttribute("data-input", "pointer");
     expect(await focusRing()).toEqual({ title: "Resume", outline: "none" });
 
     await resumeWindow().$("button[aria-label='Minimize window']").click();
@@ -232,6 +246,14 @@ describe("Website desktop windows", () => {
     await expect(skylineWindow()).toBeExisting();
     expect(await frontWindowApp()).toBe("Skyline");
     await expect(taskbar("Skyline")).toHaveAttribute("aria-pressed", "true");
+
+    // An app already open raises its window instead of opening another.
+    await openFromStartMenu("Resume");
+    expect(await frontWindowApp()).toBe("Resume");
+    await expect(taskbar("Resume")).toHaveAttribute("aria-pressed", "true");
+    await expect($$(".desktop-surface section.window")).toBeElementsArrayOfSize(
+      2,
+    );
   });
 
   it("lists open windows in the taskbar, marking the front one", async () => {
@@ -255,16 +277,28 @@ describe("Website desktop windows", () => {
           };
         }),
       );
-    await waitForDnbmApps();
+    // Minimize the resume and close the skyline, the windows the desktop
+    // opens with, while nothing covers their controls. Then the start menu
+    // opens the sequencer, the player, and the artwork, in front.
     await resumeWindow().$("button[aria-label='Minimize window']").click();
-    await playerWindow().$("button[aria-label='Minimize window']").click();
     await skylineWindow().$("button[aria-label='Close window']").click();
     await expect(skylineWindow()).not.toBeExisting();
+    await openDnbmApps();
+    await openAsciiArt();
+    await playerWindow().$("button[aria-label='Minimize window']").click();
 
     // A closed window leaves the taskbar; a minimized one stays, muted. The
-    // sequencer's names its song, and the minimized player's only its app.
+    // taskbar lists the windows in the order they opened. The sequencer's
+    // names its song, and the minimized player's only its app.
     const chip = { icon: true, mutedBorder: true };
     expect(await taskbarState()).toEqual([
+      {
+        ...chip,
+        title: "Resume",
+        pressed: "false",
+        state: "minimized",
+        muted: true,
+      },
       {
         ...chip,
         title: expect.stringMatching(/^.+ — dnbm$/),
@@ -286,13 +320,6 @@ describe("Website desktop windows", () => {
         pressed: "true",
         state: "open",
         muted: false,
-      },
-      {
-        ...chip,
-        title: "Resume",
-        pressed: "false",
-        state: "minimized",
-        muted: true,
       },
     ]);
 
@@ -363,7 +390,7 @@ describe("Website desktop windows", () => {
     await waitForResume();
     await expect(taskbar("Resume")).toBeExisting();
     await expect($$(".desktop-surface section.window")).toBeElementsArrayOfSize(
-      5,
+      2,
     );
   });
 });

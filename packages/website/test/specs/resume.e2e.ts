@@ -2,6 +2,7 @@ import { browser, expect } from "@wdio/globals";
 import {
   asciiArtWindow,
   backgroundOf,
+  openAsciiArt,
   resumeTextFills,
   resumeWindow,
   siteState,
@@ -49,6 +50,7 @@ describe("Website resume window", () => {
   useDesktop();
 
   it("registers the resume and artwork menus", async () => {
+    await openAsciiArt();
     await taskbar("Resume").click();
     await resumeWindow().$("button=View").click();
     await resumeWindow().$("button*=Light Theme").click();

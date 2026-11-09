@@ -8,7 +8,7 @@ import type { WindowingIcon } from "@tearleads/windowing";
 
 import type { MiniAppId, MiniAppWindowOptions } from "./types";
 
-// Presentation metadata for every mini-app: titles, icons, launch order, and
+// Presentation metadata for every mini-app: titles, icons, menu order, and
 // how each window first opens. It imports no mini-app implementation, so code
 // that only labels apps (such as the error boundary) does not load them.
 // registry.ts pairs these titles with the components.
@@ -44,14 +44,19 @@ export const MINI_APP_WINDOWS: Readonly<
   "display-properties": { x: 200, y: 96, fitToContent: true },
 };
 
-// Opened in this order on load, so the last one starts in front; the taskbar
-// lists the apps in the same order. The resume starts in front of the artwork,
-// player, and skyline. The dnbm sequencer opens first, behind them all: its
-// fitted window is the largest.
-export const MINI_APP_LAUNCH_ORDER = [
+// The order the start menu and the routed shell list the apps in. The apps the
+// desktop opens on load are in registry.ts.
+export const MINI_APP_ORDER = [
   "dnbm",
   "skyline",
   "dnbm-player",
   "ascii-art",
+  "resume",
+] as const satisfies ReadonlyArray<MiniAppId>;
+
+// The apps the windowed desktop shows as icons, in their column's order. The
+// other apps open from the start menu.
+export const MINI_APP_DESKTOP_ICONS = [
+  "skyline",
   "resume",
 ] as const satisfies ReadonlyArray<MiniAppId>;

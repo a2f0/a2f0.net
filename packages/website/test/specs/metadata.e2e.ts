@@ -8,6 +8,7 @@ import {
   itServesLinkPreviewImage,
 } from "@a2f0/testing/searchMetadata";
 import { $, browser, expect } from "@wdio/globals";
+import { waitForRootAttribute } from "../lib/desktop";
 
 describe("Search metadata", () => {
   // The routed shell's app routes serve the same page, so all name the root.
@@ -116,11 +117,11 @@ describe("Search metadata", () => {
       );
       await showsColor("#000000");
       await themeSwitch().click();
-      await expect($("html")).toHaveAttribute("data-theme", "paper");
+      await waitForRootAttribute("data-theme", "paper");
       await showsColor("#c8c8c8");
       // A saved choice recolors the chrome as the page loads.
       await browser.refresh();
-      await expect($("html")).toHaveAttribute("data-theme", "paper");
+      await waitForRootAttribute("data-theme", "paper");
       await showsColor("#c8c8c8");
     } finally {
       await browser.execute(() => localStorage.removeItem("website.theme"));

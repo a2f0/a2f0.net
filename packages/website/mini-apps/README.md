@@ -8,13 +8,17 @@ hooks. The layout follows Tearleads'
 
 - `types.ts` lists the mini-app ids. The window layer stores a window's `appId`
   as an opaque string; `isMiniAppId` narrows it back.
-- `catalog.ts` holds each app's title, icon, launch order, and window options
+- `catalog.ts` holds each app's title, icon, menu order, and window options
   (where the window first opens, its size as a fraction of the desktop, and
-  whether it opens fitted to its content)
-  without importing any app, so code that only labels apps stays light.
+  whether it opens fitted to its content), and the apps the desktop shows as
+  icons, the skyline and the resume, without importing any app, so code that
+  only labels apps stays light.
 - `registry.ts` pairs those titles and icons with the components in
   `MINI_APP_LAUNCHER`, the windowing package's launcher definition, which the
-  routed shell runs and the windows open from.
+  routed shell runs and the windows open from. Its `defaultWindowAppIds` open,
+  in order, when the windowed desktop starts empty, so the resume opens in
+  front of the skyline. The other apps open from the start menu, and Display
+  Properties also from the desktop's context menu.
 - `MiniAppContent.tsx` renders each app with the framework's `MiniAppProps`.
   Its `onLoad` callback tells the window that the app's content has loaded. A
   window that opens with `fitToContent` then fits the size the app reports with
@@ -28,14 +32,16 @@ hooks. The layout follows Tearleads'
   and lets pointer events through to sibling windows. Each app also marks its
   existing content root with `data-ct-app`, which provides routed attribution
   without adding a parent that would change layout or measurement.
-- `useOpenMiniApp.ts` opens an app's window, or brings its open window to the
-  front. Each app has at most one window.
+- `windowPlacement.ts` places each new window by its app's window options. The
+  launcher opens every window through it, or brings an app's open window to
+  the front: each app has at most one window.
 
 ## Adding a mini-app
 
 1. Add its id to `MINI_APP_IDS` in `types.ts`.
-2. Give it a title, an icon, window options, and a place in the launch order
-   in `catalog.ts`.
+2. Give it a title, an icon, window options, and a place in the menu order in
+   `catalog.ts`. To give it a desktop icon, add it to `MINI_APP_DESKTOP_ICONS`
+   there; to open it on load, add it to `defaultWindowAppIds` in `registry.ts`.
 3. Create its directory with `<Name>App.tsx`, a component that takes
    `MiniAppProps`, and register it in `registry.ts` through
    `withMiniAppProps`. An app that opens fitted reports its size and calls
