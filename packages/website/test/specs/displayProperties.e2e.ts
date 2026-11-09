@@ -365,6 +365,10 @@ describe("Website Display Properties", () => {
         expect(result.coverage).toBeGreaterThan(0.15);
         expect(result.coverage).toBeLessThan(0.85);
         expect(Math.max(...result.seams)).toBeLessThan(4);
+        // Greyscale: every channel of the painted base and ink is equal.
+        for (const color of [result.base, result.ink]) {
+          expect(new Set(color).size).toBe(1);
+        }
       }
       expect(graphite.base).not.toEqual(paper.base);
       expect(graphite.ink).not.toEqual(paper.ink);

@@ -49,13 +49,18 @@ const foldedMosaic = [-208, 0, 208]
   )
   .join("");
 
-/** Host-owned art; the shared package only renders these alpha-mask tiles. */
+/**
+ * Host-owned art; the shared package only renders these alpha-mask tiles.
+ * Each is greyscale: its base and ink mix the theme's light color with a grey,
+ * so Graphite draws it dark and Paper light. Each grey has the luminance of
+ * the hue it replaced, which keeps the icon labels' contrast on the pattern.
+ */
 export const DESIGNED_WEBSITE_WALLPAPERS = [
   {
     id: "flux",
     label: "Flux",
-    base: "color-mix(in srgb, var(--color-light) 94%, #184767)",
-    ink: "color-mix(in srgb, var(--color-light) 45%, #269fc4)",
+    base: "color-mix(in srgb, var(--color-light) 94%, #434343)",
+    ink: "color-mix(in srgb, var(--color-light) 45%, #939393)",
     tile: {
       width: 256,
       height: 256,
@@ -69,8 +74,8 @@ export const DESIGNED_WEBSITE_WALLPAPERS = [
   {
     id: "aperture",
     label: "Aperture",
-    base: "color-mix(in srgb, var(--color-light) 96%, #59448a)",
-    ink: "color-mix(in srgb, var(--color-light) 55%, #6452be)",
+    base: "color-mix(in srgb, var(--color-light) 96%, #505050)",
+    ink: "color-mix(in srgb, var(--color-light) 55%, #636363)",
     tile: {
       width: 240,
       height: 240,
@@ -89,8 +94,8 @@ export const DESIGNED_WEBSITE_WALLPAPERS = [
   {
     id: "isochrome",
     label: "Isochrome",
-    base: "color-mix(in srgb, var(--color-light) 95%, #80614d)",
-    ink: "color-mix(in srgb, var(--color-light) 60%, #b7784c)",
+    base: "color-mix(in srgb, var(--color-light) 95%, #676767)",
+    ink: "color-mix(in srgb, var(--color-light) 60%, #868686)",
     tile: {
       width: 240,
       height: 208,
