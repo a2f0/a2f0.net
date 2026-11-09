@@ -1,4 +1,4 @@
-import { $, browser } from "@wdio/globals";
+import { $, browser, expect } from "@wdio/globals";
 
 // The selectors, probes, and setup more than one desktop spec uses.
 
@@ -19,6 +19,20 @@ export const titleOf = (app: string) => new RegExp(`^(.+ — )?${app}$`);
 export const taskbar = (app: string) =>
   $(
     `.desktop-taskbar-button[title="${app}"], .desktop-taskbar-button[title$=" — ${app}"]`,
+  );
+
+// Waits for the page's root element to carry an attribute's value. With
+// shadow roots on the page, WebdriverIO's shadow-piercing `$` searches below
+// the root element unless a custom element is mounted, so `$("html")` finds
+// nothing on the desktop the page opens with; read the root directly.
+export const waitForRootAttribute = (name: string, value: string) =>
+  browser.waitUntil(
+    async () =>
+      (await browser.execute(
+        (attribute) => document.documentElement.getAttribute(attribute),
+        name,
+      )) === value,
+    { timeoutMsg: `the page's root ${name} did not become ${value}` },
   );
 
 // A scrollbar changes the measured body width, replacing the SVG during
@@ -176,6 +190,35 @@ export const waitForDnbmApps = () =>
     { timeoutMsg: "the dnbm sequencer and player did not load" },
   );
 
+// Opens an app from the taskbar's start menu, by its menu label, or raises its
+// open window. The desktop opens only the skyline and the resume on load.
+export const openFromStartMenu = async (label: string) => {
+  const start = $(".desktop-taskbar button[aria-label='Menu']");
+  await start.click();
+  await $(".menu").$(`button=${label}`).click();
+  await expect($(".menu")).not.toBeExisting();
+  await expect(start).toHaveAttribute("aria-expanded", "false");
+};
+
+// The artwork is ready once its demo mounts inside its shadow root.
+export const waitForAsciiArt = () =>
+  browser.waitUntil(async () => (await siteState()).view === "ascii", {
+    timeoutMsg: "the demo did not mount inside its shadow root",
+  });
+
+export const openAsciiArt = async () => {
+  await openFromStartMenu("a2f0.net");
+  await waitForAsciiArt();
+};
+
+// Opens the sequencer and then the player, which starts in front, and waits
+// for both to load.
+export const openDnbmApps = async () => {
+  await openFromStartMenu("dnbm");
+  await openFromStartMenu("dnbm player");
+  await waitForDnbmApps();
+};
+
 // Presses the first element matching `target` inside a dnbm app where it
 // shows in front of the other windows: a grid cell, say, or a knob.
 export const pressInApp = async (selector: string, target: string) => {
@@ -232,15 +275,13 @@ export const frontWindowApp = async () =>
   );
 
 // Every desktop spec starts each test from a loaded windowed desktop, with
-// the resume and the artwork drawn.
+// the windows it opens on load, the skyline and the resume, and the resume
+// drawn.
 export const useDesktop = () => {
   beforeEach(async () => {
     await browser.setViewport({ width: 1440, height: 900 });
     await browser.url("/");
     await waitForResume();
-    await browser.waitUntil(async () => (await siteState()).view === "ascii", {
-      timeoutMsg: "the demo did not mount inside its shadow root",
-    });
   });
 
   // The sequencer autosaves its song in this origin's storage, the layout and

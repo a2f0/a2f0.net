@@ -4,6 +4,7 @@ import {
   StartMenu,
   type StartMenuItem,
   ThemeSwitch,
+  useLauncherNavigationActions,
   useWindowActions,
   useWindowStateData,
 } from "@tearleads/windowing";
@@ -11,11 +12,10 @@ import { useMemo } from "react";
 
 import {
   MINI_APP_ICONS,
-  MINI_APP_LAUNCH_ORDER,
+  MINI_APP_ORDER,
   MINI_APP_TITLES,
 } from "../mini-apps/catalog";
 import { isMiniAppId } from "../mini-apps/types";
-import { useOpenMiniApp } from "../mini-apps/useOpenMiniApp";
 import StartIcon from "./StartIcon";
 
 const START_ICON = <StartIcon className="desktop-start-icon" />;
@@ -32,19 +32,19 @@ const START_ICON = <StartIcon className="desktop-start-icon" />;
 export default function Taskbar() {
   const { windows } = useWindowStateData();
   const { restore } = useWindowActions();
-  const openMiniApp = useOpenMiniApp();
+  const { openMiniApp } = useLauncherNavigationActions();
   const front = findTopWindow(windows, (entry) => !entry.minimized);
 
   // Every app, then Display Properties, which the desktop's context menu also
   // opens; the start menu keeps it in reach of the keyboard.
   const startItems = useMemo(
     () =>
-      [...MINI_APP_LAUNCH_ORDER, "display-properties" as const].map(
+      [...MINI_APP_ORDER, "display-properties" as const].map(
         (appId): StartMenuItem => ({
           icon: MINI_APP_ICONS[appId],
           id: appId,
           label: MINI_APP_TITLES[appId],
-          onSelect: () => openMiniApp(appId),
+          onSelect: () => openMiniApp({ appId }),
         }),
       ),
     [openMiniApp],

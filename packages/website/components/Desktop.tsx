@@ -20,15 +20,12 @@ import {
 } from "@tearleads/windowing";
 import { useRouter } from "next/router";
 import { type PropsWithChildren, useEffect, useState } from "react";
-import { MINI_APP_LAUNCH_ORDER } from "../mini-apps/catalog";
+import { MINI_APP_DESKTOP_ICONS } from "../mini-apps/catalog";
 import { MiniAppBoundary } from "../mini-apps/MiniAppBoundary";
 import { MiniAppWindow } from "../mini-apps/MiniAppWindow";
 import { MINI_APP_LAUNCHER } from "../mini-apps/registry";
 import { isMiniAppId } from "../mini-apps/types";
-import {
-  useOpenEveryMiniAppOnce,
-  useOpenMiniApp,
-} from "../mini-apps/useOpenMiniApp";
+import { placeMiniAppWindow } from "../mini-apps/windowPlacement";
 import { DesktopSurfaceWithMenu } from "./DesktopMenu";
 import { trackInputModality } from "./inputModality";
 import StartIcon from "./StartIcon";
@@ -57,13 +54,11 @@ const DESKTOP_STATE_STORAGE = createOpfsDesktopStateStorage({
 
 function DesktopSurface() {
   const { windows } = useWindowStateData();
-  const openMiniApp = useOpenMiniApp();
   return (
     <DesktopSurfaceWithMenu>
       <DesktopWallpaper />
       <DesktopIcons
-        appIds={MINI_APP_LAUNCH_ORDER}
-        onOpen={openMiniApp}
+        appIds={MINI_APP_DESKTOP_ICONS}
         storage={DESKTOP_STATE_STORAGE}
       />
       {windows.map((entry) => (
@@ -81,13 +76,6 @@ function RoutedMiniAppBoundary({
 }: PropsWithChildren<{ appId: string }>) {
   if (!isMiniAppId(appId)) return children;
   return <MiniAppBoundary appId={appId}>{children}</MiniAppBoundary>;
-}
-
-// Opens the windows once on load, above both layouts, so switching back from
-// the routed shell keeps the windows as the visitor left them.
-function OpenEveryMiniAppOnce() {
-  useOpenEveryMiniAppOnce();
-  return null;
 }
 
 /**
@@ -131,8 +119,11 @@ function DesktopLayout() {
 
   return (
     <WindowStateProvider>
-      <LauncherNavigationProvider definition={MINI_APP_LAUNCHER} mode={mode}>
-        <OpenEveryMiniAppOnce />
+      <LauncherNavigationProvider
+        definition={MINI_APP_LAUNCHER}
+        mode={mode}
+        placeWindow={placeMiniAppWindow}
+      >
         <main className={`desktop desktop--${mode}`}>
           <h1 className="visually-hidden">a2f0</h1>
           {mode === "routed" ? (

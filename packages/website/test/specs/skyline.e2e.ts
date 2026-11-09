@@ -29,11 +29,9 @@ const skylineScenePoint = () =>
     return null;
   });
 
-// Presses the skyline's 3D scene where it shows in front of the other windows.
-// The skyline can be ready before the dnbm player above it fits its content:
-// until then the player opens at its generic size and covers the scene, so
-// wait for the scene to show. A press without a drag leaves the camera where
-// it is.
+// Presses the skyline's 3D scene where it shows in front of the other windows,
+// waiting for it to show while the windows in front of it settle their size. A
+// press without a drag leaves the camera where it is.
 const pressSkylineScene = async () => {
   const { x, y } = await browser.waitUntil(skylineScenePoint, {
     timeoutMsg: "No part of the skyline's scene shows",

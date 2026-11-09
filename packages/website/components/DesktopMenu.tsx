@@ -1,4 +1,9 @@
-import { Menu, MenuItem, type MenuPosition } from "@tearleads/windowing";
+import {
+  Menu,
+  MenuItem,
+  type MenuPosition,
+  useLauncherNavigationActions,
+} from "@tearleads/windowing";
 import {
   type PropsWithChildren,
   useCallback,
@@ -7,7 +12,6 @@ import {
 } from "react";
 
 import { MINI_APP_ICONS, MINI_APP_TITLES } from "../mini-apps/catalog";
-import { useOpenMiniApp } from "../mini-apps/useOpenMiniApp";
 
 /**
  * The desktop surface, with a context menu on its bare background (the
@@ -17,7 +21,7 @@ import { useOpenMiniApp } from "../mini-apps/useOpenMiniApp";
  * and the menu is a pointer shortcut to an app the start menu also opens.
  */
 export function DesktopSurfaceWithMenu({ children }: PropsWithChildren) {
-  const openMiniApp = useOpenMiniApp();
+  const { openMiniApp } = useLauncherNavigationActions();
   const [surface, setSurface] = useState<HTMLDivElement | null>(null);
   const [menu, setMenu] = useState<MenuPosition | null>(null);
   const closeMenu = useCallback(() => setMenu(null), []);
@@ -43,7 +47,7 @@ export function DesktopSurfaceWithMenu({ children }: PropsWithChildren) {
             label={MINI_APP_TITLES["display-properties"]}
             onClick={() => {
               closeMenu();
-              openMiniApp("display-properties");
+              openMiniApp({ appId: "display-properties" });
             }}
           />
         </Menu>

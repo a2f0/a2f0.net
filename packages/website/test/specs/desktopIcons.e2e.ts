@@ -20,25 +20,24 @@ const closeResume = async () => {
 describe("Website desktop icons", () => {
   useDesktop();
 
-  it("shows every app as an icon, clear of the windows", async () => {
+  it("shows the skyline and the resume as icons, clear of the windows", async () => {
+    // The other apps open from the start menu.
     await expect($$(".desktop-icons [role='option']")).toBeElementsArrayOfSize(
-      5,
+      2,
     );
     const labels = await $$(".desktop-icon-label").map((label) =>
       label.getText(),
     );
-    expect(labels).toEqual([
-      "dnbm",
-      "Skyline",
-      "dnbm player",
-      "a2f0.net",
-      "Resume",
-    ]);
+    expect(labels).toEqual(["Skyline", "Resume"]);
+    // The icons run down the left column, the skyline above the resume.
+    const skyline = await desktopIcon("skyline").getLocation();
+    const resume = await desktopIcon("resume").getLocation();
+    expect(resume.x).toBe(skyline.x);
+    expect(resume.y).toBeGreaterThan(skyline.y);
     // The resume opens right of the icon column.
-    const icon = await desktopIcon("resume").getLocation();
     const iconSize = await desktopIcon("resume").getSize();
     const window = await resumeWindow().getLocation();
-    expect(window.x).toBeGreaterThanOrEqual(icon.x + iconSize.width);
+    expect(window.x).toBeGreaterThanOrEqual(resume.x + iconSize.width);
   });
 
   it("opens an app on double-click, and from its menu", async () => {

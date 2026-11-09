@@ -4,14 +4,16 @@ import {
   dnbmAction,
   dnbmRegion,
   dnbmWindow,
+  openAsciiArt,
+  openDnbmApps,
   playerAction,
   playerRegion,
   pressInApp,
   resumeTextFills,
   taskbar,
   useDesktop,
-  waitForDnbmApps,
   waitForResume,
+  waitForRootAttribute,
   waitForSkyline,
 } from "../lib/desktop";
 
@@ -92,7 +94,8 @@ describe("Website themes", () => {
   });
 
   it("recolors every mini-app while preserving music playback and edits", async () => {
-    await waitForDnbmApps();
+    await openDnbmApps();
+    await openAsciiArt();
     await waitForSkyline();
     await taskbar("dnbm").click();
     await pressInApp(".dnbm-window [role=region]", ".grid-row .cell");
@@ -208,7 +211,9 @@ describe("Website themes", () => {
     // Saved Paper must also survive the packages' asynchronous first load.
     await themeSwitch().click();
     await browser.refresh();
-    await waitForDnbmApps();
+    await waitForResume();
+    await openDnbmApps();
+    await openAsciiArt();
     await waitForSkyline();
     expect(await palettes()).toEqual({
       sequencer: { background: "rgb(245, 245, 245)", color: "rgb(85, 85, 85)" },
@@ -237,7 +242,7 @@ describe("Website themes", () => {
     const tray = $(".routed-pane-taskbar-end");
     await expect(tray.$$("button")).toBeElementsArrayOfSize(1);
     await tray.$("button[aria-label='Switch to Paper theme']").click();
-    await expect($("html")).toHaveAttribute("data-theme", "paper");
+    await waitForRootAttribute("data-theme", "paper");
     await expect(
       tray.$("button[aria-label='Switch to Graphite theme']"),
     ).toBeDisplayed();

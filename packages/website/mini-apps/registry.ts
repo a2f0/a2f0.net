@@ -5,11 +5,7 @@ import type {
 import type { ComponentType } from "react";
 
 import { AsciiArtApp } from "./ascii-art/AsciiArtApp";
-import {
-  MINI_APP_ICONS,
-  MINI_APP_LAUNCH_ORDER,
-  MINI_APP_TITLES,
-} from "./catalog";
+import { MINI_APP_ICONS, MINI_APP_ORDER, MINI_APP_TITLES } from "./catalog";
 import { DisplayPropertiesApp } from "./display-properties/DisplayPropertiesApp";
 import { DnbmApp } from "./dnbm/DnbmApp";
 import { DnbmPlayerApp } from "./dnbm-player/DnbmPlayerApp";
@@ -35,8 +31,9 @@ function miniApp(
 
 /**
  * The windowing package's launcher definition of the desktop: every mini-app
- * with its title and icon, listed in launch order. The routed shell, on phones
- * and tablets, shows the artwork at the root route.
+ * with its title and icon, listed in menu order. The windowed desktop opens
+ * the skyline and then the resume on load, so the resume starts in front. The
+ * routed shell, on phones and tablets, shows the artwork at the root route.
  */
 export const MINI_APP_LAUNCHER: LauncherDefinition<MiniAppId> = {
   apps: {
@@ -47,6 +44,7 @@ export const MINI_APP_LAUNCHER: LauncherDefinition<MiniAppId> = {
     "dnbm-player": miniApp("dnbm-player", DnbmPlayerApp),
     "display-properties": miniApp("display-properties", DisplayPropertiesApp),
   },
+  defaultWindowAppIds: ["skyline", "resume"],
   homeAppId: "ascii-art",
-  order: MINI_APP_LAUNCH_ORDER,
+  order: MINI_APP_ORDER,
 };
