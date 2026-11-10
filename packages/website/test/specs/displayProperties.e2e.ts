@@ -1,5 +1,5 @@
 import { $, browser, expect } from "@wdio/globals";
-import { useDesktop } from "../lib/desktop";
+import { useDesktop, waitForResume } from "../lib/desktop";
 
 const displayWindow = () => $("section.window:has(.display-properties-window)");
 
@@ -56,6 +56,13 @@ const selectWallpaper = async (label: string, id: string) => {
     timeoutMsg: `the desktop did not repaint with ${label}`,
   });
 };
+
+const displaySettings = () =>
+  browser.execute(() => ({
+    theme: document.documentElement.dataset.theme,
+    storedTheme: localStorage.getItem("website.theme"),
+    storedWallpaper: localStorage.getItem("website.wallpaper"),
+  }));
 
 // Measure whole cards and the Reset Defaults button against the scrollport,
 // not just DOM visibility: a label below its clipped bottom still counts as
@@ -342,8 +349,6 @@ describe("Website Display Properties", () => {
 
   it("resets the wallpaper and theme to the defaults a new visitor sees", async () => {
     await openFittedDisplayProperties();
-    const reset = displayWindow().$("button=Reset Defaults");
-    await expect(reset).toBeDisabled();
     await selectWallpaper("Bricks", "bricks");
     await displayWindow().$("label=Paper").click();
     await browser.waitUntil(
@@ -353,28 +358,44 @@ describe("Website Display Properties", () => {
         ),
       { timeoutMsg: "the theme did not change to Paper" },
     );
-    await expect(reset).toBeEnabled();
 
-    await reset.click();
+    await displayWindow().$("button=Reset Defaults").click();
     await browser.waitUntil(async () => (await wallpaper())?.id === "flux", {
       timeoutMsg: "the desktop did not return to Flux",
     });
-    await expect(reset).toBeDisabled();
     // The choices are forgotten rather than saved as the defaults, so the
     // visitor follows any later change to them.
-    expect(
-      await browser.execute(() => ({
-        theme: document.documentElement.dataset.theme,
-        storedTheme: localStorage.getItem("website.theme"),
-        storedWallpaper: localStorage.getItem("website.wallpaper"),
-      })),
-    ).toEqual({ theme: "graphite", storedTheme: null, storedWallpaper: null });
+    expect(await displaySettings()).toEqual({
+      theme: "graphite",
+      storedTheme: null,
+      storedWallpaper: null,
+    });
     expect(await displayWindow().$("label=Flux").$("input").isSelected()).toBe(
       true,
     );
     expect(
       await displayWindow().$("label=Graphite").$("input").isSelected(),
     ).toBe(true);
+  });
+
+  it("forgets saved choices that match the defaults", async () => {
+    await browser.execute(() => {
+      localStorage.setItem("website.theme", "graphite");
+      localStorage.setItem("website.wallpaper", "flux");
+    });
+    await browser.refresh();
+    await waitForResume();
+    await openFittedDisplayProperties();
+    await displayWindow().$("button=Reset Defaults").click();
+    await browser.waitUntil(
+      async () => (await displaySettings()).storedWallpaper === null,
+      { timeoutMsg: "Reset Defaults kept the saved choices" },
+    );
+    expect(await displaySettings()).toEqual({
+      theme: "graphite",
+      storedTheme: null,
+      storedWallpaper: null,
+    });
   });
 
   for (const [id, label] of [

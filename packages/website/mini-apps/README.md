@@ -127,9 +127,9 @@ several apps.
   ready with its songs. It stores nothing.
 - `display-properties/` shows the windowing package's `DisplayProperties`, the
   desktop's wallpaper and theme choices, with a Reset Defaults button under
-  them. It returns to Flux and Graphite and removes the saved choices, so the
-  visitor follows the defaults as a new visitor does; it is disabled while
-  both defaults show. Its window opens fitted to the choices and the button.
+  them. It returns to Flux and Graphite and removes the saved choices, even
+  ones that match the defaults, so the visitor follows the defaults as a new
+  visitor does. Its window opens fitted to the choices and the button.
 
 `shared/useDnbmState.ts` follows a dnbm instance's state for both windows'
 chrome, and `shared/useWindowTitle.ts` names what an app shows in its window's

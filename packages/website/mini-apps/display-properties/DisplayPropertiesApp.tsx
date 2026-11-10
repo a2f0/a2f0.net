@@ -35,19 +35,16 @@ function forgetDisplayChoices() {
 
 /**
  * Puts the wallpaper and the theme back to the desktop's defaults, Flux and
- * Graphite. It is disabled while both already show.
+ * Graphite. It stays enabled while the defaults show, since a saved choice of
+ * a default is still a choice to forget.
  */
 function ResetDefaultsButton() {
-  const { activeTheme, setTheme } = useTheme();
-  const { activeWallpaper, setWallpaper } = useWallpaper();
-  const atDefaults =
-    activeTheme.id === DEFAULT_WEBSITE_THEME &&
-    activeWallpaper.id === DEFAULT_WEBSITE_WALLPAPER;
+  const { setTheme } = useTheme();
+  const { setWallpaper } = useWallpaper();
   return (
     <div className="display-properties-actions">
       <button
         className="display-properties-reset"
-        disabled={atDefaults}
         onClick={() => {
           setWallpaper(DEFAULT_WEBSITE_WALLPAPER);
           setTheme(DEFAULT_WEBSITE_THEME);
