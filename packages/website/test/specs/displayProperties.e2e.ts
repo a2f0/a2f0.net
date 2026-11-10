@@ -341,9 +341,9 @@ describe("Website Display Properties", () => {
     expect((await displayLayout()).scrollTop).toBeGreaterThan(0);
   });
 
-  it("paints Flux behind the icons for a new visitor", async () => {
+  it("paints Honeycomb behind the icons for a new visitor", async () => {
     const shown = await wallpaper();
-    expect(shown?.id).toBe("flux");
+    expect(shown?.id).toBe("honeycomb");
     expect(shown?.mask).toContain("data:image/svg+xml");
   });
 
@@ -360,9 +360,10 @@ describe("Website Display Properties", () => {
     );
 
     await displayWindow().$("button=Reset Defaults").click();
-    await browser.waitUntil(async () => (await wallpaper())?.id === "flux", {
-      timeoutMsg: "the desktop did not return to Flux",
-    });
+    await browser.waitUntil(
+      async () => (await wallpaper())?.id === "honeycomb",
+      { timeoutMsg: "the desktop did not return to Honeycomb" },
+    );
     // The choices are forgotten rather than saved as the defaults, so the
     // visitor follows any later change to them.
     expect(await displaySettings()).toEqual({
@@ -370,9 +371,9 @@ describe("Website Display Properties", () => {
       storedTheme: null,
       storedWallpaper: null,
     });
-    expect(await displayWindow().$("label=Flux").$("input").isSelected()).toBe(
-      true,
-    );
+    expect(
+      await displayWindow().$("label=Honeycomb").$("input").isSelected(),
+    ).toBe(true);
     expect(
       await displayWindow().$("label=Graphite").$("input").isSelected(),
     ).toBe(true);
@@ -381,7 +382,7 @@ describe("Website Display Properties", () => {
   it("forgets saved choices that match the defaults", async () => {
     await browser.execute(() => {
       localStorage.setItem("website.theme", "graphite");
-      localStorage.setItem("website.wallpaper", "flux");
+      localStorage.setItem("website.wallpaper", "honeycomb");
     });
     await browser.refresh();
     await waitForResume();
@@ -408,7 +409,7 @@ describe("Website Display Properties", () => {
       await $(".menu").$("button=Display Properties").click();
       await expect(displayWindow()).toBeDisplayed();
       await expect($(".menu")).not.toBeExisting();
-      // Move away first, so choosing the default is a real change too.
+      // Move away first, so every choice is a real change.
       await selectWallpaper("None", "plain");
       await selectWallpaper(label, id);
       const graphite = await patternReadability();
@@ -477,12 +478,14 @@ describe("Website Display Properties", () => {
     });
   }
 
-  it("falls back to Flux for an unrecognized saved id", async () => {
+  it("falls back to Honeycomb for an unrecognized saved id", async () => {
     await browser.execute(() =>
       localStorage.setItem("website.wallpaper", "removed-pattern"),
     );
     await browser.refresh();
-    await browser.waitUntil(async () => (await wallpaper())?.id === "flux");
+    await browser.waitUntil(
+      async () => (await wallpaper())?.id === "honeycomb",
+    );
   });
 
   it("opens from the start menu with the keyboard", async () => {

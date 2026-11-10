@@ -55,17 +55,17 @@ light grey is on black. It gives the artwork an ink-on-white treatment, the musi
 surfaces with dark controls, and Skyline its sunny-day colour mode. The resume follows the desktop
 by default and keeps its own theme controls for previewing its page.
 
-The desktop starts with Flux, a flowing ribbon pattern. Display Properties,
-opened from the desktop's context menu, the start menu, or the routed shell's
-launcher, also offers Aperture
-and Isochrome, plus the original Bricks, Honeycomb, Harlequin, Chevron, and None
-choices. Every wallpaper is greyscale, dark in Graphite and light in Paper.
-Previews show the full height of each tile, while the desktop keeps the
-artwork's natural scale. Changing a wallpaper preserves it across visits; an
-existing saved choice is kept rather than replaced with the new default. Reset
-Defaults, under the choices, returns to Flux and Graphite and forgets the saved
-choices, so a later change to the defaults reaches the visitor too. The routed
-shell has no wallpaper, so a wallpaper chosen there shows on the desktop.
+The desktop starts with Honeycomb. Display Properties, opened from the
+desktop's context menu, the start menu, or the routed shell's launcher, also
+offers the designed Flux (a flowing ribbon pattern), Aperture, and Isochrome,
+plus the original Bricks, Harlequin, Chevron, and None choices. Every
+wallpaper is greyscale, dark in Graphite and light in Paper. Previews show the
+full height of each tile, while the desktop keeps the artwork's natural scale.
+Changing a wallpaper preserves it across visits; an existing saved choice is
+kept rather than replaced with the new default. Reset Defaults, under the
+choices, returns to Honeycomb and Graphite and forgets the saved choices, so a
+later change to the defaults reaches the visitor too. The routed shell has no
+wallpaper, so a wallpaper chosen there shows on the desktop.
 
 On phones, tablets, and windows narrower than 1024px, the desktop gives way to
 the windowing package's routed shell, the layout Tearleads uses there: one

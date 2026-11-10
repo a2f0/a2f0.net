@@ -46,7 +46,7 @@ export const WEBSITE_WALLPAPERS: readonly WallpaperDefinition<WebsiteWallpaperId
   ];
 
 /** The wallpaper until the visitor picks one. */
-export const DEFAULT_WEBSITE_WALLPAPER: WebsiteWallpaperId = "flux";
+export const DEFAULT_WEBSITE_WALLPAPER: WebsiteWallpaperId = "honeycomb";
 
 /** Where Display Properties keeps the visitor's choice. */
 export const WALLPAPER_STORAGE_KEY = "website.wallpaper";
