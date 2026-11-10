@@ -34,9 +34,9 @@ function forgetDisplayChoices() {
 }
 
 /**
- * Puts the wallpaper and the theme back to the desktop's defaults, Flux and
- * Graphite. It stays enabled while the defaults show, since a saved choice of
- * a default is still a choice to forget.
+ * Puts the wallpaper and the theme back to the desktop's defaults, Honeycomb
+ * and Graphite. It stays enabled while the defaults show, since a saved choice
+ * of a default is still a choice to forget.
  */
 function ResetDefaultsButton() {
   const { setTheme } = useTheme();

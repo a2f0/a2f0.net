@@ -128,7 +128,7 @@ several apps.
   ready with its songs. It stores nothing.
 - `display-properties/` shows the windowing package's `DisplayProperties`, the
   desktop's wallpaper and theme choices, with a Reset Defaults button under
-  them. It returns to Flux and Graphite and removes the saved choices, even
+  them. It returns to Honeycomb and Graphite and removes the saved choices, even
   ones that match the defaults, so the visitor follows the defaults as a new
   visitor does. Its window opens fitted to the choices and the button.
 

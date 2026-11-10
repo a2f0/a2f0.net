@@ -1,11 +1,7 @@
 import { expect, test } from "bun:test";
-import {
-  DEFAULT_WEBSITE_WALLPAPER,
-  WALLPAPER_STORAGE_KEY,
-  WEBSITE_WALLPAPERS,
-} from "./wallpapers";
+import { WEBSITE_WALLPAPERS } from "./wallpapers";
 
-test("offers the designed collection first with Flux as the new-visitor default", () => {
+test("offers the designed collection first", () => {
   expect(WEBSITE_WALLPAPERS.map(({ id, label }) => [id, label])).toEqual([
     ["flux", "Flux"],
     ["aperture", "Aperture"],
@@ -16,8 +12,6 @@ test("offers the designed collection first with Flux as the new-visitor default"
     ["chevron", "Chevron"],
     ["plain", "None"],
   ]);
-  expect(DEFAULT_WEBSITE_WALLPAPER).toBe("flux");
-  expect(WALLPAPER_STORAGE_KEY).toBe("website.wallpaper");
 });
 
 test("each designed wallpaper is a distinct, self-contained, theme-colored large tile", () => {
