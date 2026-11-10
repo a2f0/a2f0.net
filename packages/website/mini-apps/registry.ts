@@ -1,6 +1,7 @@
 import type {
   LauncherDefinition,
   MiniAppDefinition,
+  RoutedLayoutTier,
 } from "@tearleads/windowing";
 import type { ComponentType } from "react";
 
@@ -33,9 +34,9 @@ function miniApp(
  * The windowing package's launcher definition of the desktop: every mini-app
  * with its title and icon, listed in menu order. The windowed desktop opens
  * the skyline and then the resume on load, so the resume starts in front. The
- * routed shell, on phones and tablets, shows the artwork at the root route.
+ * routed shell shows the artwork at the root route on a phone.
  */
-export const MINI_APP_LAUNCHER: LauncherDefinition<MiniAppId> = {
+const MINI_APP_LAUNCHER: LauncherDefinition<MiniAppId> = {
   apps: {
     resume: miniApp("resume", ResumeApp),
     "ascii-art": miniApp("ascii-art", AsciiArtApp),
@@ -47,4 +48,15 @@ export const MINI_APP_LAUNCHER: LauncherDefinition<MiniAppId> = {
   defaultWindowAppIds: ["skyline", "resume"],
   homeAppId: "ascii-art",
   order: MINI_APP_ORDER,
+};
+
+/**
+ * The launcher definition for each routed shell tier. They differ only in the
+ * app at the root route: the resume on a tablet, and the artwork on a phone.
+ */
+export const MINI_APP_LAUNCHERS: Readonly<
+  Record<RoutedLayoutTier, LauncherDefinition<MiniAppId>>
+> = {
+  mobile: MINI_APP_LAUNCHER,
+  tablet: { ...MINI_APP_LAUNCHER, homeAppId: "resume" },
 };

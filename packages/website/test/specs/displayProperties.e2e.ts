@@ -57,13 +57,16 @@ const selectWallpaper = async (label: string, id: string) => {
   });
 };
 
-// Measure whole cards against the scrollport, not just DOM visibility: a
-// label below its clipped bottom still counts as displayed to WebDriver.
+// Measure whole cards and the Reset Defaults button against the scrollport,
+// not just DOM visibility: a label below its clipped bottom still counts as
+// displayed to WebDriver.
 const displayLayout = () =>
   browser.execute(() => {
     const content = document.querySelector<HTMLElement>(".display-properties");
+    const app = content?.closest<HTMLElement>(".display-properties-window");
     const pane = content?.closest<HTMLElement>(".window-body-content-scroll");
-    if (!content || !pane) throw new Error("Missing Display Properties pane");
+    if (!content || !app || !pane)
+      throw new Error("Missing Display Properties pane");
     const bounds = pane.getBoundingClientRect();
     const padding = getComputedStyle(pane);
     // The fit contract reserves a vertical scrollbar even when nothing scrolls.
@@ -74,7 +77,9 @@ const displayLayout = () =>
     const scrollbarWidth = probe.offsetWidth - probe.clientWidth;
     probe.remove();
     const frame = content.closest("section.window")?.getBoundingClientRect();
-    const choices = [...content.querySelectorAll<HTMLElement>("label")];
+    const choices = [
+      ...app.querySelectorAll<HTMLElement>("label, .display-properties-reset"),
+    ];
     return {
       frame: frame && { width: frame.width, height: frame.height },
       scrollbarWidth,
@@ -249,7 +254,7 @@ describe("Website Display Properties", () => {
       // the generic 900×600 frame would falsely pass visibility alone.
       expect(layout.fittedContent).toEqual({
         width: 420 + layout.scrollbarWidth,
-        height: 400,
+        height: 440,
       });
       expect(layout.wallpapers).toEqual([
         "Flux",
@@ -333,6 +338,43 @@ describe("Website Display Properties", () => {
     const shown = await wallpaper();
     expect(shown?.id).toBe("flux");
     expect(shown?.mask).toContain("data:image/svg+xml");
+  });
+
+  it("resets the wallpaper and theme to the defaults a new visitor sees", async () => {
+    await openFittedDisplayProperties();
+    const reset = displayWindow().$("button=Reset Defaults");
+    await expect(reset).toBeDisabled();
+    await selectWallpaper("Bricks", "bricks");
+    await displayWindow().$("label=Paper").click();
+    await browser.waitUntil(
+      () =>
+        browser.execute(
+          () => document.documentElement.dataset.theme === "paper",
+        ),
+      { timeoutMsg: "the theme did not change to Paper" },
+    );
+    await expect(reset).toBeEnabled();
+
+    await reset.click();
+    await browser.waitUntil(async () => (await wallpaper())?.id === "flux", {
+      timeoutMsg: "the desktop did not return to Flux",
+    });
+    await expect(reset).toBeDisabled();
+    // The choices are forgotten rather than saved as the defaults, so the
+    // visitor follows any later change to them.
+    expect(
+      await browser.execute(() => ({
+        theme: document.documentElement.dataset.theme,
+        storedTheme: localStorage.getItem("website.theme"),
+        storedWallpaper: localStorage.getItem("website.wallpaper"),
+      })),
+    ).toEqual({ theme: "graphite", storedTheme: null, storedWallpaper: null });
+    expect(await displayWindow().$("label=Flux").$("input").isSelected()).toBe(
+      true,
+    );
+    expect(
+      await displayWindow().$("label=Graphite").$("input").isSelected(),
+    ).toBe(true);
   });
 
   for (const [id, label] of [
