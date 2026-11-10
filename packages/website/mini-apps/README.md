@@ -19,8 +19,9 @@ hooks. The layout follows Tearleads'
   shell tier, differing only in the app at the root route: the resume on a
   tablet and the artwork on a phone. Their `defaultWindowAppIds` open, in
   order, when the windowed desktop starts empty, so the resume opens in front
-  of the skyline. The other apps open from the start menu, and Display
-  Properties also from the desktop's context menu.
+  of the skyline. The other apps open from the start menu or the routed
+  shell's launcher, which both list Display Properties last; the desktop's
+  context menu opens it too.
 - `MiniAppContent.tsx` renders each app with the framework's `MiniAppProps`.
   Its `onLoad` callback tells the window that the app's content has loaded. A
   window that opens with `fitToContent` then fits the size the app reports with

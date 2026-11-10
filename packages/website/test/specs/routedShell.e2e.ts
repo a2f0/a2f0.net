@@ -37,7 +37,14 @@ describe("Website routed shell", () => {
     await expect($(".routed-pane-sheet")).toHaveAttribute("data-open", "true");
     expect(
       await $$(".routed-pane-sheet-tile").map((tile) => tile.getText()),
-    ).toEqual(["dnbm", "Skyline", "dnbm player", "a2f0.net", "Resume"]);
+    ).toEqual([
+      "dnbm",
+      "Skyline",
+      "dnbm player",
+      "a2f0.net",
+      "Resume",
+      "Display Properties",
+    ]);
 
     // A tile navigates: the resume shows in the column layout, with its menu
     // actions in the toolbar, and Back returns to the artwork.
@@ -63,6 +70,22 @@ describe("Website routed shell", () => {
     expect(new URL(await browser.getUrl()).pathname).toBe("/");
     await browser.forward();
     await expect($(".routed-pane-main .resume-window")).toBeExisting();
+  });
+
+  it("opens Display Properties from the tablet rail", async () => {
+    await browser.setViewport({ width: 820, height: 1180 });
+    await browser.refresh();
+    await expect($(".routed-pane.routed-pane--tablet")).toBeDisplayed();
+    await $("button[aria-label='Expand navigation rail']").click();
+    const link = $(".routed-pane-nav-link[href='/app/display-properties']");
+    await expect(link).toHaveText("Display Properties");
+    await link.click();
+    await expect($(".routed-pane-title")).toHaveText("Display Properties");
+    // Its choices apply in the routed shell too.
+    await $(".routed-pane-main .display-properties-window")
+      .$("label=Paper")
+      .click();
+    await waitForRootAttribute("data-theme", "paper");
   });
 
   it("fills the routed content pane with the edge-to-edge apps, unscrolled", async () => {

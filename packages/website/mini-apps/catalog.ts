@@ -44,14 +44,16 @@ export const MINI_APP_WINDOWS: Readonly<
   "display-properties": { x: 200, y: 96, fitToContent: true },
 };
 
-// The order the start menu and the routed shell list the apps in. The apps the
-// desktop opens on load are in registry.ts.
+// The order the start menu and the routed shell's launcher list the apps in:
+// every app, then Display Properties, which the desktop's context menu also
+// opens. The apps the desktop opens on load are in registry.ts.
 export const MINI_APP_ORDER = [
   "dnbm",
   "skyline",
   "dnbm-player",
   "ascii-art",
   "resume",
+  "display-properties",
 ] as const satisfies ReadonlyArray<MiniAppId>;
 
 // The apps the windowed desktop shows as icons, in their column's order. The

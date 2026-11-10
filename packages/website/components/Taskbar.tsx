@@ -35,11 +35,11 @@ export default function Taskbar() {
   const { openMiniApp } = useLauncherNavigationActions();
   const front = findTopWindow(windows, (entry) => !entry.minimized);
 
-  // Every app, then Display Properties, which the desktop's context menu also
-  // opens; the start menu keeps it in reach of the keyboard.
+  // Every app in launcher order, Display Properties last; the start menu keeps
+  // them all in reach of the keyboard.
   const startItems = useMemo(
     () =>
-      [...MINI_APP_ORDER, "display-properties" as const].map(
+      MINI_APP_ORDER.map(
         (appId): StartMenuItem => ({
           icon: MINI_APP_ICONS[appId],
           id: appId,
