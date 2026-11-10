@@ -14,10 +14,12 @@ hooks. The layout follows Tearleads'
   icons, the skyline and the resume, without importing any app, so code that
   only labels apps stays light.
 - `registry.ts` pairs those titles and icons with the components in
-  `MINI_APP_LAUNCHER`, the windowing package's launcher definition, which the
-  routed shell runs and the windows open from. Its `defaultWindowAppIds` open,
-  in order, when the windowed desktop starts empty, so the resume opens in
-  front of the skyline. The other apps open from the start menu, and Display
+  `MINI_APP_LAUNCHERS`, the windowing package's launcher definitions, which
+  the routed shell runs and the windows open from. There is one per routed
+  shell tier, differing only in the app at the root route: the resume on a
+  tablet and the artwork on a phone. Their `defaultWindowAppIds` open, in
+  order, when the windowed desktop starts empty, so the resume opens in front
+  of the skyline. The other apps open from the start menu, and Display
   Properties also from the desktop's context menu.
 - `MiniAppContent.tsx` renders each app with the framework's `MiniAppProps`.
   Its `onLoad` callback tells the window that the app's content has loaded. A
@@ -123,6 +125,11 @@ several apps.
   title names the current song. Its window opens fitted to the player and its
   whole playlist, between the skyline and the artwork, once the player is
   ready with its songs. It stores nothing.
+- `display-properties/` shows the windowing package's `DisplayProperties`, the
+  desktop's wallpaper and theme choices, with a Reset Defaults button under
+  them. It returns to Flux and Graphite and removes the saved choices, even
+  ones that match the defaults, so the visitor follows the defaults as a new
+  visitor does. Its window opens fitted to the choices and the button.
 
 `shared/useDnbmState.ts` follows a dnbm instance's state for both windows'
 chrome, and `shared/useWindowTitle.ts` names what an app shows in its window's

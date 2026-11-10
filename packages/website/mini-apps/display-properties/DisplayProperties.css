@@ -1,0 +1,27 @@
+/* Reset Defaults sits under the choices at their right edge, inset as they
+   are, and is drawn like their cards. */
+.display-properties-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 var(--space-md) var(--space-md);
+}
+
+.display-properties-reset {
+  padding: var(--space-xs) var(--space-sm);
+  border: var(--border-width) solid var(--color-hairline);
+  border-radius: var(--app-radius-control);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.display-properties-reset:hover {
+  background: var(--app-hover-surface);
+}
+
+.display-properties-reset:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 2px;
+}

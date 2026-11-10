@@ -18,8 +18,8 @@ describe("Website routed shell", () => {
     await expect($(".routed-pane.routed-pane--mobile")).toBeDisplayed();
     await expect($(".desktop-taskbar")).not.toBeExisting();
     await waitForRootAttribute("data-navigation-mode", "routed");
-    // The root route shows the artwork with its controls in the app bar's
-    // toolbar.
+    // On a phone the root route shows the artwork, with its controls in the
+    // app bar's toolbar.
     await expect($(".routed-pane-main .ascii-art-window")).toBeExisting();
     await expect(
       $(".routed-pane-toolbar button[aria-label='ASCII view']"),
@@ -233,16 +233,19 @@ describe("Website routed shell", () => {
     await skylineWindow().$("button[aria-label='Close window']").click();
     await expect(skylineWindow()).not.toBeExisting();
 
-    // The desktop's corner offers the routed layout.
+    // The desktop's corner offers the routed layout, whose root route shows
+    // the resume on a tablet.
     await toRouted();
     await expect($(".routed-pane.routed-pane--tablet")).toBeDisplayed();
-    await expect($(".routed-pane-title")).toHaveText("a2f0.net");
+    await expect($(".routed-pane-title")).toHaveText("Resume");
+    await waitForResume();
+    expect(new URL(await browser.getUrl()).pathname).toBe("/");
 
     // The tablet rail lists every app; a link opens it.
     await $("button[aria-label='Expand navigation rail']").click();
-    await $(".routed-pane-nav-link[href='/app/resume']").click();
-    await expect($(".routed-pane-title")).toHaveText("Resume");
-    await waitForResume();
+    await $(".routed-pane-nav-link[href='/app/ascii-art']").click();
+    await expect($(".routed-pane-title")).toHaveText("a2f0.net");
+    await expect($(".routed-pane-main .ascii-art-window")).toBeExisting();
 
     // The tray switches back to the windows as they were.
     await toWindowed();

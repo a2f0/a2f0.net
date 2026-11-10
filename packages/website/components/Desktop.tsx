@@ -14,6 +14,7 @@ import {
   ThemeSwitch,
   useNavigationModeDocumentAttribute,
   useNavigationModeOverride,
+  useRoutedLayoutTier,
   useWindowStateData,
   WallpaperProvider,
   WindowStateProvider,
@@ -23,7 +24,7 @@ import { type PropsWithChildren, useEffect, useState } from "react";
 import { MINI_APP_DESKTOP_ICONS } from "../mini-apps/catalog";
 import { MiniAppBoundary } from "../mini-apps/MiniAppBoundary";
 import { MiniAppWindow } from "../mini-apps/MiniAppWindow";
-import { MINI_APP_LAUNCHER } from "../mini-apps/registry";
+import { MINI_APP_LAUNCHERS } from "../mini-apps/registry";
 import { isMiniAppId } from "../mini-apps/types";
 import { placeMiniAppWindow } from "../mini-apps/windowPlacement";
 import { DesktopSurfaceWithMenu } from "./DesktopMenu";
@@ -111,16 +112,18 @@ const ROUTED_TRAY = (
  * Windows on a desktop wide enough for them, with a mouse: the windowing
  * package's routed shell, one app at a time, on phones, tablets, and narrow
  * windows. The visitor's choice from the switch in the taskbar's corner wins
- * wherever windows suit the screen.
+ * wherever windows suit the screen. The routed shell's root route shows the
+ * resume on a tablet and the artwork on a phone.
  */
 function DesktopLayout() {
   const mode = useLayout();
+  const tier = useRoutedLayoutTier();
   useNavigationModeDocumentAttribute(mode);
 
   return (
     <WindowStateProvider>
       <LauncherNavigationProvider
-        definition={MINI_APP_LAUNCHER}
+        definition={MINI_APP_LAUNCHERS[tier]}
         mode={mode}
         placeWindow={placeMiniAppWindow}
       >

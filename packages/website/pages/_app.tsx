@@ -20,6 +20,7 @@ import "../styles/themes.css";
 // stylesheet, kept beside the app, is imported here too.
 import "../mini-apps/MiniApps.css";
 import "../mini-apps/ascii-art/AsciiArt.css";
+import "../mini-apps/display-properties/DisplayProperties.css";
 import "../mini-apps/dnbm/Dnbm.css";
 import "../mini-apps/dnbm-player/DnbmPlayer.css";
 import "../mini-apps/resume/Resume.css";

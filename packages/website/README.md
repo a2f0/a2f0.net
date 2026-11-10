@@ -61,22 +61,24 @@ and Isochrome, plus the original Bricks, Honeycomb, Harlequin, Chevron, and None
 choices. Every wallpaper is greyscale, dark in Graphite and light in Paper.
 Previews show the full height of each tile, while the desktop keeps the
 artwork's natural scale. Changing a wallpaper preserves it across visits; an
-existing saved choice is kept rather than replaced with the new default.
+existing saved choice is kept rather than replaced with the new default. Reset
+Defaults, under the choices, returns to Flux and Graphite and forgets the saved
+choices, so a later change to the defaults reaches the visitor too.
 
 On phones, tablets, and windows narrower than 1024px, the desktop gives way to
 the windowing package's routed shell, the layout Tearleads uses there: one
 mini-app at a time under an app bar, with a launcher of app tiles behind the
 stacked graffiti in the bottom taskbar (a rail on tablets). Each app has a
 route, `/app/<app id>`, which the browser's Back and Forward walk and which the
-Worker serves the page for; the root route shows the artwork. The routed shell
-has no menu bar, so the resume puts its theme, downloads, and printing in the
-app bar's toolbar there, beside the toolbars the other apps already have. The
-switch in the taskbar's corner moves between the two layouts wherever windows
-suit the screen, and the choice persists. The layout follows the screen the
-page loads on and keeps it as the window resizes, since a switch remounts
-every app; the resume keeps its theme and scale across one. The theme switch
-sits in the routed taskbar's tray too. Next.js leaves the routed shell's
-history entries to it.
+Worker serves the page for; the root route shows the resume on tablets and the
+artwork on phones. The routed shell has no menu bar, so the resume puts its
+theme, downloads, and printing in the app bar's toolbar there, beside the
+toolbars the other apps already have. The switch in the taskbar's corner moves
+between the two layouts wherever windows suit the screen, and the choice
+persists. The layout follows the screen the page loads on and keeps it as the
+window resizes, since a switch remounts every app; the resume keeps its theme
+and scale across one. The theme switch sits in the routed taskbar's tray too.
+Next.js leaves the routed shell's history entries to it.
 
 The app uses an exact-pinned, published `@tearleads/windowing` package.
 Install from this repository's root:
