@@ -11,7 +11,7 @@ import {
   useState,
 } from "react";
 
-import { MINI_APP_ICONS, MINI_APP_TITLES } from "../mini-apps/catalog";
+import { MINI_APP_ICON_LABELS, MINI_APP_ICONS } from "../mini-apps/catalog";
 
 /**
  * The desktop surface, with a context menu on its bare background (the
@@ -44,7 +44,7 @@ export function DesktopSurfaceWithMenu({ children }: PropsWithChildren) {
         <Menu direction="down" onClose={closeMenu} position={menu}>
           <MenuItem
             icon={MINI_APP_ICONS["display-properties"]}
-            label={MINI_APP_TITLES["display-properties"]}
+            label={MINI_APP_ICON_LABELS["display-properties"]}
             onClick={() => {
               closeMenu();
               openMiniApp({ appId: "display-properties" });

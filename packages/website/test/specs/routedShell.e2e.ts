@@ -29,8 +29,7 @@ describe("Website routed shell", () => {
       $("button[aria-label='Switch to windowed layout']"),
     ).not.toBeExisting();
 
-    // The launcher sheet offers every app, in launch order, under the
-    // stacked graffiti.
+    // The launcher sheet offers every app under the stacked graffiti.
     const menu = $(".routed-pane-taskbar button[aria-label='Menu']");
     await expect(menu.$("svg.desktop-start-icon")).toBeExisting();
     await menu.click();
@@ -61,6 +60,16 @@ describe("Website routed shell", () => {
     expect(new URL(await browser.getUrl()).pathname).toBe("/");
     await browser.forward();
     await expect($(".routed-pane-main .resume-window")).toBeExisting();
+
+    // The icon label opens the artwork without changing its stable route.
+    await menu.click();
+    await $(".routed-pane-sheet-tile=Demo").click();
+    await expect($(".routed-pane-sheet")).toHaveAttribute("data-open", "false");
+    await browser.waitUntil(
+      async () => (await browser.getUrl()).endsWith("/app/ascii-art"),
+      { timeoutMsg: "the Demo tile did not navigate to the artwork route" },
+    );
+    await expect($(".routed-pane-main .ascii-art-window")).toBeExisting();
   });
 
   it("opens Display Properties from the tablet rail", async () => {
@@ -86,15 +95,15 @@ describe("Website routed shell", () => {
       ".desktop-taskbar-end button[aria-label='Switch to iPad / mobile layout']",
     ).click();
     await $("button[aria-label='Expand navigation rail']").click();
-    for (const [app, root] of [
-      ["ascii-art", ".ascii-art-window"],
-      ["dnbm", ".dnbm-window"],
-      ["skyline", ".skyline-window"],
-      ["dnbm-player", ".dnbm-player-window"],
+    for (const [app, label, root] of [
+      ["ascii-art", "Demo", ".ascii-art-window"],
+      ["dnbm", "dnbm", ".dnbm-window"],
+      ["skyline", "Skyline", ".skyline-window"],
+      ["dnbm-player", "dnbm player", ".dnbm-player-window"],
     ]) {
-      const link = $(`.routed-pane-nav-link[href='/app/${app}']`);
-      await link.click();
+      await $(`.routed-pane-nav-link=${label}`).click();
       await expect($(`.routed-pane-main ${root}`)).toBeExisting();
+      expect(new URL(await browser.getUrl()).pathname).toBe(`/app/${app}`);
       // Inside a window the app reaches past the body's padding; the routed
       // pane has none, so the app fills it exactly and nothing scrolls.
       expect(
