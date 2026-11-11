@@ -29,7 +29,7 @@ describe("Website routed shell", () => {
       $("button[aria-label='Switch to windowed layout']"),
     ).not.toBeExisting();
 
-    // The launcher sheet offers every app under the stacked graffiti.
+    // The taskbar's graffiti button opens the launcher sheet.
     const menu = $(".routed-pane-taskbar button[aria-label='Menu']");
     await expect(menu.$("svg.desktop-start-icon")).toBeExisting();
     await menu.click();
@@ -62,7 +62,9 @@ describe("Website routed shell", () => {
 
     // The icon label opens the artwork without changing its stable route.
     await menu.click();
-    await $(".routed-pane-sheet-tile=Demo").click();
+    await $(".routed-pane-sheet-grid")
+      .$(".routed-pane-sheet-tile=Demo")
+      .click();
     await expect($(".routed-pane-sheet")).toHaveAttribute("data-open", "false");
     await browser.waitUntil(
       async () => (await browser.getUrl()).endsWith("/app/ascii-art"),
@@ -100,7 +102,9 @@ describe("Website routed shell", () => {
       ["skyline", "Skyline", ".skyline-window"],
       ["dnbm-player", "dnbm player", ".dnbm-player-window"],
     ]) {
-      await $(`.routed-pane-nav-link=${label}`).click();
+      await $(".routed-pane-nav-panel")
+        .$(`.routed-pane-nav-link=${label}`)
+        .click();
       await expect($(`.routed-pane-main ${root}`)).toBeExisting();
       expect(new URL(await browser.getUrl()).pathname).toBe(`/app/${app}`);
       // Inside a window the app reaches past the body's padding; the routed

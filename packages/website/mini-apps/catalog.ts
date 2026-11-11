@@ -11,7 +11,7 @@ import type { MiniAppId, MiniAppWindowOptions } from "./types";
 // Presentation metadata: titles, icon labels, icons, menu order, and how each
 // window first opens. It imports no mini-app implementation, so code
 // that only labels apps (such as the error boundary) does not load them.
-// registry.ts pairs these titles with the components.
+// registry.ts pairs this metadata with the components.
 
 export const MINI_APP_TITLES: Readonly<Record<MiniAppId, string>> = {
   resume: "Resume",
