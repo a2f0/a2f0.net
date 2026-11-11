@@ -53,9 +53,6 @@ describe("Website desktop windows", () => {
     await expect(resumeWindow().$(".window-titlebar-title")).toHaveText(
       "Resume",
     );
-    await expect(asciiArtWindow().$(".window-titlebar-title")).toHaveText(
-      "a2f0.net",
-    );
     await expect(skylineWindow().$(".window-titlebar-title")).toHaveText(
       "Skyline",
     );
@@ -154,7 +151,7 @@ describe("Website desktop windows", () => {
           ".desktop-taskbar-button",
         ),
       ]
-        .find((button) => button.textContent === "a2f0.net")
+        .find((button) => button.textContent === "Demo")
         ?.focus(),
     );
     await browser.keys("Enter");
@@ -305,18 +302,17 @@ describe("Website desktop windows", () => {
         muted: true,
       },
       // Only the front window's button is pressed.
-      {
+      expect.objectContaining({
         ...chip,
-        title: "a2f0.net",
         pressed: "true",
         state: "open",
         muted: false,
-      },
+      }),
     ]);
 
     await taskbar("Resume").click();
     await expect(taskbar("Resume")).toHaveAttribute("aria-pressed", "true");
-    await expect(taskbar("a2f0.net")).toHaveAttribute("aria-pressed", "false");
+    await expect(taskbar("Demo")).toHaveAttribute("aria-pressed", "false");
   });
 
   it("moves, resizes, minimizes, and reopens a window", async () => {

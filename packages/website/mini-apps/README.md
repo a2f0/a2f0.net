@@ -23,8 +23,8 @@ hooks. The layout follows Tearleads'
   shell's launcher, which both list Display Properties last; the desktop's
   context menu opens it too. `MiniAppDefinition.iconLabel` names an app in
   desktop icons and the routed launcher independently of its window title;
-  the start menu uses the same catalog label. The artwork is labeled `Demo`,
-  while its window title remains `a2f0.net`.
+  the start menu uses the same catalog label. The artwork uses `Demo` for both
+  its launcher label and window title.
 - `MiniAppContent.tsx` renders each app with the framework's `MiniAppProps`.
   Its `onLoad` callback tells the window that the app's content has loaded. A
   window that opens with `fitToContent` then fits the size the app reports with

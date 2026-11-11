@@ -85,7 +85,7 @@ describe("Website resume window", () => {
     await expect(resumeWindow().$("button=Download SVG")).toBeDisplayed();
     await expect(resumeWindow().$("button=Print")).toBeDisplayed();
 
-    await taskbar("a2f0.net").click();
+    await taskbar("Demo").click();
     await asciiArtWindow().$("button=View").click();
     await asciiArtWindow().$("button*=ASCII View").click();
     await browser.waitUntil(async () => (await siteState()).view === "svg", {
