@@ -8,12 +8,12 @@ hooks. The layout follows Tearleads'
 
 - `types.ts` lists the mini-app ids. The window layer stores a window's `appId`
   as an opaque string; `isMiniAppId` narrows it back.
-- `catalog.ts` holds each app's title, icon label, icon, menu order, and window options
-  (where the window first opens, its size as a fraction of the desktop, and
+- `catalog.ts` holds each app's title, icon label, icon, menu order, and window
+  options (where the window first opens, its size as a fraction of the desktop, and
   whether it opens fitted to its content), and the apps the desktop shows as
   icons, the skyline and the resume, without importing any app, so code that
   only labels apps stays light.
-- `registry.ts` pairs those titles, icon labels, and icons with the components in
+- `registry.ts` pairs those titles, icon labels, and icons with components in
   `MINI_APP_LAUNCHERS`, the windowing package's launcher definitions, which
   the routed shell runs and the windows open from. There is one per routed
   shell tier, differing only in the app at the root route: the resume on a

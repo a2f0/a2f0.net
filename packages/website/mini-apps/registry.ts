@@ -38,9 +38,9 @@ function miniApp(
 
 /**
  * The windowing package's launcher definition of the desktop: every mini-app
- * with its title and icon, listed in menu order. The windowed desktop opens
- * the skyline and then the resume on load, so the resume starts in front. The
- * routed shell shows the artwork at the root route on a phone.
+ * with its title, icon label, and icon, listed in menu order. The windowed
+ * desktop opens the skyline and then the resume on load, so the resume starts
+ * in front. The routed shell shows the artwork at the root route on a phone.
  */
 const MINI_APP_LAUNCHER: LauncherDefinition<MiniAppId> = {
   apps: {

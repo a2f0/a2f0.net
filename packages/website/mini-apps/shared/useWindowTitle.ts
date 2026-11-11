@@ -5,7 +5,7 @@ import { useEffect } from "react";
  * Names what the app shows, such as a song, in its window's title, and so in
  * its taskbar button: "Undertow — dnbm". Without a `detail`, and once the app
  * unmounts (its window minimized or closed), the window shows the app's own
- * title, as the start menu does.
+ * title, independently of its launcher icon label.
  */
 export function useWindowTitle(appTitle: string, detail: string | null) {
   const id = useCurrentWindow()?.id;
