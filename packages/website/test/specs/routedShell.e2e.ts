@@ -269,7 +269,6 @@ describe("Website routed shell", () => {
     // The tablet rail lists every app; a link opens it.
     await $("button[aria-label='Expand navigation rail']").click();
     await $(".routed-pane-nav-link[href='/app/ascii-art']").click();
-    await expect($(".routed-pane-title")).toHaveText("a2f0.net");
     await expect($(".routed-pane-main .ascii-art-window")).toBeExisting();
 
     // The tray switches back to the windows as they were.

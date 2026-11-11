@@ -15,7 +15,7 @@ import type { MiniAppId, MiniAppWindowOptions } from "./types";
 
 export const MINI_APP_TITLES: Readonly<Record<MiniAppId, string>> = {
   resume: "Resume",
-  "ascii-art": "a2f0.net",
+  "ascii-art": "Demo",
   skyline: "Skyline",
   dnbm: "dnbm",
   "dnbm-player": "dnbm player",
@@ -24,7 +24,6 @@ export const MINI_APP_TITLES: Readonly<Record<MiniAppId, string>> = {
 
 export const MINI_APP_ICON_LABELS: Readonly<Record<MiniAppId, string>> = {
   ...MINI_APP_TITLES,
-  "ascii-art": "Demo",
 };
 
 export const MINI_APP_ICONS: Readonly<Record<MiniAppId, WindowingIcon>> = {
