@@ -8,12 +8,12 @@ hooks. The layout follows Tearleads'
 
 - `types.ts` lists the mini-app ids. The window layer stores a window's `appId`
   as an opaque string; `isMiniAppId` narrows it back.
-- `catalog.ts` holds each app's title, icon, menu order, and window options
+- `catalog.ts` holds each app's title, icon label, icon, menu order, and window options
   (where the window first opens, its size as a fraction of the desktop, and
   whether it opens fitted to its content), and the apps the desktop shows as
   icons, the skyline and the resume, without importing any app, so code that
   only labels apps stays light.
-- `registry.ts` pairs those titles and icons with the components in
+- `registry.ts` pairs those titles, icon labels, and icons with the components in
   `MINI_APP_LAUNCHERS`, the windowing package's launcher definitions, which
   the routed shell runs and the windows open from. There is one per routed
   shell tier, differing only in the app at the root route: the resume on a
@@ -21,7 +21,10 @@ hooks. The layout follows Tearleads'
   order, when the windowed desktop starts empty, so the resume opens in front
   of the skyline. The other apps open from the start menu or the routed
   shell's launcher, which both list Display Properties last; the desktop's
-  context menu opens it too.
+  context menu opens it too. `MiniAppDefinition.iconLabel` names an app in
+  desktop icons and the routed launcher independently of its window title;
+  the start menu uses the same catalog label. The artwork is labeled `Demo`,
+  while its window title remains `a2f0.net`.
 - `MiniAppContent.tsx` renders each app with the framework's `MiniAppProps`.
   Its `onLoad` callback tells the window that the app's content has loaded. A
   window that opens with `fitToContent` then fits the size the app reports with
@@ -45,6 +48,8 @@ hooks. The layout follows Tearleads'
 2. Give it a title, an icon, window options, and a place in the menu order in
    `catalog.ts`. To give it a desktop icon, add it to `MINI_APP_DESKTOP_ICONS`
    there; to open it on load, add it to `defaultWindowAppIds` in `registry.ts`.
+   Icon labels default to titles in `MINI_APP_ICON_LABELS`; override one there
+   when its launcher name should differ from its window title.
 3. Create its directory with `<Name>App.tsx`, a component that takes
    `MiniAppProps`, and register it in `registry.ts` through
    `withMiniAppProps`. An app that opens fitted reports its size and calls

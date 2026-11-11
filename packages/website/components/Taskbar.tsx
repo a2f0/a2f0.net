@@ -11,9 +11,9 @@ import {
 import { useMemo } from "react";
 
 import {
+  MINI_APP_ICON_LABELS,
   MINI_APP_ICONS,
   MINI_APP_ORDER,
-  MINI_APP_TITLES,
 } from "../mini-apps/catalog";
 import { isMiniAppId } from "../mini-apps/types";
 import StartIcon from "./StartIcon";
@@ -43,7 +43,7 @@ export default function Taskbar() {
         (appId): StartMenuItem => ({
           icon: MINI_APP_ICONS[appId],
           id: appId,
-          label: MINI_APP_TITLES[appId],
+          label: MINI_APP_ICON_LABELS[appId],
           onSelect: () => openMiniApp({ appId }),
         }),
       ),

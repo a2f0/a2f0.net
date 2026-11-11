@@ -6,7 +6,12 @@ import type {
 import type { ComponentType } from "react";
 
 import { AsciiArtApp } from "./ascii-art/AsciiArtApp";
-import { MINI_APP_ICONS, MINI_APP_ORDER, MINI_APP_TITLES } from "./catalog";
+import {
+  MINI_APP_ICON_LABELS,
+  MINI_APP_ICONS,
+  MINI_APP_ORDER,
+  MINI_APP_TITLES,
+} from "./catalog";
 import { DisplayPropertiesApp } from "./display-properties/DisplayPropertiesApp";
 import { DnbmApp } from "./dnbm/DnbmApp";
 import { DnbmPlayerApp } from "./dnbm-player/DnbmPlayerApp";
@@ -26,6 +31,7 @@ function miniApp(
   return {
     createComponent: () => component,
     icon: MINI_APP_ICONS[appId],
+    iconLabel: MINI_APP_ICON_LABELS[appId],
     title: MINI_APP_TITLES[appId],
   };
 }

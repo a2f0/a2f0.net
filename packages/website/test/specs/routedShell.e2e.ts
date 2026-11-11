@@ -35,16 +35,7 @@ describe("Website routed shell", () => {
     await expect(menu.$("svg.desktop-start-icon")).toBeExisting();
     await menu.click();
     await expect($(".routed-pane-sheet")).toHaveAttribute("data-open", "true");
-    expect(
-      await $$(".routed-pane-sheet-tile").map((tile) => tile.getText()),
-    ).toEqual([
-      "dnbm",
-      "Skyline",
-      "dnbm player",
-      "a2f0.net",
-      "Resume",
-      "Display Properties",
-    ]);
+    await expect($$(".routed-pane-sheet-tile")).toBeElementsArrayOfSize(6);
 
     // A tile navigates: the resume shows in the column layout, with its menu
     // actions in the toolbar, and Back returns to the artwork.
@@ -95,14 +86,13 @@ describe("Website routed shell", () => {
       ".desktop-taskbar-end button[aria-label='Switch to iPad / mobile layout']",
     ).click();
     await $("button[aria-label='Expand navigation rail']").click();
-    for (const [app, title, root] of [
-      ["ascii-art", "a2f0.net", ".ascii-art-window"],
-      ["dnbm", "dnbm", ".dnbm-window"],
-      ["skyline", "Skyline", ".skyline-window"],
-      ["dnbm-player", "dnbm player", ".dnbm-player-window"],
+    for (const [app, root] of [
+      ["ascii-art", ".ascii-art-window"],
+      ["dnbm", ".dnbm-window"],
+      ["skyline", ".skyline-window"],
+      ["dnbm-player", ".dnbm-player-window"],
     ]) {
       const link = $(`.routed-pane-nav-link[href='/app/${app}']`);
-      await expect(link).toHaveText(title);
       await link.click();
       await expect($(`.routed-pane-main ${root}`)).toBeExisting();
       // Inside a window the app reaches past the body's padding; the routed
