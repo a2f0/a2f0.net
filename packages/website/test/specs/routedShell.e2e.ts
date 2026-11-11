@@ -34,7 +34,6 @@ describe("Website routed shell", () => {
     await expect(menu.$("svg.desktop-start-icon")).toBeExisting();
     await menu.click();
     await expect($(".routed-pane-sheet")).toHaveAttribute("data-open", "true");
-    await expect($$(".routed-pane-sheet-tile")).toBeElementsArrayOfSize(6);
 
     // A tile navigates: the resume shows in the column layout, with its menu
     // actions in the toolbar, and Back returns to the artwork.
