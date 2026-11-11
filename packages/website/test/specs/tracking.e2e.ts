@@ -14,7 +14,7 @@ describe("click tracking boundaries", () => {
     await browser.waitUntil(
       async () => (await $$("section.window")).length === 2,
     );
-    for (const label of ["dnbm", "dnbm player", "a2f0.net"])
+    for (const label of ["dnbm", "dnbm player", "Demo"])
       await openFromStartMenu(label);
     await browser.waitUntil(
       async () => (await $$("section.window")).length === 5,

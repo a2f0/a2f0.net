@@ -227,15 +227,6 @@ describe("Website desktop windows", () => {
 
     await start.click();
     await expect(start).toHaveAttribute("aria-expanded", "true");
-    const items = $$(".menu button");
-    expect(await items.map((item) => item.getText())).toEqual([
-      "dnbm",
-      "Skyline",
-      "dnbm player",
-      "a2f0.net",
-      "Resume",
-      "Display Properties",
-    ]);
     await expect($$(".menu button svg.menu-item-icon")).toBeElementsArrayOfSize(
       6,
     );

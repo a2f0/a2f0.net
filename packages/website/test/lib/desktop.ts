@@ -194,7 +194,7 @@ export const openFromStartMenu = async (label: string) => {
 
 // Opens the artwork and waits for its demo to mount inside its shadow root.
 export const openAsciiArt = async () => {
-  await openFromStartMenu("a2f0.net");
+  await openFromStartMenu("Demo");
   await browser.waitUntil(async () => (await siteState()).view === "ascii", {
     timeoutMsg: "the demo did not mount inside its shadow root",
   });

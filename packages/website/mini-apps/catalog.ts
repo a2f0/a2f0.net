@@ -8,10 +8,10 @@ import type { WindowingIcon } from "@tearleads/windowing";
 
 import type { MiniAppId, MiniAppWindowOptions } from "./types";
 
-// Presentation metadata for every mini-app: titles, icons, menu order, and
-// how each window first opens. It imports no mini-app implementation, so code
+// Presentation metadata: titles, icon labels, icons, menu order, and how each
+// window first opens. It imports no mini-app implementation, so code
 // that only labels apps (such as the error boundary) does not load them.
-// registry.ts pairs these titles with the components.
+// registry.ts pairs this metadata with the components.
 
 export const MINI_APP_TITLES: Readonly<Record<MiniAppId, string>> = {
   resume: "Resume",
@@ -20,6 +20,11 @@ export const MINI_APP_TITLES: Readonly<Record<MiniAppId, string>> = {
   dnbm: "dnbm",
   "dnbm-player": "dnbm player",
   "display-properties": "Display Properties",
+};
+
+export const MINI_APP_ICON_LABELS: Readonly<Record<MiniAppId, string>> = {
+  ...MINI_APP_TITLES,
+  "ascii-art": "Demo",
 };
 
 export const MINI_APP_ICONS: Readonly<Record<MiniAppId, WindowingIcon>> = {
