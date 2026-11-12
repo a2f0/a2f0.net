@@ -35,8 +35,8 @@ OPFS, icons still move but return to their column on the next load.
 
 The taskbar along the bottom starts with the windowing package's `StartMenu`,
 whose button shows the demo's graffiti restacked into a square, "a2" over
-"f0", and whose menu lists every mini-app with its icon, Display Properties
-last, followed by a button per open window,
+"f0", and whose menu lists every mini-app with its icon, then Display Properties
+and Start Screensaver, followed by a button per open window,
 as in Tearleads' pane footer: a button restores its window, the front window's
 button is pressed, and a minimized window's shows its title muted. Closing a
 window removes its button; the start menu opens the app again.
@@ -66,6 +66,15 @@ kept rather than replaced with the new default. Reset Defaults, under the
 choices, returns to Honeycomb and Graphite and forgets the saved choices, so a
 later change to the defaults reaches the visitor too. The routed shell has no
 wallpaper, so a wallpaper chosen there shows on the desktop.
+
+Start Screensaver, in the bare desktop's right-click menu and the keyboard-accessible
+start menu, covers the desktop with six grayscale lasers and fading trails.
+Escape exits immediately; mouse movement, clicks, touch, or other keys dismiss
+it after a two-second launch grace period. The windows stay mounted underneath.
+The site supplies [`LaserScreensaver`](components/screensaver/LaserScreensaver.tsx)
+to windowing's pluggable `ScreensaverProvider`, which owns the overlay and input
+lifecycle. Reduced-motion preferences show static trails instead. It is manual,
+not an idle timer or a lock screen, and is only mounted in the windowed desktop.
 
 On phones, tablets, and windows narrower than 1024px, the desktop gives way to
 the windowing package's routed shell, the layout Tearleads uses there: one
