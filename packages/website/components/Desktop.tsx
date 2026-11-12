@@ -10,6 +10,7 @@ import {
   RoutedPane,
   readNavigationEnvironment,
   resolveNavigationMode,
+  ScreensaverProvider,
   ThemeProvider,
   ThemeSwitch,
   useNavigationModeDocumentAttribute,
@@ -30,6 +31,7 @@ import { placeMiniAppWindow } from "../mini-apps/windowPlacement";
 import { DesktopSurfaceWithMenu } from "./DesktopMenu";
 import { trackInputModality } from "./inputModality";
 import StartIcon from "./StartIcon";
+import { LaserScreensaver } from "./screensaver/LaserScreensaver";
 import Taskbar from "./Taskbar";
 import {
   DEFAULT_WEBSITE_THEME,
@@ -137,10 +139,10 @@ function DesktopLayout() {
               taskbarTray={ROUTED_TRAY}
             />
           ) : (
-            <>
+            <ScreensaverProvider screensaver={LaserScreensaver}>
               <DesktopSurface />
               <Taskbar />
-            </>
+            </ScreensaverProvider>
           )}
         </main>
       </LauncherNavigationProvider>

@@ -1,3 +1,4 @@
+import { SparkleIcon } from "@phosphor-icons/react/dist/csr/Sparkle";
 import {
   findTopWindow,
   NavigationModeSwitch,
@@ -5,6 +6,7 @@ import {
   type StartMenuItem,
   ThemeSwitch,
   useLauncherNavigationActions,
+  useScreensaver,
   useWindowActions,
   useWindowStateData,
 } from "@tearleads/windowing";
@@ -33,13 +35,13 @@ export default function Taskbar() {
   const { windows } = useWindowStateData();
   const { restore } = useWindowActions();
   const { openMiniApp } = useLauncherNavigationActions();
+  const { start } = useScreensaver();
   const front = findTopWindow(windows, (entry) => !entry.minimized);
 
-  // Every app in launcher order, Display Properties last; the start menu keeps
-  // them all in reach of the keyboard.
+  // Desktop context-menu actions also belong here for keyboard access.
   const startItems = useMemo(
-    () =>
-      MINI_APP_ORDER.map(
+    (): StartMenuItem[] => [
+      ...MINI_APP_ORDER.map(
         (appId): StartMenuItem => ({
           icon: MINI_APP_ICONS[appId],
           id: appId,
@@ -47,7 +49,14 @@ export default function Taskbar() {
           onSelect: () => openMiniApp({ appId }),
         }),
       ),
-    [openMiniApp],
+      {
+        icon: SparkleIcon,
+        id: "screensaver",
+        label: "Start Screensaver",
+        onSelect: start,
+      },
+    ],
+    [openMiniApp, start],
   );
 
   return (
