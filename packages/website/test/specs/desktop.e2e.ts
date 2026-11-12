@@ -225,8 +225,9 @@ describe("Website desktop windows", () => {
     await start.click();
     await expect(start).toHaveAttribute("aria-expanded", "true");
     await expect($$(".menu button svg.menu-item-icon")).toBeElementsArrayOfSize(
-      6,
+      7,
     );
+    await expect($(".menu").$("button=Start Screensaver")).toBeDisplayed();
 
     await $(".menu").$("button=Skyline").click();
     await expect($(".menu")).not.toBeExisting();
