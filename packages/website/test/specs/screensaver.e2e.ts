@@ -74,6 +74,7 @@ describe("desktop screensavers", () => {
     await waitForResumeFit();
     const before = await windowFrames();
     await startFromDesktop();
+    await expect($("canvas.laser-screensaver")).toBeDisplayed();
     const first = await screensaverPixels();
     expect(first.lit).toBeGreaterThan(0);
     expect(first.colored).toBe(0);

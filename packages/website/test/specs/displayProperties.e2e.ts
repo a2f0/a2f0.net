@@ -265,7 +265,7 @@ describe("Website Display Properties", () => {
       // the generic 900×600 frame would falsely pass visibility alone.
       expect(layout.fittedContent).toEqual({
         width: 420 + layout.scrollbarWidth,
-        height: 530,
+        height: 504,
       });
       expect(layout.wallpapers).toEqual([
         "Flux",

@@ -73,6 +73,7 @@ in Display Properties: Lasers (the default) or Galaxy. The selection persists
 across visits. Escape exits immediately; mouse movement, clicks, touch, or
 other keys dismiss it after a two-second launch grace period. Windows stay
 mounted underneath.
+A choice made in routed Display Properties applies when the desktop is active.
 
 Lasers comes from `@tearleads/windowing`; the site owns only
 [`GalaxyScreensaver`](components/screensaver/GalaxyScreensaver.tsx), a slowly

@@ -17,8 +17,9 @@ import {
 } from "../../components/wallpapers";
 import type { MiniAppProps } from "../types";
 
-// The shared wallpaper/theme gallery, screensaver choices, and reset row.
-const DISPLAY_PROPERTIES_SIZE = { width: 420, height: 530 };
+// Gallery (396px), screensaver row and margin (65px), and reset row (42px),
+// rounded up so the fitted content does not scroll.
+const DISPLAY_PROPERTIES_SIZE = { width: 420, height: 504 };
 
 // Forgets the visitor's choices, so a later change to the defaults reaches
 // them as it does a new visitor. Storage that is unavailable or throws holds
