@@ -10,7 +10,6 @@ import {
   RoutedPane,
   readNavigationEnvironment,
   resolveNavigationMode,
-  ScreensaverProvider,
   ThemeProvider,
   ThemeSwitch,
   useNavigationModeDocumentAttribute,
@@ -31,7 +30,7 @@ import { placeMiniAppWindow } from "../mini-apps/windowPlacement";
 import { DesktopSurfaceWithMenu } from "./DesktopMenu";
 import { trackInputModality } from "./inputModality";
 import StartIcon from "./StartIcon";
-import { LaserScreensaver } from "./screensaver/LaserScreensaver";
+import { WebsiteScreensaverProvider } from "./screensaver/WebsiteScreensaverProvider";
 import Taskbar from "./Taskbar";
 import {
   DEFAULT_WEBSITE_THEME,
@@ -139,10 +138,10 @@ function DesktopLayout() {
               taskbarTray={ROUTED_TRAY}
             />
           ) : (
-            <ScreensaverProvider screensaver={LaserScreensaver}>
+            <>
               <DesktopSurface />
               <Taskbar />
-            </ScreensaverProvider>
+            </>
           )}
         </main>
       </LauncherNavigationProvider>
@@ -172,7 +171,9 @@ export default function Desktop() {
         <NavigationModeOverrideProvider
           storageKey={NAVIGATION_MODE_STORAGE_KEY}
         >
-          <DesktopLayout />
+          <WebsiteScreensaverProvider>
+            <DesktopLayout />
+          </WebsiteScreensaverProvider>
         </NavigationModeOverrideProvider>
       </WallpaperProvider>
     </ThemeProvider>

@@ -4,8 +4,9 @@ import {
   useWallpaper,
   useWindowContentSize,
 } from "@tearleads/windowing";
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
 
+import { useScreensaverPreference } from "../../components/screensaver/WebsiteScreensaverProvider";
 import {
   DEFAULT_WEBSITE_THEME,
   THEME_STORAGE_KEY,
@@ -16,10 +17,9 @@ import {
 } from "../../components/wallpapers";
 import type { MiniAppProps } from "../types";
 
-// Eight previews occupy three rows at 420px wide. The gallery and theme
-// choices measure 396px tall, and the Reset Defaults row below them 42px; the
-// window adds its own padding and chrome.
-const DISPLAY_PROPERTIES_SIZE = { width: 420, height: 440 };
+// Gallery (396px), screensaver row and margin (65px), and reset row (42px),
+// rounded up so the fitted content does not scroll.
+const DISPLAY_PROPERTIES_SIZE = { width: 420, height: 504 };
 
 // Forgets the visitor's choices, so a later change to the defaults reaches
 // them as it does a new visitor. Storage that is unavailable or throws holds
@@ -34,13 +34,13 @@ function forgetDisplayChoices() {
 }
 
 /**
- * Puts the wallpaper and the theme back to the desktop's defaults, Honeycomb
- * and Graphite. It stays enabled while the defaults show, since a saved choice
- * of a default is still a choice to forget.
+ * Puts wallpaper, theme, and screensaver back to Honeycomb, Graphite, and
+ * Lasers. A saved choice of a default is still a choice to forget.
  */
 function ResetDefaultsButton() {
   const { setTheme } = useTheme();
   const { setWallpaper } = useWallpaper();
+  const { resetChoice } = useScreensaverPreference();
   return (
     <div className="display-properties-actions">
       <button
@@ -48,6 +48,7 @@ function ResetDefaultsButton() {
         onClick={() => {
           setWallpaper(DEFAULT_WEBSITE_WALLPAPER);
           setTheme(DEFAULT_WEBSITE_THEME);
+          resetChoice();
           forgetDisplayChoices();
         }}
         type="button"
@@ -59,16 +60,32 @@ function ResetDefaultsButton() {
 }
 
 /**
- * The windowing package's display settings: the desktop's wallpaper and the
- * theme, from the providers in components/Desktop.tsx, with a button that
- * resets both. The desktop's context menu opens it.
+ * Shared wallpaper/theme settings plus the site's two screensaver choices.
+ * Both desktop and taskbar Start Screensaver actions use this selection.
  */
 export function DisplayPropertiesApp({ onLoad }: MiniAppProps) {
   useWindowContentSize(DISPLAY_PROPERTIES_SIZE);
   useEffect(() => onLoad(), [onLoad]);
+  const { choice, setChoice } = useScreensaverPreference();
+  const screensaverName = useId();
   return (
     <div className="display-properties-window" data-ct-app="display-properties">
       <DisplayProperties />
+      <fieldset className="display-properties-screensaver">
+        <legend>Screensaver</legend>
+        {(["lasers", "galaxy"] as const).map((id) => (
+          <label key={id}>
+            <input
+              type="radio"
+              name={screensaverName}
+              value={id}
+              checked={choice === id}
+              onChange={() => setChoice(id)}
+            />
+            {id === "lasers" ? "Lasers" : "Galaxy"}
+          </label>
+        ))}
+      </fieldset>
       <ResetDefaultsButton />
     </div>
   );

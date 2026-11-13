@@ -101,6 +101,11 @@ generators stay with their package under `scripts/build/`, and the resume
 schema validator lives under its `scripts/checks/`. Use package scripts as the
 stable interface. Keep native Terraform wrappers in `terraform/`.
 
+`WebsiteScreensaverProvider` stores the artwork choice in `website.screensaver`
+and wires it into windowing's `ScreensaverProvider`, which owns input dismissal
+and focus restoration. Lasers is shared; Galaxy stays in
+`packages/website/components/screensaver/`.
+
 ## Brand images
 
 Favicons render from the plain static SVG sources in `assets/brand/`:

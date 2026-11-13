@@ -25,3 +25,24 @@
   outline: 2px solid var(--color-dark);
   outline-offset: 2px;
 }
+
+.display-properties-screensaver {
+  display: flex;
+  gap: var(--space-md);
+  margin: 0 var(--space-md) var(--space-md);
+  padding: var(--space-sm);
+  border: var(--border-width) solid var(--color-hairline);
+  border-radius: var(--app-radius-control);
+  font-size: var(--font-size-sm);
+}
+
+.display-properties-screensaver label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  cursor: pointer;
+}
+
+.display-properties-screensaver input {
+  accent-color: var(--color-dark);
+}

@@ -62,6 +62,7 @@ const displaySettings = () =>
     theme: document.documentElement.dataset.theme,
     storedTheme: localStorage.getItem("website.theme"),
     storedWallpaper: localStorage.getItem("website.wallpaper"),
+    storedScreensaver: localStorage.getItem("website.screensaver"),
   }));
 
 // Measure whole cards and the Reset Defaults button against the scrollport,
@@ -105,6 +106,9 @@ const displayLayout = () =>
         .map((choice) => choice.textContent?.trim()),
       themes: choices
         .filter((choice) => choice.matches(".display-properties-theme"))
+        .map((choice) => choice.textContent?.trim()),
+      screensavers: choices
+        .filter((choice) => choice.closest(".display-properties-screensaver"))
         .map((choice) => choice.textContent?.trim()),
       clipped: choices
         .filter((choice) => {
@@ -261,7 +265,7 @@ describe("Website Display Properties", () => {
       // the generic 900×600 frame would falsely pass visibility alone.
       expect(layout.fittedContent).toEqual({
         width: 420 + layout.scrollbarWidth,
-        height: 440,
+        height: 504,
       });
       expect(layout.wallpapers).toEqual([
         "Flux",
@@ -274,6 +278,7 @@ describe("Website Display Properties", () => {
         "None",
       ]);
       expect(layout.themes).toEqual(["Graphite", "Paper"]);
+      expect(layout.screensavers).toEqual(["Lasers", "Galaxy"]);
       expect(layout.scrollTop).toBe(0);
       expect(layout.clipped).toEqual([]);
       expect(layout.scrollHeight).toBeLessThanOrEqual(layout.clientHeight);
@@ -338,6 +343,13 @@ describe("Website Display Properties", () => {
       );
       expect((await displayLayout()).clipped).not.toContain(label);
     }
+    for (const label of ["Lasers", "Galaxy"]) {
+      const choice = displayWindow().$(`label=${label}`);
+      await choice.scrollIntoView();
+      await choice.click();
+      expect(await choice.$("input").isSelected()).toBe(true);
+      expect((await displayLayout()).clipped).not.toContain(label);
+    }
     expect((await displayLayout()).scrollTop).toBeGreaterThan(0);
   });
 
@@ -351,6 +363,7 @@ describe("Website Display Properties", () => {
     await openFittedDisplayProperties();
     await selectWallpaper("Bricks", "bricks");
     await displayWindow().$("label=Paper").click();
+    await displayWindow().$("label=Galaxy").click();
     await browser.waitUntil(
       () =>
         browser.execute(
@@ -370,6 +383,7 @@ describe("Website Display Properties", () => {
       theme: "graphite",
       storedTheme: null,
       storedWallpaper: null,
+      storedScreensaver: null,
     });
     expect(
       await displayWindow().$("label=Honeycomb").$("input").isSelected(),
@@ -377,12 +391,16 @@ describe("Website Display Properties", () => {
     expect(
       await displayWindow().$("label=Graphite").$("input").isSelected(),
     ).toBe(true);
+    expect(
+      await displayWindow().$("label=Lasers").$("input").isSelected(),
+    ).toBe(true);
   });
 
   it("forgets saved choices that match the defaults", async () => {
     await browser.execute(() => {
       localStorage.setItem("website.theme", "graphite");
       localStorage.setItem("website.wallpaper", "honeycomb");
+      localStorage.setItem("website.screensaver", "lasers");
     });
     await browser.refresh();
     await waitForResume();
@@ -396,6 +414,7 @@ describe("Website Display Properties", () => {
       theme: "graphite",
       storedTheme: null,
       storedWallpaper: null,
+      storedScreensaver: null,
     });
   });
 

@@ -1,20 +1,19 @@
 import { useEffect, useRef } from "react";
 
-import { startLaserAnimation } from "./laserAnimation";
+import { startGalaxyAnimation } from "./galaxyAnimation";
 
-/** The site supplies grayscale artwork; the framework owns its lifetime. */
-export function LaserScreensaver() {
+export function GalaxyScreensaver() {
   const canvas = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
-    return canvas.current ? startLaserAnimation(canvas.current) : undefined;
+    return canvas.current ? startGalaxyAnimation(canvas.current) : undefined;
   }, []);
 
   return (
     <canvas
       ref={canvas}
-      className="laser-screensaver"
+      className="galaxy-screensaver"
       role="img"
-      aria-label="Grayscale laser trails"
+      aria-label="Grayscale spiral galaxy"
       style={{
         display: "block",
         width: "100%",
