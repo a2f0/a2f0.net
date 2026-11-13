@@ -63,18 +63,23 @@ wallpaper is greyscale, dark in Graphite and light in Paper. Previews show the
 full height of each tile, while the desktop keeps the artwork's natural scale.
 Changing a wallpaper preserves it across visits; an existing saved choice is
 kept rather than replaced with the new default. Reset Defaults, under the
-choices, returns to Honeycomb and Graphite and forgets the saved choices, so a
-later change to the defaults reaches the visitor too. The routed shell has no
-wallpaper, so a wallpaper chosen there shows on the desktop.
+choices, returns to Honeycomb, Graphite, and Lasers and forgets saved display
+choices, so a later change to the defaults reaches the visitor too. The routed
+shell has no wallpaper, so a wallpaper chosen there shows on the desktop.
 
-Start Screensaver, in the bare desktop's right-click menu and the keyboard-accessible
-start menu, covers the desktop with six grayscale lasers and fading trails.
-Escape exits immediately; mouse movement, clicks, touch, or other keys dismiss
-it after a two-second launch grace period. The windows stay mounted underneath.
-The site supplies [`LaserScreensaver`](components/screensaver/LaserScreensaver.tsx)
-to windowing's pluggable `ScreensaverProvider`, which owns the overlay and input
-lifecycle. Reduced-motion preferences show static trails instead. It is manual,
-not an idle timer or a lock screen, and is only mounted in the windowed desktop.
+Start Screensaver, in the bare desktop's right-click menu and the
+keyboard-accessible start menu, covers the desktop with the animation selected
+in Display Properties: Lasers (the default) or Galaxy. The selection persists
+across visits. Escape exits immediately; mouse movement, clicks, touch, or
+other keys dismiss it after a two-second launch grace period. Windows stay
+mounted underneath.
+
+Lasers comes from `@tearleads/windowing`; the site owns only
+[`GalaxyScreensaver`](components/screensaver/GalaxyScreensaver.tsx), a slowly
+rotating grayscale spiral galaxy. Windowing's pluggable `ScreensaverProvider`
+owns the overlay and input lifecycle for both. Reduced motion shows static
+artwork. Launching is manual, from the windowed desktop, not an idle timer or
+a lock screen; the site has no PIN.
 
 On phones, tablets, and windows narrower than 1024px, the desktop gives way to
 the windowing package's routed shell, the layout Tearleads uses there: one

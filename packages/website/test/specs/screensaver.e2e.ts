@@ -1,7 +1,7 @@
 import { $, browser, expect } from "@wdio/globals";
-import { useDesktop, waitForResumeFit } from "../lib/desktop";
+import { useDesktop, waitForResume, waitForResumeFit } from "../lib/desktop";
 
-const canvas = () => $("canvas.laser-screensaver");
+const canvas = () => $("dialog.screensaver-overlay canvas");
 
 async function startFromDesktop() {
   await browser
@@ -15,14 +15,14 @@ async function startFromDesktop() {
   await expect($(".menu")).not.toBeExisting();
 }
 
-const laserPixels = () =>
+const screensaverPixels = () =>
   browser.execute(() => {
     const element = document.querySelector<HTMLCanvasElement>(
-      "canvas.laser-screensaver",
+      "dialog.screensaver-overlay canvas",
     );
-    if (!element) throw new Error("Missing laser canvas");
+    if (!element) throw new Error("Missing screensaver canvas");
     const context = element.getContext("2d");
-    if (!context) throw new Error("Missing laser context");
+    if (!context) throw new Error("Missing screensaver context");
     const { data } = context.getImageData(0, 0, element.width, element.height);
     let lit = 0;
     let colored = 0;
@@ -66,7 +66,7 @@ const windowFrames = () =>
     })),
   );
 
-describe("desktop laser screensaver", () => {
+describe("desktop screensavers", () => {
   useDesktop();
 
   it("starts from the desktop, paints animated grayscale, and preserves windows", async () => {
@@ -74,7 +74,7 @@ describe("desktop laser screensaver", () => {
     await waitForResumeFit();
     const before = await windowFrames();
     await startFromDesktop();
-    const first = await laserPixels();
+    const first = await screensaverPixels();
     expect(first.lit).toBeGreaterThan(0);
     expect(first.colored).toBe(0);
     expect(first.covers).toBe(true);
@@ -82,7 +82,7 @@ describe("desktop laser screensaver", () => {
     expect(first.width).toBe(first.viewport.width);
     expect(first.height).toBe(first.viewport.height);
     await browser.waitUntil(
-      async () => (await laserPixels()).checksum !== first.checksum,
+      async () => (await screensaverPixels()).checksum !== first.checksum,
       { timeoutMsg: "the laser trails did not animate" },
     );
     // Escape is also the immediate way out during the initial input grace period.
@@ -109,7 +109,7 @@ describe("desktop laser screensaver", () => {
     await expect(canvas()).toBeDisplayed();
     await browser.setViewport({ width: 1280, height: 800 });
     await browser.waitUntil(async () => {
-      const pixels = await laserPixels();
+      const pixels = await screensaverPixels();
       return (
         pixels.width === pixels.viewport.width &&
         pixels.height === pixels.viewport.height
@@ -139,5 +139,55 @@ describe("desktop laser screensaver", () => {
     await expect(
       $(".desktop-taskbar button[aria-label='Menu']"),
     ).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("persists the Galaxy choice and starts it from both desktop and taskbar", async () => {
+    const start = () => $(".desktop-taskbar button[aria-label='Menu']");
+    await start().click();
+    await $(".menu").$("button=Display Properties").click();
+    const galaxy = $(".display-properties-window").$("label=Galaxy");
+    await galaxy.scrollIntoView();
+    await galaxy.click();
+    expect(await galaxy.$("input").isSelected()).toBe(true);
+    expect(
+      await browser.execute(() => localStorage.getItem("website.screensaver")),
+    ).toBe("galaxy");
+
+    await browser.refresh();
+    await waitForResume();
+    await startFromDesktop();
+    await expect($("canvas.galaxy-screensaver")).toBeDisplayed();
+    await expect($("canvas.laser-screensaver")).not.toBeExisting();
+    const first = await screensaverPixels();
+    expect(first.lit).toBeGreaterThan(0);
+    expect(first.colored).toBe(0);
+    expect(first.covers).toBe(true);
+    await browser.waitUntil(
+      async () => (await screensaverPixels()).checksum !== first.checksum,
+      { timeoutMsg: "the galaxy did not animate" },
+    );
+    await browser.keys("Escape");
+    await expect(canvas()).not.toBeExisting();
+
+    await start().click();
+    await $(".menu").$("button=Start Screensaver").click();
+    await expect($("canvas.galaxy-screensaver")).toBeDisplayed();
+    await browser.keys("Escape");
+    await expect(canvas()).not.toBeExisting();
+    await start().click();
+    await $(".menu").$("button=Display Properties").click();
+    expect(
+      await $(".display-properties-window")
+        .$("label=Galaxy")
+        .$("input")
+        .isSelected(),
+    ).toBe(true);
+    await $(".display-properties-window").$("label=Lasers").click();
+    await start().click();
+    await $(".menu").$("button=Start Screensaver").click();
+    await expect($("canvas.laser-screensaver")).toBeDisplayed();
+    await expect($("canvas.galaxy-screensaver")).not.toBeExisting();
+    await browser.keys("Escape");
+    await expect(canvas()).not.toBeExisting();
   });
 });

@@ -291,6 +291,7 @@ export const useDesktop = () => {
       localStorage.removeItem("website.launcherPlacement");
       localStorage.removeItem("website.theme");
       localStorage.removeItem("website.wallpaper");
+      localStorage.removeItem("website.screensaver");
       const root = await navigator.storage.getDirectory();
       // A test that never moved an icon leaves no directory to remove.
       await root

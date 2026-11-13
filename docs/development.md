@@ -31,6 +31,16 @@ with native WebDriver input, wait for explicit fitted dimensions, and measure
 whole cards against the scrollport. DOM `.click()` can hide a lost initial fit;
 a generic oversized window must not count as a successful opening.
 
+The desktop and taskbar **Start Screensaver** actions use the selection in
+**Display Properties**: **Lasers** (the default, imported from
+`@tearleads/windowing`) or the website-only **Galaxy**. The explicit choice is
+saved in `website.screensaver`; **Reset Defaults** forgets it along with the
+theme and wallpaper. Both animations are grayscale, adapt to the viewport,
+and show a static scene with reduced motion enabled. There is no idle timer.
+The shared provider owns input dismissal, the launch grace period, and focus
+restoration; Escape exits immediately. Galaxy's canvas and animation remain
+local to the website rather than becoming a shared package plugin.
+
 The resume and demo browser suites include an `a11y.e2e.ts` spec that audits each view with
 [axe-core](https://github.com/dequelabs/axe-core) against WCAG 2.2 A and AA
 and axe's best practices, and drives the menus and toolbar from the keyboard.
