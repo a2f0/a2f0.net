@@ -1,5 +1,6 @@
 [settings]
 idiomatic_version_file_enable_tools = ["node"]
+lockfile = true
 
 [tools]
 bun = "1.4.4"
