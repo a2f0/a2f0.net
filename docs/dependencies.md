@@ -24,6 +24,10 @@ to reconcile the lock before the helper's frozen baseline check.
 
 Keep versions exact and Actions pinned by commit SHA with version comments.
 mise reads Node from `.nvmrc` and Bun from `.mise.toml` for local setup and CI.
+`mise.lock` is committed; regenerate it with `mise lock` whenever `.mise.toml`
+or `.nvmrc` changes. CI's `jdx/mise-action` steps install in locked mode, so
+each `version` pin must read the lockfile format (format 4 needs mise
+2026.11.1+); move those pins before the lock's format changes.
 Keep `package.json`'s `engines.node` and `packageManager` aligned with those
 pins. Preserve `.nvmrc`: the deployment snapshot guard also reads it.
 Bun settings live in `bunfig.toml`, and dependency build permissions live in
