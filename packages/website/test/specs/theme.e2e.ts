@@ -27,12 +27,13 @@ describe("Website themes", () => {
     });
     await browser.refresh();
     await waitForResume();
-    const themeSwitch = () => $(".desktop-taskbar-end > button:last-child");
+    const themeSwitch = () =>
+      $(".desktop-taskbar-end .system-tray-app:last-child > button");
     const themeState = () =>
       browser.execute(() => {
         const root = document.documentElement;
         const control = document.querySelector(
-          ".desktop-taskbar-end > button:last-child",
+          ".desktop-taskbar-end .system-tray-app:last-child > button",
         );
         const taskbar = document.querySelector(".desktop-taskbar");
         const titlebar = document.querySelector(".window-titlebar");
@@ -59,7 +60,7 @@ describe("Website themes", () => {
       "Switch to Paper theme",
     );
     await expect(
-      $(".desktop-taskbar-end > button:first-child"),
+      $(".desktop-taskbar-end .system-tray-app:first-child > button"),
     ).toHaveAttribute("aria-label", "Switch to iPad / mobile layout");
     const corner = [16, 16];
     expect(await themeState()).toEqual({
@@ -105,7 +106,8 @@ describe("Website themes", () => {
     const player = () => playerRegion().shadow$(".player");
     await expect(player()).toHaveAttribute("data-state", "playing");
 
-    const themeSwitch = () => $(".desktop-taskbar-end > button:last-child");
+    const themeSwitch = () =>
+      $(".desktop-taskbar-end .system-tray-app:last-child > button");
     const palettes = () =>
       browser.execute(() => {
         const frameStyle = (selector: string) => {

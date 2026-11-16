@@ -1,10 +1,8 @@
 import { SparkleIcon } from "@phosphor-icons/react/dist/csr/Sparkle";
 import {
   findTopWindow,
-  NavigationModeSwitch,
   StartMenu,
   type StartMenuItem,
-  ThemeSwitch,
   useLauncherNavigationActions,
   useScreensaver,
   useWindowActions,
@@ -19,6 +17,7 @@ import {
 } from "../mini-apps/catalog";
 import { isMiniAppId } from "../mini-apps/types";
 import StartIcon from "./StartIcon";
+import { WebsiteSystemTray } from "./WebsiteSystemTray";
 
 const START_ICON = <StartIcon className="desktop-start-icon" />;
 
@@ -28,8 +27,9 @@ const START_ICON = <StartIcon className="desktop-start-icon" />;
  * in Tearleads' footer. A button restores its window and brings it to the
  * front. The front window's button is pressed, and a minimized window's shows
  * its title muted. Closing a window removes its button; the start menu opens
- * the app again. The corner holds the switch to the routed (iPad / phone)
- * layout and, last, the theme switch.
+ * the app again. The corner holds the system tray: the switch to the routed
+ * (iPad / phone) layout and, last, the theme switch, either of which the
+ * visitor can turn off.
  */
 export default function Taskbar() {
   const { windows } = useWindowStateData();
@@ -84,8 +84,7 @@ export default function Taskbar() {
         );
       })}
       <div className="desktop-taskbar-end">
-        <NavigationModeSwitch mode="windowed" />
-        <ThemeSwitch />
+        <WebsiteSystemTray />
       </div>
     </nav>
   );

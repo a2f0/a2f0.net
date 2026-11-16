@@ -41,8 +41,13 @@ as in Tearleads' pane footer: a button restores its window, the front window's
 button is pressed, and a minimized window's shows its title muted. Closing a
 window removes its button; the start menu opens the app again.
 
-The taskbar's lower-right corner ends with the windowing package's theme
-switch, as in Tearleads' pane footer. Each click moves to the next of the
+The taskbar's lower-right corner holds the windowing package's system tray,
+as in Tearleads' pane footer: the layout switch, then the theme switch, each a
+tray app defined in
+[`components/WebsiteSystemTray.tsx`](components/WebsiteSystemTray.tsx).
+Right-clicking either (or holding a finger on it) offers Disable, which hides
+it, and Display Properties, whose System Tray switches turn it back on; the
+choice persists. Each click of the theme switch moves to the next of the
 desktop's own themes: Graphite, the dark default, and Paper, a light one. The
 themes are listed in [`components/themes.ts`](components/themes.ts) and styled in
 [`styles/themes.css`](styles/themes.css), each a block of the windowing
@@ -63,8 +68,9 @@ wallpaper is greyscale, dark in Graphite and light in Paper. Previews show the
 full height of each tile, while the desktop keeps the artwork's natural scale.
 Changing a wallpaper preserves it across visits; an existing saved choice is
 kept rather than replaced with the new default. Reset Defaults, under the
-choices, returns to Honeycomb, Graphite, and Lasers and forgets saved display
-choices, so a later change to the defaults reaches the visitor too. The routed
+choices, returns to Honeycomb, Graphite, and Lasers, turns every tray app back
+on, and forgets saved display choices, so a later change to the defaults
+reaches the visitor too. The routed
 shell has no wallpaper, so a wallpaper chosen there shows on the desktop.
 
 Start Screensaver, in the bare desktop's right-click menu and the
@@ -94,7 +100,7 @@ toolbars the other apps already have. The switch in the taskbar's corner moves
 between the two layouts wherever windows suit the screen, and the choice
 persists. The layout follows the screen the page loads on and keeps it as the
 window resizes, since a switch remounts every app; the resume keeps its theme
-and scale across one. The theme switch sits in the routed taskbar's tray too.
+and scale across one. The same system tray sits in the routed taskbar's corner.
 Next.js leaves the routed shell's history entries to it.
 
 The app uses an exact-pinned, published `@tearleads/windowing` package.
