@@ -107,6 +107,9 @@ const displayLayout = () =>
       themes: choices
         .filter((choice) => choice.matches(".display-properties-theme"))
         .map((choice) => choice.textContent?.trim()),
+      trayApps: choices
+        .filter((choice) => choice.matches(".display-properties-tray-app"))
+        .map((choice) => choice.textContent?.trim()),
       screensavers: choices
         .filter((choice) => choice.closest(".display-properties-screensaver"))
         .map((choice) => choice.textContent?.trim()),
@@ -265,7 +268,7 @@ describe("Website Display Properties", () => {
       // the generic 900×600 frame would falsely pass visibility alone.
       expect(layout.fittedContent).toEqual({
         width: 420 + layout.scrollbarWidth,
-        height: 504,
+        height: 602,
       });
       expect(layout.wallpapers).toEqual([
         "Flux",
@@ -278,6 +281,7 @@ describe("Website Display Properties", () => {
         "None",
       ]);
       expect(layout.themes).toEqual(["Graphite", "Paper"]);
+      expect(layout.trayApps).toEqual(["Layout Switch", "Theme Switch"]);
       expect(layout.screensavers).toEqual(["Lasers", "Galaxy"]);
       expect(layout.scrollTop).toBe(0);
       expect(layout.clipped).toEqual([]);

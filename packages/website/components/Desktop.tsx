@@ -6,12 +6,11 @@ import {
   LauncherNavigationProvider,
   type NavigationMode,
   NavigationModeOverrideProvider,
-  NavigationModeSwitch,
   RoutedPane,
   readNavigationEnvironment,
   resolveNavigationMode,
+  SystemTrayProvider,
   ThemeProvider,
-  ThemeSwitch,
   useNavigationModeDocumentAttribute,
   useNavigationModeOverride,
   useRoutedLayoutTier,
@@ -37,6 +36,11 @@ import {
   THEME_STORAGE_KEY,
   WEBSITE_THEMES,
 } from "./themes";
+import {
+  SYSTEM_TRAY_STORAGE_KEY,
+  WEBSITE_SYSTEM_TRAY,
+  WebsiteSystemTray,
+} from "./WebsiteSystemTray";
 import {
   DEFAULT_WEBSITE_WALLPAPER,
   WALLPAPER_STORAGE_KEY,
@@ -100,14 +104,8 @@ function useLayout(): NavigationMode {
 }
 
 const ROUTED_MENU_ICON = <StartIcon className="desktop-start-icon" />;
-// The taskbar's corner, as on the desktop: the layout switch, then the theme
-// switch.
-const ROUTED_TRAY = (
-  <>
-    <NavigationModeSwitch mode="routed" />
-    <ThemeSwitch />
-  </>
-);
+// The taskbar's corner, as on the desktop.
+const ROUTED_TRAY = <WebsiteSystemTray />;
 
 /**
  * Windows on a desktop wide enough for them, with a mouse: the windowing
@@ -168,13 +166,18 @@ export default function Desktop() {
         storageKey={WALLPAPER_STORAGE_KEY}
         wallpapers={WEBSITE_WALLPAPERS}
       >
-        <NavigationModeOverrideProvider
-          storageKey={NAVIGATION_MODE_STORAGE_KEY}
+        <SystemTrayProvider
+          definition={WEBSITE_SYSTEM_TRAY}
+          storageKey={SYSTEM_TRAY_STORAGE_KEY}
         >
-          <WebsiteScreensaverProvider>
-            <DesktopLayout />
-          </WebsiteScreensaverProvider>
-        </NavigationModeOverrideProvider>
+          <NavigationModeOverrideProvider
+            storageKey={NAVIGATION_MODE_STORAGE_KEY}
+          >
+            <WebsiteScreensaverProvider>
+              <DesktopLayout />
+            </WebsiteScreensaverProvider>
+          </NavigationModeOverrideProvider>
+        </SystemTrayProvider>
       </WallpaperProvider>
     </ThemeProvider>
   );

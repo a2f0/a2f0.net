@@ -1,5 +1,6 @@
 import {
   DisplayProperties,
+  useSystemTray,
   useTheme,
   useWallpaper,
   useWindowContentSize,
@@ -17,9 +18,10 @@ import {
 } from "../../components/wallpapers";
 import type { MiniAppProps } from "../types";
 
-// Gallery (396px), screensaver row and margin (65px), and reset row (42px),
-// rounded up so the fitted content does not scroll.
-const DISPLAY_PROPERTIES_SIZE = { width: 420, height: 504 };
+// Gallery (396px), System Tray section and its gap (98px), screensaver row
+// and margin (65px), and reset row (42px), rounded up so the fitted content
+// does not scroll.
+const DISPLAY_PROPERTIES_SIZE = { width: 420, height: 602 };
 
 // Forgets the visitor's choices, so a later change to the defaults reaches
 // them as it does a new visitor. Storage that is unavailable or throws holds
@@ -35,12 +37,14 @@ function forgetDisplayChoices() {
 
 /**
  * Puts wallpaper, theme, and screensaver back to Honeycomb, Graphite, and
- * Lasers. A saved choice of a default is still a choice to forget.
+ * Lasers, and turns every tray app back on. A saved choice of a default is
+ * still a choice to forget.
  */
 function ResetDefaultsButton() {
   const { setTheme } = useTheme();
   const { setWallpaper } = useWallpaper();
   const { resetChoice } = useScreensaverPreference();
+  const tray = useSystemTray();
   return (
     <div className="display-properties-actions">
       <button
@@ -49,6 +53,9 @@ function ResetDefaultsButton() {
           setWallpaper(DEFAULT_WEBSITE_WALLPAPER);
           setTheme(DEFAULT_WEBSITE_THEME);
           resetChoice();
+          for (const id of tray.definition.order) {
+            tray.setEnabled(id, true);
+          }
           forgetDisplayChoices();
         }}
         type="button"

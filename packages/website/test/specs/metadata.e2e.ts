@@ -108,7 +108,8 @@ describe("Search metadata", () => {
           JSON.stringify(await themeColors()) === JSON.stringify([color]),
         { timeoutMsg: `the theme color did not become ${color}` },
       );
-    const themeSwitch = () => $(".desktop-taskbar-end > button:last-child");
+    const themeSwitch = () =>
+      $(".desktop-taskbar-end .system-tray-app:last-child > button");
     await browser.url("/");
     try {
       await expect(themeSwitch()).toHaveAttribute(
