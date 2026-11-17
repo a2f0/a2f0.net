@@ -34,6 +34,7 @@
     "lint:md": "markdownlint-cli2",
     "check:dependencies": "node --import tsx scripts/checks/checkPinnedDependencies.ts",
     "check:architecture": "bun scripts/checks/checkArchitecture.ts",
+    "check:pushed-commits": "bun scripts/git/commitlintPushed.ts",
     "compile": "bun run compile:scripts && turbo run compile",
     "fix": "biome . --fix",
     "prepare": "bun run hooks:install && bun run compile",

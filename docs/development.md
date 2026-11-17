@@ -45,7 +45,7 @@ workspaces importing one another by package name and only down their layers. The
 demo, Drive, and `packages/shared` import no other workspace, the resume imports
 `packages/shared`, and the website imports the demo and `packages/shared`.
 `packages/testing` holds the test helpers several apps share, and only tests
-may import it. The pre-push hook runs it
+may import it. The push gate and CI run it
 after [Knip](https://knip.dev), which reports unused files, dependencies, and
 exports.
 
@@ -60,7 +60,8 @@ workspace, as in `bun run unit --force`. Agent helper
 tests and compilation run in the standalone agent-tool repository's CI.
 Invoke the repository's [`$ship-pr` skill](../.agents/skills/ship-pr/SKILL.md) to validate, independently
 review, and squash-merge the current PR. The `main` ruleset requires
-the stable `build` CI check with the branch up to date before merging.
+the stable `build` CI check before merging; the branch need not be up to date
+with `main`, and CI runs on every push to `main`, where a deploy waits for it.
 
 To develop browser tests, run these in separate terminals:
 
@@ -123,21 +124,28 @@ Each build's `og-image` script renders the 1200×630 link-preview image,
 ## Shared tooling and hook migration
 
 The exact npm agent-tool pin owns branch/ref checks, attribution checks, copied
-hook installation, validation receipts, and shipping skills. Full commitlint,
-workspace architecture, and deployment guards retain their project policy.
-`bun run check:fast` runs static checks, unit tests, both validation hooks, and
-the same critical-level audit gate as CI; `bun run check` additionally runs every browser suite. Existing package
+hook installation, the push gate, validation receipts, and shipping skills. Full
+commitlint, workspace architecture, and deployment guards retain their project
+policy. `bun run check:fast` runs static checks, unit tests, the pre-commit
+hook, the push gate's static steps, and the same critical-level audit gate as
+CI; `bun run check` additionally runs every browser suite. Existing package
 aliases remain available for focused work. CI validates the explicit branch name
 because its checkout may be detached.
-Pre-push checks commit signatures, attribution, and full commitlint rules for
-the actual pushed commit ranges, including pushes of a branch other than HEAD.
-For named remotes, commits already reachable from that remote's tracking refs are
-excluded, including main commits integrated with a normal merge. URL-only pushes
-lack that tracking context and use the remote's old tip, or all history on first
-push; use a configured named remote for the normal shipping workflow.
-Direct or CI invocation with no ref tuples runs static checks only. Use
-`sh scripts/git/hooks/pre-push </dev/null` for noninteractive validation; Git
-supplies ref tuples itself during a real push.
+
+The pre-push hook is the body `agent-tool push-gate hook` prints; never edit
+it. It runs `agent-tool push-gate run`, which checks the installed hooks,
+managed skills and permissions, branch names, commit signatures and
+attribution, and binary files for exactly the commits being pushed, including
+pushes of a branch other than HEAD. Commits the destination already has are
+excluded, including main commits integrated with a normal merge. It then runs
+the steps `pushGate` declares in `agent-tool.json`: `check:pushed-commits`,
+which applies the full commitlint rules to each pushed commit that agent-tool
+lists in its `AGENT_TOOL_PUSH_GATE` push data, then `check:dependencies`, Knip,
+and `check:architecture`. Only static checks that finish in seconds belong
+there; tests, builds, and installs run in CI's `build` job, which also runs the
+gate's static steps. `bun run agent-tool push-gate check` validates the hook
+and its steps, and `bun run agent-tool runs list` shows each push's step
+timings; the gate warns when a push exceeds its `budgetSeconds`.
 Run `bun audit` separately when reviewing the documented lower-severity
 dependency constraints.
 

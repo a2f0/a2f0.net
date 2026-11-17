@@ -72,7 +72,14 @@ jobs:
           terraform fmt -check -recursive terraform
       - run: bun run lint:md
       - run: sh ./scripts/git/hooks/pre-commit
-      - run: sh ./scripts/git/hooks/pre-push </dev/null
+      # The push gate's static steps (pushGate in agent-tool.json); its
+      # commitlint step needs the commits a push adds, so it runs only on push.
+      - name: Check the push gate and run its static steps
+        run: |
+          bun run agent-tool push-gate check
+          bun run check:dependencies
+          bunx --no-install knip
+          bun run check:architecture
       - run: bun run compile
       - run: bun run unit
       - name: Test exported site with Cloudflare Workers

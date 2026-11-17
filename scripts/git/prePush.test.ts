@@ -1,176 +1,170 @@
 import { expect, test } from "bun:test";
 import {
-  chmod,
   mkdir,
   mkdtemp,
   readFile,
   rm,
+  symlink,
   writeFile,
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
-import { spawn, spawnSync } from "bun";
+import { spawnSync } from "bun";
+import { pushedCommits } from "./commitlintPushed";
 
-test("pre-push checks the pushed commits even when HEAD is different", async () => {
+const root = resolve(import.meta.dir, "../..");
+const hookSource = "scripts/git/hooks/pre-push";
+
+test("the push gate runs commitlint on the pushed commits", async () => {
+  const config = JSON.parse(
+    await readFile(resolve(root, "agent-tool.json"), "utf8"),
+  );
+  const manifest = JSON.parse(
+    await readFile(resolve(root, "package.json"), "utf8"),
+  );
+  expect(config.pushGate.steps).toContainEqual({
+    label: "commitlint",
+    command: ["bun", "run", "check:pushed-commits"],
+  });
+  expect(manifest.scripts["check:pushed-commits"]).toBe(
+    "bun scripts/git/commitlintPushed.ts",
+  );
+});
+
+test("pushedCommits lists each added commit once and skips deletions", () => {
+  const data = (refs: unknown, schemaVersion = 1) =>
+    JSON.stringify({ schemaVersion, refs });
+  expect(
+    pushedCommits(
+      data([
+        { remoteRef: "refs/heads/a", deleted: false, commits: ["c2", "c1"] },
+        { remoteRef: "refs/heads/b", deleted: false, commits: ["c1", "c3"] },
+        { remoteRef: "refs/heads/old", deleted: true, commits: [] },
+      ]),
+    ),
+  ).toEqual(["c2", "c1", "c3"]);
+  expect(() => pushedCommits(data([], 2))).toThrow("schemaVersion 1");
+  expect(() =>
+    pushedCommits(data([{ remoteRef: "refs/heads/a", deleted: false }])),
+  ).toThrow("refs/heads/a");
+});
+
+test("a push is rejected for a commit message it adds, even off HEAD", async () => {
   const directory = await mkdtemp(resolve(tmpdir(), "a2f0-pre-push-"));
-  const root = resolve(import.meta.dir, "../..");
+  const work = resolve(directory, "work");
+  const remote = resolve(directory, "remote.git");
   const cli = resolve(root, "node_modules/.bin/agent-tool");
-  const zero = "0".repeat(40);
-  const env = { ...process.env };
+  const env: Record<string, string | undefined> = { ...process.env };
   for (const key of Object.keys(env)) {
     if (key.startsWith("GIT_")) delete env[key];
   }
   env.GIT_CONFIG_NOSYSTEM = "1";
   env.GIT_CONFIG_GLOBAL = "/dev/null";
   env.GIT_TERMINAL_PROMPT = "0";
-  const command = (args: string[], stdin?: string) =>
-    spawnSync(args, {
-      cwd: directory,
-      stdin: stdin === undefined ? "ignore" : new TextEncoder().encode(stdin),
+  // Step logs and run records stay inside the fixture.
+  env.TMPDIR = resolve(directory, "tmp");
+  const run = (args: string[]) => {
+    const result = spawnSync(args, {
+      cwd: work,
+      env,
+      stdin: "ignore",
       stdout: "pipe",
       stderr: "pipe",
-      env: { ...env, PATH: `${directory}/bin:${process.env.PATH}` },
     });
-  // Runs the installed hook; independent runs proceed concurrently.
-  const hook = async (refs?: string) => {
-    const child = spawn(
-      ["sh", resolve(directory, ".git/hooks/pre-push"), "origin"],
-      {
-        cwd: directory,
-        stdin: refs === undefined ? "ignore" : new TextEncoder().encode(refs),
-        stdout: "pipe",
-        stderr: "pipe",
-        env: { ...env, PATH: `${directory}/bin:${process.env.PATH}` },
-      },
-    );
-    const [stdout, stderr, exitCode] = await Promise.all([
-      new Response(child.stdout).text(),
-      new Response(child.stderr).text(),
-      child.exited,
-    ]);
-    return { exitCode, output: stdout + stderr };
+    return {
+      exitCode: result.exitCode,
+      output: result.stdout.toString() + result.stderr.toString(),
+    };
   };
   const git = (...args: string[]) => {
-    const result = command(["git", ...args]);
-    if (result.exitCode !== 0) throw new Error(result.stderr.toString());
-    return result.stdout.toString().trim();
+    const result = run(["git", ...args]);
+    if (result.exitCode !== 0) throw new Error(result.output);
+    return result.output.trim();
   };
+  const commit = (message: string) => {
+    git("commit", "--allow-empty", "-m", message);
+    return git("rev-parse", "HEAD");
+  };
+  const push = (...refspecs: string[]) =>
+    run(["git", "push", "--porcelain", "origin", ...refspecs]);
   try {
+    await mkdir(resolve(work, "scripts/git/hooks"), { recursive: true });
+    await mkdir(env.TMPDIR, { recursive: true });
+    expect(
+      spawnSync(["git", "init", "--bare", "-b", "main", remote], { env })
+        .exitCode,
+    ).toBe(0);
     git("init", "-b", "main");
     git("config", "user.name", "Hook fixture");
     git("config", "user.email", "fixture@example.invalid");
     git("config", "commit.gpgSign", "false");
     git("config", "log.showSignature", "true");
-    git("config", "core.hooksPath", resolve(directory, ".git/hooks"));
-    git("commit", "--allow-empty", "-m", "chore: fixture base");
-    const base = git("rev-parse", "HEAD");
-    git("remote", "add", "origin", resolve(directory, "unused-remote"));
-    git("update-ref", "refs/remotes/origin/main", base);
-    git("switch", "--no-track", "-c", "feat/forbidden");
-    git(
-      "commit",
-      "--allow-empty",
-      "-m",
-      "feat: forbidden attribution\n\nCo-authored-by: Fixture <fixture@example.invalid>",
-    );
-    const forbidden = git("rev-parse", "HEAD");
-    git("switch", "main");
-    git("switch", "--no-track", "-c", "feat/invalid-subject");
-    git("commit", "--allow-empty", "-m", "Invalid subject");
-    const invalidSubject = git("rev-parse", "HEAD");
-    git("switch", "main");
-    git("commit", "--allow-empty", "-m", "feat: valid current head");
-    const head = git("rev-parse", "HEAD");
-    const source = "scripts/git/hooks/pre-push";
-    await mkdir(resolve(directory, "scripts/git/hooks"), { recursive: true });
+    git("remote", "add", "origin", remote);
+    // The canonical hook runs the agent-tool this checkout installed.
+    await symlink(resolve(root, "node_modules"), resolve(work, "node_modules"));
+    await writeFile(resolve(work, ".gitignore"), "node_modules\n");
     await writeFile(
-      resolve(directory, source),
-      await readFile(resolve(root, source)),
+      resolve(work, hookSource),
+      await readFile(resolve(root, hookSource)),
+      { mode: 0o755 },
     );
     await writeFile(
-      resolve(directory, "agent-tool.json"),
+      resolve(work, "agent-tool.json"),
       JSON.stringify({
         schemaVersion: 1,
         branch: { types: ["feat"], exempt: ["main"], maxLength: null },
         commits: { signatures: "none", rejectCoauthors: true },
-        hooks: { files: [{ source, target: "pre-push", executable: true }] },
-      }),
-    );
-    await writeFile(
-      resolve(directory, "package.json"),
-      JSON.stringify({
-        scripts: {
-          "agent-tool": JSON.stringify(cli),
-          "check:architecture": "true",
-          "check:dependencies": "true",
-          "agents:check": "true",
+        hooks: {
+          files: [{ source: hookSource, target: "pre-push", executable: true }],
+        },
+        pushGate: {
+          steps: [
+            {
+              label: "commitlint",
+              command: [
+                "bun",
+                resolve(root, "scripts/git/commitlintPushed.ts"),
+              ],
+            },
+          ],
         },
       }),
     );
-    await mkdir(resolve(directory, "bin"));
-    // Isolate the ref adapter from unrelated static checks; commitlint is real.
-    const bunx = resolve(directory, "bin/bunx");
-    await writeFile(
-      bunx,
-      [
-        "#!/bin/sh",
-        "set -eu",
-        '[ "$1" = "--no-install" ] && shift',
-        '[ "$1" = "knip" ] && exit 0',
-        '[ "$1" = "commitlint" ] || exit 2',
-        "shift",
-        `cd '${root.replaceAll("'", "'\\''")}'`,
-        `exec '${resolve(root, "node_modules/.bin/commitlint").replaceAll("'", "'\\''")}' "$@"`,
-        "",
-      ].join("\n"),
-    );
-    await chmod(bunx, 0o755);
     git("add", ".");
-    expect(command([cli, "hooks", "install", "--apply"]).exitCode).toBe(0);
-    const rejectedCases = [forbidden, invalidSubject].flatMap((commit) =>
-      [zero, base].map((destination) => ({
-        expected: commit === forbidden ? "Co-authored-by" : "subject-empty",
-        run: hook(
-          `refs/heads/feat/forbidden ${commit} refs/heads/feat/forbidden ${destination}\n`,
-        ),
-      })),
+    commit("chore: fixture base");
+    expect(run([cli, "hooks", "install", "--apply"]).exitCode).toBe(0);
+
+    const base = push("main");
+    expect(base.exitCode, base.output).toBe(0);
+    expect(base.output).toContain("commitlint");
+
+    git("switch", "--no-track", "-c", "feat/invalid");
+    commit("Invalid subject");
+    git("switch", "main");
+    const offHead = push("feat/invalid");
+    expect(offHead.exitCode).not.toBe(0);
+    expect(offHead.output).toContain("subject-empty");
+
+    // Commits the remote already has passed its policy when they arrived, so
+    // integrating them is not new work, whatever their messages say.
+    git("switch", "--no-track", "-c", "feat/valid");
+    commit("feat: valid change");
+    const valid = push("feat/valid");
+    expect(valid.exitCode, valid.output).toBe(0);
+    git("switch", "main");
+    commit("Remote subject");
+    expect(run(["git", "push", "--no-verify", "origin", "main"]).exitCode).toBe(
+      0,
     );
-    const [noRefs, multiple, accepted] = await Promise.all([
-      hook(),
-      hook(
-        `refs/heads/main ${head} refs/heads/feat/valid ${zero}\n` +
-          `refs/heads/feat/forbidden ${forbidden} refs/heads/feat/forbidden ${zero}\n`,
-      ),
-      hook(`refs/heads/main ${head} refs/heads/feat/valid ${zero}\n`),
-    ]);
-    for (const { expected, run } of rejectedCases) {
-      const rejected = await run;
-      expect(rejected.exitCode).not.toBe(0);
-      expect(rejected.output).toContain(expected);
-    }
-    expect(noRefs.exitCode, noRefs.output).toBe(0);
-    expect(multiple.exitCode).not.toBe(0);
-    expect(multiple.output).toContain("Co-authored-by");
-    expect(accepted.exitCode, accepted.output).toBe(0);
-    // An existing branch may merge upstream commits that already passed remote policy.
-    // They are not new-to-remote work, even if their messages fail this local policy.
-    git("commit", "-m", "chore: install fixture tooling");
-    const previous = git("rev-parse", "HEAD");
-    git("update-ref", "refs/remotes/origin/feat/valid", previous);
-    git("update-ref", "refs/remotes/origin/main", forbidden);
-    git("merge", "--no-ff", forbidden, "-m", "chore: integrate updated main");
-    const integrated = git("rev-parse", "HEAD");
-    const mergedBase = await hook(
-      `refs/heads/main ${integrated} refs/heads/feat/valid ${previous}\n`,
-    );
-    expect(mergedBase.exitCode, mergedBase.output).toBe(0);
-    git("commit", "--allow-empty", "-m", "Invalid new subject");
-    const invalidAfterMerge = await hook(
-      `refs/heads/main ${git("rev-parse", "HEAD")} refs/heads/feat/valid ${previous}\n`,
-    );
-    expect(invalidAfterMerge.exitCode).not.toBe(0);
-    expect(invalidAfterMerge.output).toContain("subject-empty");
+    git("switch", "feat/valid");
+    git("merge", "--no-ff", "main", "-m", "chore: integrate updated main");
+    const integrated = push("feat/valid");
+    expect(integrated.exitCode, integrated.output).toBe(0);
+    commit("Invalid new subject");
+    const invalid = push("feat/valid");
+    expect(invalid.exitCode).not.toBe(0);
+    expect(invalid.output).toContain("subject-empty");
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
-}, 30_000);
+}, 60_000);
