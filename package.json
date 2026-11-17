@@ -34,6 +34,7 @@
     "lint:md": "markdownlint-cli2",
     "check:dependencies": "node --import tsx scripts/checks/checkPinnedDependencies.ts",
     "check:architecture": "bun scripts/checks/checkArchitecture.ts",
+    "check:pushed-commits": "bun scripts/git/commitlintPushed.ts",
     "compile": "bun run compile:scripts && turbo run compile",
     "fix": "biome . --fix",
     "prepare": "bun run hooks:install && bun run compile",
@@ -58,7 +59,7 @@
     "check": "agent-tool run-group scripts/testing/check.json"
   },
   "devDependencies": {
-    "@a2f0/agent-tool": "0.1.51",
+    "@a2f0/agent-tool": "0.1.59",
     "@biomejs/biome": "2.6.4",
     "@commitlint/cli": "21.2.4",
     "@commitlint/config-conventional": "21.2.4",

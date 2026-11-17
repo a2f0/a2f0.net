@@ -9,8 +9,7 @@
         "name": "build",
         "workflow": "CI"
       }
-    ],
-    "requireStrictBaseFreshness": true
+    ]
   },
   "pr": {
     "rejectClaudeBranding": true
@@ -61,6 +60,24 @@
         "executable": true
       }
     ]
+  },
+  "pushGate": {
+    "steps": [
+      {
+        "label": "commitlint",
+        "command": ["bun", "run", "check:pushed-commits"]
+      },
+      {
+        "label": "dependencies",
+        "command": ["bun", "run", "check:dependencies"]
+      },
+      { "label": "knip", "command": ["bunx", "--no-install", "knip"] },
+      {
+        "label": "architecture",
+        "command": ["bun", "run", "check:architecture"]
+      }
+    ],
+    "budgetSeconds": 60
   },
   "commits": {
     "signatures": "present",

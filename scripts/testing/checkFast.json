@@ -18,8 +18,24 @@
       "command": ["sh", "scripts/git/hooks/pre-commit"]
     },
     {
-      "label": "pre-push",
-      "command": ["sh", "-c", "sh scripts/git/hooks/pre-push </dev/null"]
+      "label": "push-gate",
+      "command": ["bun", "run", "agent-tool", "push-gate", "check"]
+    },
+    {
+      "label": "dependencies",
+      "command": ["bun", "run", "check:dependencies"]
+    },
+    {
+      "label": "knip",
+      "command": ["bunx", "--no-install", "knip"]
+    },
+    {
+      "label": "architecture",
+      "command": ["bun", "run", "check:architecture"]
+    },
+    {
+      "label": "agents",
+      "command": ["bun", "run", "agents:check"]
     },
     {
       "label": "audit",

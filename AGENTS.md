@@ -104,11 +104,15 @@ new component tests against the old file to prove behavior did not change.
 Use the shared `$ship-pr` skill with the Node version in `.nvmrc` and Bun version
 in `.mise.toml`. Agent shells should put their matching directories under
 `~/.local/share/mise/installs` first on `PATH` rather than running `mise trust`.
-Run the checks above and both validation hooks before shipping. For direct
-noninteractive pre-push validation use `sh scripts/git/hooks/pre-push </dev/null`;
-Git supplies pushed refs when it invokes the hook.
+Before pushing, run the pre-commit hook and the checks above that cover the
+change; CI runs everything and is the authority, so when a job fails, push a
+reviewed fix. The pre-push hook is agent-tool's push gate: shared trust guards,
+then the static steps `pushGate` declares in `agent-tool.json`, never tests or
+builds. Check its declaration with `bun run agent-tool push-gate check`, and
+see each push's step timings with `bun run agent-tool runs list`.
 Pre-commit needs Terraform/TFLint versions from CI, ShellCheck, and yamllint.
-Integrate updated bases with normal merges; do not force-push. Review with an
+Integrate the base, with a normal merge, only when GitHub reports a conflict;
+do not force-push. Review with an
 agent other than the one that wrote the change: Codex from Claude Code, Claude
 from Codex, then the remaining CLIs, reporting any fallback.
 
@@ -121,9 +125,9 @@ Then invoke
 because `bun run` drops empty arguments.
 
 Per `agent-tool.json`, the merge helper requires `build` in workflow `CI` on the
-reviewed head and refuses to merge unless the `main` ruleset enforces
-strict status checks that the merging account cannot bypass. Recheck the live
-base, PR base, and head before merging.
+reviewed head. A branch need not be up to date with `main` to merge: a base
+that moved during CI needs no integration unless GitHub reports a conflict.
+Recheck the live base, PR base, and head before merging.
 Verify merge ancestry and branch identities before deleting shipped branches.
 
 After merging to `main`, wait for the `CI` deployment for that merge commit
