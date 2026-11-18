@@ -9,7 +9,10 @@ import { resume } from "@a2f0/shared/resume";
 import { SVG_FONT_FAMILY } from "@a2f0/shared/svgFont";
 import SvgResumeFactory from "@a2f0/shared/svgResumeFactory";
 
-registerFont(resolve("lib/assets/Arimo.ttf"), { family: SVG_FONT_FAMILY });
+const packageRoot = resolve(import.meta.dirname, "../..");
+registerFont(resolve(packageRoot, "lib/assets/Arimo.ttf"), {
+  family: SVG_FONT_FAMILY,
+});
 const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
 globalThis.document = dom.window.document;
 
@@ -51,7 +54,7 @@ svg.setAttribute(
 );
 svg.setAttribute("preserveAspectRatio", "none");
 
-const outputDirectory = resolve(".generated");
+const outputDirectory = resolve(packageRoot, ".generated");
 await mkdir(outputDirectory, { recursive: true });
 await writeFile(resolve(outputDirectory, "desktop.svg"), svg.outerHTML);
 dom.window.close();

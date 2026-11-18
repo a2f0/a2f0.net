@@ -1,7 +1,7 @@
-#!/usr/bin/env -S node --import tsx
+#!/usr/bin/env node
 import type { ResumeData } from "@a2f0/shared/resume";
 
-import resume from "@a2f0/shared/resume.json";
+import resume from "@a2f0/shared/resume.json" with { type: "json" };
 import Ajv, { type JSONSchemaType } from "ajv";
 
 const ajv = new Ajv();

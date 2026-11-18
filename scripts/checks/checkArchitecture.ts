@@ -1,6 +1,7 @@
 // Checks the imports of the source files in the workspaces and the root scripts
 // against the rules in architecturePolicy.ts.
 import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { spawnSync } from "bun";
 import { cruise, format } from "dependency-cruiser";
 
@@ -60,4 +61,8 @@ const checkArchitecture = async (): Promise<boolean> => {
   return report.exitCode === 0 && graphViolations.length === 0;
 };
 
-if (import.meta.main && !(await checkArchitecture())) process.exitCode = 1;
+if (import.meta.main) {
+  // Both Git and dependency-cruiser report paths relative to this checkout.
+  process.chdir(resolve(import.meta.dirname, "../.."));
+  if (!(await checkArchitecture())) process.exitCode = 1;
+}
