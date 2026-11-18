@@ -72,7 +72,20 @@ test("repository checks diagnose the nested checkout when run from its parent", 
       join(project, ".gitignore"),
       "node_modules\npackages/blog/\n",
     );
-    const hookEnv = { ...env, GIT_INDEX_FILE: ".git/hook-index" };
+    const excludes = join(project, "hook-excludes");
+    await writeFile(excludes, "packages/generated/\n");
+    await mkdir(join(project, "packages/generated"));
+    await writeFile(
+      join(project, "packages/generated/package.json"),
+      '{"name":"generated"}',
+    );
+    const hookEnv = {
+      ...env,
+      GIT_INDEX_FILE: ".git/hook-index",
+      GIT_CONFIG_COUNT: "1",
+      GIT_CONFIG_KEY_0: "core.excludesFile",
+      GIT_CONFIG_VALUE_0: excludes,
+    };
     execFileSync("git", ["add", "-f", "packages/blog/package.json"], {
       cwd: project,
       env: hookEnv,
@@ -85,6 +98,7 @@ test("repository checks diagnose the nested checkout when run from its parent", 
     expect(localHook.stderr).toContain(
       "packages/blog is missing from WORKSPACE_LAYERS",
     );
+    expect(localHook.stderr).not.toContain("packages/generated");
     // A foreign Git directory can explicitly point its worktree at this project.
     const foreignIndex = spawnSync(
       process.execPath,
