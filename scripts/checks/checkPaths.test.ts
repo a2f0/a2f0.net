@@ -22,6 +22,14 @@ test("repository checks diagnose the nested checkout when run from its parent", 
       join(project, "packages/blog/package.json"),
       '{"name":"@site/blog"}',
     );
+    await writeFile(
+      join(project, "packages/blog/first.ts"),
+      'import "./second";',
+    );
+    await writeFile(
+      join(project, "packages/blog/second.ts"),
+      'import "./first";',
+    );
     for (const script of [
       "checkArchitecture",
       "architecturePolicy",
@@ -64,6 +72,7 @@ test("repository checks diagnose the nested checkout when run from its parent", 
       options,
     );
     expect(architecture.status).toBe(1);
+    expect(architecture.stdout).toContain("no-circular: packages/blog/");
     expect(architecture.stderr).toContain(
       "packages/blog is missing from WORKSPACE_LAYERS",
     );
