@@ -67,6 +67,24 @@ test("repository checks diagnose the nested checkout when run from its parent", 
     expect(architecture.stderr).toContain(
       "packages/blog is missing from WORKSPACE_LAYERS",
     );
+    // The same checkout's hook may force-add an ignored manifest in its own index.
+    await writeFile(
+      join(project, ".gitignore"),
+      "node_modules\npackages/blog/\n",
+    );
+    const hookEnv = { ...env, GIT_INDEX_FILE: ".git/hook-index" };
+    execFileSync("git", ["add", "-f", "packages/blog/package.json"], {
+      cwd: project,
+      env: hookEnv,
+    });
+    const localHook = spawnSync(
+      process.execPath,
+      ["scripts/checks/checkArchitecture.ts"],
+      { cwd: project, env: hookEnv, encoding: "utf8" },
+    );
+    expect(localHook.stderr).toContain(
+      "packages/blog is missing from WORKSPACE_LAYERS",
+    );
     const dependencies = spawnSync(
       relative(caller, join(scripts, "checkPinnedDependencies.ts")),
       [],
