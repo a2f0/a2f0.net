@@ -20,12 +20,19 @@ test("resume generators read and write the package from a parent workspace", asy
     await mkdir(join(project, "out"), { recursive: true });
     await mkdir(join(project, "public"));
     await cp(join(source, "package.json"), join(project, "package.json"));
-    await cp(join(source, "scripts/build"), join(project, "scripts/build"), {
+    await cp(join(source, "scripts"), join(project, "scripts"), {
       recursive: true,
     });
     for (const name of ["lib", "node_modules"]) {
       await symlink(join(source, name), join(project, name), "dir");
     }
+    const schemaCheck = relative(
+      caller,
+      join(project, "scripts/checks/ajv.ts"),
+    );
+    expect(
+      execFileSync(schemaCheck, { cwd: caller, encoding: "utf8" }),
+    ).toContain("JSON is valid.");
     const robots = "User-agent: *\nDisallow: /fixture\n";
     await writeFile(join(project, "public/robots.txt"), robots);
     for (const name of ["writeCrawlerFiles", "generateDesktopSvg"]) {

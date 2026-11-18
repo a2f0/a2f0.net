@@ -17,6 +17,11 @@ test("repository checks diagnose the nested checkout when run from its parent", 
   const scripts = join(project, "scripts/checks");
   try {
     await mkdir(scripts, { recursive: true });
+    await mkdir(join(project, "packages/blog"), { recursive: true });
+    await writeFile(
+      join(project, "packages/blog/package.json"),
+      '{"name":"@site/blog"}',
+    );
     for (const script of [
       "checkArchitecture",
       "architecturePolicy",
@@ -42,7 +47,17 @@ test("repository checks diagnose the nested checkout when run from its parent", 
       Object.entries(process.env).filter(([name]) => !name.startsWith("GIT_")),
     );
     execFileSync("git", ["init", "-q", project], { env });
-    const options = { cwd: caller, env, encoding: "utf8" } as const;
+    execFileSync("git", ["init", "-q", caller], { env });
+    const options = {
+      cwd: caller,
+      env: {
+        ...env,
+        GIT_DIR: join(caller, ".git"),
+        GIT_WORK_TREE: caller,
+        GIT_INDEX_FILE: join(caller, ".git/index"),
+      },
+      encoding: "utf8",
+    } as const;
     const architecture = spawnSync(
       process.execPath,
       [relative(caller, join(scripts, "checkArchitecture.ts"))],
@@ -50,7 +65,7 @@ test("repository checks diagnose the nested checkout when run from its parent", 
     );
     expect(architecture.status).toBe(1);
     expect(architecture.stderr).toContain(
-      "WORKSPACE_LAYERS names packages/shared, which is gone",
+      "packages/blog is missing from WORKSPACE_LAYERS",
     );
     const dependencies = spawnSync(
       relative(caller, join(scripts, "checkPinnedDependencies.ts")),
