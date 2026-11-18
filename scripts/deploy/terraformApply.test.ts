@@ -23,6 +23,7 @@ test("Terraform entrypoint inspects saved plans and refuses unattended apply", a
   const guard = resolve(import.meta.dir, "terraformPlan.ts");
   const realBun = process.execPath;
   await mkdir(folder);
+  await mkdir(resolve(directory, "shadow/terraform"), { recursive: true });
   await mkdir(binaries);
   for (const script of ["apply.sh", "credentials.sh"])
     await copyFile(
@@ -162,7 +163,7 @@ sys.exit(child.wait())
     );
     const args = [
       "sh",
-      resolve(folder, "apply.sh"),
+      "terraform/apply.sh",
       ...(preview ? ["--dry-run"] : []),
     ];
     const child = spawn(
@@ -174,6 +175,7 @@ sys.exit(child.wait())
         env: {
           ...process.env,
           PATH: `${binaries}:${process.env.PATH}`,
+          CDPATH: resolve(directory, "shadow"),
           TMPDIR: directory,
           REAL_BUN: realBun,
           GUARD: guard,
@@ -320,6 +322,7 @@ test("init and upgrade entrypoints give Terraform only the R2 state key", async 
   const binaries = resolve(directory, "bin");
   const log = resolve(directory, "calls");
   await mkdir(folder);
+  await mkdir(resolve(directory, "shadow/terraform"), { recursive: true });
   await mkdir(binaries);
   for (const script of ["init.sh", "upgrade.sh", "credentials.sh"])
     await copyFile(
@@ -341,7 +344,7 @@ printf '%s\\n' "$*" >> "$CALLS"
   await chmod(terraform, 0o755);
   async function run(script: string, ...args: string[]) {
     await writeFile(log, "");
-    const child = spawn(["sh", resolve(folder, script), ...args], {
+    const child = spawn(["sh", `terraform/${script}`, ...args], {
       cwd: directory,
       stdout: "pipe",
       stderr: "pipe",
@@ -349,6 +352,7 @@ printf '%s\\n' "$*" >> "$CALLS"
         ...process.env,
         PATH: `${binaries}:${process.env.PATH}`,
         CALLS: log,
+        CDPATH: resolve(directory, "shadow"),
         AWS_PROFILE: "ambient",
         AWS_SESSION_TOKEN: "ambient",
         TF_STATE_ACCESS_KEY_ID: "ambient",

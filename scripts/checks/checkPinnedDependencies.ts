@@ -1,8 +1,9 @@
-#!/usr/bin/env -S node --import tsx
+#!/usr/bin/env node
 // Fails when any dependency in package.json uses a range instead of an
 // exact version. Replaces @a2f0/check-for-unpinned-dependencies, which
 // reads package-lock.json and cannot run against this Bun workspace.
 import { globSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 const EXACT_VERSION = /^\d+\.\d+\.\d+(-[\w.]+)?(\+[\w.]+)?$/;
 // GitHub dependencies must name an immutable full commit, never a branch or tag.
@@ -15,10 +16,13 @@ const GROUPS = [
   "optionalDependencies",
 ] as const;
 
+const root = resolve(import.meta.dirname, "../..");
 const unpinned: string[] = [];
-for (const manifest of globSync(["package.json", "packages/*/package.json"])) {
+for (const manifest of globSync(["package.json", "packages/*/package.json"], {
+  cwd: root,
+})) {
   const packageJson: Record<string, Record<string, string>> = JSON.parse(
-    readFileSync(manifest, "utf8"),
+    readFileSync(resolve(root, manifest), "utf8"),
   );
   for (const group of GROUPS) {
     for (const [name, version] of Object.entries(packageJson[group] ?? {})) {

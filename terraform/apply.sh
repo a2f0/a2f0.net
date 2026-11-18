@@ -7,7 +7,7 @@ case ${1:-} in
   *) echo 'Usage: terraform/apply.sh [--dry-run]' >&2; exit 2 ;;
 esac
 [ "$#" -le 1 ] || exit 2
-cd "$(dirname "$0")"
+CDPATH='' cd -P -- "$(dirname -- "$0")"
 
 # Inherited Terraform arguments can change plan mode or skip provider refresh.
 # This entrypoint owns every flag used for its reviewed saved plan.
