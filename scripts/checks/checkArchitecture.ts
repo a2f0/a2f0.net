@@ -1,7 +1,7 @@
 // Checks the imports of the source files in the workspaces and the root scripts
 // against the rules in architecturePolicy.ts.
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, realpathSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { spawnSync } from "bun";
 import { cruise, format } from "dependency-cruiser";
@@ -67,19 +67,10 @@ const checkArchitecture = async (): Promise<boolean> => {
 };
 
 if (import.meta.main) {
-  const root = realpathSync(resolve(import.meta.dirname, "../.."));
+  const root = resolve(import.meta.dirname, "../..");
   // A hook may stage files in a temporary index. Keep it only when the calling
   // Git worktree is the one this script checks, resolving it before chdir.
   const index = gitEnvironment.GIT_INDEX_FILE;
-  const caller = index
-    ? spawnSync(["git", "rev-parse", "--show-toplevel"])
-    : undefined;
-  const localIndex =
-    index &&
-    caller?.success &&
-    realpathSync(caller.stdout.toString().trimEnd()) === root
-      ? resolve(index)
-      : undefined;
   for (const name of execFileSync("git", ["rev-parse", "--local-env-vars"], {
     encoding: "utf8",
   })
@@ -87,7 +78,25 @@ if (import.meta.main) {
     .split("\n")) {
     delete gitEnvironment[name];
   }
-  if (localIndex) gitEnvironment.GIT_INDEX_FILE = localIndex;
+  if (index) {
+    const identity = [
+      "git",
+      "rev-parse",
+      "--path-format=absolute",
+      "--show-toplevel",
+      "--absolute-git-dir",
+      "--git-common-dir",
+    ];
+    const caller = spawnSync(identity);
+    const target = spawnSync(identity, { cwd: root, env: gitEnvironment });
+    if (
+      caller.success &&
+      target.success &&
+      caller.stdout.equals(target.stdout)
+    ) {
+      gitEnvironment.GIT_INDEX_FILE = resolve(index);
+    }
+  }
   process.chdir(root);
   if (!(await checkArchitecture())) process.exitCode = 1;
 }

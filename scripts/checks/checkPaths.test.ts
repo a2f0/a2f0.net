@@ -13,7 +13,7 @@ import { join, relative, resolve } from "node:path";
 
 test("repository checks diagnose the nested checkout when run from its parent", async () => {
   const caller = await mkdtemp(join(tmpdir(), "script checks "));
-  const project = join(caller, "checkouts/site");
+  const project = join(caller, "checkouts/site ");
   const scripts = join(project, "scripts/checks");
   try {
     await mkdir(scripts, { recursive: true });
@@ -85,6 +85,24 @@ test("repository checks diagnose the nested checkout when run from its parent", 
     expect(localHook.stderr).toContain(
       "packages/blog is missing from WORKSPACE_LAYERS",
     );
+    // A foreign Git directory can explicitly point its worktree at this project.
+    const foreignIndex = spawnSync(
+      process.execPath,
+      [relative(caller, join(scripts, "checkArchitecture.ts"))],
+      {
+        ...options,
+        env: {
+          ...options.env,
+          GIT_WORK_TREE: project,
+          GIT_INDEX_FILE: join(project, ".git/hook-index"),
+        },
+      },
+    );
+    expect(foreignIndex.status).toBe(1);
+    expect(foreignIndex.stderr).toContain(
+      "WORKSPACE_LAYERS names packages/shared, which is gone",
+    );
+    expect(foreignIndex.stderr).not.toContain("packages/blog");
     const dependencies = spawnSync(
       relative(caller, join(scripts, "checkPinnedDependencies.ts")),
       [],
