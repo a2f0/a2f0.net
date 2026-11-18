@@ -42,24 +42,25 @@ test("repository checks diagnose the nested checkout when run from its parent", 
       Object.entries(process.env).filter(([name]) => !name.startsWith("GIT_")),
     );
     execFileSync("git", ["init", "-q", project], { env });
-    for (const [script, diagnostic] of [
-      [
-        "checkArchitecture",
-        "WORKSPACE_LAYERS names packages/shared, which is gone",
-      ],
-      [
-        "checkPinnedDependencies",
-        "package.json > dependencies > example: ^1.0.0",
-      ],
-    ]) {
-      const result = spawnSync(
-        process.execPath,
-        [relative(caller, join(scripts, `${script}.ts`))],
-        { cwd: caller, env, encoding: "utf8" },
-      );
-      expect(result.status).toBe(1);
-      expect(result.stderr).toContain(diagnostic);
-    }
+    const options = { cwd: caller, env, encoding: "utf8" } as const;
+    const architecture = spawnSync(
+      process.execPath,
+      [relative(caller, join(scripts, "checkArchitecture.ts"))],
+      options,
+    );
+    expect(architecture.status).toBe(1);
+    expect(architecture.stderr).toContain(
+      "WORKSPACE_LAYERS names packages/shared, which is gone",
+    );
+    const dependencies = spawnSync(
+      relative(caller, join(scripts, "checkPinnedDependencies.ts")),
+      [],
+      options,
+    );
+    expect(dependencies.status).toBe(1);
+    expect(dependencies.stderr).toContain(
+      "package.json > dependencies > example: ^1.0.0",
+    );
   } finally {
     await rm(caller, { recursive: true, force: true });
   }

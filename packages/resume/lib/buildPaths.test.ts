@@ -19,6 +19,7 @@ test("resume generators read and write the package from a parent workspace", asy
   try {
     await mkdir(join(project, "out"), { recursive: true });
     await mkdir(join(project, "public"));
+    await cp(join(source, "package.json"), join(project, "package.json"));
     await cp(join(source, "scripts/build"), join(project, "scripts/build"), {
       recursive: true,
     });
@@ -29,8 +30,12 @@ test("resume generators read and write the package from a parent workspace", asy
     await writeFile(join(project, "public/robots.txt"), robots);
     for (const name of ["writeCrawlerFiles", "generateDesktopSvg"]) {
       execFileSync(
-        process.execPath,
-        [relative(caller, join(project, "scripts/build", `${name}.ts`))],
+        "node",
+        [
+          "--import",
+          import.meta.resolve("tsx"),
+          relative(caller, join(project, "scripts/build", `${name}.ts`)),
+        ],
         {
           cwd: caller,
           env: { ...process.env, RESUME_DEPLOY_TIER: "staging" },
