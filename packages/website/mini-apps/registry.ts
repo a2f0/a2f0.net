@@ -49,7 +49,10 @@ const MINI_APP_LAUNCHER: LauncherDefinition<MiniAppId> = {
     skyline: miniApp("skyline", SkylineApp),
     dnbm: miniApp("dnbm", DnbmApp),
     "dnbm-player": miniApp("dnbm-player", DnbmPlayerApp),
-    "display-properties": miniApp("display-properties", DisplayPropertiesApp),
+    "display-properties": {
+      ...miniApp("display-properties", DisplayPropertiesApp),
+      startMenuVisibility: "pinned",
+    },
   },
   defaultWindowAppIds: ["skyline", "resume"],
   homeAppId: "ascii-art",

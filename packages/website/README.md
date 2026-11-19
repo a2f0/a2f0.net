@@ -35,11 +35,14 @@ OPFS, icons still move but return to their column on the next load.
 
 The taskbar along the bottom starts with the windowing package's `StartMenu`,
 whose button shows the demo's graffiti restacked into a square, "a2" over
-"f0", and whose menu lists every mini-app with its icon, then Display Properties
-and Start Screensaver, followed by a button per open window,
+"f0", and whose menu initially lists every mini-app with its icon, then
+Display Properties and Start Screensaver, followed by a button per open window,
 as in Tearleads' pane footer: a button restores its window, the front window's
 button is pressed, and a minimized window's shows its title muted. Closing a
-window removes its button; the start menu opens the app again.
+window removes its button. In Display Properties, the Start menu switches
+hide or show individual apps on both layouts. The browser remembers the
+choices across visits. Display Properties stays accessible, and Reset Defaults
+restores every app to the menu.
 
 The taskbar's lower-right corner holds the windowing package's system tray,
 as in Tearleads' pane footer: the layout switch, then the theme switch, each a

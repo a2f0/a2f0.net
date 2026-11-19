@@ -268,7 +268,7 @@ describe("Website Display Properties", () => {
       // the generic 900×600 frame would falsely pass visibility alone.
       expect(layout.fittedContent).toEqual({
         width: 420 + layout.scrollbarWidth,
-        height: 602,
+        height: 730,
       });
       expect(layout.wallpapers).toEqual([
         "Flux",
@@ -288,6 +288,116 @@ describe("Website Display Properties", () => {
       expect(layout.scrollHeight).toBeLessThanOrEqual(layout.clientHeight);
     });
   }
+
+  it("hides and shows an individual app immediately", async () => {
+    await openFittedDisplayProperties();
+    const demo = () =>
+      displayWindow().$(".display-properties-menu-apps").$("label=Demo");
+    const menu = $(".desktop-taskbar button[aria-label='Menu']");
+    await demo().click();
+    await menu.click();
+    await expect($(".menu").$("button=Demo")).not.toBeExisting();
+    await expect($(".menu").$("button=Resume")).toBeDisplayed();
+    await browser.keys("Escape");
+    await $("button[aria-label='Switch to iPad / mobile layout']").click();
+    await $("button[aria-label='Expand navigation rail']").click();
+    await expect(
+      $(".routed-pane-nav-link[href='/app/resume']"),
+    ).toBeDisplayed();
+    await expect(
+      $(".routed-pane-nav-link[href='/app/ascii-art']"),
+    ).not.toBeExisting();
+    await $("button[aria-label='Switch to windowed layout']").click();
+    await menu.click();
+    await expect($(".menu").$("button=Resume")).toBeDisplayed();
+    await expect($(".menu").$("button=Demo")).not.toBeExisting();
+    await browser.keys("Escape");
+    await demo().click();
+    await menu.click();
+    await expect($(".menu").$("button=Demo")).toBeDisplayed();
+    await expect($(".menu").$("button=Resume")).toBeDisplayed();
+  });
+
+  it("keeps Display Properties reachable on every layout with all other apps hidden", async () => {
+    await openFittedDisplayProperties();
+    const switches = displayWindow().$(".display-properties-menu-apps");
+    await expect(switches.$("label=Display Properties")).not.toBeExisting();
+    const labels = await switches.$$("label").map((label) => label.getText());
+    expect(labels).toEqual([
+      "dnbm",
+      "Skyline",
+      "dnbm player",
+      "Demo",
+      "Resume",
+    ]);
+    for (const label of labels) await switches.$(`label=${label}`).click();
+    await browser.refresh();
+    await waitForResume();
+    await $(".desktop-taskbar button[aria-label='Menu']").click();
+    await expect($(".menu").$("button=Display Properties")).toBeDisplayed();
+    await expect($(".menu").$("button=Start Screensaver")).toBeDisplayed();
+    for (const label of labels)
+      await expect($(".menu").$(`button=${label}`)).not.toBeExisting();
+    await browser.setViewport({ width: 390, height: 844 });
+    await browser.url("/app/resume");
+    await waitForResume();
+    await expect($(".routed-pane-main .resume-window")).toBeDisplayed();
+    await $(".routed-pane-taskbar button[aria-label='Menu']").click();
+    const sheet = () => $(".routed-pane-sheet");
+    await expect(sheet()).toHaveAttribute("data-open", "true");
+    const otherApp = "a[href^='/app/']:not([href='/app/display-properties'])";
+    await expect(sheet().$(otherApp)).not.toBeExisting();
+    await sheet().$("a[href='/app/display-properties']").click();
+    await expect(
+      $(".routed-pane-main .display-properties-window"),
+    ).toBeDisplayed();
+
+    // Re-enable one app from the phone. The tablet must see the same selection.
+    const resumeSwitch = () =>
+      $(".routed-pane-main .display-properties-menu-apps").$("label=Resume");
+    await resumeSwitch().$("input").click();
+    await expect(resumeSwitch().$("input")).toBeSelected();
+    await $(".routed-pane-taskbar button[aria-label='Menu']").click();
+    const resume = "a[href='/app/resume']";
+    const stillHidden = `${otherApp}:not([href='/app/resume'])`;
+    await expect(sheet()).toHaveAttribute("data-open", "true");
+    await expect(sheet().$(resume)).toBeDisplayed();
+    await expect(sheet().$(stillHidden)).not.toBeExisting();
+
+    await browser.setViewport({ width: 820, height: 1180 });
+    await browser.url("/");
+    await $("button[aria-label='Expand navigation rail']").click();
+    const rail = () => $(".routed-pane-nav-panel");
+    await expect(rail().$(resume)).toBeDisplayed();
+    await expect(rail().$(stillHidden)).not.toBeExisting();
+    const settingsLink = () => rail().$("a[href='/app/display-properties']");
+    await settingsLink().click();
+    await resumeSwitch().$("input").click();
+    await expect(resumeSwitch().$("input")).not.toBeSelected();
+    await expect(rail().$(otherApp)).not.toBeExisting();
+    await expect(settingsLink()).toBeExisting();
+    await $(".routed-pane-main .display-properties-window")
+      .$("button=Reset Defaults")
+      .click();
+    const restored = await rail()
+      .$$("a[href^='/app/']")
+      .map((link) => link.getAttribute("href"));
+    expect(restored).toEqual([
+      "/app/dnbm",
+      "/app/skyline",
+      "/app/dnbm-player",
+      "/app/ascii-art",
+      "/app/resume",
+      "/app/display-properties",
+    ]);
+
+    await browser.setViewport({ width: 1440, height: 900 });
+    await browser.url("/");
+    await waitForResume();
+    await $(".desktop-taskbar button[aria-label='Menu']").click();
+    for (const label of labels)
+      await expect($(".menu").$(`button=${label}`)).toBeDisplayed();
+  });
 
   it("fits whole tiles into previews while preserving native desktop tiles", async () => {
     await openDesktopMenu();
