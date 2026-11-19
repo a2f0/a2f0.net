@@ -329,11 +329,11 @@ describe("Website Display Properties", () => {
     await browser.setViewport({ width: 390, height: 844 });
     await browser.refresh();
     await $(".routed-pane-taskbar button[aria-label='Menu']").click();
-    const sheet = $(".routed-pane-sheet");
-    await expect(sheet).toHaveAttribute("data-open", "true");
+    const sheet = () => $(".routed-pane-sheet");
+    await expect(sheet()).toHaveAttribute("data-open", "true");
     const otherApp = "a[href^='/app/']:not([href='/app/display-properties'])";
-    await expect(sheet.$(otherApp)).not.toBeExisting();
-    await sheet.$("a[href='/app/display-properties']").click();
+    await expect(sheet().$(otherApp)).not.toBeExisting();
+    await sheet().$("a[href='/app/display-properties']").click();
     await expect(
       $(".routed-pane-main .display-properties-window"),
     ).toBeDisplayed();
@@ -341,27 +341,41 @@ describe("Website Display Properties", () => {
     // Re-enable one app from the phone. The tablet must see the same selection.
     const resumeSwitch = () =>
       $(".routed-pane-main .display-properties-menu-apps").$("label=Resume");
-    await resumeSwitch().click();
+    await resumeSwitch().$("input").click();
+    await expect(resumeSwitch().$("input")).toBeChecked();
     await $(".routed-pane-taskbar button[aria-label='Menu']").click();
     const resume = "a[href='/app/resume']";
     const stillHidden = `${otherApp}:not([href='/app/resume'])`;
-    await expect(sheet.$(resume)).toBeDisplayed();
-    await expect(sheet.$(stillHidden)).not.toBeExisting();
+    await expect(sheet()).toHaveAttribute("data-open", "true");
+    await expect(sheet().$(resume)).toBeDisplayed();
+    await expect(sheet().$(stillHidden)).not.toBeExisting();
 
     await browser.setViewport({ width: 820, height: 1180 });
     await browser.url("/");
     await $("button[aria-label='Expand navigation rail']").click();
-    const rail = $(".routed-pane-nav-panel");
-    await expect(rail.$(resume)).toBeDisplayed();
-    await expect(rail.$(stillHidden)).not.toBeExisting();
-    const settingsLink = rail.$("a[href='/app/display-properties']");
-    await settingsLink.click();
-    await resumeSwitch().click();
-    await expect(rail.$(otherApp)).not.toBeExisting();
-    await expect(settingsLink).toBeExisting();
+    const rail = () => $(".routed-pane-nav-panel");
+    await expect(rail().$(resume)).toBeDisplayed();
+    await expect(rail().$(stillHidden)).not.toBeExisting();
+    const settingsLink = () => rail().$("a[href='/app/display-properties']");
+    await settingsLink().click();
+    await resumeSwitch().$("input").click();
+    await expect(resumeSwitch().$("input")).not.toBeChecked();
+    await expect(rail().$(otherApp)).not.toBeExisting();
+    await expect(settingsLink()).toBeExisting();
     await $(".routed-pane-main .display-properties-window")
       .$("button=Reset Defaults")
       .click();
+    const restored = await rail()
+      .$$("a[href^='/app/']")
+      .map((link) => link.getAttribute("href"));
+    expect(restored).toEqual([
+      "/app/dnbm",
+      "/app/skyline",
+      "/app/dnbm-player",
+      "/app/ascii-art",
+      "/app/resume",
+      "/app/display-properties",
+    ]);
 
     await browser.setViewport({ width: 1440, height: 900 });
     await browser.url("/");
