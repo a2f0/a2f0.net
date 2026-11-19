@@ -327,7 +327,9 @@ describe("Website Display Properties", () => {
     for (const label of labels)
       await expect($(".menu").$(`button=${label}`)).not.toBeExisting();
     await browser.setViewport({ width: 390, height: 844 });
-    await browser.refresh();
+    await browser.url("/app/resume");
+    await waitForResume();
+    await expect($(".routed-pane-title")).toHaveText("Resume");
     await $(".routed-pane-taskbar button[aria-label='Menu']").click();
     const sheet = () => $(".routed-pane-sheet");
     await expect(sheet()).toHaveAttribute("data-open", "true");
@@ -342,7 +344,7 @@ describe("Website Display Properties", () => {
     const resumeSwitch = () =>
       $(".routed-pane-main .display-properties-menu-apps").$("label=Resume");
     await resumeSwitch().$("input").click();
-    await expect(resumeSwitch().$("input")).toBeChecked();
+    await expect(resumeSwitch().$("input")).toBeSelected();
     await $(".routed-pane-taskbar button[aria-label='Menu']").click();
     const resume = "a[href='/app/resume']";
     const stillHidden = `${otherApp}:not([href='/app/resume'])`;
@@ -359,7 +361,7 @@ describe("Website Display Properties", () => {
     const settingsLink = () => rail().$("a[href='/app/display-properties']");
     await settingsLink().click();
     await resumeSwitch().$("input").click();
-    await expect(resumeSwitch().$("input")).not.toBeChecked();
+    await expect(resumeSwitch().$("input")).not.toBeSelected();
     await expect(rail().$(otherApp)).not.toBeExisting();
     await expect(settingsLink()).toBeExisting();
     await $(".routed-pane-main .display-properties-window")
