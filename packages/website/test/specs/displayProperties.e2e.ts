@@ -289,20 +289,44 @@ describe("Website Display Properties", () => {
     });
   }
 
-  it("remembers hidden Start menu apps and restores them with Reset Defaults", async () => {
+  it("hides and shows an individual app immediately", async () => {
     await openFittedDisplayProperties();
-    const display = displayWindow();
-    await display.$(".display-properties-menu-apps").$("label=Demo").click();
+    const demo = displayWindow()
+      .$(".display-properties-menu-apps")
+      .$("label=Demo");
+    const menu = $(".desktop-taskbar button[aria-label='Menu']");
+    await demo.click();
+    await menu.click();
+    await expect($(".menu").$("button=Demo")).not.toBeExisting();
+    await expect($(".menu").$("button=Resume")).toBeDisplayed();
+    await browser.keys("Escape");
+    await demo.click();
+    await menu.click();
+    await expect($(".menu").$("button=Demo")).toBeDisplayed();
+    await expect($(".menu").$("button=Resume")).toBeDisplayed();
+  });
+
+  it("keeps Display Properties reachable on every layout with all other apps hidden", async () => {
+    await openFittedDisplayProperties();
+    const switches = displayWindow().$(".display-properties-menu-apps");
+    await expect(switches.$("label=Display Properties")).not.toBeExisting();
+    const labels = await switches.$$("label").map((label) => label.getText());
+    expect(labels).toContain("Demo");
+    for (const label of labels) await switches.$(`label=${label}`).click();
     await browser.refresh();
     await waitForResume();
     await $(".desktop-taskbar button[aria-label='Menu']").click();
-    await expect($(".menu").$("button=Demo")).not.toExist();
+    await expect($(".menu").$("button=Display Properties")).toBeDisplayed();
+    await expect($(".menu").$("button=Start Screensaver")).toBeDisplayed();
+    for (const label of labels)
+      await expect($(".menu").$(`button=${label}`)).not.toBeExisting();
     await browser.setViewport({ width: 390, height: 844 });
     await browser.refresh();
     await $(".routed-pane-taskbar button[aria-label='Menu']").click();
     const sheet = $(".routed-pane-sheet");
     await expect(sheet).toHaveAttribute("data-open", "true");
-    await expect(sheet.$("a[href='/app/ascii-art']")).not.toBeExisting();
+    const otherApp = "a[href^='/app/']:not([href='/app/display-properties'])";
+    await expect(sheet.$(otherApp)).not.toBeExisting();
     await sheet.$("a[href='/app/display-properties']").click();
     await expect(
       $(".routed-pane-main .display-properties-window"),
@@ -312,7 +336,7 @@ describe("Website Display Properties", () => {
     await browser.url("/");
     await $("button[aria-label='Expand navigation rail']").click();
     const rail = $(".routed-pane-nav-panel");
-    await expect(rail.$("a[href='/app/ascii-art']")).not.toBeExisting();
+    await expect(rail.$(otherApp)).not.toBeExisting();
     await rail.$("a[href='/app/display-properties']").click();
     await $(".routed-pane-main .display-properties-window")
       .$("button=Reset Defaults")
@@ -322,7 +346,8 @@ describe("Website Display Properties", () => {
     await browser.url("/");
     await waitForResume();
     await $(".desktop-taskbar button[aria-label='Menu']").click();
-    await expect($(".menu").$("button=Demo")).toBeDisplayed();
+    for (const label of labels)
+      await expect($(".menu").$(`button=${label}`)).toBeDisplayed();
   });
 
   it("fits whole tiles into previews while preserving native desktop tiles", async () => {
