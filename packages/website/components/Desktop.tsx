@@ -9,6 +9,7 @@ import {
   RoutedPane,
   readNavigationEnvironment,
   resolveNavigationMode,
+  StartMenuPreferencesProvider,
   SystemTrayProvider,
   ThemeProvider,
   useNavigationModeDocumentAttribute,
@@ -125,23 +126,30 @@ function DesktopLayout() {
         definition={MINI_APP_LAUNCHERS[tier]}
         mode={mode}
         placeWindow={placeMiniAppWindow}
+        // Switching back to the desktop restores the windows the visitor left open.
+        routeWindowEnabled={false}
       >
-        <main className={`desktop desktop--${mode}`}>
-          <h1 className="visually-hidden">a2f0</h1>
-          {mode === "routed" ? (
-            <RoutedPane
-              AppBoundary={RoutedMiniAppBoundary}
-              launcherPlacementStorageKey={LAUNCHER_PLACEMENT_STORAGE_KEY}
-              menuIcon={ROUTED_MENU_ICON}
-              taskbarTray={ROUTED_TRAY}
-            />
-          ) : (
-            <>
-              <DesktopSurface />
-              <Taskbar />
-            </>
-          )}
-        </main>
+        <StartMenuPreferencesProvider
+          definition={MINI_APP_LAUNCHERS[tier]}
+          storageKey="website.startMenu"
+        >
+          <main className={`desktop desktop--${mode}`}>
+            <h1 className="visually-hidden">a2f0</h1>
+            {mode === "routed" ? (
+              <RoutedPane
+                AppBoundary={RoutedMiniAppBoundary}
+                launcherPlacementStorageKey={LAUNCHER_PLACEMENT_STORAGE_KEY}
+                menuIcon={ROUTED_MENU_ICON}
+                taskbarTray={ROUTED_TRAY}
+              />
+            ) : (
+              <>
+                <DesktopSurface />
+                <Taskbar />
+              </>
+            )}
+          </main>
+        </StartMenuPreferencesProvider>
       </LauncherNavigationProvider>
     </WindowStateProvider>
   );

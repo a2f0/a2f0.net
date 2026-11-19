@@ -268,7 +268,7 @@ describe("Website Display Properties", () => {
       // the generic 900×600 frame would falsely pass visibility alone.
       expect(layout.fittedContent).toEqual({
         width: 420 + layout.scrollbarWidth,
-        height: 602,
+        height: 730,
       });
       expect(layout.wallpapers).toEqual([
         "Flux",
@@ -288,6 +288,20 @@ describe("Website Display Properties", () => {
       expect(layout.scrollHeight).toBeLessThanOrEqual(layout.clientHeight);
     });
   }
+
+  it("remembers hidden Start menu apps and restores them with Reset Defaults", async () => {
+    await openFittedDisplayProperties();
+    const display = displayWindow();
+    await display.$(".display-properties-menu-apps").$("label=Demo").click();
+    await browser.refresh();
+    await waitForResume();
+    await $(".desktop-taskbar button[aria-label='Menu']").click();
+    await expect($(".menu").$("button=Demo")).not.toExist();
+    await $(".menu").$("button=Display Properties").click();
+    await display.$("button=Reset Defaults").click();
+    await $(".desktop-taskbar button[aria-label='Menu']").click();
+    await expect($(".menu").$("button=Demo")).toBeDisplayed();
+  });
 
   it("fits whole tiles into previews while preserving native desktop tiles", async () => {
     await openDesktopMenu();
