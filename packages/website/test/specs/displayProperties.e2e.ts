@@ -291,16 +291,28 @@ describe("Website Display Properties", () => {
 
   it("hides and shows an individual app immediately", async () => {
     await openFittedDisplayProperties();
-    const demo = displayWindow()
-      .$(".display-properties-menu-apps")
-      .$("label=Demo");
+    const demo = () =>
+      displayWindow().$(".display-properties-menu-apps").$("label=Demo");
     const menu = $(".desktop-taskbar button[aria-label='Menu']");
-    await demo.click();
+    await demo().click();
     await menu.click();
     await expect($(".menu").$("button=Demo")).not.toBeExisting();
     await expect($(".menu").$("button=Resume")).toBeDisplayed();
     await browser.keys("Escape");
-    await demo.click();
+    await $("button[aria-label='Switch to iPad / mobile layout']").click();
+    await $("button[aria-label='Expand navigation rail']").click();
+    await expect(
+      $(".routed-pane-nav-link[href='/app/resume']"),
+    ).toBeDisplayed();
+    await expect(
+      $(".routed-pane-nav-link[href='/app/ascii-art']"),
+    ).not.toBeExisting();
+    await $("button[aria-label='Switch to windowed layout']").click();
+    await menu.click();
+    await expect($(".menu").$("button=Resume")).toBeDisplayed();
+    await expect($(".menu").$("button=Demo")).not.toBeExisting();
+    await browser.keys("Escape");
+    await demo().click();
     await menu.click();
     await expect($(".menu").$("button=Demo")).toBeDisplayed();
     await expect($(".menu").$("button=Resume")).toBeDisplayed();
@@ -329,7 +341,7 @@ describe("Website Display Properties", () => {
     await browser.setViewport({ width: 390, height: 844 });
     await browser.url("/app/resume");
     await waitForResume();
-    await expect($(".routed-pane-title")).toHaveText("Resume");
+    await expect($(".routed-pane-main .resume-window")).toBeDisplayed();
     await $(".routed-pane-taskbar button[aria-label='Menu']").click();
     const sheet = () => $(".routed-pane-sheet");
     await expect(sheet()).toHaveAttribute("data-open", "true");
