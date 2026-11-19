@@ -297,8 +297,30 @@ describe("Website Display Properties", () => {
     await waitForResume();
     await $(".desktop-taskbar button[aria-label='Menu']").click();
     await expect($(".menu").$("button=Demo")).not.toExist();
-    await $(".menu").$("button=Display Properties").click();
-    await display.$("button=Reset Defaults").click();
+    await browser.setViewport({ width: 390, height: 844 });
+    await browser.refresh();
+    await $(".routed-pane-taskbar button[aria-label='Menu']").click();
+    const sheet = $(".routed-pane-sheet");
+    await expect(sheet).toHaveAttribute("data-open", "true");
+    await expect(sheet.$("a[href='/app/ascii-art']")).not.toBeExisting();
+    await sheet.$("a[href='/app/display-properties']").click();
+    await expect(
+      $(".routed-pane-main .display-properties-window"),
+    ).toBeDisplayed();
+
+    await browser.setViewport({ width: 820, height: 1180 });
+    await browser.url("/");
+    await $("button[aria-label='Expand navigation rail']").click();
+    const rail = $(".routed-pane-nav-panel");
+    await expect(rail.$("a[href='/app/ascii-art']")).not.toBeExisting();
+    await rail.$("a[href='/app/display-properties']").click();
+    await $(".routed-pane-main .display-properties-window")
+      .$("button=Reset Defaults")
+      .click();
+
+    await browser.setViewport({ width: 1440, height: 900 });
+    await browser.url("/");
+    await waitForResume();
     await $(".desktop-taskbar button[aria-label='Menu']").click();
     await expect($(".menu").$("button=Demo")).toBeDisplayed();
   });
