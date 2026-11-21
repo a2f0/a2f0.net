@@ -2,6 +2,9 @@
 
 extends: default
 
+# Managed skills are agent-tool's copies, which `bun run agents:check` verifies
+# and this repository cannot edit. Lint only its own skill,
+# package-update-and-verify.
 ignore: |
   node_modules
   .next
@@ -9,3 +12,6 @@ ignore: |
   .wrangler
   _results_
   terraform/.terraform
+  .agents/skills/
+  .claude/skills/
+  !.agents/skills/package-update-and-verify/

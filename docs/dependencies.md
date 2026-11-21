@@ -290,7 +290,9 @@ fixtures prove ordering and refusal behavior only and never access production.
 Markdownlint owns Markdown formatting. Biome's Markdown formatter stays disabled
 because it removes blank lines required by the enforced Markdownlint rules.
 Biome continues to format source, JSON and YAML; managed skill directories stay
-excluded from Biome and are verified with `agents:check` and Markdownlint.
+excluded from Biome and yamllint, whose `.yamllint` still lints the
+repository's own `package-update-and-verify` skill, and are verified with
+`agents:check` and Markdownlint.
 
 Use pinned Bun/Node binaries, install normally to set up the copied Git hooks, and run:
 
