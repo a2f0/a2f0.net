@@ -289,8 +289,13 @@ fixtures prove ordering and refusal behavior only and never access production.
 
 Markdownlint owns Markdown formatting. Biome's Markdown formatter stays disabled
 because it removes blank lines required by the enforced Markdownlint rules.
-Biome continues to format source, JSON and YAML; managed skill directories stay
+Biome continues to format source, JSON and YAML. Managed skill directories stay
 excluded from Biome and are verified with `agents:check` and Markdownlint.
+`.yamllint` also ignores them, because agent-tool's `agents/openai.yaml` files
+have no `---` and exceed yamllint's 80-column default, and this repository
+cannot edit them. It still lints the repository's own
+`package-update-and-verify` skill; a new repository-owned skill with YAML needs
+its own `!` line there. Drop the ignore once agent-tool's YAML passes yamllint.
 
 Use pinned Bun/Node binaries, install normally to set up the copied Git hooks, and run:
 
