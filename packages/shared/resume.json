@@ -186,6 +186,7 @@
     "MobX",
     "MobX-State-Tree",
     "llama.cpp",
-    "llama.rn"
+    "llama.rn",
+    "New Relic APM"
   ]
 }
