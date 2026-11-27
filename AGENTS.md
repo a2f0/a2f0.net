@@ -37,7 +37,8 @@ The Next.js resume app is in `packages/resume`, the Next.js apex website is in
 npm dependency; use `bun run agent-tool` from the root. Project title and CI
 policy is in `agent-tool.json`. Run the root Bun scripts to check the workspaces.
 Shared skills are managed in `.agents/skills` and `.claude/skills`, and harness
-permission rules in `.claude/settings.json` and `.codex/rules/agent-tool.rules`.
+permission rules in `.claude/settings.json`, `.codex/rules/agent-tool.rules`,
+and `.gemini/policies/agent-tool.toml`.
 Run `bun run agents:sync` after updating the dependency pin or the
 `permissions.executables` classes in `agent-tool.json`; commit the lockfile,
 skills, rules, `.agent-tool-skills.json`, and `.agent-tool-permissions.json`

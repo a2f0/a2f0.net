@@ -43,8 +43,9 @@ successful publication and package tarball before selecting a version; source
 commits do not establish availability. Use `bun install` to update the lockfile,
 then `bun run agents:sync` and commit the pin, lockfile, managed skills,
 `.agent-tool-skills.json`, and the generated harness permission rules
-(`.claude/settings.json`, `.codex/rules/agent-tool.rules`, and
-`.agent-tool-permissions.json`) together. Do not edit managed copies, generated
+(`.claude/settings.json`, `.codex/rules/agent-tool.rules`,
+`.gemini/policies/agent-tool.toml`, and `.agent-tool-permissions.json`)
+together. Do not edit managed copies, generated
 rules, or lock integrity. `bun run agents:check` is the hook and CI drift gate
 for both skills and rules. Shared branch, commit,
 installed-hook, validation-receipt, and PR mechanics use `agent-tool.json`;
