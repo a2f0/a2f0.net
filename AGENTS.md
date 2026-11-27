@@ -37,8 +37,7 @@ The Next.js resume app is in `packages/resume`, the Next.js apex website is in
 npm dependency; use `bun run agent-tool` from the root. Project title and CI
 policy is in `agent-tool.json`. Run the root Bun scripts to check the workspaces.
 Shared skills are managed in `.agents/skills` and `.claude/skills`, and harness
-permission rules in `.claude/settings.json`, `.codex/rules/agent-tool.rules`,
-and `.gemini/policies/agent-tool.toml`.
+permission rules in `.claude/settings.json` and `.codex/rules/agent-tool.rules`.
 Run `bun run agents:sync` after updating the dependency pin or the
 `permissions.executables` classes in `agent-tool.json`; commit the lockfile,
 skills, rules, `.agent-tool-skills.json`, and `.agent-tool-permissions.json`
@@ -115,7 +114,8 @@ Pre-commit needs Terraform/TFLint versions from CI, ShellCheck, and yamllint.
 Integrate the base, with a normal merge, only when GitHub reports a conflict;
 do not force-push. Review with an
 agent other than the one that wrote the change: Codex from Claude Code, Claude
-from Codex, then the remaining CLIs, reporting any fallback.
+from Codex, or Antigravity CLI (`agy`) using a different model/provider from
+the author, then the remaining CLIs, reporting any fallback.
 
 Handle actionable review comments in their original threads using the rules
 above. Every changed head requires validation and a new independent review.
